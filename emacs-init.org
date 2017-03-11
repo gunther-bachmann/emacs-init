@@ -1414,6 +1414,7 @@
                  " Paredit" ;;
                  " OTSH" ;; org table sticky headers
                  " ^L" ;; display ^L as continuous line
+                 " ez-esc" ;; easy-escape displays regular expressions in a more readable way
                  ))))
    #+END_SRC
 ** smart mode-line
@@ -6181,6 +6182,14 @@
    #+BEGIN_SRC emacs-lisp :tangle no
      (load-file (let ((coding-system-for-read 'utf-8))
                      (shell-command-to-string "agda-mode locate")))
+   #+END_SRC
+** easy-escaping
+   #+BEGIN_SRC emacs-lisp
+     (req-package easy-escape
+       :config
+       (progn
+         (set-face-attribute 'easy-escape-face nil :foreground "red") ;; make a \\ stand out as red backslash
+         (add-hook 'prog-mode-hook 'easy-escape-minor-mode)))
    #+END_SRC
 * finish - up
   #+BEGIN_SRC emacs-lisp
