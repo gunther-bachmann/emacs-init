@@ -156,6 +156,12 @@
       "is emacs running on mac os x?"
       (memq window-system '(mac ns)))
   #+END_SRC
+* initial accounts setup
+  #+BEGIN_SRC emacs-lisp
+  (setq agenda-accounts-exists (file-exists-p "~/.emacs.d/accounts/agenda-accounts.el"))
+  (setq calendar-accounts-exists (file-exists-p "~/.emacs.d/accounts/calendar-accounts.el"))
+  (setq mail-accounts-exists (file-exists-p "~/.emacs.d/accounts/mail-accounts.el"))
+  #+END_SRC
 * package setup
 #+BEGIN_SRC emacs-lisp
     (require 'package)
@@ -4370,9 +4376,10 @@
   #+END_SRC
 *** accounts (user specific stuff)
     #+BEGIN_SRC emacs-lisp
-      (if (file-exists-p "~/.emacs.d/accounts/mail-accounts.el")
+    (when mail-accounts-exists
           (req-package mail-accounts
             :loader :path
+            ;; :if mail-accounts-exists
             :load-path "~/.emacs.d/accounts/"
             :require gnus))
     #+END_SRC
@@ -4686,21 +4693,9 @@
 *** org agenda
   #+BEGIN_SRC emacs-lisp
     (req-package org-agenda
-      :require org helm agenda-accounts
+      :require org helm ;; agenda-accounts are option
       :config
       (progn
-
-        (defun gb/org-agenda-diary-entry () 
-          "enter a new date into diary and allow selection of which calendar this should go into"
-          (interactive)
-          ;; now select and set org-agenda-diary-file
-          (let* ((filename (helm-comp-read "calendar: " gb/org-calendar-files)) ;; <- provided by agenda-accounts
-                 (fullname (concat "~/" filename)))
-            (if (file-exists-p fullname)
-                (setq org-agenda-diary-file fullname)))
-          (org-agenda-diary-entry))
-
-        (bind-key "i" #'gb/org-agenda-diary-entry org-agenda-keymap)
 
         (setq org-agenda-sorting-strategy
               '((agenda time-up category-up)
@@ -4747,10 +4742,24 @@
   #+END_SRC
 *** org agenda user specific stuff
     #+BEGIN_SRC emacs-lisp
-    (req-package agenda-accounts
-      :require org
-      :loader :path
-      :load-path "~/.emacs.d/accounts/")
+      (when agenda-accounts-exists
+        (req-package agenda-accounts
+          :require org org-agenda
+          :loader :path
+          :load-path "~/.emacs.d/accounts/"
+          :bind (:map org-agenda-keymap
+                 ("i" . gb/org-agenda-diary-entry))
+          :config
+          (progn
+            (defun gb/org-agenda-diary-entry () 
+              "enter a new date into diary and allow selection of which calendar this should go into"
+              (interactive)
+              ;; now select and set org-agenda-diary-file
+              (let* ((filename (helm-comp-read "calendar: " gb/org-calendar-files)) ;; <- provided by agenda-accounts
+                     (fullname (concat "~/" filename)))
+                (if (file-exists-p fullname)
+                    (setq org-agenda-diary-file fullname)))
+              (org-agenda-diary-entry)))))
     #+END_SRC
 *** ical accept invitations into calendar
     allow to accept invitations and record these into the org-capture-file
@@ -4780,16 +4789,18 @@
     - org-gcal-post-at-point: post/edit org block at point to google calendar
     - org-gcal-referesh-token: refresh oauth token (expires in 1h)
     #+BEGIN_SRC emacs-lisp
+    (when calendar-accounts-exists
       (req-package org-gcal
         :require calendar-accounts org
         :commands org-gcal-sync org-gcal-fetch org-gcal-post-at-point org-gcal-refresh-token
         :config
         (progn 
             (require 'calendar-accounts)
-            (gb/load-calendar-credentials)))
+            (gb/load-calendar-credentials))))
     #+END_SRC
 *** caldav sync
     #+BEGIN_SRC emacs-lisp
+    (when calendar-accounts-exists
       (req-package org-caldav
         :require org calendar-accounts
         :commands org-caldav-sync
@@ -4889,11 +4900,11 @@
               (setq org-caldav-event-list
                     (delete cur org-caldav-event-list)))))
 
-        )
+        ))
     #+END_SRC
 *** accounts for calendar sync
     #+BEGIN_SRC emacs-lisp
-      (if (file-exists-p "~/.emacs.d/accounts/calendar-accounts.el")
+      (when calendar-accounts-exists
           (req-package calendar-accounts
             :require org
             :loader :path
@@ -5268,7 +5279,7 @@
     #+END_SRC
 *** org magit
     #+BEGIN_SRC emacs-lisp
-    (req-package org-magit
+    (req-package orgit
       :require org magit)
     #+END_SRC
 ** slack (disabled)
