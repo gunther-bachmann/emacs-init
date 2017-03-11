@@ -3594,9 +3594,9 @@
          (defun pcmpl-git-commands ()
            "Return the most common git commands by parsing the git output."
            (with-temp-buffer
-             (call-process-shell-command "git" nil (current-buffer) nil "help" "--all")
+             (call-process-shell-command "LC_ALL=en_US git" nil (current-buffer) nil "help" "--all")
              (goto-char 0)
-             (search-forward "available git commands in")
+             (search-forward "available git commands")
              (let (commands)
                (while (re-search-forward
                        "^[[:blank:]]+\\([[:word:]-.]+\\)[[:blank:]]*\\([[:word:]-.]+\\)?"
