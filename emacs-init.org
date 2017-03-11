@@ -41,6 +41,7 @@
       package 'session' which stores lots of session information into
       the file .session in the .emacs.d
 * enhancements and todos
+** todo implement ligrature toggle function
 ** todo undo-tree workaround: [2017-02-25 Sat] currently org src block fontification is disabled if undo tree is called, since undo tree exits on up/down in the tree
 ** todo define something like layers
    e.g. layer for core, editing, navigation, programming ... such that these layers can be easily switched off and on at the top of the init
@@ -304,9 +305,9 @@
          (len-needed-for-memory (+ (length free-ram-str) (length total-ram-str))))
 
     (setq initial-scratch-message 
-          (propertize (concat ";; ****  FREE SOFTWARE FOUNDATION  EMACS "
+          (propertize (concat ";; ***   FREE SOFTWARE FOUNDATION  EMACS "
                               emacs-version
-                              "  ****\n;;   " 
+                              "   ***\n;;   " 
                               total-ram-str 
                               " RAM SYSTEM" 
                               (make-string (max 2 (- len-avail-for-memory len-needed-for-memory)) ? )
@@ -1076,87 +1077,255 @@
        (req-package prettify-greek) ;; prettify greek symbols 
    #+END_SRC
 ** font related stuff
-#+BEGIN_SRC emacs-lisp
-  ;; TODO: bring this into the gb/setup-main-fonts function !
-  (if (gb/on-mac-p)
-      (set-face-attribute 'default nil :height 130)
-    (set-face-attribute 'default nil :height 100))
+   #+BEGIN_SRC emacs-lisp
+     (setq gb/default-font "Source Code Pro")
+     ;; (setq gb/default-font "Fira Code")
+     ;; (setq gb/default-font "Cousine")
 
-  (setq gb/default-font "Source Code Pro")
-  ;; (setq gb/default-font "Fira Code")
-  ;; (setq gb/default-font "Cousine")
+     (when (not (member gb/default-font (font-family-list)))
+       (message (concat "WARNING: expected font '" gb/default-font "' not found in available font list.")))
 
+     (require 'ht)
+     (defun gb/get-font-heights (display-width win-system) 
+       "Get font heights depending on display width"
+       (if (memq win-system '(mac ns))
+           (cond ((> display-width 1800) 
+                  (ht ('default-height 150) ('variable-pitch-height 160)))
+                 ((ht ('default-height 130) ('variable-pitch-height 140))))
+         (cond ((> display-width 1800)
+                (ht ('default-height 120) ('variable-pitch-height 130)))
+               ((ht ('default-height 100) ('variable-pitch-height 110))))))
 
-  (when (not (member gb/default-font (font-family-list)))
-    (message (concat "WARNING: expected font '" gb/default-font "' not found in available font list.")))
+     (defun gb/get-font-weights (win-system)
+       "Get font weights depending on windowing system"
+       (if (memq win-system '(mac ns))
+           (ht ('default-weight 'light) ('variable-pitch-weight 'regular))
+         (ht ('default-weight 'regular) ('variable-pitch-weight 'regular))))
 
-  (require 'ht)
-  (defun gb/get-font-heights (display-width win-system) 
-    "Get font heights depending on display width"
-    (if (memq win-system '(mac ns))
-        (cond ((> display-width 1800) 
-               (ht ('default-height 150) ('variable-pitch-height 160)))
-              ((ht ('default-height 130) ('variable-pitch-height 140))))
-      (cond ((> display-width 1800)
-             (ht ('default-height 120) ('variable-pitch-height 130)))
-            ((ht ('default-height 100) ('variable-pitch-height 110))))))
+     (defun gb/setup-main-fonts ()
+       "Set up default fonts.
 
-  (defun gb/get-font-weights (win-system)
-    "Get font weights depending on windowing system"
-    (if (memq win-system '(mac ns))
-        (ht ('default-weight 'light) ('variable-pitch-weight 'regular))
-      (ht ('default-weight 'regular) ('variable-pitch-weight 'regular))))
+       Use DEFAULT-HEIGHT for default face and VARIABLE-PITCH-HEIGHT
+       for variable-pitch face."
+       (let* ((attr-map (ht-merge (gb/get-font-heights (x-display-pixel-width) window-system)
+                                  (gb/get-font-weights window-system))))
+         (set-face-attribute 'default nil
+                             :family gb/default-font
+                             :height (ht-get attr-map 'default-height)
+                             :weight (ht-get attr-map 'default-weight))
+         (set-face-attribute 'variable-pitch nil
+                             ;; :family "Fira Sans"
+                             :height (ht-get attr-map 'variable-pitch-height)
+                             :weight (ht-get attr-map 'variable-pitch-weight))))
 
-  (defun gb/setup-main-fonts ()
-    "Set up default fonts.
+     (gb/setup-main-fonts)
+   #+END_SRC
+   - the following is not functional within (my) emacs => it is not tangled
+     #+BEGIN_SRC emacs-lisp :tangle no
 
-    Use DEFAULT-HEIGHT for default face and VARIABLE-PITCH-HEIGHT
-    for variable-pitch face."
-    (let* ((attr-map (ht-merge (gb/get-font-heights (x-display-pixel-width) window-system)
-                               (gb/get-font-weights window-system))))
-      (set-face-attribute 'default nil
-                          :family gb/default-font
-                          :height (ht-get attr-map 'default-height)
-                          :weight (ht-get attr-map 'default-weight))
-      (set-face-attribute 'variable-pitch nil
-                          ;; :family "Fira Sans"
-                          :height (ht-get attr-map 'variable-pitch-height)
-                          :weight (ht-get attr-map 'variable-pitch-weight))))
+       ;; if font with ligatures is selected, define some font compositions
+       (when (string= gb/default-font "Fira Code")
+         (let ((alist '((33 . ".\\(?:\\(?:==\\|!!\\)\\|[!=]\\)")
+                        (35 . ".\\(?:###\\|##\\|_(\\|[#(?[_{]\\)")
+                        (36 . ".\\(?:>\\)")
+                        (37 . ".\\(?:\\(?:%%\\)\\|%\\)")
+                        (38 . ".\\(?:\\(?:&&\\)\\|&\\)")
+                        (42 . ".\\(?:\\(?:\\*\\*/\\)\\|\\(?:\\*[*/]\\)\\|[*/>]\\)")
+                        (43 . ".\\(?:\\(?:\\+\\+\\)\\|[+>]\\)")
+                        (45 . ".\\(?:\\(?:-[>-]\\|<<\\|>>\\)\\|[<>}~-]\\)")
+                        (46 . ".\\(?:\\(?:\\.[.<]\\)\\|[.=-]\\)")
+                        (47 . ".\\(?:\\(?:\\*\\*\\|//\\|==\\)\\|[*/=>]\\)")
+                        (48 . ".\\(?:x[a-zA-Z]\\)")
+                        (58 . ".\\(?:::\\|[:=]\\)")
+                        (59 . ".\\(?:;;\\|;\\)")
+                        (60 . ".\\(?:\\(?:!--\\)\\|\\(?:~~\\|->\\|\\$>\\|\\*>\\|\\+>\\|--\\|<[<=-]\\|=[<=>]\\||>\\)\\|[*$+~/<=>|-]\\)")
+                        (61 . ".\\(?:\\(?:/=\\|:=\\|<<\\|=[=>]\\|>>\\)\\|[<=>~]\\)")
+                        (62 . ".\\(?:\\(?:=>\\|>[=>-]\\)\\|[=>-]\\)")
+                        (63 . ".\\(?:\\(\\?\\?\\)\\|[:=?]\\)")
+                        (91 . ".\\(?:]\\)")
+                        (92 . ".\\(?:\\(?:\\\\\\\\\\)\\|\\\\\\)")
+                        (94 . ".\\(?:=\\)")
+                        (119 . ".\\(?:ww\\)")
+                        (123 . ".\\(?:-\\)")
+                        (124 . ".\\(?:\\(?:|[=|]\\)\\|[=>|]\\)")
+                        (126 . ".\\(?:~>\\|~~\\|[>=@~-]\\)")
+                        )
+                      ))
+           (dolist (char-regexp alist)
+             (set-char-table-range composition-function-table (car char-regexp)
+                                   `([,(cdr char-regexp) 0 font-shape-gstring])))))
+     #+END_SRC
+   - install ligatures via fira code symbol (had to install [[https://github.com/tonsky/FiraCode/files/412440/FiraCode-Regular-Symbol.zip][fira code symbol]] for the following to work)
+     #+BEGIN_SRC emacs-lisp
+       (setq fira-code-symbol-installed (member "Fira Code Symbol" (font-family-list)))
 
-  (gb/setup-main-fonts)
+       (when fira-code-symbol-installed
+         ;; Fira code
+         ;; This works when using emacs --daemon + emacsclient
+         (add-hook 'after-make-frame-functions (lambda (frame) (set-fontset-font t '(#Xe100 . #Xe16f) "Fira Code Symbol")))
+         ;; This works when using emacs without server/client
+         (set-fontset-font t '(#Xe100 . #Xe16f) "Fira Code Symbol")
+         ;; I haven't found one statement that makes both of the above situations work, so I use both for now
 
-  ;; if font with ligatures is selected, define some font compositions
-  (when (string= gb/default-font "Fira Code")
-    (let ((alist '((33 . ".\\(?:\\(?:==\\|!!\\)\\|[!=]\\)")
-                   (35 . ".\\(?:###\\|##\\|_(\\|[#(?[_{]\\)")
-                   (36 . ".\\(?:>\\)")
-                   (37 . ".\\(?:\\(?:%%\\)\\|%\\)")
-                   (38 . ".\\(?:\\(?:&&\\)\\|&\\)")
-                   (42 . ".\\(?:\\(?:\\*\\*/\\)\\|\\(?:\\*[*/]\\)\\|[*/>]\\)")
-                   (43 . ".\\(?:\\(?:\\+\\+\\)\\|[+>]\\)")
-                   (45 . ".\\(?:\\(?:-[>-]\\|<<\\|>>\\)\\|[<>}~-]\\)")
-                   ;; (46 . ".\\(?:\\(?:\\.[.<]\\)\\|[.=-]\\)")
-                   (47 . ".\\(?:\\(?:\\*\\*\\|//\\|==\\)\\|[*/=>]\\)")
-                   (48 . ".\\(?:x[a-zA-Z]\\)")
-                   (58 . ".\\(?:::\\|[:=]\\)")
-                   (59 . ".\\(?:;;\\|;\\)")
-                   (60 . ".\\(?:\\(?:!--\\)\\|\\(?:~~\\|->\\|\\$>\\|\\*>\\|\\+>\\|--\\|<[<=-]\\|=[<=>]\\||>\\)\\|[*$+~/<=>|-]\\)")
-                   (61 . ".\\(?:\\(?:/=\\|:=\\|<<\\|=[=>]\\|>>\\)\\|[<=>~]\\)")
-                   (62 . ".\\(?:\\(?:=>\\|>[=>-]\\)\\|[=>-]\\)")
-                   (63 . ".\\(?:\\(\\?\\?\\)\\|[:=?]\\)")
-                   (91 . ".\\(?:]\\)")
-                   (92 . ".\\(?:\\(?:\\\\\\\\\\)\\|\\\\\\)")
-                   (94 . ".\\(?:=\\)")
-                   (119 . ".\\(?:ww\\)")
-                   (123 . ".\\(?:-\\)")
-                   (124 . ".\\(?:\\(?:|[=|]\\)\\|[=>|]\\)")
-                   (126 . ".\\(?:~>\\|~~\\|[>=@~-]\\)")
-                   )
-                 ))
-      (dolist (char-regexp alist)
-        (set-char-table-range composition-function-table (car char-regexp)
-                              `([,(cdr char-regexp) 0 font-shape-gstring])))))
-#+END_SRC
+         (defconst fira-code-font-lock-keywords-alist
+           (mapcar (lambda (regex-char-pair)
+                     `(,(car regex-char-pair)
+                       (0 (prog1 ()
+                            (compose-region (match-beginning 1)
+                                            (match-end 1)
+                                            ;; The first argument to concat is a string containing a literal tab
+                                            ,(concat "	" (list (decode-char 'ucs (cadr regex-char-pair)))))))))
+                   '(("\\(www\\)"                   #Xe100)
+                     ("[^/]\\(\\*\\*\\)[^/]"        #Xe101)
+                     ("\\(\\*\\*\\*\\)"             #Xe102)
+                     ("\\(\\*\\*/\\)"               #Xe103)
+                     ("\\(\\*>\\)"                  #Xe104)
+                     ("[^*]\\(\\*/\\)"              #Xe105)
+                     ("\\(\\\\\\\\\\)"              #Xe106)
+                     ("\\(\\\\\\\\\\\\\\)"          #Xe107)
+                     ("\\({-\\)"                    #Xe108)
+                     ("\\(\\[\\]\\)"                #Xe109)
+                     ("\\(::\\)"                    #Xe10a)
+                     ("\\(:::\\)"                   #Xe10b)
+                     ("[^=]\\(:=\\)"                #Xe10c)
+                     ("\\(!!\\)"                    #Xe10d)
+                     ("\\(!=\\)"                    #Xe10e)
+                     ("\\(!==\\)"                   #Xe10f)
+                     ("\\(-}\\)"                    #Xe110)
+                     ("\\(--\\)"                    #Xe111)
+                     ("\\(---\\)"                   #Xe112)
+                     ("\\(-->\\)"                   #Xe113)
+                     ("[^-]\\(->\\)"                #Xe114)
+                     ("\\(->>\\)"                   #Xe115)
+                     ("\\(-<\\)"                    #Xe116)
+                     ("\\(-<<\\)"                   #Xe117)
+                     ("\\(-~\\)"                    #Xe118)
+                     ("\\(#{\\)"                    #Xe119)
+                     ("\\(#\\[\\)"                  #Xe11a)
+                     ("\\(##\\)"                    #Xe11b)
+                     ("\\(###\\)"                   #Xe11c)
+                     ("\\(####\\)"                  #Xe11d)
+                     ("\\(#(\\)"                    #Xe11e)
+                     ("\\(#\\?\\)"                  #Xe11f)
+                     ("\\(#_\\)"                    #Xe120)
+                     ("\\(#_(\\)"                   #Xe121)
+                     ("\\(\\.-\\)"                  #Xe122)
+                     ("\\(\\.=\\)"                  #Xe123)
+                     ("\\(\\.\\.\\)"                #Xe124)
+                     ("\\(\\.\\.<\\)"               #Xe125)
+                     ("\\(\\.\\.\\.\\)"             #Xe126)
+                     ("\\(\\?=\\)"                  #Xe127)
+                     ("\\(\\?\\?\\)"                #Xe128)
+                     ("\\(;;\\)"                    #Xe129)
+                     ("\\(/\\*\\)"                  #Xe12a)
+                     ("\\(/\\*\\*\\)"               #Xe12b)
+                     ("\\(/=\\)"                    #Xe12c)
+                     ("\\(/==\\)"                   #Xe12d)
+                     ("\\(/>\\)"                    #Xe12e)
+                     ("\\(//\\)"                    #Xe12f)
+                     ("\\(///\\)"                   #Xe130)
+                     ("\\(&&\\)"                    #Xe131)
+                     ("\\(||\\)"                    #Xe132)
+                     ("\\(||=\\)"                   #Xe133)
+                     ("[^|]\\(|=\\)"                #Xe134)
+                     ("\\(|>\\)"                    #Xe135)
+                     ("\\(\\^=\\)"                  #Xe136)
+                     ("\\(\\$>\\)"                  #Xe137)
+                     ("\\(\\+\\+\\)"                #Xe138)
+                     ("\\(\\+\\+\\+\\)"             #Xe139)
+                     ("\\(\\+>\\)"                  #Xe13a)
+                     ("\\(=:=\\)"                   #Xe13b)
+                     ("[^!/]\\(==\\)[^>]"           #Xe13c)
+                     ("\\(===\\)"                   #Xe13d)
+                     ("\\(==>\\)"                   #Xe13e)
+                     ("[^=]\\(=>\\)"                #Xe13f)
+                     ("\\(=>>\\)"                   #Xe140)
+                     ("\\(<=\\)"                    #Xe141)
+                     ("\\(=<<\\)"                   #Xe142)
+                     ("\\(=/=\\)"                   #Xe143)
+                     ("\\(>-\\)"                    #Xe144)
+                     ("\\(>=\\)"                    #Xe145)
+                     ("\\(>=>\\)"                   #Xe146)
+                     ("[^-=]\\(>>\\)"               #Xe147)
+                     ("\\(>>-\\)"                   #Xe148)
+                     ("\\(>>=\\)"                   #Xe149)
+                     ("\\(>>>\\)"                   #Xe14a)
+                     ("\\(<\\*\\)"                  #Xe14b)
+                     ("\\(<\\*>\\)"                 #Xe14c)
+                     ("\\(<|\\)"                    #Xe14d)
+                     ("\\(<|>\\)"                   #Xe14e)
+                     ("\\(<\\$\\)"                  #Xe14f)
+                     ("\\(<\\$>\\)"                 #Xe150)
+                     ("\\(<!--\\)"                  #Xe151)
+                     ("\\(<-\\)"                    #Xe152)
+                     ("\\(<--\\)"                   #Xe153)
+                     ("\\(<->\\)"                   #Xe154)
+                     ("\\(<\\+\\)"                  #Xe155)
+                     ("\\(<\\+>\\)"                 #Xe156)
+                     ("\\(<=\\)"                    #Xe157)
+                     ("\\(<==\\)"                   #Xe158)
+                     ("\\(<=>\\)"                   #Xe159)
+                     ("\\(<=<\\)"                   #Xe15a)
+                     ("\\(<>\\)"                    #Xe15b)
+                     ("[^-=]\\(<<\\)"               #Xe15c)
+                     ("\\(<<-\\)"                   #Xe15d)
+                     ("\\(<<=\\)"                   #Xe15e)
+                     ("\\(<<<\\)"                   #Xe15f)
+                     ("\\(<~\\)"                    #Xe160)
+                     ("\\(<~~\\)"                   #Xe161)
+                     ("\\(</\\)"                    #Xe162)
+                     ("\\(</>\\)"                   #Xe163)
+                     ("\\(~@\\)"                    #Xe164)
+                     ("\\(~-\\)"                    #Xe165)
+                     ("\\(~=\\)"                    #Xe166)
+                     ("\\(~>\\)"                    #Xe167)
+                     ("[^<]\\(~~\\)"                #Xe168)
+                     ("\\(~~>\\)"                   #Xe169)
+                     ("\\(%%\\)"                    #Xe16a)
+                     ;;("\\(x\\)"                     #Xe16b)
+                     ("[^:=]\\(:\\)[^:=]"           #Xe16c)
+                     ("[^\\+<>]\\(\\+\\)[^\\+<>]"   #Xe16d)
+                     ("[^\\*/<>]\\(\\*\\)[^\\*/<>]" #Xe16f))))
+
+         (defun add-fira-code-symbol-keywords ()
+           (font-lock-add-keywords nil fira-code-font-lock-keywords-alist))
+
+         (defun remove-fira-code-symbol-keywords ()
+           (font-lock-remove-keywords nil fira-code-font-lock-keywords-alist))
+
+         (defun gb/disable-ligatures ()
+           "disable ligatures"
+           (interactive)
+           (remove-fira-code-symbol-keywords)
+           (remove-hook 'prog-mode-hook
+                        #'add-fira-code-symbol-keywords)
+           (font-lock-flush)
+           (run-mode-hooks)
+           (setq ligatures-enabled nil))
+
+         (defun gb/enable-ligatures () 
+           "enable ligatures"
+           (interactive)
+           (add-fira-code-symbol-keywords)
+           (add-hook 'prog-mode-hook
+                     #'add-fira-code-symbol-keywords)
+           (font-lock-flush)
+           (run-mode-hooks)
+           (setq ligatures-enabled t))
+
+         (defun gb/toggle-ligatures ()
+           "toggle display of ligatures in progmode"
+           (interactive)
+           (if ligatures-enabled
+               (progn
+                 (gb/disable-ligatures)
+                 (message "disabled ligatures."))
+             (progn
+               (gb/enable-ligatures)
+               (message "enabled ligatures."))))
+
+         (gb/enable-ligatures))
+     #+END_SRC
 ** sublimity
    #+BEGIN_SRC emacs-lisp
      (req-package sublimity
@@ -1865,6 +2034,8 @@
      (define-key gb/toggle-map "r" #'toggle-word-wrap)
      (define-key gb/toggle-map "u" #'focus-mode)
      (define-key gb/toggle-map "w" #'whitespace-mode)
+     (when (fboundp 'gb/toggle-ligatures)
+       (define-key gb/toggle-map "t" #'gb/toggle-ligatures))
    #+END_SRC
 ** browse kill ring
    #+BEGIN_SRC emacs-lisp
@@ -2751,8 +2922,10 @@
     #+END_SRC
 *** TODO eros (display result of eval as overlay) 
     #+BEGIN_SRC emacs-lisp 
-    (req-package eros
-      :config (eros-mode 1))
+      (req-package eros
+        :config 
+        (progn 
+          (eros-mode 1)))
     #+END_SRC
 *** eldoc mode
     - is automatically turned on in emacs 25.x
