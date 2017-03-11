@@ -1091,11 +1091,15 @@
     (message (concat "WARNING: expected font '" gb/default-font "' not found in available font list.")))
 
   (require 'ht)
-  (defun gb/get-font-heights (display-width) 
+  (defun gb/get-font-heights (display-width win-system) 
     "Get font heights depending on display width"
-    (cond ((> display-width 1800) 
-           (ht ('default-height 150) ('variable-pitch-height 160)))
-          ((ht ('default-height 130) ('variable-pitch-height 140)))))
+    (if (memq win-system '(mac ns))
+        (cond ((> display-width 1800) 
+               (ht ('default-height 150) ('variable-pitch-height 160)))
+              ((ht ('default-height 130) ('variable-pitch-height 140))))
+      (cond ((> display-width 1800)
+             (ht ('default-height 120) ('variable-pitch-height 130)))
+            ((ht ('default-height 100) ('variable-pitch-height 110))))))
 
   (defun gb/get-font-weights (win-system)
     "Get font weights depending on windowing system"
@@ -1108,7 +1112,7 @@
 
     Use DEFAULT-HEIGHT for default face and VARIABLE-PITCH-HEIGHT
     for variable-pitch face."
-    (let* ((attr-map (ht-merge (gb/get-font-heights (x-display-pixel-width))
+    (let* ((attr-map (ht-merge (gb/get-font-heights (x-display-pixel-width) window-system)
                                (gb/get-font-weights window-system))))
       (set-face-attribute 'default nil
                           :family gb/default-font
