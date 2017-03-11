@@ -6191,6 +6191,10 @@
          (set-face-attribute 'easy-escape-face nil :foreground "red") ;; make a \\ stand out as red backslash
          (add-hook 'prog-mode-hook 'easy-escape-minor-mode)))
    #+END_SRC
+** historian
+   #+BEGIN_SRC emacs-lisp
+   (req-package historian)
+   #+END_SRC
 * finish - up
   #+BEGIN_SRC emacs-lisp
     (req-package-finish);; this command must be at the end !ALWAYS!
