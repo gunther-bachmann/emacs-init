@@ -981,6 +981,8 @@
               (setq epg-gpg-program "gpg2"))
 
           (check-_nix-program-status w3m-installed '("w3m") "w3m" "html messages in gnus will not be displayed, helm dash browsing will not use w3m.")
+
+          (check-_nix-program-status git-lfs-installed "git-lfs" "git-lfs" "magit-lfs will not be available")
           ))
   #+END_SRC
 * check emacs capabilities
@@ -3660,6 +3662,12 @@
 
 
  #+END_SRC
+*** magit lfs
+    #+BEGIN_SRC emacs-lisp
+    (when git-lfs-installed 
+      (req-package magit-lfs
+        :require magit))
+    #+END_SRC
 ** gitignore (creation with helm)
    simply call helm-gitignore and select language for which to create this gitignore
  #+BEGIN_SRC emacs-lisp
