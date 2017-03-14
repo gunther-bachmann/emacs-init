@@ -41,7 +41,7 @@
       package 'session' which stores lots of session information into
       the file .session in the .emacs.d
 * enhancements and todos
-** todo implement ligrature toggle function
+** todo describe each packages' benefit for my configuration
 ** todo undo-tree workaround: [2017-02-25 Sat] currently org src block fontification is disabled if undo tree is called, since undo tree exits on up/down in the tree
 ** todo define something like layers
    e.g. layer for core, editing, navigation, programming ... such that these layers can be easily switched off and on at the top of the init
@@ -53,9 +53,9 @@
 *** todo loadpath dependencies that should be resolved
     - ob-clojure
     - javad
-    - gnus-calendar
-    - ox-confluence
-    - org-jekyl
+    - gnus-calendar 
+    - ox-confluence (obsolete)
+    - org-jekyl (obsolete)
 *** done require the emacs package manager, add available repositories and intialize packet manager
     make sure that the initial (minimal set) packages needed are all loaded
     - dash
@@ -139,11 +139,7 @@
   #+BEGIN_SRC emacs-lisp
   (global-unset-key "\C-z")     ;; (now mapped to prefix -- dash)
   (global-unset-key "\C-x\C-k") ;; keyboard makros prefix (now mapped to kill buffer)
-  (global-unset-key "\M-%")      ;; replaced by visual-regexp ...
-  #+END_SRC
-* initial setting of vars
-  #+BEGIN_SRC emacs-lisp
-  (setq use-package-enable-imenu-support t) ;; enable locating package loaded by use-package within init.el
+  (global-unset-key "\M-%")     ;; replaced by visual-regexp ...
   #+END_SRC
 * init benchmarking (disabled)
 #+BEGIN_SRC emacs-lisp :tangle no
@@ -162,6 +158,11 @@
   (setq agenda-accounts-exists (file-exists-p "~/.emacs.d/accounts/agenda-accounts.el"))
   (setq calendar-accounts-exists (file-exists-p "~/.emacs.d/accounts/calendar-accounts.el"))
   (setq mail-accounts-exists (file-exists-p "~/.emacs.d/accounts/mail-accounts.el"))
+  #+END_SRC
+* initial setting of vars
+  #+BEGIN_SRC emacs-lisp
+    ;; must be set before loading use-package in order to work
+    (setq use-package-enable-imenu-support t) ;; enable locating package loaded by use-package within init.el
   #+END_SRC
 * package setup
 #+BEGIN_SRC emacs-lisp
@@ -202,6 +203,7 @@
              bind-key
              key-chord
              validate
+             use-package
              req-package))
 
     ;; add mac specific packages 
@@ -336,7 +338,7 @@
              (push (match-string pos-to-match string) matches)
              (setq pos (match-end 0)))
            matches)))
-
+     (rx-to-string `(: bos "prefix"))
      (ert-deftest re-seq-test ()
        "test re-seq (only)"
        (should (let* ((result (re-seq  "\\([0-9]+\\)" "some31and4other")))
@@ -1062,21 +1064,22 @@
    #+END_SRC
 ** display symbols (pretty-mode, prettify-greek)
    #+BEGIN_SRC emacs-lisp
-       (req-package pretty-mode
-         :config 
-         (progn
-           (global-pretty-mode 1)
-           (global-prettify-symbols-mode 1)
-      
-          ;; (pretty-deactivate-groups
-          ;;  '(:equality :ordering :ordering-double :ordering-triple
-          ;;              :arrows :arrows-twoheaded :punctuation
-          ;;              :logic :sets))
-     ;;      (pretty-activate-groups
-     ;;       '(:sub-and-superscripts :greek :arithmetic-nary))
-            ))
+     (req-package pretty-mode
+       :config 
+       (progn
+         (global-pretty-mode 1)
+         (global-prettify-symbols-mode 1)
+         (setq prettify-symbols-unprettify-at-point t)
 
-       (req-package prettify-greek) ;; prettify greek symbols 
+         ;; make sure this does not collide with symbols from fira code symbol replacement (ligatures)
+         (pretty-deactivate-groups
+          '(:equality :ordering :ordering-double :ordering-triple
+                      :arrows :arrows-twoheaded :punctuation))
+         (pretty-activate-groups
+          '(:sub-and-superscripts :greek :arithmetic-nary))
+         ))
+
+     (req-package prettify-greek) ;; prettify greek symbols 
    #+END_SRC
 ** font related stuff
    #+BEGIN_SRC emacs-lisp
@@ -1199,7 +1202,7 @@
                      ("\\(-->\\)"                   #Xe113)
                      ("[^-]\\(->\\)"                #Xe114)
                      ("\\(->>\\)"                   #Xe115)
-                     ("\\(-<\\)"                    #Xe116)
+                     ("[^<-]\\(-<\\)[^<>]"                    #Xe116)
                      ("\\(-<<\\)"                   #Xe117)
                      ("\\(-~\\)"                    #Xe118)
                      ("\\(#{\\)"                    #Xe119)
@@ -1221,13 +1224,13 @@
                      ("\\(;;\\)"                    #Xe129)
                      ("\\(/\\*\\)"                  #Xe12a)
                      ("\\(/\\*\\*\\)"               #Xe12b)
-                     ("\\(/=\\)"                    #Xe12c)
+                     ("\\(/=\\)[^=]"                    #Xe12c)
                      ("\\(/==\\)"                   #Xe12d)
-                     ("\\(/>\\)"                    #Xe12e)
-                     ("\\(//\\)"                    #Xe12f)
+                     ("[^<]\\(/>\\)"                    #Xe12e)
+                     ("[^/]\\(//\\)[^/]"                    #Xe12f)
                      ("\\(///\\)"                   #Xe130)
                      ("\\(&&\\)"                    #Xe131)
-                     ("\\(||\\)"                    #Xe132)
+                     ("\\(||\\)[^=]"                    #Xe132)
                      ("\\(||=\\)"                   #Xe133)
                      ("[^|]\\(|=\\)"                #Xe134)
                      ("\\(|>\\)"                    #Xe135)
@@ -1237,51 +1240,51 @@
                      ("\\(\\+\\+\\+\\)"             #Xe139)
                      ("\\(\\+>\\)"                  #Xe13a)
                      ("\\(=:=\\)"                   #Xe13b)
-                     ("[^!/]\\(==\\)[^>]"           #Xe13c)
+                     ("[^!/]\\(==\\)[^>=]"           #Xe13c)
                      ("\\(===\\)"                   #Xe13d)
                      ("\\(==>\\)"                   #Xe13e)
-                     ("[^=]\\(=>\\)"                #Xe13f)
+                     ("[^=<>]\\(=>\\)[^>]"                #Xe13f)
                      ("\\(=>>\\)"                   #Xe140)
-                     ("\\(<=\\)"                    #Xe141)
+                     ("[^<>]\\(<=\\)[^=<>]"                    #Xe141)
                      ("\\(=<<\\)"                   #Xe142)
                      ("\\(=/=\\)"                   #Xe143)
                      ("\\(>-\\)"                    #Xe144)
-                     ("\\(>=\\)"                    #Xe145)
+                     ("\\(>=\\)[^>]"                    #Xe145)
                      ("\\(>=>\\)"                   #Xe146)
                      ("[^-=]\\(>>\\)"               #Xe147)
                      ("\\(>>-\\)"                   #Xe148)
                      ("\\(>>=\\)"                   #Xe149)
                      ("\\(>>>\\)"                   #Xe14a)
-                     ("\\(<\\*\\)"                  #Xe14b)
+                     ("\\(<\\*\\)[^>]"                  #Xe14b)
                      ("\\(<\\*>\\)"                 #Xe14c)
-                     ("\\(<|\\)"                    #Xe14d)
+                     ("\\(<|\\)[^>]"                    #Xe14d)
                      ("\\(<|>\\)"                   #Xe14e)
-                     ("\\(<\\$\\)"                  #Xe14f)
+                     ("\\(<\\$\\)[^>]"                  #Xe14f)
                      ("\\(<\\$>\\)"                 #Xe150)
                      ("\\(<!--\\)"                  #Xe151)
-                     ("\\(<-\\)"                    #Xe152)
+                     ("\\(<-\\)[^-<>]"                    #Xe152)
                      ("\\(<--\\)"                   #Xe153)
                      ("\\(<->\\)"                   #Xe154)
-                     ("\\(<\\+\\)"                  #Xe155)
+                     ("\\(<\\+\\)[^>]"                  #Xe155)
                      ("\\(<\\+>\\)"                 #Xe156)
-                     ("\\(<=\\)"                    #Xe157)
+                     ("\\(<=\\)[^=<>]"                    #Xe157)
                      ("\\(<==\\)"                   #Xe158)
                      ("\\(<=>\\)"                   #Xe159)
                      ("\\(<=<\\)"                   #Xe15a)
-                     ("\\(<>\\)"                    #Xe15b)
+                     ("[^-]\\(<>\\)[^-]"                    #Xe15b)
                      ("[^-=]\\(<<\\)"               #Xe15c)
                      ("\\(<<-\\)"                   #Xe15d)
                      ("\\(<<=\\)"                   #Xe15e)
                      ("\\(<<<\\)"                   #Xe15f)
-                     ("\\(<~\\)"                    #Xe160)
+                     ("\\(<~\\)[^~]"                    #Xe160)
                      ("\\(<~~\\)"                   #Xe161)
-                     ("\\(</\\)"                    #Xe162)
+                     ("\\(</\\)[^>]"                    #Xe162)
                      ("\\(</>\\)"                   #Xe163)
                      ("\\(~@\\)"                    #Xe164)
                      ("\\(~-\\)"                    #Xe165)
-                     ("\\(~=\\)"                    #Xe166)
-                     ("\\(~>\\)"                    #Xe167)
-                     ("[^<]\\(~~\\)"                #Xe168)
+                     ("\\(~=\\)"                    #Xe166) 
+                     ("[^<~]\\(~>\\)"                    #Xe167)
+                     ("[^<]\\(~~\\)[^>]"                #Xe168)
                      ("\\(~~>\\)"                   #Xe169)
                      ("\\(%%\\)"                    #Xe16a)
                      ;;("\\(x\\)"                     #Xe16b)
@@ -1298,7 +1301,7 @@
          (defun gb/disable-ligatures ()
            "disable ligatures"
            (interactive)
-           (remove-fira-code-symbol-keywords)
+           ;; (remove-fira-code-symbol-keywords)
            (remove-hook 'prog-mode-hook
                         #'add-fira-code-symbol-keywords)
            (font-lock-flush)
@@ -1308,7 +1311,7 @@
          (defun gb/enable-ligatures () 
            "enable ligatures"
            (interactive)
-           (add-fira-code-symbol-keywords)
+           ;; (add-fira-code-symbol-keywords)
            (add-hook 'prog-mode-hook
                      #'add-fira-code-symbol-keywords)
            (font-lock-flush)
@@ -5288,10 +5291,18 @@
                       (remove-hook 'after-change-major-mode-hook #'yankpad-local-category-to-major-mode))
                     (when (package-installed-p 'pretty-mode)
                       (global-pretty-mode -1))
+                    (when ligatures-enabled
+                      (remove-hook 'prog-mode-hook
+                                   #'add-fira-code-symbol-keywords))
                     (message "executing org-babel-tangle ...")
                     (let ((inhibit-message t))
                       (org-babel-tangle))
                     (message "executing org-babel-tangle ... done.")
+                    (when ligatures-enabled
+                      (add-hook 'prog-mode-hook
+                                #'add-fira-code-symbol-keywords))
+                    ;; check whether readonly should be applied again
+                    (gb/activate-properties-in-org-mode)
                     ;; the following currently takes about 3 seconds (which I don't want to spend)
                     ;;(when (package-installed-p 'pretty-mode)
                     ;;  (global-pretty-mode 1))
