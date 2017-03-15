@@ -1553,103 +1553,148 @@
          ;; (symon-mode 1)
          ))
    #+END_SRC
-** spinner (busy indicator for modeline)
-   - (spinner-start 'vertical-breathing 10)
-   - (spinner-start 'minibox)
-   - (spinner-start 'moon)
-   - (spinner-start 'triangle)
+** modeline
+*** spinner (busy indicator for modeline)
+    - (spinner-start 'vertical-breathing 10)
+    - (spinner-start 'minibox)
+    - (spinner-start 'moon)
+    - (spinner-start 'triangle)
+    #+BEGIN_SRC emacs-lisp
+    (req-package spinner)
+    #+END_SRC
+*** diminish (hide minor modes from spaceline mode line)
+    #+BEGIN_SRC emacs-lisp
+      (req-package diminish) ;; actual diminishing of modes is executed after init is completely run (see end of file)
+    #+END_SRC
+*** spaceline (mode line of spacemacs)
+    #+BEGIN_SRC emacs-lisp
+           (req-package spaceline
+             :require diminish
+             :config
+             (require 'spaceline-config)
+             (spaceline-spacemacs-theme)
+             (spaceline-helm-mode)
+             (spaceline-define-segment gb/buffer-status
+               "Buffer status (read-only, modified), with color"
+               (cond (buffer-read-only (propertize "RO" 'face 'spaceline-read-only))
+                     ((buffer-modified-p) (propertize "**" 'face 'spaceline-modified))
+                     (t "  ")))
+             (spaceline-define-segment gb/buffer-file-name
+               ""
+               ;; TODO: limit path length to a certain number of characters
+               ;; TODO: allow replacing certain paths with some "propertized" string of shorthands (e.g. :doc: for ~/Documents/)
+               ;; TODO: scratch buffer does not show any modeline
+               (let* ((path (replace-regexp-in-string (concat "^" (regexp-quote (expand-file-name "~"))) "~" (or (file-name-directory (or buffer-file-name "")) ""))))
+                 (or path "")))
+             (apply 'spaceline--theme
+               '(gb/buffer-status buffer-size gb/buffer-file-name buffer-id remote-host)
+               '(persp-name)
+               ;; additional-segments
+               )
+      ;;       (spaceline-install
+      ;;        'main
+      ;;        '((gb/buffer-status)
+      ;;          (gb/buffer-file-name remote-host buffer-id)
+      ;;          (process :when active))
+      ;;        '((selection-info :face region :when mark-active)
+      ;;          ((flycheck-error flycheck-warning flycheck-info) :when active)
+      ;;          (which-function)
+      ;;          (version-control :when active)
+      ;;          (line-column)
+      ;;          (global :when active)
+      ;;          (major-mode)))
+
+           )
+    #+END_SRC
+*** rich minority mode (hide minor modes from smart mode line) (disabled)
+    #+BEGIN_SRC emacs-lisp :tangle no
+      (req-package rich-minority
+        :config
+        (progn
+          (rich-minority-mode +1)
+          (setq rm-blacklist
+                '(" GitGutter"
+                  " MRev"
+                  " company" ;; complete anything mode
+                  " mate"
+                  " Projectile" ;;
+                  " Anzu" ;; mode to display number of matches during reg ex search
+                  " Undo-Tree"
+                  " SliNav" ;; slime navigation mode (C-, C-.)
+                  " ElDoc" ;; elisp documentation mode
+                  " WLR" ;; whole line or region mode
+                  " $" ;; rich minority mode
+                  " Fly" ;; flymake mode?
+                  " h"
+                  " hs" ;; hide show (toggle block visibility)
+                  " Abbrev" ;; 
+                  " ARev" ;; auto revert mode
+                  " WK" ;; which key
+                  " yas" ;; yasnippets
+                  " Fill" ;; auto-fill-mode
+                  " ElDoc overlay" ;; eldoc-overlay-mode
+                  " AceI" ;; ace-isearch-mode
+                  " Helm" ;; helm mode
+                  " HidePW" ;; hide passwords in org mode files
+                  " back" ;; back-button-mode (navigation local/global)
+                  " sel" ;; selected-minor-mode (provides extra keymap '' if a region is selected)
+                  " wr" ;; wrap-region-mode, wraps a region with tags (e.g. '*' in org mode wraps marked region in ** )
+                  " VHl" ;; volatile-highlights-mode (visual feedback to some operations related to regions)
+                  " Paredit" ;;
+                  " OTSH" ;; org table sticky headers
+                  " ^L" ;; display ^L as continuous line
+                  " ez-esc" ;; easy-escape displays regular expressions in a more readable way
+                  ))))
+    #+END_SRC
+*** smart mode line (disabled)
+    #+BEGIN_SRC emacs-lisp :tangle no
+      ;; make sure the install question is not interactively placed!
+      ;; (setq sml/no-confirm-load-theme t)
+      ;; (setq powerline-arrow-shape 'curve)   
+      ;; (setq powerline-default-separator-dir '(right . left))
+      ;; (setq sml/theme 'powerline)
+      ;; (sml/setup)
+
+      (req-package powerline)
+      (req-package smart-mode-line-powerline-theme)
+      (req-package smart-mode-line
+        :require powerline smart-mode-line-powerline-theme
+        :config
+        (progn
+          (setq sml/name-width 60) ;; max filename length
+          ;; (setq sml/mode-width 'full) ;; mode are to be displayed fully
+          (setq sml/shorten-directory t)
+          (setq sml/shorten-modes t)
+
+          (setq sml/col-number-format "%3c")
+
+          (if after-init-time
+              (sml/setup)
+            (add-hook 'after-init-hook 'sml/setup))
+
+          ;; (require 'smart-mode-line-powerline-theme)
+          ;; (sml/apply-theme 'dark)
+          ;; Alternatives:
+          (sml/apply-theme 'powerline)
+          ;; (sml/apply-theme 'dark)
+          ;; (sml/apply-theme 'light)
+          ;; (sml/apply-theme 'respectful)
+          ;; (sml/apply-theme 'automatic)
+          ;; (setq powerline-default-separator 'arrow)
+          ;;(setq powerline-default-separator-dir '(right . left))
+
+          ;; (add-to-list 'sml/replacer-regexp-list '("^~/git/iMan3-Projects/" ":iP:"))
+          ;; (add-to-list 'sml/replacer-regexp-list '("^~/git/iMan3-Utilities/" ":iU:"))
+          (add-to-list 'sml/replacer-regexp-list '("^~/Documents/clojure/workspace" ":clj:"))))
+
+    #+END_SRC
+*** fancy battery (for modeline)
+    Display of battery status in the emacs mode line (all the way to the left)
+    See [[https://github.com/lunaryorn/fancy-battery.el][link]]
    #+BEGIN_SRC emacs-lisp
-   (req-package spinner)
+   (req-package fancy-battery
+     :config (progn (add-hook 'after-init-hook #'fancy-battery-mode)))
    #+END_SRC
-** rich minority mode (hide minor modes from mode line)
-   #+BEGIN_SRC emacs-lisp
-     (req-package rich-minority
-       :config
-       (progn
-         (rich-minority-mode +1)
-         (setq rm-blacklist
-               '(" GitGutter"
-                 " MRev"
-                 " company" ;; complete anything mode
-                 " mate"
-                 " Projectile" ;;
-                 " Anzu" ;; mode to display number of matches during reg ex search
-                 " Undo-Tree"
-                 " SliNav" ;; slime navigation mode (C-, C-.)
-                 " ElDoc" ;; elisp documentation mode
-                 " WLR" ;; whole line or region mode
-                 " $" ;; rich minority mode
-                 " Fly" ;; flymake mode?
-                 " h"
-                 " hs" ;; hide show (toggle block visibility)
-                 " Abbrev" ;; 
-                 " ARev" ;; auto revert mode
-                 " WK" ;; which key
-                 " yas" ;; yasnippets
-                 " Fill" ;; auto-fill-mode
-                 " ElDoc overlay" ;; eldoc-overlay-mode
-                 " AceI" ;; ace-isearch-mode
-                 " Helm" ;; helm mode
-                 " HidePW" ;; hide passwords in org mode files
-                 " back" ;; back-button-mode (navigation local/global)
-                 " sel" ;; selected-minor-mode (provides extra keymap '' if a region is selected)
-                 " wr" ;; wrap-region-mode, wraps a region with tags (e.g. '*' in org mode wraps marked region in ** )
-                 " VHl" ;; volatile-highlights-mode (visual feedback to some operations related to regions)
-                 " Paredit" ;;
-                 " OTSH" ;; org table sticky headers
-                 " ^L" ;; display ^L as continuous line
-                 " ez-esc" ;; easy-escape displays regular expressions in a more readable way
-                 ))))
-   #+END_SRC
-** smart mode-line
-   #+BEGIN_SRC emacs-lisp
-     ;; make sure the install question is not interactively placed!
-     ;; (setq sml/no-confirm-load-theme t)
-     ;; (setq powerline-arrow-shape 'curve)   
-     ;; (setq powerline-default-separator-dir '(right . left))
-     ;; (setq sml/theme 'powerline)
-     ;; (sml/setup)
-
-     (req-package powerline)
-     (req-package smart-mode-line-powerline-theme)
-     (req-package smart-mode-line
-       :require powerline smart-mode-line-powerline-theme
-       :config
-       (progn
-         (setq sml/name-width 60) ;; max filename length
-         ;; (setq sml/mode-width 'full) ;; mode are to be displayed fully
-         (setq sml/shorten-directory t)
-         (setq sml/shorten-modes t)
-
-         (setq sml/col-number-format "%3c")
-
-         (if after-init-time
-             (sml/setup)
-           (add-hook 'after-init-hook 'sml/setup))
-
-         ;; (require 'smart-mode-line-powerline-theme)
-         ;; (sml/apply-theme 'dark)
-         ;; Alternatives:
-         (sml/apply-theme 'powerline)
-         ;; (sml/apply-theme 'dark)
-         ;; (sml/apply-theme 'light)
-         ;; (sml/apply-theme 'respectful)
-         ;; (sml/apply-theme 'automatic)
-         ;; (setq powerline-default-separator 'arrow)
-         ;;(setq powerline-default-separator-dir '(right . left))
-
-         ;; (add-to-list 'sml/replacer-regexp-list '("^~/git/iMan3-Projects/" ":iP:"))
-         ;; (add-to-list 'sml/replacer-regexp-list '("^~/git/iMan3-Utilities/" ":iU:"))
-         (add-to-list 'sml/replacer-regexp-list '("^~/Documents/clojure/workspace" ":clj:"))))
-
-   #+END_SRC
-** fancy battery (for modeline)
-   Display of battery status in the emacs mode line (all the way to the left)
-   See [[https://github.com/lunaryorn/fancy-battery.el][link]]
-  #+BEGIN_SRC emacs-lisp
-  (req-package fancy-battery
-    :config (progn (add-hook 'after-init-hook #'fancy-battery-mode)))
-  #+END_SRC
 ** rainbow identifiers
    #+BEGIN_SRC emacs-lisp
      ;; can be switched off by M-x rainbow-identifiers-mode, which toggles the mode
@@ -1830,8 +1875,7 @@
    #+BEGIN_SRC emacs-lisp
      (req-package form-feed
        :config
-       (progn (add-hook 'emacs-lisp-mode-hook 'form-feed-mode)
-              (add-hook 'compilation-mode-hook 'form-feed-mode)))
+       (progn (add-hook 'prog-mode-hook 'form-feed-mode)))
    #+END_SRC
 ** hide show org like (if tab does not indent, folding is done)
    #+BEGIN_SRC emacs-lisp
@@ -6409,8 +6453,37 @@
     (require 'server)
     (unless (server-running-p)
       (server-start))
-    (maximize-frame)
+    ;; (maximize-frame)
     (toggle-frame-fullscreen)
+    (when (package-installed-p 'diminish)
+      (mapc #'diminish
+            '(abbrev-mode
+              ace-isearch-mode
+              anzu-mode
+              auto-fill-function
+              auto-fill-mode
+              auto-revert-mode
+              back-button-mode
+              company-mode
+              easy-escape-minor-mode
+              eldoc-overlay-mode
+              elisp-slime-nav-mode
+              flycheck-mode
+              form-feed-mode
+              git-gutter-mode
+              helm-mode
+              hidepw-mode
+              hs-minor-mode
+              org-src-mode
+              org-table-sticky-header-mode
+              paredit-mode
+              selected-minor-mode
+              undo-tree-mode
+              volatile-highlights-mode
+              which-key-mode
+              whole-line-or-region-mode
+              wrap-region-mode
+              )))
   #+END_SRC
 
 #  LocalWords:  flyspell
