@@ -1588,7 +1588,7 @@
                  (or path "")))
              (apply 'spaceline--theme
                '(gb/buffer-status buffer-size gb/buffer-file-name buffer-id remote-host)
-               '(persp-name)
+               '(paradox-menu persp-name)
                ;; additional-segments
                )
       ;;       (spaceline-install
@@ -2656,8 +2656,10 @@
     as explained here.
 ** helm-swoop
    #+BEGIN_SRC emacs-lisp
-   (req-package helm-swoop
-     :require helm)
+     (req-package helm-swoop
+       :bind (("C-S-s" . helm-swoop)
+              ("C-M-S-s" . helm-multi-swoop-all))
+       :require helm)
    #+END_SRC
 ** dash at point
    #+BEGIN_SRC emacs-lisp
@@ -2722,16 +2724,19 @@
     ;; 'M-x ace-flyspell-dwim', autocorrect word
     ;; 'M-x ace-flyspell-correct-word', no jump but autocorrect
 
+#+END_SRC
+#+BEGIN_SRC emacs-lisp :tangle no
   (req-package ace-isearch
     ;; :diminish ace-isearch-mode
     :require avy helm-swoop ace-jump-mode
     bind-key ;; optional, needed for key binding
+    :disabled t
     :config
     (progn
 
       (setq ace-isearch-function (quote avy-goto-word-1)) ;; use thus function if only one character was searched for
-      (setq ace-isearch-input-length 3) ;; start helm swoop at a length of 3 characters
-      (setq ace-isearch-jump-delay 0.35) 
+      ;; (setq ace-isearch-input-length 3) ;; start helm swoop at a length of 3 characters
+      ;; (setq ace-isearch-jump-delay 0.35) 
       (setq ace-isearch-use-jump (quote printing-char))
 
       ;; C-u before M-p swaps active with selected window!
@@ -2752,7 +2757,8 @@
         (bind-key "C-S-s" 'isearch-forward)
         (bind-key "C-S-r" 'isearch-backward))))
 
-
+#+END_SRC
+#+BEGIN_SRC emacs-lisp
   (req-package avy
     :require bind-key ;; optional, for key binding
     :config
@@ -4980,10 +4986,9 @@
           :require org org-agenda
           :loader :path
           :load-path "~/.emacs.d/accounts/"
-          :bind (:map org-agenda-keymap
-                 ("i" . gb/org-agenda-diary-entry))
           :config
           (progn
+            (bind-key "i" #'gb/org-agenda-diary-entry org-agenda-keymap) ;; not a :bind entry, since loading must be done before actually calling org-agenda
             (defun gb/org-agenda-diary-entry () 
               "enter a new date into diary and allow selection of which calendar this should go into"
               (interactive)
@@ -5744,7 +5749,6 @@
        (setq helm-apropos-fuzzy-match t)
        (setq helm-company-fuzzy-match t)
        (setq helm-projectile-fuzzy-match t)
-       (setq helm-swoop-use-fuzzy-match t)
        (setq helm-locate-library-fuzzy-match t)))
  #+END_SRC
 ** helm extensions
