@@ -41,6 +41,7 @@
       package 'session' which stores lots of session information into
       the file .session in the .emacs.d
 * enhancements and todos
+** todo minimap mode results in ligatures being misplaced!
 ** todo describe each packages' benefit for my configuration
 ** todo undo-tree workaround: [2017-02-25 Sat] currently org src block fontification is disabled if undo tree is called, since undo tree exits on up/down in the tree
 ** todo define something like layers
@@ -1301,7 +1302,7 @@
          (defun gb/disable-ligatures ()
            "disable ligatures"
            (interactive)
-           ;; (remove-fira-code-symbol-keywords)
+           (remove-fira-code-symbol-keywords)
            (remove-hook 'prog-mode-hook
                         #'add-fira-code-symbol-keywords)
            (font-lock-flush)
@@ -1311,7 +1312,7 @@
          (defun gb/enable-ligatures () 
            "enable ligatures"
            (interactive)
-           ;; (add-fira-code-symbol-keywords)
+           (add-fira-code-symbol-keywords)
            (add-hook 'prog-mode-hook
                      #'add-fira-code-symbol-keywords)
            (font-lock-flush)
@@ -1568,43 +1569,76 @@
     #+END_SRC
 *** spaceline (mode line of spacemacs)
     #+BEGIN_SRC emacs-lisp
-           (req-package spaceline
-             :require diminish
-             :config
-             (require 'spaceline-config)
-             (spaceline-spacemacs-theme)
-             (spaceline-helm-mode)
-             (spaceline-define-segment gb/buffer-status
-               "Buffer status (read-only, modified), with color"
-               (cond (buffer-read-only (propertize "RO" 'face 'spaceline-read-only))
-                     ((buffer-modified-p) (propertize "**" 'face 'spaceline-modified))
-                     (t "  ")))
-             (spaceline-define-segment gb/buffer-file-name
-               ""
-               ;; TODO: limit path length to a certain number of characters
-               ;; TODO: allow replacing certain paths with some "propertized" string of shorthands (e.g. :doc: for ~/Documents/)
-               ;; TODO: scratch buffer does not show any modeline
-               (let* ((path (replace-regexp-in-string (concat "^" (regexp-quote (expand-file-name "~"))) "~" (or (file-name-directory (or buffer-file-name "")) ""))))
-                 (or path "")))
-             (apply 'spaceline--theme
-               '(gb/buffer-status buffer-size gb/buffer-file-name buffer-id remote-host)
-               '(paradox-menu persp-name)
-               ;; additional-segments
-               )
-      ;;       (spaceline-install
-      ;;        'main
-      ;;        '((gb/buffer-status)
-      ;;          (gb/buffer-file-name remote-host buffer-id)
-      ;;          (process :when active))
-      ;;        '((selection-info :face region :when mark-active)
-      ;;          ((flycheck-error flycheck-warning flycheck-info) :when active)
-      ;;          (which-function)
-      ;;          (version-control :when active)
-      ;;          (line-column)
-      ;;          (global :when active)
-      ;;          (major-mode)))
+      (req-package spaceline
+        :require diminish
+        :config
+        (require 'spaceline-config)
+        (spaceline-spacemacs-theme)
+        (spaceline-helm-mode)
+        (spaceline-define-segment gb/buffer-status
+          "Buffer status (read-only, modified), with color"
+          (cond (buffer-read-only "")
+                ((buffer-modified-p) "*")
+                (t " ")))
+        (spaceline-define-segment gb/buffer-file-name
+          ""
+          ;; TODO: limit path length to a certain number of characters
+          ;; TODO: allow replacing certain paths with some "propertized" string of shorthands (e.g. :doc: for ~/Documents/)
+          (let* ((path (replace-regexp-in-string (concat "^" (regexp-quote (expand-file-name "~"))) "~" (or (file-name-directory (or buffer-file-name "")) "")))
+                 (spath (if (> (length path) 35) (concat "…" (substring path -34 nil)) path)))
+            (or spath "")))
+        (spaceline-define-segment gb/version-control
+          "Version control information."
+          (when vc-mode
+            (powerline-raw
+             (s-trim (concat (replace-regexp-in-string "^ *Git[:-]" " " vc-mode)
+                             (when (buffer-file-name)
+                               (pcase (vc-state (buffer-file-name))
+                                 (`up-to-date " ✓")
+                                 (`edited " *")
+                                 (`added " +")
+                                 (`unregistered " ?")
+                                 (`removed " -")
+                                 (`needs-merge " m")
+                                 (`needs-update " u")
+                                 (`ignored " i")
+                                 (_ " _"))))))))
 
-           )
+        (spaceline-install '((gb/buffer-status :face highlight-face)
+                             ;; anzu
+                             auto-compile
+                             ;; buffer-size
+                             (gb/buffer-file-name buffer-id :separator "")
+                             remote-host
+                             (paradox-menu :when active)
+                             persp-name
+                             major-mode
+                             (process :when active)
+                             ((flycheck-error flycheck-warning flycheck-info)
+                              :when active)
+                             (minor-modes :when active)
+                             (mu4e-alert-segment :when active)
+                             (erc-track :when active)
+                             (gb/version-control :when active)
+                             (org-pomodoro :when active)
+                             (org-clock :when active)
+                             )
+
+                           '(which-function
+                             (python-pyvenv :fallback python-pyenv)
+                             purpose
+                             (battery :when active)
+                             selection-info
+                             input-method
+                             ((buffer-encoding-abbrev
+                               point-position
+                               line-column)
+                              :separator " | ")
+                             (global :when active)
+                             buffer-position
+                             hud))
+
+        (setq-default mode-line-format '("%e" (:eval (spaceline-ml-main)))))
     #+END_SRC
 *** rich minority mode (hide minor modes from smart mode line) (disabled)
     #+BEGIN_SRC emacs-lisp :tangle no
@@ -6468,6 +6502,7 @@
               auto-fill-mode
               auto-revert-mode
               back-button-mode
+              clj-refactor-mode
               company-mode
               easy-escape-minor-mode
               eldoc-overlay-mode
@@ -6478,10 +6513,13 @@
               helm-mode
               hidepw-mode
               hs-minor-mode
+              minimap-mode
               org-src-mode
               org-table-sticky-header-mode
               paredit-mode
               selected-minor-mode
+              subword-mode
+              typed-clojure-mode
               undo-tree-mode
               volatile-highlights-mode
               which-key-mode
