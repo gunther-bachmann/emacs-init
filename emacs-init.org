@@ -2745,12 +2745,14 @@
       (bind-key "M-o" 'ace-link-gnus gnus-summary-mode-map)
       (bind-key "M-o" 'ace-link-gnus gnus-article-mode-map)))
 
-  (req-package ace-window
+  (req-package ace-window  ;; select open window with one key
     :require key-chord ;; optional, key binding
     :defer t
     :init
+    (progn
+    (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
     (when (package-installed-p 'key-chord)
-      (key-chord-define-global "o0"   'ace-window))) ;; select open window with one key
+      (key-chord-define-global "o0"   'ace-window))))
 
   (req-package ace-flyspell
     :require flyspell avy)
@@ -2772,11 +2774,6 @@
       ;; (setq ace-isearch-input-length 3) ;; start helm swoop at a length of 3 characters
       ;; (setq ace-isearch-jump-delay 0.35) 
       (setq ace-isearch-use-jump (quote printing-char))
-
-      ;; C-u before M-p swaps active with selected window!
-      ;; starts working only of more than one buffer is open (exluding speedbar!)
-      ;; (global-set-key (kbd "M-p") 'ace-window)
-      (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
 
       ;; Enable global ace-isearch mode:
       (global-ace-isearch-mode +1)
