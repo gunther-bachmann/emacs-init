@@ -4782,13 +4782,20 @@
       :require bind-key hydra
       :config
       (require 'ob-clojure)
-      (defun gb/org-edit-special ()
-        "make sure to remove read only mode if going into edit special"
-        (interactive)
-        (read-only-mode -1)
-        (org-edit-special))
-      (bind-key "C-c '" 'gb/org-edit-special org-mode-map)
-      ;; make sure that blackground of src block is black
+
+      (defun gb/wrap-org-edit-src-save (orig-func &rest args)
+        "remove save adjusted hook, execute save and add hook again.
+thus this function prevents org-babel tangle and setting the file on r/o when edited in org edit src mode"
+        (remove-hook 'after-save-hook 'gb/tangle-on-save-org-mode-file)
+        (let ((res (apply orig-func args)))
+          (add-hook 'after-save-hook 'gb/tangle-on-save-org-mode-file)
+          res))
+      ;; ensure that adjusted save hook is not executed when org edit src save is executed    
+      (advice-add 'org-edit-src-save :around #'gb/wrap-org-edit-src-save)
+      ;; ensure that read only mode is removed when org src edit is started
+      (advice-add 'org-edit-special :before #'(lambda (orig-func &rest args) (read-only-mode -1)))
+
+      ;; set org babel backgrounds for several languages
       (setq org-src-block-faces
             '(("emacs-lisp" (:background "#1b1010"))
               ("java" (:background "#1b1010"))))
@@ -4812,8 +4819,7 @@
       (add-hook 'after-change-major-mode-hook #'gb/activate-properties-in-org-mode)
       (add-hook 'org-mode-hook #'gb/enable-auto-fill-mode)
 
-
-    ;;--------------------------------------------------------------------------------
+      ;;--------------------------------------------------------------------------------
       (defhydra hydra-org-mode ()
         "
           org mode
@@ -4895,33 +4901,33 @@
       (setq org-hide-leading-stars t) ;; each level only one star
       (setq org-special-ctrl-a/e t) ;; jump to the head text only (not to the star marking the head)
 
-     ;; replace dashes and bullets with utf-8 bullet
-     ;; (font-lock-add-keywords 'org-mode
-     ;;                         '(("^ +\\([-*]\\) "
-     ;;                            (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
+      ;; replace dashes and bullets with utf-8 bullet
+      ;; (font-lock-add-keywords 'org-mode
+      ;;                         '(("^ +\\([-*]\\) "
+      ;;                            (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
 
-     ;; make level headings larger / bold
-     ;; (let* ((variable-tuple (cond ((x-list-fonts "Source Sans Pro") '(:font "Source Sans Pro"))
-     ;;                             ((x-list-fonts "Lucida Grande")   '(:font "Lucida Grande"))
-     ;;                             ((x-list-fonts "Verdana")         '(:font "Verdana"))
-     ;;                             ((x-family-fonts "Sans Serif")    '(:family "Sans Serif"))
-     ;;                             (nil (warn "Cannot find a Sans Serif Font.  Install Source Sans Pro."))))
-     ;;      (base-font-color     (face-foreground 'default nil 'default))
-     ;;      (headline           `(:inherit default :weight bold )))
+      ;; make level headings larger / bold
+      ;; (let* ((variable-tuple (cond ((x-list-fonts "Source Sans Pro") '(:font "Source Sans Pro"))
+      ;;                             ((x-list-fonts "Lucida Grande")   '(:font "Lucida Grande"))
+      ;;                             ((x-list-fonts "Verdana")         '(:font "Verdana"))
+      ;;                             ((x-family-fonts "Sans Serif")    '(:family "Sans Serif"))
+      ;;                             (nil (warn "Cannot find a Sans Serif Font.  Install Source Sans Pro."))))
+      ;;      (base-font-color     (face-foreground 'default nil 'default))
+      ;;      (headline           `(:inherit default :weight bold )))
 
-     ;;  (custom-theme-set-faces 'user
-     ;;                          `(org-level-8 ((t (,@headline ,@variable-tuple))))
-     ;;                          `(org-level-7 ((t (,@headline ,@variable-tuple))))
-     ;;                          `(org-level-6 ((t (,@headline ,@variable-tuple))))
-     ;;                          `(org-level-5 ((t (,@headline ,@variable-tuple))))
-     ;;                          `(org-level-4 ((t (:foreground "#a97167"))))
-     ;;                          `(org-level-3 ((t (:foreground "#4fa8a8" ,@headline))))
-     ;;                          `(org-level-2 ((t (:foreground "#989848" ,@headline :height 1.1))))
-     ;;                          `(org-level-1 ((t (:foreground "#8888c8" ,@headline :height 1.25))))
-     ;;                          `(org-document-title ((t ( :height 1.5 :underline nil))))))
+      ;;  (custom-theme-set-faces 'user
+      ;;                          `(org-level-8 ((t (,@headline ,@variable-tuple))))
+      ;;                          `(org-level-7 ((t (,@headline ,@variable-tuple))))
+      ;;                          `(org-level-6 ((t (,@headline ,@variable-tuple))))
+      ;;                          `(org-level-5 ((t (,@headline ,@variable-tuple))))
+      ;;                          `(org-level-4 ((t (:foreground "#a97167"))))
+      ;;                          `(org-level-3 ((t (:foreground "#4fa8a8" ,@headline))))
+      ;;                          `(org-level-2 ((t (:foreground "#989848" ,@headline :height 1.1))))
+      ;;                          `(org-level-1 ((t (:foreground "#8888c8" ,@headline :height 1.25))))
+      ;;                          `(org-document-title ((t ( :height 1.5 :underline nil))))))
 
 
-     )
+      )
   #+END_SRC
 *** org capture
     - for capture templates see [[http://orgmode.org/manual/Template-elements.html#Template-elements]]
@@ -5382,6 +5388,7 @@
                       (add-hook 'prog-mode-hook
                                 #'add-fira-code-symbol-keywords))
                     ;; check whether readonly should be applied again
+                    ;; only if currently not in detailed edit mode
                     (gb/activate-properties-in-org-mode)
                     ;; the following currently takes about 3 seconds (which I don't want to spend)
                     ;;(when (package-installed-p 'pretty-mode)
