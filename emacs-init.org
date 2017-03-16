@@ -1613,13 +1613,13 @@
                              (paradox-menu :when active)
                              persp-name
                              major-mode
-                             (process :when active)
                              ((flycheck-error flycheck-warning flycheck-info)
                               :when active)
                              (minor-modes :when active)
                              (mu4e-alert-segment :when active)
                              (erc-track :when active)
                              (gb/version-control :when active)
+                             (process :when active)
                              (org-pomodoro :when active)
                              (org-clock :when active)
                              )
