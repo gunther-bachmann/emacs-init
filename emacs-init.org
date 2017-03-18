@@ -6488,6 +6488,17 @@ thus this function prevents org-babel tangle and setting the file on r/o when ed
    #+BEGIN_SRC emacs-lisp
    (req-package historian)
    #+END_SRC
+** ws-butler
+   remove trailing whitespaces upon save (unobtrusively, that is only in lines actually changed)
+   [[https://github.com/lewang/ws-butler][home page]]
+   #+BEGIN_SRC emacs-lisp
+     (req-package ws-butler
+       :config
+       (progn
+         (ws-butler-global-mode 1)
+         (when (package-installed-p 'diminish)
+           (diminish 'ws-butler-mode))))
+   #+END_SRC
 * finish - up
   #+BEGIN_SRC emacs-lisp
     (req-package-finish);; this command must be at the end !ALWAYS!
