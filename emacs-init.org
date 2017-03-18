@@ -41,6 +41,7 @@
       package 'session' which stores lots of session information into
       the file .session in the .emacs.d
 * enhancements and todos
+** todo move diminish at the end of file to the respective packages
 ** todo minimap mode results in ligatures being misplaced!
 ** todo describe each packages' benefit for my configuration
 ** todo undo-tree workaround: [2017-02-25 Sat] currently org src block fontification is disabled if undo tree is called, since undo tree exits on up/down in the tree
@@ -1075,7 +1076,7 @@
          ;; make sure this does not collide with symbols from fira code symbol replacement (ligatures)
          (pretty-deactivate-groups
           '(:equality :ordering :ordering-double :ordering-triple
-                      :arrows :arrows-twoheaded :punctuation))
+                      :arrows :arrows-twoheaded :punctuation :arithmetic :arithmetic-double))
          (pretty-activate-groups
           '(:sub-and-superscripts :greek :arithmetic-nary))
          ))
@@ -1182,11 +1183,12 @@
                                             ;; The first argument to concat is a string containing a literal tab
                                             ,(concat "	" (list (decode-char 'ucs (cadr regex-char-pair)))))))))
                    '(("\\(www\\)"                   #Xe100)
-                     ("[^/]\\(\\*\\*\\)[^/]"        #Xe101)
-                     ("\\(\\*\\*\\*\\)"             #Xe102)
-                     ("\\(\\*\\*/\\)"               #Xe103)
-                     ("\\(\\*>\\)"                  #Xe104)
-                     ("[^*]\\(\\*/\\)"              #Xe105)
+                     ;; ("[^/\\*]\\(\\*\\*\\)[^\\*/]"        #Xe101) ;; double **
+                     ;; ("\\(\\*\\*\\*\\)"             #Xe102) ;; triple stars ***
+                     ;; ("\\(\\*\\*/\\)"               #Xe103) ;; double comment end **/
+                     ;; ("\\(\\*>\\)"                  #Xe104)
+                     ;; ("[^*]\\(\\*/\\)"              #Xe105) ;; single comment end */
+                     ("\\(*\\)" #Xe16f) ;; single *
                      ("\\(\\\\\\\\\\)"              #Xe106)
                      ("\\(\\\\\\\\\\\\\\)"          #Xe107)
                      ("\\({-\\)"                    #Xe108)
@@ -1223,8 +1225,8 @@
                      ("\\(\\?=\\)"                  #Xe127)
                      ("\\(\\?\\?\\)"                #Xe128)
                      ("\\(;;\\)"                    #Xe129)
-                     ("\\(/\\*\\)"                  #Xe12a)
-                     ("\\(/\\*\\*\\)"               #Xe12b)
+                     ;; ("\\(/\\*\\)"                  #Xe12a)
+                     ;; ("\\(/\\*\\*\\)"               #Xe12b)
                      ("\\(/=\\)[^=]"                    #Xe12c)
                      ("\\(/==\\)"                   #Xe12d)
                      ("[^<]\\(/>\\)"                    #Xe12e)
@@ -1256,8 +1258,8 @@
                      ("\\(>>-\\)"                   #Xe148)
                      ("\\(>>=\\)"                   #Xe149)
                      ("\\(>>>\\)"                   #Xe14a)
-                     ("\\(<\\*\\)[^>]"                  #Xe14b)
-                     ("\\(<\\*>\\)"                 #Xe14c)
+                     ;; ("\\(<\\*\\)[^>]"                  #Xe14b)
+                     ;; ("\\(<\\*>\\)"                 #Xe14c)
                      ("\\(<|\\)[^>]"                    #Xe14d)
                      ("\\(<|>\\)"                   #Xe14e)
                      ("\\(<\\$\\)[^>]"                  #Xe14f)
