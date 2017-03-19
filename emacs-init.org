@@ -309,9 +309,9 @@
          (len-needed-for-memory (+ (length free-ram-str) (length total-ram-str))))
 
     (setq initial-scratch-message 
-          (propertize (concat ";; ***   FREE SOFTWARE FOUNDATION  EMACS "
+          (propertize (concat ";; ***** FREE SOFTWARE FOUNDATION  EMACS "
                               emacs-version
-                              "   ***\n;;   " 
+                              " *****\n;;   "
                               total-ram-str 
                               " RAM SYSTEM" 
                               (make-string (max 2 (- len-avail-for-memory len-needed-for-memory)) ? )
