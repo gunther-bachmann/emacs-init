@@ -1577,27 +1577,36 @@
         (require 'spaceline-config)
         (spaceline-spacemacs-theme)
         (spaceline-helm-mode)
+
+        (setq gb/mode-line-buffer-read-only-symbol (if fira-code-symbol-installed "\ue0a2" "o"))  ;; ""
+        (setq gb/mode-line-buffer-modified-ro-symbol (if fira-code-symbol-installed "\ue16b" "x"))  ;; ""
+        (setq gb/mode-line-buffer-modified-symbol (if fira-code-symbol-installed "\ue16f" "*"))  ;; ""
+        (setq gb/mode-line-branch-up-to-date-symbol "\u2713")  ;; "✓"
+        (setq gb/mode-line-branch-edited-symbol (if fira-code-symbol-installed "\ue16f" "*"))  ;; ""
+        (setq gb/mode-line-cutted-path-prefix-symbol "\u2025") ;; "…"
+
         (spaceline-define-segment gb/buffer-status
           "Buffer status (read-only, modified), with color"
-          (cond (buffer-read-only "")
-                ((buffer-modified-p) "*")
+          (cond ((and buffer-read-only (buffer-modified-p)) gb/mode-line-buffer-modified-ro-symbol)
+                (buffer-read-only gb/mode-line-buffer-read-only-symbol)
+                ((buffer-modified-p) gb/mode-line-buffer-modified-symbol)
                 (t " ")))
         (spaceline-define-segment gb/buffer-file-name
-          ""
-          ;; TODO: limit path length to a certain number of characters
-          ;; TODO: allow replacing certain paths with some "propertized" string of shorthands (e.g. :doc: for ~/Documents/)
+          "provide fullpath to buffer file name, shortened to 35 characters if too long"
+          ;; limit path length to a certain number of characters (currently 35)
+          ;; TODO: allow replacing certain paths with some shorthands (e.g. :doc: for ~/Documents/)
           (let* ((path (replace-regexp-in-string (concat "^" (regexp-quote (expand-file-name "~"))) "~" (or (file-name-directory (or buffer-file-name "")) "")))
-                 (spath (if (> (length path) 35) (concat "…" (substring path -34 nil)) path)))
+                 (spath (if (> (length path) 35) (concat gb/mode-line-cutted-path-prefix-symbol (substring path -34 nil)) path)))
             (or spath "")))
         (spaceline-define-segment gb/version-control
           "Version control information."
           (when vc-mode
             (powerline-raw
-             (s-trim (concat (replace-regexp-in-string "^ *Git[:-]" " " vc-mode)
+             (s-trim (concat (replace-regexp-in-string "^ *Git[:-]" "\ue0a0 " vc-mode) ;; "  "
                              (when (buffer-file-name)
                                (pcase (vc-state (buffer-file-name))
-                                 (`up-to-date " ✓")
-                                 (`edited " *")
+                                 (`up-to-date (concat " " gb/mode-line-branch-up-to-date-symbol))
+                                 (`edited (concat " " gb/mode-line-branch-edited-symbol))
                                  (`added " +")
                                  (`unregistered " ?")
                                  (`removed " -")
@@ -1607,7 +1616,6 @@
                                  (_ " _"))))))))
 
         (spaceline-install '((gb/buffer-status :face highlight-face)
-                             ;; anzu
                              auto-compile
                              ;; buffer-size
                              (gb/buffer-file-name buffer-id :separator "")
