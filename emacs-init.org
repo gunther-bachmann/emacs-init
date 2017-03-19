@@ -1591,6 +1591,8 @@
                 (buffer-read-only gb/mode-line-buffer-read-only-symbol)
                 ((buffer-modified-p) gb/mode-line-buffer-modified-symbol)
                 (t " ")))
+        (spaceline-define-segment gb/buffer-id
+          (buffer-name))
         (spaceline-define-segment gb/buffer-file-name
           "provide fullpath to buffer file name, shortened to 35 characters if too long"
           ;; limit path length to a certain number of characters (currently 35)
@@ -1618,7 +1620,8 @@
         (spaceline-install '((gb/buffer-status :face highlight-face)
                              auto-compile
                              ;; buffer-size
-                             (gb/buffer-file-name buffer-id :separator "")
+                             gb/buffer-file-name
+                             (gb/buffer-id :face popup-menu-selection-face)
                              remote-host
                              (paradox-menu :when active)
                              persp-name
