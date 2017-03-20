@@ -157,99 +157,136 @@
   #+END_SRC
 * initial accounts setup
   #+BEGIN_SRC emacs-lisp
-  (setq agenda-accounts-exists (file-exists-p "~/.emacs.d/accounts/agenda-accounts.el"))
-  (setq calendar-accounts-exists (file-exists-p "~/.emacs.d/accounts/calendar-accounts.el"))
-  (setq mail-accounts-exists (file-exists-p "~/.emacs.d/accounts/mail-accounts.el"))
+    (setq agenda-accounts-exists (file-exists-p (concat user-emacs-directory "accounts/agenda-accounts.el")))
+    (setq calendar-accounts-exists (file-exists-p (concat user-emacs-directory "accounts/calendar-accounts.el")))
+    (setq mail-accounts-exists (file-exists-p (concat user-emacs-directory "accounts/mail-accounts.el")))
   #+END_SRC
 * initial setting of vars
   #+BEGIN_SRC emacs-lisp
     ;; must be set before loading use-package in order to work
     (setq use-package-enable-imenu-support t) ;; enable locating package loaded by use-package within init.el
   #+END_SRC
+* initial function setup
+  #+BEGIN_SRC emacs-lisp
+     (defun is-ms-windows-p ()
+       "check whether this system is microsoft windows"
+       (string-match "windows" (symbol-name system-type)))
+
+     (defun is-linux-p ()
+       "check whether this system is microsoft windows"
+       (string-match "linux" (symbol-name system-type)))
+
+     (defun is-macos-p ()
+       "check whether this system is microsoft windows"
+       (string-match "darwin" (symbol-name system-type)))
+
+     (defun is-_nix-p ()
+       "check whether this is a *nix derivative (either linux or macos"
+       (or (is-linux-p) (is-macos-p)))  
+  #+END_SRC
+* proxy setup (if necessary)
+  #+BEGIN_SRC emacs-lisp
+      (if (is-ms-windows-p)
+        (progn
+
+          ;; proxy settings TODO load from separate file
+          (setq url-proxy-services
+                '(("no_proxy" . "^\\(localhost\\|10.*\\)")
+                  ("http" . "proxy.system.local:80")
+                  ("https" . "proxy.system.local:80")))))
+  #+END_SRC
 * package setup
 #+BEGIN_SRC emacs-lisp
-    (require 'package)
+  (require 'package)
 
-    (setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
-                             ;; ("marmalade" . "https://marmalade-repo.org/packages/")
-                             ("melpa-stable" . "https://stable.melpa.org/packages/")
-                             ("melpa" . "https://melpa.org/packages/")))
+  ;; package access either through secure https, or insecure http
+  (setq secure-package-access t)
 
-    (setq package-archive-priorities
-          '(("melpa-stable" . 20)  ;; stable is preferred
-            ;; ("marmalade" . 20)
-            ("melpa" . 10)
-            ("gnu" . 0)))
+  (if secure-package-access
+      (setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
+                               ;; ("marmalade" . "https://marmalade-repo.org/packages/")
+                               ("melpa-stable" . "https://stable.melpa.org/packages/")
+                               ("melpa" . "https://melpa.org/packages/")))
+    (setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
+                             ;; ("marmalade" . "http://marmalade-repo.org/packages/")
+                             ("melpa-stable" . "http://stable.melpa.org/packages/")
+                             ("melpa" . "http://melpa.org/packages/"))))
 
-    (setq package-menu-async nil) ;; defaulting operations to be async (is problematic on windows systems)
+  (setq package-archive-priorities
+        '(("melpa-stable" . 20)  ;; stable is preferred
+          ;; ("marmalade" . 20)
+          ("melpa" . 10)
+          ("gnu" . 0)))
 
-    (package-initialize)
+  (setq package-menu-async nil) ;; defaulting operations to be async (is problematic on windows systems)
 
-    (defun require-package (package)
-      "refresh package archives, check package presence and install if it's not installed"
-      (if (null (require package nil t))
-          (progn 
-            (let* ((ARCHIVES (if (null package-archive-contents)
-                                 (progn (package-refresh-contents)
-                                        package-archive-contents)
-                               package-archive-contents))
-                   (AVAIL (assoc package ARCHIVES)))
-              (if AVAIL
-                  (package-install package)))
-            (require package))))
+  (package-initialize)
 
-    (setq package-to-install-initially
-          '( dash
-             ht
-             maxframe
-             bind-key
-             key-chord
-             validate
-             use-package
-             req-package))
+  (defun require-package (package)
+    "refresh package archives, check package presence and install if it's not installed"
+    (if (null (require package nil t))
+        (progn
+          (let* ((ARCHIVES (if (null package-archive-contents)
+                               (progn (package-refresh-contents)
+                                      package-archive-contents)
+                             package-archive-contents))
+                 (AVAIL (assoc package ARCHIVES)))
+            (if AVAIL
+                (package-install package)))
+          (require package))))
 
-    ;; add mac specific packages 
-    (when (gb/on-mac-p)
-      (add-to-list 'package-to-install-initially 'exec-path-from-shell))
+  (setq package-to-install-initially
+        '( dash
+           ht
+           maxframe
+           bind-key
+           key-chord
+           validate
+           use-package
+           req-package))
 
-    (dolist (package package-to-install-initially)
-      (progn
-        (message (concat "Preinstall/require " (symbol-name package)))
-        (require-package package)))
+  ;; add mac specific packages
+  (when (gb/on-mac-p)
+    (add-to-list 'package-to-install-initially 'exec-path-from-shell))
 
-    (setq active-layers '(core clojure navigation completion positioning editing))
+  (dolist (package package-to-install-initially)
+    (progn
+      (message (concat "Preinstall/require " (symbol-name package)))
+      (require-package package)))
 
-    ;; cl--parsing-keywords does not function, since splitting is done based on certain keywords
-    ;; TODO: do splitting off :layer, extracting layer dependency, reconstruct list fo req-package macro and splice macro in
-    ;; do some custom modification to req-package
-    (defmacro gb/req-package (pkg &rest cl-keys) 
-      "wrapping req-package.
+  (setq active-layers '(core clojure navigation completion positioning editing))
 
-  Check for keyword argument ':layer' to be in active-layers list. 
+  ;; cl--parsing-keywords does not function, since splitting is done based on certain keywords
+  ;; TODO: do splitting off :layer, extracting layer dependency, reconstruct list fo req-package macro and splice macro in
+  ;; do some custom modification to req-package
+  (defmacro gb/req-package (pkg &rest cl-keys)
+    "wrapping req-package.
+
+  Check for keyword argument ':layer' to be in active-layers list.
   When no :layer is given or given :layer is within active-layers list,
   the package gets /required/, else it will not be /required/."
-      (cl--parsing-keywords ((:layer nil)) nil
-        (if (or (null cl-layer)
-                (memq cl-layer active-layers))
-            `(progn
-              (message (concat "pacakge '" (symbol-name pkg) "' is required"))
-              ,(req-package pkg @cl-keys))
-          '(message (concat "package '" (symbol-name pkg) "' is not required, layer '" (symbol-name cl-layer) "' is not part of active-layers.")))))
+    (cl--parsing-keywords ((:layer nil)) nil
+      (if (or (null cl-layer)
+              (memq cl-layer active-layers))
+          `(progn
+             (message (concat "pacakge '" (symbol-name pkg) "' is required"))
+             ,(req-package pkg @cl-keys))
+        '(message (concat "package '" (symbol-name pkg) "' is not required, layer '" (symbol-name cl-layer) "' is not part of active-layers.")))))
 #+END_SRC
 ** add el as package addon (disabled)
    el allows the installation of non repository packages by using recipes
    these recipes describe how to download (and compile) the given package
    - el-get-package-list
 #+BEGIN_SRC emacs-lisp :tangle no
-  (add-to-list 'load-path "~/.emacs.d/el-get/el-get")
+  (add-to-list 'load-path (concat user-emacs-directory "el-get/el-get"))
 
   (unless (package-installed-p 'el-get)
     (package-refresh-contents)
     (package-install 'el-get))
-   
+
   (require-package 'el-get)
   (require 'el-get)
-  (add-to-list 'el-get-recipe-path "~/.emacs.d/el-get-user/recipes")
+  (add-to-list 'el-get-recipe-path (concat user-emacs-directory "el-get-user/recipes"))
   (el-get 'sync)
 #+END_SRC
 ** bootstrap and initialize req-package
@@ -723,22 +760,6 @@
          (not (or (string-empty-p which-result)
                   (string-match (concat "no " program-string " in") which-result)))))
 
-     (defun is-ms-windows-p ()
-       "check whether this system is microsoft windows"
-       (string-match "windows" (symbol-name system-type)))
-
-     (defun is-linux-p ()
-       "check whether this system is microsoft windows"
-       (string-match "linux" (symbol-name system-type)))
-
-     (defun is-macos-p ()
-       "check whether this system is microsoft windows"
-       (string-match "darwin" (symbol-name system-type)))
-
-     (defun is-_nix-p ()
-       "check whether this is a *nix derivative (either linux or macos"
-       (or (is-linux-p) (is-macos-p)))
-
      (defun all-files-exist (full-file-string-list)
        "does the given file (list of files, all) exist?
      pass either list of strings or a string."
@@ -831,15 +852,9 @@
           ;; make sure that git asks for the credentials via gui
           (setenv "GIT_ASKPASS" "git-gui--askpass")
 
-          ;; proxy settings TODO load from separate file
-          (setq url-proxy-services
-                '(("no_proxy" . "^\\(localhost\\|10.*\\)")
-                  ("http" . "proxy.system.local:80")
-                  ("https" . "proxy.system.local:80")))
-
           (setq graphviz-installation-path "C:/dev/tools/Graphviz 2.28/")
 
-          (check-windows-program-status graphviz-installed (concatenate graphviz-installation-path "bin/dot.exe") "Graphviz" "org babel will not be able to prodcess dot files.")
+          (check-windows-program-status graphviz-installed (concat graphviz-installation-path "bin/dot.exe") "Graphviz" "org babel will not be able to prodcess dot files.")
 
           (if graphviz-installed
               (add-to-list 'exec-path graphviz-installation-path))
@@ -849,44 +864,45 @@
           (check-file-existence-status plantuml-installed org-plantuml-jar-path "plantuml.jar" "org babel won't be able to produce uml diagrams via plantuml.")
 
           (setq everthing-installation-path "C:/dev/tools/es/")
-          (check-windows-program-status everything-installed (concatenate everthing-installation-path "es.exe") "Everything" "Helm locate will not work without 'Everthing' installed")
+          (check-windows-program-status everything-installed (concat everthing-installation-path "es.exe") "Everything" "Helm locate will not work without 'Everthing' installed")
 
-          (if everything-installed 
+          (if everything-installed
               (progn
                 (setq everything-cmd "C:/dev/tools/es/es.exe")
                 (setq helm-locate-command "es.exe %s -r %s")))
 
           (setq magithub-installation-path "c:/dev/tools/hub/bin/")
-          (check-windows-program-status hub-installed (concatenate magithub-installation-path "hub.exe") "Hub" "cannot use magithub within magit.")
+          (check-windows-program-status hub-installed (concat magithub-installation-path "hub.exe") "Hub" "cannot use magithub within magit.")
 
           (if hub-installed
-            (magithub-hub-executable "c:/dev/tools/hub/bin/hub.exe"))
+              (magithub-hub-executable (concat magithub-installation-path "hub.exe")))
 
-         ;; windows specific settings
-         ;; 1. install AutoHotkey
-         ;; 2. remap windows and alt keys (left windows key will be meta, alt key will be super)
-         ;;      LWin::LAlt
-         ;;      LAlt::LWin
-         ;;      Capslock::Ctrl
-         ;; 3. disable windows hot key binding in windows (LWin + f won't open the windows find dialog anymore!)
-         ;;      - start 'regedit'
-         ;;      - got to the key 'HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer'
-         ;;      - create a new DWORD 'NoWinKeys' entry  and set its value to 1
-         ;;      - reboot 
+          ;; windows specific settings
+          ;; 1. install AutoHotkey
+          ;; 2. remap windows and alt keys (left windows key will be meta, alt key will be super)
+          ;;      LWin::LAlt
+          ;;      LAlt::LWin
+          ;;      Capslock::Ctrl
+          ;; 3. disable windows hot key binding in windows (LWin + f won't open the windows find dialog anymore!)
+          ;;      - start 'regedit'
+          ;;      - got to the key 'HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer'
+          ;;      - create a new DWORD 'NoWinKeys' entry  and set its value to 1
+          ;;      - reboot
 
-         ;; make sure that autohotkey is run beforehand to map the left windows key to alt!
-         (setq w32-lwindow-modifier 'super)
+          ;; make sure that autohotkey is run beforehand to map the left windows key to alt!
+          (setq w32-lwindow-modifier 'super)
 
+          (setq w3m-installed nil)
 
-         (setq aspell-installation-path "C:/dev/tools/Aspell/")
-         (check-windows-program-status aspell-installed (concatenate aspell-installation-path "bin/aspell.exe") "Aspell" "no spell checking will be possible")
+          (setq aspell-installation-path "C:/dev/tools/Aspell/")
+          (check-windows-program-status aspell-installed (concat aspell-installation-path "bin/aspell.exe") "Aspell" "no spell checking will be possible")
 
-         (if aspell-installed
-             (progn
-               (add-to-list 'exec-path (concatenate aspell-installation-path "bin/"))
-               (setq ispell-program-name "aspell")))
+          (if aspell-installed
+              (progn
+                (add-to-list 'exec-path (concat aspell-installation-path "bin/"))
+                (setq ispell-program-name "aspell")))
 
-        ))
+          ))
   #+END_SRC
 * mac os x specific stuff
 ** misc
@@ -1044,7 +1060,7 @@
 ** show menu bar (only in case of macos)
  #+BEGIN_SRC emacs-lisp
    (if (gb/on-mac-p)
-     (menu-bar-mode 1)
+       (menu-bar-mode 1)
      (menu-bar-mode -1))
  #+END_SRC
 ** remove scroll bars
@@ -1055,14 +1071,14 @@
 ** add theme
    #+BEGIN_SRC emacs-lisp
      ;; TODO change to use varaible user-init-file, chop off init.el at the end and use it as path
-     (if (file-exists-p "~/.emacs.d/themes")
+     (if (file-exists-p (concat user-emacs-directory "themes"))
          (progn
-           (add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
-           (add-to-list 'load-path "~/.emacs.d/themes")
-           (if (file-exists-p "~/.emacs.d/themes/sanityinc-tomorrow-night-theme.el")
+           (add-to-list 'custom-theme-load-path (concat user-emacs-directory "themes"))
+           (add-to-list 'load-path (concat user-emacs-directory "themes"))
+           (if (file-exists-p (concat user-emacs-directory "themes/sanityinc-tomorrow-night-theme.el"))
                (load-theme 'sanityinc-tomorrow-night t)
-             (message "WARNING: theme folder '~/.emacs.d/themes' does not contain 'sanityinc-tomorrow-night")))
-       (message "WARNING: theme folder '~/.emacs.d/themes' not found. Themes will not be loaded"))
+             (message (concat "WARNING: theme folder '" user-emacs-directory "themes' does not contain 'sanityinc-tomorrow-night"))))
+       (message (concat "WARNING: theme folder '" user-emacs-directory "themes' not found. Themes will not be loaded")))
    #+END_SRC
 ** display symbols (pretty-mode, prettify-greek)
    #+BEGIN_SRC emacs-lisp
@@ -1165,6 +1181,9 @@
    - install ligatures via fira code symbol (had to install [[https://github.com/tonsky/FiraCode/files/412440/FiraCode-Regular-Symbol.zip][fira code symbol]] for the following to work)
      #+BEGIN_SRC emacs-lisp
        (setq fira-code-symbol-installed (member "Fira Code Symbol" (font-family-list)))
+
+       (if (not fira-code-symbol-installed)
+           (message "WARNING: Fira code symbol not installed. Ligatures will not be available."))
 
        (when fira-code-symbol-installed
          ;; Fira code
@@ -1285,7 +1304,7 @@
                      ("\\(</>\\)"                   #Xe163)
                      ("\\(~@\\)"                    #Xe164)
                      ("\\(~-\\)"                    #Xe165)
-                     ("\\(~=\\)"                    #Xe166) 
+                     ("\\(~=\\)"                    #Xe166)
                      ("[^<~]\\(~>\\)"                    #Xe167)
                      ("[^<]\\(~~\\)[^>]"                #Xe168)
                      ("\\(~~>\\)"                   #Xe169)
@@ -1311,7 +1330,7 @@
            (run-mode-hooks)
            (setq ligatures-enabled nil))
 
-         (defun gb/enable-ligatures () 
+         (defun gb/enable-ligatures ()
            "enable ligatures"
            (interactive)
            (add-fira-code-symbol-keywords)
@@ -1621,7 +1640,7 @@
                              auto-compile
                              ;; buffer-size
                              gb/buffer-file-name
-                             (gb/buffer-id :face popup-menu-selection-face)
+                             (gb/buffer-id :face highlight-face) ;; popup-menu-selection-face
                              remote-host
                              (paradox-menu :when active)
                              persp-name
@@ -1815,7 +1834,7 @@
            "Call `flash-crosshairs' after switching with `ace-window'"
            (cursor-ping 1)))))
    #+END_SRC
-** TODO window arrangement
+** window arrangement
    - [[https://github.com/wasamasa/shackle][github]]
    - [[https://github.com/kaushalmodi/.emacs.d/blob/master/setup-files/setup-shackle.el][example usage]]
    #+BEGIN_SRC emacs-lisp
@@ -1983,7 +2002,7 @@
      (set-selection-coding-system 'utf-8-unix)
      (setq-default buffer-file-coding-system 'utf-8-unix)
    #+END_SRC
-** schrute mode (make suggestions)
+** schrute mode (make suggestions) disabled
    #+begin_src emacs-lisp :tangle no
      (req-package schrute
        ;; :diminish schrute-mode
@@ -2128,10 +2147,11 @@
      (define-key gb/toggle-map "p" #'toggle-serif)
      (define-key gb/toggle-map "q" #'toggle-debug-on-quit)
      (define-key gb/toggle-map "r" #'toggle-word-wrap)
-     (define-key gb/toggle-map "u" #'focus-mode)
-     (define-key gb/toggle-map "w" #'whitespace-mode)
      (when (fboundp 'gb/toggle-ligatures)
        (define-key gb/toggle-map "t" #'gb/toggle-ligatures))
+     (define-key gb/toggle-map "u" #'focus-mode)
+     (define-key gb/toggle-map "w" #'whitespace-mode)
+     (define-key gb/toggle-map "5" #'toggle-frame-fullscreen)
    #+END_SRC
 ** browse kill ring
    #+BEGIN_SRC emacs-lisp
@@ -3197,136 +3217,136 @@
     #+END_SRC
 *** cider
  #+BEGIN_SRC emacs-lisp
-     ;;;;
-     ;; Cider
-     ;;;;
-     (req-package cider
-       :commands cider-jack-in
-       :require clojure-mode
-       bind-key ;; optional for binding
-       company ;; optional for completion
-       flycheck-clojure ;; optional for checking on the fly
-       rainbow-delimiters ;; optional minor mode to switch on
-       paredit ;; optional paredit minor mode to switch to
-       spinner
-       :config
-       (progn
+   ;;;;
+   ;; Cider
+   ;;;;
+   (req-package cider
+     :commands cider-jack-in
+     :require clojure-mode
+     bind-key ;; optional for binding
+     company ;; optional for completion
+     flycheck-clojure ;; optional for checking on the fly
+     rainbow-delimiters ;; optional minor mode to switch on
+     paredit ;; optional paredit minor mode to switch to
+     spinner
+     :config
+     (progn
 
-         ;; provides minibuffer documentation for the code you're typing into the repl
-         (add-hook 'cider-mode-hook 'turn-on-eldoc-mode)
+       ;; provides minibuffer documentation for the code you're typing into the repl
+       (add-hook 'cider-mode-hook 'turn-on-eldoc-mode)
 
-         ;; add company hooks
-         (when (package-installed-p 'company)
-           (add-hook 'cider-repl-mode-hook #'company-mode)
-           (add-hook 'cider-mode-hook #'company-mode))
+       ;; add company hooks
+       (when (package-installed-p 'company)
+         (add-hook 'cider-repl-mode-hook #'company-mode)
+         (add-hook 'cider-mode-hook #'company-mode))
 
-         ;; make sure that nrepl does not automatically scroll down!
-         (setq cider-repl-scroll-on-output nil)
-         ;; use pretty print output in repl
-         (setq cider-repl-use-pretty-printing t)
+       ;; make sure that nrepl does not automatically scroll down!
+       (setq cider-repl-scroll-on-output nil)
+       ;; use pretty print output in repl
+       (setq cider-repl-use-pretty-printing t)
 
-         ;; go right to the REPL buffer when it's finished connecting
-         (setq cider-repl-pop-to-buffer-on-connect t)
+       ;; go right to the REPL buffer when it's finished connecting
+       (setq cider-repl-pop-to-buffer-on-connect t)
 
-         ;; When there's a cider error, show its buffer and switch to it
-         (setq cider-show-error-buffer t)
-         (setq cider-auto-select-error-buffer t)
+       ;; When there's a cider error, show its buffer and switch to it
+       (setq cider-show-error-buffer t)
+       (setq cider-auto-select-error-buffer t)
 
-         ;; Where to store the cider history.
-         (setq cider-repl-history-file "~/.emacs.d/cider-history")
-         ;; keep that much history
-         (setq cider-repl-history-size 1000)
-         ;; Wrap when navigating history.
-         (setq cider-repl-wrap-history t)
+       ;; Where to store the cider history.
+       (setq cider-repl-history-file (concat user-emacs-directory "cider-history"))
+       ;; keep that much history
+       (setq cider-repl-history-size 1000)
+       ;; Wrap when navigating history.
+       (setq cider-repl-wrap-history t)
 
-         ;; Version of clojure to auto-inject into REPL.
-         (setq cider-jack-in-auto-inject-clojure (quote latest))
-
-      
-         ;; enable paredit in your REPL
-         (when (package-installed-p 'paredit) (add-hook 'cider-repl-mode-hook 'paredit-mode))
-
-         ;; Use clojure mode for other extensions
-         (add-to-list 'auto-mode-alist '("\\.edn$" . clojure-mode))
-         (add-to-list 'auto-mode-alist '("\\.boot$" . clojure-mode))
-         ;; (add-to-list 'auto-mode-alist '("\\.cljs.*$" . clojure-mode)) ;; might collide with clojure mode check of current major mode!!
-         (add-to-list 'auto-mode-alist '("lein-env" . enh-ruby-mode))
-
-         ;; do flycheck setup for clojure
-         (when (package-installed-p 'flycheck-clojure)  (flycheck-clojure-setup))
-
-         ;; key bindings
-         ;; these help me out with the way I usually develop web apps
-         (defun cider-start-http-server ()
-           (interactive)
-           (cider-load-current-buffer)
-           (let ((ns (cider-current-ns)))
-             (cider-repl-set-ns ns)
-             (cider-interactive-eval (format "(println '(def server (%s/start))) (println 'server)" ns))
-             (cider-interactive-eval (format "(def server (%s/start)) (println server)" ns))))
+       ;; Version of clojure to auto-inject into REPL.
+       (setq cider-jack-in-auto-inject-clojure (quote latest))
 
 
-         (defun cider-refresh ()
-           (interactive)
-           (cider-interactive-eval (format "(user/reset)")))
+       ;; enable paredit in your REPL
+       (when (package-installed-p 'paredit) (add-hook 'cider-repl-mode-hook 'paredit-mode))
 
-         (defun cider-user-ns ()
-           (interactive)
-           (cider-repl-set-ns "user"))
+       ;; Use clojure mode for other extensions
+       (add-to-list 'auto-mode-alist '("\\.edn$" . clojure-mode))
+       (add-to-list 'auto-mode-alist '("\\.boot$" . clojure-mode))
+       ;; (add-to-list 'auto-mode-alist '("\\.cljs.*$" . clojure-mode)) ;; might collide with clojure mode check of current major mode!!
+       (add-to-list 'auto-mode-alist '("lein-env" . enh-ruby-mode))
 
-         ;; make delimiters colorful
-         (when (package-installed-p 'rainbow-delimiters)  (add-hook 'cider-repl-mode-hook #'rainbow-delimiters-mode))
+       ;; do flycheck setup for clojure
+       (when (package-installed-p 'flycheck-clojure)  (flycheck-clojure-setup))
 
-         (when (package-installed-p 'bind-key)
-           (bind-key "C-c C-v" 'cider-start-http-server clojure-mode-map)
-           (bind-key "C-M-r" 'cider-refresh clojure-mode-map)
-           (bind-key "C-c u" 'cider-user-ns clojure-mode-map)
-           (bind-key "C-c u" 'cider-user-ns cider-mode-map))
+       ;; key bindings
+       ;; these help me out with the way I usually develop web apps
+       (defun cider-start-http-server ()
+         (interactive)
+         (cider-load-current-buffer)
+         (let ((ns (cider-current-ns)))
+           (cider-repl-set-ns ns)
+           (cider-interactive-eval (format "(println '(def server (%s/start))) (println 'server)" ns))
+           (cider-interactive-eval (format "(def server (%s/start)) (println server)" ns))))
 
-         ;; Replace return key with newline-and-indent when in cider mode.
-         (add-hook 'cider-mode-hook '(lambda () (local-set-key (kbd "RET") 'newline-and-indent)))
 
-         (defun cider-eval-expression-at-point-in-repl ()
-           (interactive)
-           (let ((form (cider-defun-at-point)))
-             ;; Strip excess whitespace
-             (while (string-match "\\`\s+\\|\n+\\'" form)
-               (setq form (replace-match "" t t form)))
-             (set-buffer (cider-get-repl-buffer))
-             (goto-char (point-max))
-             (insert form)
-             (cider-repl-return)))
+       (defun cider-refresh ()
+         (interactive)
+         (cider-interactive-eval (format "(user/reset)")))
 
-         (define-key cider-mode-map
-           (kbd "C-c C--") 'cider-eval-expression-at-point-in-repl)
-         (autoload 'cider--make-result-overlay "cider-overlays")
+       (defun cider-user-ns ()
+         (interactive)
+         (cider-repl-set-ns "user"))
 
-         (defun endless/eval-overlay (value point)
-           (cider--make-result-overlay (format "%S" value)
-                                       :where point
-                                       :duration 'command)
-           ;; Preserve the return value.
-           value)
+       ;; make delimiters colorful
+       (when (package-installed-p 'rainbow-delimiters)  (add-hook 'cider-repl-mode-hook #'rainbow-delimiters-mode))
 
-         (advice-add 'eval-region :around
-                     (lambda (f beg end &rest r)
-                       (endless/eval-overlay
-                        (apply f beg end r)
-                        end)))
+       (when (package-installed-p 'bind-key)
+         (bind-key "C-c C-v" 'cider-start-http-server clojure-mode-map)
+         (bind-key "C-M-r" 'cider-refresh clojure-mode-map)
+         (bind-key "C-c u" 'cider-user-ns clojure-mode-map)
+         (bind-key "C-c u" 'cider-user-ns cider-mode-map))
 
-         (advice-add 'eval-last-sexp :filter-return
-                     (lambda (r)
-                       (endless/eval-overlay r (point))))
+       ;; Replace return key with newline-and-indent when in cider mode.
+       (add-hook 'cider-mode-hook '(lambda () (local-set-key (kbd "RET") 'newline-and-indent)))
 
-         (advice-add 'eval-defun :filter-return
-                     (lambda (r)
-                       (endless/eval-overlay
-                        r
-                        (save-excursion
-                          (end-of-defun)
-                          (point)))))
+       (defun cider-eval-expression-at-point-in-repl ()
+         (interactive)
+         (let ((form (cider-defun-at-point)))
+           ;; Strip excess whitespace
+           (while (string-match "\\`\s+\\|\n+\\'" form)
+             (setq form (replace-match "" t t form)))
+           (set-buffer (cider-get-repl-buffer))
+           (goto-char (point-max))
+           (insert form)
+           (cider-repl-return)))
 
-         ))
+       (define-key cider-mode-map
+         (kbd "C-c C--") 'cider-eval-expression-at-point-in-repl)
+       (autoload 'cider--make-result-overlay "cider-overlays")
+
+       (defun endless/eval-overlay (value point)
+         (cider--make-result-overlay (format "%S" value)
+                                     :where point
+                                     :duration 'command)
+         ;; Preserve the return value.
+         value)
+
+       (advice-add 'eval-region :around
+                   (lambda (f beg end &rest r)
+                     (endless/eval-overlay
+                      (apply f beg end r)
+                      end)))
+
+       (advice-add 'eval-last-sexp :filter-return
+                   (lambda (r)
+                     (endless/eval-overlay r (point))))
+
+       (advice-add 'eval-defun :filter-return
+                   (lambda (r)
+                     (endless/eval-overlay
+                      r
+                      (save-excursion
+                        (end-of-defun)
+                        (point)))))
+
+       ))
  #+END_SRC
 *** helm-cider
     #+BEGIN_SRC emacs-lisp
@@ -3811,9 +3831,9 @@
 ** plantuml
    - https://github.com/skuro/plantuml-mode
    #+BEGIN_SRC emacs-lisp 
-       (custom-set-variables 
-        '(org-plantuml-jar-path "~/.emacs.d/plantuml.jar")
-        '(plantuml-jar-path "~/.emacs.d/plantuml.jar"))
+       (custom-set-variables
+        '(org-plantuml-jar-path (concat user-emacs-directory "plantuml.jar"))
+        '(plantuml-jar-path (concat user-emacs-directory "plantuml.jar")))
      (req-package plantuml-mode
        :require org
        :mode ("\\.\\(puml\\|plantuml\\)\\'" . plantuml-mode)
@@ -3826,7 +3846,7 @@
      (req-package flycheck-plantuml
         :require flycheck plantuml-mode
         :defer t
-        :init 
+        :init
         (flycheck-plantuml-setup)
           ;; (add-to-list 'puml-mode-hook #'(lambda () (message "enable flycheck")))
         )
@@ -4034,159 +4054,159 @@
   #+END_SRC
 * rest
 #+BEGIN_SRC emacs-lisp
-  (custom-set-variables
-   ;; '(canlock-password "0e8b34f24c62bdf6cc5585ec93c62be865aee099")
-   '(coffee-tab-width 4)
-   '(cursor-in-non-selected-windows nil)
-   '(custom-safe-themes
-     (quote
-      ("84d2f9eeb3f82d619ca4bfffe5f157282f4779732f48a5ac1484d94d5ff5b279" "4848f52f443b88525a4e2fe4f620a20c40fad90a66a953613be90556b9eb7880" "db790b6031dbc390c8b9318b077f5825302dad9d82925f4c70eaddd22825aafa" "141bdb2503f744acaa2bd8defb015f3c8e9e581ff40ec9ae4f3a27917256edaa" "516ef72a7861d71b39bdd8ae3d2c19628abb916a1456ea93a400cc222f87442a" "05b3ea2f5a8d1913eda3a209bb4bd0091c2aa15e4de64e0580f45d2534428568" "e93f05b3616b9e19a79c3ebd107252684bc88ecb77798617e72443b70aae86d5" "c74e83f8aa4c78a121b52146eadb792c9facc5b1f02c917e3dbb454fca931223" "a27c00821ccfd5a78b01e4f35dc056706dd9ede09a8b90c6955ae6a390eb1c1e" "26614652a4b3515b4bbbb9828d71e206cc249b67c9142c06239ed3418eff95e2" "3c83b3676d796422704082049fc38b6966bcad960f896669dfc21a7a37a748fa" default)))
-   '(desktop-save nil)
-   '(desktop-save-mode nil)
-   '(gnutls-verify-error t)
-   '(iedit-toggle-key-default nil) ;; disable C-; binding of iedit that is loaded via lispy
-;;   '(initial-frame-alist (quote ((fullscreen . maximized))))
-   '(jde-jdk-doc-url "https://docs.oracle.com/javase/8/docs/api/")
-   '(jde-jdk-registry
-     (quote
-      (("1.8.0_40" . "/Library/Java/JavaVirtualMachines/jdk1.8.0_40.jdk/Contents/Home")
-       ("1.7.0_40" . "/Library/Java/JavaVirtualMachines/jdk1.7.0_40.jdk/Contents/Home"))))
-   '(malabar-repl-grooysh "/usr/local/bin/groovysh")
-   '(org-time-clocksum-format
-     (quote
-      (:hours "%d" :require-hours t :minutes ":%02d" :require-minutes t))) ;; make sure that clock sums in org mode show hours and minutes only (no days)
-   '(ps-font-size (quote (7 . 6.5)))
-   '(ps-paper-type (quote a4))
-   '(recentf-max-saved-items 80)
-   '(region ((t (:background "gray45" :inverse-video nil))))
-   '(rng-schema-locating-files
-     (quote
-      ("~/.emacs.d/ant-mode/ant-schemas.xml" "schemas.xml" "~/devel/xspec-read-only/editors/emacs/schemas.xml" "/Applications/Emacs.app/Contents/Resources/etc/schema/schemas.xml")))
-   '(send-mail-function (quote smtpmail-multi-send-it))
-   '(smooth-scroll/vscroll-step-size 3)
-   '(tool-bar-mode nil)
-   '(truncate-lines nil)
-   '(xslt-process-registered-stylesheets nil))
+    (custom-set-variables
+     ;; '(canlock-password "0e8b34f24c62bdf6cc5585ec93c62be865aee099")
+     '(coffee-tab-width 4)
+     '(cursor-in-non-selected-windows nil)
+     '(custom-safe-themes
+       (quote
+        ("84d2f9eeb3f82d619ca4bfffe5f157282f4779732f48a5ac1484d94d5ff5b279" "4848f52f443b88525a4e2fe4f620a20c40fad90a66a953613be90556b9eb7880" "db790b6031dbc390c8b9318b077f5825302dad9d82925f4c70eaddd22825aafa" "141bdb2503f744acaa2bd8defb015f3c8e9e581ff40ec9ae4f3a27917256edaa" "516ef72a7861d71b39bdd8ae3d2c19628abb916a1456ea93a400cc222f87442a" "05b3ea2f5a8d1913eda3a209bb4bd0091c2aa15e4de64e0580f45d2534428568" "e93f05b3616b9e19a79c3ebd107252684bc88ecb77798617e72443b70aae86d5" "c74e83f8aa4c78a121b52146eadb792c9facc5b1f02c917e3dbb454fca931223" "a27c00821ccfd5a78b01e4f35dc056706dd9ede09a8b90c6955ae6a390eb1c1e" "26614652a4b3515b4bbbb9828d71e206cc249b67c9142c06239ed3418eff95e2" "3c83b3676d796422704082049fc38b6966bcad960f896669dfc21a7a37a748fa" default)))
+     '(desktop-save nil)
+     '(desktop-save-mode nil)
+     '(gnutls-verify-error t)
+     '(iedit-toggle-key-default nil) ;; disable C-; binding of iedit that is loaded via lispy
+  ;;   '(initial-frame-alist (quote ((fullscreen . maximized))))
+     '(jde-jdk-doc-url "https://docs.oracle.com/javase/8/docs/api/")
+     '(jde-jdk-registry
+       (quote
+        (("1.8.0_40" . "/Library/Java/JavaVirtualMachines/jdk1.8.0_40.jdk/Contents/Home")
+         ("1.7.0_40" . "/Library/Java/JavaVirtualMachines/jdk1.7.0_40.jdk/Contents/Home"))))
+     '(malabar-repl-grooysh "/usr/local/bin/groovysh")
+     '(org-time-clocksum-format
+       (quote
+        (:hours "%d" :require-hours t :minutes ":%02d" :require-minutes t))) ;; make sure that clock sums in org mode show hours and minutes only (no days)
+     '(ps-font-size (quote (7 . 6.5)))
+     '(ps-paper-type (quote a4))
+     '(recentf-max-saved-items 80)
+     '(region ((t (:background "gray45" :inverse-video nil))))
+     '(rng-schema-locating-files
+       (quote
+        ((concat user-emacs-directory "ant-mode/ant-schemas.xml") "schemas.xml" "~/devel/xspec-read-only/editors/emacs/schemas.xml" "/Applications/Emacs.app/Contents/Resources/etc/schema/schemas.xml")))
+     '(send-mail-function (quote smtpmail-multi-send-it))
+     '(smooth-scroll/vscroll-step-size 3)
+     '(tool-bar-mode nil)
+     '(truncate-lines nil)
+     '(xslt-process-registered-stylesheets nil))
 
-  (custom-set-faces
-   ;; custom-set-faces was added by Custom.
-   ;; If you edit it by hand, you could mess it up, so be careful.
-   ;; Your init file should contain only one such instance.
-   ;; If there is more than one, they won't work right.
-   '(col-highlight ((t (:background "gray63"))))
-   '(hi-yellow ((t (:background "gray44"))))
-   '(region ((t (:background "gray45" :inverse-video nil))))
-   '(popup-isearch-match ((t (:background "RoyalBlue2"))))
-   '(term-color-yellow ((t (:background "DarkGoldenrod4" :foreground "#f0c674")))))
+    (custom-set-faces
+     ;; custom-set-faces was added by Custom.
+     ;; If you edit it by hand, you could mess it up, so be careful.
+     ;; Your init file should contain only one such instance.
+     ;; If there is more than one, they won't work right.
+     '(col-highlight ((t (:background "gray63"))))
+     '(hi-yellow ((t (:background "gray44"))))
+     '(region ((t (:background "gray45" :inverse-video nil))))
+     '(popup-isearch-match ((t (:background "RoyalBlue2"))))
+     '(term-color-yellow ((t (:background "DarkGoldenrod4" :foreground "#f0c674")))))
 
-  ;; load the color scheme similar to lighttable
-  ;; (load-theme 'noctilux t)
+    ;; load the color scheme similar to lighttable
+    ;; (load-theme 'noctilux t)
 
-  ;; (setq cheat-sheet-locations '("Emacs_Reference_Card.pdf"
-  ;;                               "calccard.pdf"
-  ;;                               "dired-ref.pdf"
-  ;;                               "dired-refcard.gnu.pdf"
-  ;;                               "gnus-booklet.pdf"
-  ;;                               "gnus-refcard.pdf"
-  ;;                               "magitCheatsheet.pdf"
-  ;;                               "orgcard.pdf"
-  ;;                               "paredit-cheatsheet.pdf"))
+    ;; (setq cheat-sheet-locations '("Emacs_Reference_Card.pdf"
+    ;;                               "calccard.pdf"
+    ;;                               "dired-ref.pdf"
+    ;;                               "dired-refcard.gnu.pdf"
+    ;;                               "gnus-booklet.pdf"
+    ;;                               "gnus-refcard.pdf"
+    ;;                               "magitCheatsheet.pdf"
+    ;;                               "orgcard.pdf"
+    ;;                               "paredit-cheatsheet.pdf"))
 
-  ;; ;; can be either 'right or 'below, 
-  ;; (setq cheat-sheet-split-mode 'below)
+    ;; ;; can be either 'right or 'below,
+    ;; (setq cheat-sheet-split-mode 'below)
 
-  ;; (defun open-cheat-sheet (file-path)
-  ;;   "split depending on customization var cheat-sheet-split-mode and load file from file-path" 
-  ;;   (cond 
-  ;;    ((equal cheat-sheet-split-mode 'right) (split-window-right))
-  ;;    ((equal cheat-sheet-split-mode 'left) (split-window-left))
-  ;;    ;;     ((equal cheat-sheet-split-mode 'above) (split-window-below))
-  ;;    ((equal cheat-sheet-split-mode 'below) (split-window-below)))
-  ;;   (other-window 1)
-  ;;   (find-file file-path)
-  ;;   (cond 
-  ;;    ((equal cheat-sheet-split-mode 'right) (pdf-view-fit-height-to-window))
-  ;;    ((equal cheat-sheet-split-mode 'left) (pdf-view-fit-height-to-window))
-  ;;    ;;     ((equal cheat-sheet-split-mode 'above) (progn (pdf-view-fit-width-to-window)))
-  ;;    ((equal cheat-sheet-split-mode 'below) (pdf-view-fit-width-to-window)))
-  ;;   (other-window -1))
+    ;; (defun open-cheat-sheet (file-path)
+    ;;   "split depending on customization var cheat-sheet-split-mode and load file from file-path"
+    ;;   (cond
+    ;;    ((equal cheat-sheet-split-mode 'right) (split-window-right))
+    ;;    ((equal cheat-sheet-split-mode 'left) (split-window-left))
+    ;;    ;;     ((equal cheat-sheet-split-mode 'above) (split-window-below))
+    ;;    ((equal cheat-sheet-split-mode 'below) (split-window-below)))
+    ;;   (other-window 1)
+    ;;   (find-file file-path)
+    ;;   (cond
+    ;;    ((equal cheat-sheet-split-mode 'right) (pdf-view-fit-height-to-window))
+    ;;    ((equal cheat-sheet-split-mode 'left) (pdf-view-fit-height-to-window))
+    ;;    ;;     ((equal cheat-sheet-split-mode 'above) (progn (pdf-view-fit-width-to-window)))
+    ;;    ((equal cheat-sheet-split-mode 'below) (pdf-view-fit-width-to-window)))
+    ;;   (other-window -1))
 
-  ;; (defun close-cheat-sheet (file-path)
-  ;;   "close the cheat sheet that is displayed, deleting the respective window"
-  ;;   (with-selected-window 
-  ;;       (get-buffer-window (get-file-buffer file-path))
-  ;;     (delete-window)))
+    ;; (defun close-cheat-sheet (file-path)
+    ;;   "close the cheat sheet that is displayed, deleting the respective window"
+    ;;   (with-selected-window
+    ;;       (get-buffer-window (get-file-buffer file-path))
+    ;;     (delete-window)))
 
-  ;; (defun cheat-sheet-toggle (file-path)
-  ;;   "open the given cheatsheet (or close it, if already open)"
-  ;;   (let ((fbuf (get-file-buffer file-path)))
-  ;;     (if (and fbuf (get-buffer-window fbuf))
-  ;;         (close-cheat-sheet file-path)
-  ;;       (open-cheat-sheet file-path))))
+    ;; (defun cheat-sheet-toggle (file-path)
+    ;;   "open the given cheatsheet (or close it, if already open)"
+    ;;   (let ((fbuf (get-file-buffer file-path)))
+    ;;     (if (and fbuf (get-buffer-window fbuf))
+    ;;         (close-cheat-sheet file-path)
+    ;;       (open-cheat-sheet file-path))))
 
-  ;; (defun cheat-sheet-clojure-toggle () 
-  ;;   "open the clojure cheatsheet"
-  ;;   (interactive)
-  ;;   (cheat-sheet-toggle (expand-file-name "~/Documents/cheat-sheet/clojure/clojure-cheatsheet-usletter-color.pdf")))
+    ;; (defun cheat-sheet-clojure-toggle ()
+    ;;   "open the clojure cheatsheet"
+    ;;   (interactive)
+    ;;   (cheat-sheet-toggle (expand-file-name "~/Documents/cheat-sheet/clojure/clojure-cheatsheet-usletter-color.pdf")))
 
-  ;; (defun cheat-sheet-org-toggle ()
-  ;;   "open the org-mode cheatsheet"
-  ;;   (interactive)
-  ;;   (cheat-sheet-toggle (expand-file-name "~/Documents/cheat-sheet/emacs/orgcard.pdf")))
+    ;; (defun cheat-sheet-org-toggle ()
+    ;;   "open the org-mode cheatsheet"
+    ;;   (interactive)
+    ;;   (cheat-sheet-toggle (expand-file-name "~/Documents/cheat-sheet/emacs/orgcard.pdf")))
 
-  ;; (defun cheat-sheet-dired-toggle ()
-  ;;   "open the dired cheatsheet"
-  ;;   (interactive)
-  ;;   (cheat-sheet-toggle (expand-file-name "~/Documents/cheat-sheet/emacs/dired-refcard.gnu.pdf")))
+    ;; (defun cheat-sheet-dired-toggle ()
+    ;;   "open the dired cheatsheet"
+    ;;   (interactive)
+    ;;   (cheat-sheet-toggle (expand-file-name "~/Documents/cheat-sheet/emacs/dired-refcard.gnu.pdf")))
 
-  ;; (defun cheat-sheet-magit-toggle ()
-  ;;   "open the magit cheatsheet"
-  ;;   (interactive)
-  ;;   (cheat-sheet-toggle (expand-file-name "~/Documents/cheat-sheet/emacs/magitCheatsheet.pdf")))
+    ;; (defun cheat-sheet-magit-toggle ()
+    ;;   "open the magit cheatsheet"
+    ;;   (interactive)
+    ;;   (cheat-sheet-toggle (expand-file-name "~/Documents/cheat-sheet/emacs/magitCheatsheet.pdf")))
 
-  ;; clojure-cheatsheet
-  ;; runs with existing repl only:
-  ;; M-x clojure-cheatsheet opens a helm like search over severyl clojure concepts/functions etc.
+    ;; clojure-cheatsheet
+    ;; runs with existing repl only:
+    ;; M-x clojure-cheatsheet opens a helm like search over severyl clojure concepts/functions etc.
 
-  ;; focus
-  ;; M-x focus-mode toggles this mode that focusses only on the construct under the cursor
+    ;; focus
+    ;; M-x focus-mode toggles this mode that focusses only on the construct under the cursor
 
-  ;; helm-ag
-  ;; search multi key word with M-x helm-ag
-
-
-  ;; (add-to-list 'load-path "~/.emacs.d/clomacs/src/elisp/")
-  ;; (require 'clomacs)
-
-  ;; (clomacs-defun get-property System/getProperty)
-  ;; (message (get-property "java.version"))
-
-  ;; (req-package kanban)   
-
-  ;; (add-to-list 'load-path "~/git/local/hoclgen/src/elisp")
-  ;; (require 'hoclgen)
+    ;; helm-ag
+    ;; search multi key word with M-x helm-ag
 
 
-  ;; (add-to-list 'load-path "~/.emacs.d/xml-customizations")
-  ;; (load "xml-extensions.el")
+    ;; (add-to-list 'load-path "~/.emacs.d/clomacs/src/elisp/")
+    ;; (require 'clomacs)
+
+    ;; (clomacs-defun get-property System/getProperty)
+    ;; (message (get-property "java.version"))
+
+    ;; (req-package kanban)
+
+    ;; (add-to-list 'load-path "~/git/local/hoclgen/src/elisp")
+    ;; (require 'hoclgen)
 
 
-  ;; C-c C-a annotate the marked region, or the word under point
-  ;; annotations are saved in ~/.annotations
+    ;; (add-to-list 'load-path "~/.emacs.d/xml-customizations")
+    ;; (load "xml-extensions.el")
+
+
+    ;; C-c C-a annotate the marked region, or the word under point
+    ;; annotations are saved in ~/.annotations
 
 
 
-  ;; Set the defcustom variables defined in jiralib.el (actually only the jiralib-url is required, as the other 2 are usually computed from it correctly and is the case in the video demo):
+    ;; Set the defcustom variables defined in jiralib.el (actually only the jiralib-url is required, as the other 2 are usually computed from it correctly and is the case in the video demo):
 
-  ;; 3 matches for "\bdefcustom\b" in buffer: jiralib.el
-  ;;      55:(defcustom jiralib-host ""
-  ;;     107:(defcustom jiralib-wsdl-descriptor-url
-  ;;     120:(defcustom jiralib-url
+    ;; 3 matches for "\bdefcustom\b" in buffer: jiralib.el
+    ;;      55:(defcustom jiralib-host ""
+    ;;     107:(defcustom jiralib-wsdl-descriptor-url
+    ;;     120:(defcustom jiralib-url
 
 
-  ;; Write your password in ~/.authinfo, with machine being the (computed) jiralib-host, and the port being 80 (even if you are using https for Jira):
+    ;; Write your password in ~/.authinfo, with machine being the (computed) jiralib-host, and the port being 80 (even if you are using https for Jira):
 
-  ;; machine JIRALIB-HOST login USERNAME password XXXXX port 80
+    ;; machine JIRALIB-HOST login USERNAME password XXXXX port 80
 
 
 
@@ -4198,7 +4218,7 @@
     :require org company
     :config
     (setq yas-snippet-dirs
-          '("~/.emacs.d/snippets")) ;; my snippets library
+          `(,(concat user-emacs-directory "snippets"))) ;; my snippets library
 
     ;; (add-hook 'prog-mode-hook #'yas-minor-mode) ;; make it a submode of all programming modes
     (yas-global-mode 1) ;; make it global
@@ -4659,12 +4679,11 @@
   #+END_SRC
 *** accounts (user specific stuff)
     #+BEGIN_SRC emacs-lisp
-    (when mail-accounts-exists
-          (req-package mail-accounts
-            :loader :path
-            ;; :if mail-accounts-exists
-            :load-path "~/.emacs.d/accounts/"
-            :require gnus))
+      (when mail-accounts-exists
+            (req-package mail-accounts
+              :loader :path
+              :load-path "~/.emacs.d/accounts/"
+              :require gnus))
     #+END_SRC
 ** bbdb
 *** bbdb itself
