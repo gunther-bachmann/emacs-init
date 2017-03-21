@@ -184,16 +184,10 @@
        "check whether this is a *nix derivative (either linux or macos"
        (or (is-linux-p) (is-macos-p)))  
   #+END_SRC
-* proxy setup (if necessary)
+* proxy setup (if present)
   #+BEGIN_SRC emacs-lisp
-      (if (is-ms-windows-p)
-        (progn
-
-          ;; proxy settings TODO load from separate file
-          (setq url-proxy-services
-                '(("no_proxy" . "^\\(localhost\\|10.*\\)")
-                  ("http" . "proxy.system.local:80")
-                  ("https" . "proxy.system.local:80")))))
+    (if (file-exists-p (concat user-emacs-directory "accounts/proxy-account.el"))
+        (load-file (concate user-emacs-directory "accounts/proxy-account.el")))
   #+END_SRC
 * package setup
 #+BEGIN_SRC emacs-lisp
