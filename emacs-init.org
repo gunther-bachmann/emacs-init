@@ -243,7 +243,8 @@
            key-chord
            validate
            use-package
-           req-package))
+           req-package
+           el-get))
 
   ;; add mac specific packages
   (when (gb/on-mac-p)
@@ -272,28 +273,6 @@
              (message (concat "pacakge '" (symbol-name pkg) "' is required"))
              ,(req-package pkg @cl-keys))
         '(message (concat "package '" (symbol-name pkg) "' is not required, layer '" (symbol-name cl-layer) "' is not part of active-layers.")))))
-#+END_SRC
-** add el as package addon (disabled)
-   el allows the installation of non repository packages by using recipes
-   these recipes describe how to download (and compile) the given package
-   - el-get-package-list
-#+BEGIN_SRC emacs-lisp :tangle no
-  (add-to-list 'load-path (concat user-emacs-directory "el-get/el-get"))
-
-  (unless (package-installed-p 'el-get)
-    (package-refresh-contents)
-    (package-install 'el-get))
-
-  (require-package 'el-get)
-  (require 'el-get)
-  (add-to-list 'el-get-recipe-path (concat user-emacs-directory "el-get-user/recipes"))
-  (el-get 'sync)
-#+END_SRC
-** bootstrap and initialize req-package
-*** to see the log of req-package, use "M-x req-package--log-open-log"
-#+BEGIN_SRC emacs-lisp
-  (require 'req-package)
-  ;; (req-package--log-set-level 'trace)
 #+END_SRC
 ** paradox (package list alternative)
    #+BEGIN_SRC emacs-lisp 
@@ -6554,6 +6533,29 @@ thus this function prevents org-babel tangle and setting the file on r/o when ed
          (ws-butler-global-mode 1)
          (when (package-installed-p 'diminish)
            (diminish 'ws-butler-mode))))
+   #+END_SRC
+** org-brain
+   organize org files within org-brain-path into somthing like a mindmap / wiki that can be browsed
+   check the [[https://github.com/Kungsgeten/org-brain][home page]]
+   #+BEGIN_SRC emacs-lisp
+     (el-get-bundle org-brain
+       :url "https://github.com/Kungsgeten/org-brain.git"
+       :features org-brain)
+     (if (el-get-package-is-installed 'org-brain)
+         (el-get 'sync 'org-brain))
+     (req-package org-brain
+       :loader :el-get
+       :require org dash helm-org-rifle
+       :commands org-brain-open org-brain-visualize org-brain-insert-link
+       :config
+       (progn
+         (setq org-brain-path "~/brain")
+         (if (not (file-exists-p org-brain-path))
+             (make-directory org-brain-path t))
+         (defun helm-org-rifle-brain ()
+           "Rifle files in `org-brain-path'."
+           (interactive)
+           (helm-org-rifle-directories (list org-brain-path)))))
    #+END_SRC
 * finish - up
   #+BEGIN_SRC emacs-lisp
