@@ -41,6 +41,7 @@
       package 'session' which stores lots of session information into
       the file .session in the .emacs.d
 * enhancements and todos
+** todo check existence of gnu ls (for dired quick sort)
 ** todo move diminish at the end of file to the respective packages
 ** todo minimap mode results in ligatures being misplaced!
 ** todo describe each packages' benefit for my configuration
@@ -187,7 +188,7 @@
 * proxy setup (if present)
   #+BEGIN_SRC emacs-lisp
     (if (file-exists-p (concat user-emacs-directory "accounts/proxy-account.el"))
-        (load-file (concate user-emacs-directory "accounts/proxy-account.el")))
+        (load-file (concat user-emacs-directory "accounts/proxy-account.el")))
   #+END_SRC
 * package setup
 #+BEGIN_SRC emacs-lisp
@@ -897,7 +898,7 @@
         ;;     ns-right-control-modifier
         ;;     ns-right-option-modifier
 
-        ;; Each variable can be set to 'control, 'meta, 'alt, 'super, or 'hyper. 
+        ;; Each variable can be set to 'control, 'meta, 'alt, 'super, or 'hyper.
         ;; control = C-
         ;; meta = M-
         ;; alt = A-
@@ -931,6 +932,7 @@
 
         ;; on macos x the right alt key is used to get e.g. the pipe '|' (alt-7)
         (setq ns-right-alternate-modifier nil) ;; 'meta
+
         ))
 #+END_SRC
 ** correct shell path behaviour
@@ -942,6 +944,15 @@
     (exec-path-from-shell-copy-envs
      '("PATH")))
 #+END_SRC
+** check installation fo macos
+   #+BEGIN_SRC emacs-lisp
+   (when (gb/on-mac-p)
+      (progn
+
+        (check-_nix-program-status gnu-ls-installed "gls" "gls" "gnu ls not installed, dired quick sort will not work.")
+
+        ))
+   #+END_SRC
 * check installation status of programs (*nix)
   - make sure this is done, after path is properly setup (mac os problem)
   #+BEGIN_SRC emacs-lisp
@@ -954,13 +965,13 @@
           (check-_nix-program-status poppler-installed "pdfinfo" "poppler" "pdf-tools not installed!")
 
           ;; graphviz brings dot (and other) cl tools which are needed for plantuml to work
-          (check-_nix-program-status graphviz-installed "dot" "GraphViz" "dot is not available, thus plantuml cannot be used!") 
+          (check-_nix-program-status graphviz-installed "dot" "GraphViz" "dot is not available, thus plantuml cannot be used!")
 
           ;; make useful for pdf tools
-          (check-_nix-program-status make-installed '("make" "automake" "autoconf" "g++" "gcc") "make-tools" "make-tools are not (completely) available, thus pdf-tools cannot be compiled!") 
+          (check-_nix-program-status make-installed '("make" "automake" "autoconf" "g++" "gcc") "make-tools" "make-tools are not (completely) available, thus pdf-tools cannot be compiled!")
 
           ;; check basic tooling
-          (check-_nix-program-status locate-installed "locate" "locate" "locate is not available, thus helm find file will not work properly!") 
+          (check-_nix-program-status locate-installed "locate" "locate" "locate is not available, thus helm find file will not work properly!")
 
           ;; lein (for clojure)
           (check-_nix-program-status lein-installed "lein" "leinigen" "lein is not available, thus clojure/cider will not work properly!")
@@ -976,6 +987,9 @@
           (check-_nix-program-status w3m-installed '("w3m") "w3m" "html messages in gnus will not be displayed, helm dash browsing will not use w3m.")
 
           (check-_nix-program-status git-lfs-installed "git-lfs" "git-lfs" "magit-lfs will not be available")
+
+          (unless (gb/on-mac-p) ;; otherwise gnu-ls-installed would be set by mac os initialization code
+              (setq gnu-ls-installed (is-linux-p)))
           ))
   #+END_SRC
 * check emacs capabilities
@@ -1085,10 +1099,10 @@
      (defun gb/get-font-heights (display-width win-system) 
        "Get font heights depending on display width"
        (if (memq win-system '(mac ns))
-           (cond ((> display-width 1800) 
+           (cond ((> display-width 3400)
                   (ht ('default-height 150) ('variable-pitch-height 160)))
                  ((ht ('default-height 130) ('variable-pitch-height 140))))
-         (cond ((> display-width 1800)
+         (cond ((> display-width 3400)
                 (ht ('default-height 120) ('variable-pitch-height 130)))
                ((ht ('default-height 100) ('variable-pitch-height 110))))))
 
@@ -5368,7 +5382,7 @@ thus this function prevents org-babel tangle and setting the file on r/o when ed
       ;; redisplay images after org babel execute
       (add-hook 'org-babel-after-execute-hook #'org-redisplay-inline-images)
 
-      ;; execute org babel if current majore mode is org-mode 
+      ;; execute org babel if current majore mode is org-mode
       ;; and the file has source code regions
       ;; and the file defines a header-args property with value :tangle ...
       (defun gb/tangle-on-save-org-mode-file()
@@ -5408,7 +5422,7 @@ thus this function prevents org-babel tangle and setting the file on r/o when ed
       (setq org-babel-default-header-args:PlantUML
             '((:results . "file") (:exports . "results") (:noweb . "yes") (:cmdline . "-charset UTF-8")))
 
-      ;; use cider as backend for clojure 
+      ;; use cider as backend for clojure
       (setq org-babel-clojure-backend (quote cider))
 
       ;; function is renamed to ...x (since it should not collide with impl. in org)
@@ -5452,18 +5466,18 @@ thus this function prevents org-babel tangle and setting the file on r/o when ed
          (dot . t)
          ;; (elixir . t)
          (emacs-lisp . t)
-         (gnuplot t)
-         (groovy . t)
+         (gnuplot . t)
+         (groovy . (version<= "9.0.5" org-version))
          ;; (max . t) ;; maxima
          (plantuml . t)
          ;; (prolog . t)
          (python . t)
-         (scala . t)
+         (scala . (version<= "9.0.5" org-version))
          (scheme . t)
-         (sed . t)
+         (sed . (version<= "9.0.5" org-version))
          (shell . t)
          ;; (sml . t) ;; standard ml
-         (sql . t)))
+         (sql . (version<= "9.0.5" org-version))))
 
     #+END_SRC
 **** org babel lfe
@@ -6249,6 +6263,8 @@ thus this function prevents org-babel tangle and setting the file on r/o when ed
      (setq dired-dwim-target t) ;; try to guess the directory to use for dired
      (setq dired-listing-switches "-Alh") ;; default switches for ls to be used for dired listing
      (setq diredp-hide-details-propagate-flag t) ;; opening subfolders inherit details flag (shown/hidden)
+     (if gnu-ls-installed
+     (setq insert-directory-program "/usr/local/Cellar/coreutils/8.27/bin/gls"))
 
      (bind-key  "e" #'gb/dired-ediff-files dired-mode-map)
 
@@ -6277,12 +6293,21 @@ thus this function prevents org-babel tangle and setting the file on r/o when ed
 ** dired ls (lisp emulation)
    #+BEGIN_SRC emacs-lisp
      ;; useful in environments where ls is not a native program (e.g. windows)
-     ;; allows usage of dired and ls switches 
-     (req-package ls-lisp
+     ;; allows usage of dired and ls switches
+     (unless gnu-ls-installed
+       (req-package ls-lisp
+         :config
+         (progn
+           (setq ls-lisp-use-insert-directory-program nil)
+           (setq ls-lisp-ignore-case 't))))
+   #+END_SRC
+** dired quick sort
+   #+BEGIN_SRC emacs-lisp
+   (when gnu-ls-installed
+     (req-package dired-quick-sort
+       :require dired
        :config
-       (progn
-         (setq ls-lisp-use-insert-directory-program nil)
-         (setq ls-lisp-ignore-case 't)))
+       (dired-quick-sort-setup)))
    #+END_SRC
 ** dired sort
    #+BEGIN_SRC emacs-lisp
