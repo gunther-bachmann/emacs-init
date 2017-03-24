@@ -1583,6 +1583,8 @@
         (require 'spaceline-config)
         (spaceline-spacemacs-theme)
         (spaceline-helm-mode)
+        (custom-set-faces
+          '(spaceline-highlight-face ((t (:background "DarkGoldenrod3" :foreground "#000000" :inherit (quote mode-line))))))
 
         (setq gb/mode-line-buffer-read-only-symbol (if fira-code-symbol-installed "\ue0a2" "o"))  ;; ""
         (setq gb/mode-line-buffer-modified-ro-symbol (if fira-code-symbol-installed "\ue16b" "x"))  ;; ""
@@ -3629,10 +3631,13 @@
 ** projects
 *** perspective
  #+BEGIN_SRC emacs-lisp
- (req-package perspective
+   (req-package perspective
      ;; switch perspective mode on, always
-   :config
-   (persp-mode 1))
+     :config
+     (progn
+       (persp-mode 1)
+       (custom-set-faces
+        '(persp-selected-face ((t (:foreground "Grey70")))))))
  #+END_SRC
 *** projectile
  #+BEGIN_SRC emacs-lisp
