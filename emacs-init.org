@@ -5477,6 +5477,7 @@ thus this function prevents org-babel tangle and setting the file on r/o when ed
               (error result)))))
 
       ;; enable all languages listed below within org babel
+      (when (version<= "9.0.5" org-version)
       (org-babel-do-load-languages
        'org-babel-load-languages
        '((java . t)
@@ -5486,17 +5487,18 @@ thus this function prevents org-babel tangle and setting the file on r/o when ed
          ;; (elixir . t)
          (emacs-lisp . t)
          (gnuplot . t)
-         (groovy . (version<= "9.0.5" org-version))
+         (groovy . t)
+         (latex . t) ;; needs org-edit-latex
          ;; (max . t) ;; maxima
          (plantuml . t)
          ;; (prolog . t)
          (python . t)
-         (scala . (version<= "9.0.5" org-version))
+         (scala . t)
          (scheme . t)
-         (sed . (version<= "9.0.5" org-version))
+         (sed . t)
          (shell . t)
          ;; (sml . t) ;; standard ml
-         (sql . (version<= "9.0.5" org-version))))
+         (sql . t))))
 
     #+END_SRC
 **** org babel lfe
