@@ -6597,6 +6597,10 @@ thus this function prevents org-babel tangle and setting the file on r/o when ed
            (interactive)
            (helm-org-rifle-directories (list org-brain-path)))))
    #+END_SRC
+** org edit latex (edit latex code in separate buffer)
+   #+BEGIN_SRC emacs-lisp
+   (req-package org-edit-latex)
+   #+END_SRC
 * finish - up
   #+BEGIN_SRC emacs-lisp
     (req-package-finish);; this command must be at the end !ALWAYS!
