@@ -1608,13 +1608,27 @@
           (let* ((path (replace-regexp-in-string (concat "^" (regexp-quote (expand-file-name "~"))) "~" (or (file-name-directory (or buffer-file-name "")) "")))
                  (spath (if (> (length path) 35) (concat gb/mode-line-cutted-path-prefix-symbol (substring path -34 nil)) path)))
             (or spath "")))
+        (defun gb/in-git-dir-p ()
+          (not (string-match "^fatal" (shell-command-to-string "git rev-parse --git-dir"))))
+        (defun gb/vc-status ()
+          (if vc-mode
+              vc-mode
+              (concat "\ue0a0 " (s-trim (shell-command-to-string "git rev-parse --abbrev-ref HEAD")))))
+        (defun gb/git-state ()
+           (let* ((git-output (shell-command-to-string "git status")))
+             (if (string-empty-p git-output)
+                'up-to-date
+                'dirty)))
+        (defun gb/vc-state ()
+          (if (buffer-file-name)
+              (vc-state (buffer-file-name))
+              (gb/git-state)))
         (spaceline-define-segment gb/version-control
           "Version control information."
-          (when vc-mode
+          (when (gb/in-git-dir-p)
             (powerline-raw
-             (s-trim (concat (replace-regexp-in-string "^ *Git[:-]" "\ue0a0 " vc-mode) ;; "  "
-                             (when (buffer-file-name)
-                               (pcase (vc-state (buffer-file-name))
+             (s-trim (concat (replace-regexp-in-string "^ *Git[:-]" "\ue0a0 " (gb/vc-status)) ;; "  "
+                               (pcase (gb/vc-state)
                                  (`up-to-date (concat " " gb/mode-line-branch-up-to-date-symbol))
                                  (`edited (concat " " gb/mode-line-branch-edited-symbol))
                                  (`added " +")
@@ -1623,7 +1637,7 @@
                                  (`needs-merge " m")
                                  (`needs-update " u")
                                  (`ignored " i")
-                                 (_ " _"))))))))
+                                 (_ " x")))))))
 
         (spaceline-install '((gb/buffer-status :face highlight-face)
                              auto-compile
