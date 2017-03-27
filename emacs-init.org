@@ -6601,6 +6601,12 @@ thus this function prevents org-babel tangle and setting the file on r/o when ed
    #+BEGIN_SRC emacs-lisp
    (req-package org-edit-latex)
    #+END_SRC
+** helm books
+   - allows searching for book titles using the google book api with helm
+   #+BEGIN_SRC emacs-lisp
+   (req-package helm-books
+     :commands helm-books)
+   #+END_SRC
 * finish - up
   #+BEGIN_SRC emacs-lisp
     (req-package-finish);; this command must be at the end !ALWAYS!
