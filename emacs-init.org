@@ -1615,7 +1615,7 @@
               vc-mode
               (concat "\ue0a0 " (s-trim (shell-command-to-string "git rev-parse --abbrev-ref HEAD")))))
         (defun gb/git-state ()
-           (let* ((git-output (shell-command-to-string "git status")))
+           (let* ((git-output (shell-command-to-string "git status -s")))
              (if (string-empty-p git-output)
                 'up-to-date
                 'dirty)))
