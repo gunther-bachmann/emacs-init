@@ -1614,6 +1614,7 @@
           (if vc-mode
               vc-mode
               (concat "\ue0a0 " (s-trim (shell-command-to-string "git rev-parse --abbrev-ref HEAD")))))
+        (setq gb/vc-status-cache-delay "10 sec")
         (setq gb/vc-status-cache-buffer-id nil)
         (setq gb/vc-status-cache nil)
         (setq gb/vc-status-cache-timer nil)
@@ -1622,7 +1623,7 @@
           (if (and gb/vc-status-cache (string= (buffer-name) gb/vc-status-cache-buffer-id))
               ;; only if no timer is running!
               (unless gb/vc-status-cache-timer
-                (setq gb/vc-status-cache-timer (run-at-time "5 sec" nil 'gb/refresh-vc-status-cache)))
+                (setq gb/vc-status-cache-timer (run-at-time gb/vc-status-cache-delay nil 'gb/refresh-vc-status-cache)))
             (gb/refresh-vc-status-cache))
           gb/vc-status-cache)
         (defun gb/refresh-vc-status-cache ()
@@ -1631,9 +1632,9 @@
           (setq gb/vc-status-cache (gb/git-state))
           (setq gb/vc-status-cache-timer nil))
         (defun gb/git-state ()
-           "query at max all 5 seconds for the currently active buffer, refresh on buffer switches"
+           "query git status for the currently active buffer, refresh on buffer switches"
            (let* ((git-output (shell-command-to-string "git status -s")))
-             (message (concat  "git querried" (current-time-string))) ;; just for debugging, please remove when done
+             ;; (message (concat  "git querried " (current-time-string))) ;; just for debugging, please remove when done
              (if (string-empty-p git-output)
                 'up-to-date
                 'dirty)))
