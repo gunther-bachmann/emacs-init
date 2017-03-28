@@ -2280,7 +2280,9 @@
         (autoload 'expand-region "er/contract-region" nil t)
         (when (package-installed-p 'key-chord)
           (key-chord-define-global "ü+"   'er/expand-region) ;; make the current selection expand to the next outer bounds
-          (key-chord-define-global ".-"   'er/contract-region))) ;; make the current selection collapse again into the inner bounds
+          (key-chord-define-global "]["   'er/expand-region) ;; make the current selection expand to the next outer bounds
+          (key-chord-define-global ".-"   'er/contract-region)
+          (key-chord-define-global "./"   'er/contract-region))) ;; make the current selection collapse again into the inner bounds
     #+END_SRC
 *** use line if no region
     uses a line as region if no active region is selected and a
@@ -2409,7 +2411,8 @@
 
        ;; highlight all identical 'words in view
        (when (package-installed-p 'key-chord)
-         (key-chord-define-global "#ä" (function highlight-thing-mode)))
+                  (key-chord-define-global "\\'" (function highlight-thing-mode))
+                  (key-chord-define-global "#ä" (function highlight-thing-mode)))
 
        (setq highlight-thing-mode-temporary nil)
 
