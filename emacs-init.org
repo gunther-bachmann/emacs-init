@@ -2894,7 +2894,7 @@
 #+BEGIN_SRC emacs-lisp
   (req-package back-button
     ;; :diminish back-button-mode
-    :require hydra
+    :require hydra smartrep
     :config
     (progn
 
