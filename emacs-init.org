@@ -41,7 +41,6 @@
       package 'session' which stores lots of session information into
       the file .session in the .emacs.d
 * enhancements and todos
-** todo check existence of gnu ls (for dired quick sort)
 ** todo move diminish at the end of file to the respective packages
 ** todo minimap mode results in ligatures being misplaced!
 ** todo describe each packages' benefit for my configuration
@@ -944,15 +943,6 @@
     (exec-path-from-shell-copy-envs
      '("PATH")))
 #+END_SRC
-** check installation fo macos
-   #+BEGIN_SRC emacs-lisp
-   (when (gb/on-mac-p)
-      (progn
-
-        (check-_nix-program-status gnu-ls-installed "gls" "gls" "gnu ls not installed, dired quick sort will not work.")
-
-        ))
-   #+END_SRC
 * check installation status of programs (*nix)
   - make sure this is done, after path is properly setup (mac os problem)
   #+BEGIN_SRC emacs-lisp
@@ -988,8 +978,9 @@
 
           (check-_nix-program-status git-lfs-installed "git-lfs" "git-lfs" "magit-lfs will not be available")
 
-          (unless (gb/on-mac-p) ;; otherwise gnu-ls-installed would be set by mac os initialization code
-              (setq gnu-ls-installed (is-linux-p)))
+          (setq gnu-ls-installed (not (is-ms-windows-p)))
+              (if gnu-ls-installed
+                    (setq gnu-ls-bin-path (s-trim (shell-command-to-string "which ls"))))
           ))
   #+END_SRC
 * check emacs capabilities
@@ -6307,7 +6298,7 @@ thus this function prevents org-babel tangle and setting the file on r/o when ed
      (setq dired-listing-switches "-Alh") ;; default switches for ls to be used for dired listing
      (setq diredp-hide-details-propagate-flag t) ;; opening subfolders inherit details flag (shown/hidden)
      (if gnu-ls-installed
-     (setq insert-directory-program "/usr/local/Cellar/coreutils/8.27/bin/gls"))
+       (setq insert-directory-program gnu-ls-bin-path))
 
      (bind-key  "e" #'gb/dired-ediff-files dired-mode-map)
 
