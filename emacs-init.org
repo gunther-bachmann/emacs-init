@@ -1977,8 +1977,9 @@
      (setq fill-column 140)
      (set-default 'fill-column 140)
      (defun gb/enable-auto-fill-mode ()
-       "enable auto-fill-mode regardless of current state"
-       (auto-fill-mode +1))
+       "enable auto-fill-mode regardless of current state (require diminish)"
+       (auto-fill-mode +1)
+       (diminish 'auto-fill-mode))
    #+END_SRC
 ** keep some session stuff
    - will keep helm-M-x history after restart
@@ -2813,7 +2814,7 @@
 #+BEGIN_SRC emacs-lisp :tangle no
   (req-package ace-isearch
     ;; :diminish ace-isearch-mode
-    :require avy helm-swoop ace-jump-mode
+    :require avy helm-swoop ace-jump-mode diminish
     bind-key ;; optional, needed for key binding
     :disabled t
     :config
@@ -2826,6 +2827,7 @@
 
       ;; Enable global ace-isearch mode:
       (global-ace-isearch-mode +1)
+      (diminish 'ace-isearch-mode)
 
       ;; Enable ace-isearch minor mode:
       ;; (ace-isearch-mode +1)
@@ -2959,8 +2961,10 @@
    #+BEGIN_SRC emacs-lisp
      ;; display # of matches in modeline when searching
      (req-package anzu
+       :require diminish
        :config
-       (global-anzu-mode +1))
+       (global-anzu-mode +1)
+       (diminish 'anzu-mode))
    #+END_SRC
 ** other (recentf, uniquify)
 #+BEGIN_SRC emacs-lisp
@@ -4830,7 +4834,7 @@
 *** org
   #+BEGIN_SRC emacs-lisp
     (req-package org
-      :require bind-key hydra
+      :require bind-key hydra diminish
       :config
       (require 'ob-clojure)
 
@@ -6199,7 +6203,7 @@ thus this function prevents org-babel tangle and setting the file on r/o when ed
 ** auctex
    #+BEGIN_SRC emacs-lisp
      (req-package tex-mode
-       :require flymake
+       :require flymake diminish
        :config
        (progn
          (setq TeX-auto-save t)
@@ -6632,10 +6636,10 @@ thus this function prevents org-babel tangle and setting the file on r/o when ed
     (when (package-installed-p 'diminish)
       (mapc #'diminish
             '(abbrev-mode
-              ace-isearch-mode
-              anzu-mode
+              ;; ace-isearch-mode
+              ;; anzu-mode
               auto-fill-function
-              auto-fill-mode
+              ;; auto-fill-mode
               auto-revert-mode
               back-button-mode
               clj-refactor-mode
