@@ -5495,7 +5495,7 @@ thus this function prevents org-babel tangle and setting the file on r/o when ed
               (error result)))))
 
       ;; enable all languages listed below within org babel
-      (when (version<= "9.0.5" org-version)
+      (when (version<= "9.0.5" (org-version))
       (org-babel-do-load-languages
        'org-babel-load-languages
        '((java . t)
