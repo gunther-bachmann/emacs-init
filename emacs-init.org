@@ -980,7 +980,7 @@
 
           (setq gnu-ls-installed (not (is-ms-windows-p)))
               (if gnu-ls-installed
-                    (setq gnu-ls-bin-path (s-trim (shell-command-to-string "which ls"))))
+                    (setq gnu-ls-bin-path (car (split-string (shell-command-to-string "which ls")))))
           ))
   #+END_SRC
 * check emacs capabilities
@@ -1604,7 +1604,7 @@
         (defun gb/vc-status ()
           (if vc-mode
               vc-mode
-              (concat "\ue0a0 " (s-trim (shell-command-to-string "git rev-parse --abbrev-ref HEAD")))))
+              (concat "\ue0a0 " (car (split-string (shell-command-to-string "git rev-parse --abbrev-ref HEAD"))))))
         (setq gb/vc-status-cache-delay "10 sec")
         (setq gb/vc-status-cache-buffer-id nil)
         (setq gb/vc-status-cache nil)
