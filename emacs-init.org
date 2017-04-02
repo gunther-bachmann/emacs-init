@@ -5775,6 +5775,7 @@ thus this function prevents org-babel tangle and setting the file on r/o when ed
     :bind (("M-x" . helm-M-x)
            ("C-x C-f" . helm-find-files)
            ("s-f" . helm-for-files)
+           ("C-x s-f" . helm-for-files)
            ("C-x C-b" . helm-buffers-list)
            )
     :commands helm-mode
