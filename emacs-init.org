@@ -17,6 +17,28 @@
 #   - entries with 'ok: ... installed' mark checks for external programs that are needed for some packages to work
 #
 * info
+** el-get packages
+   - example of how to load packages dynamically via el-get from git sources
+   #+BEGIN_SRC emacs-lisp :tangle no
+     (el-get-bundle org-brain
+       :url "https://github.com/Kungsgeten/org-brain.git"
+       :features org-brain)
+     (if (el-get-package-is-installed 'org-brain)
+         (el-get 'sync 'org-brain))
+     (req-package org-brain
+       :loader :el-get
+       :require org dash helm-org-rifle
+       :commands org-brain-open org-brain-visualize org-brain-insert-link
+       :config
+       (progn
+         (setq org-brain-path "~/brain")
+         (if (not (file-exists-p org-brain-path))
+             (make-directory org-brain-path t))
+         (defun helm-org-rifle-brain ()
+           "Rifle files in `org-brain-path'."
+           (interactive)
+           (helm-org-rifle-directories (list org-brain-path)))))
+   #+END_SRC
 ** req-package
 *** deferred loading with arbitrary key binding (even key chords are this possible)
    - this code:
@@ -6595,13 +6617,7 @@ thus this function prevents org-babel tangle and setting the file on r/o when ed
    organize org files within org-brain-path into somthing like a mindmap / wiki that can be browsed
    check the [[https://github.com/Kungsgeten/org-brain][home page]]
    #+BEGIN_SRC emacs-lisp
-     (el-get-bundle org-brain
-       :url "https://github.com/Kungsgeten/org-brain.git"
-       :features org-brain)
-     (if (el-get-package-is-installed 'org-brain)
-         (el-get 'sync 'org-brain))
      (req-package org-brain
-       :loader :el-get
        :require org dash helm-org-rifle
        :commands org-brain-open org-brain-visualize org-brain-insert-link
        :config
