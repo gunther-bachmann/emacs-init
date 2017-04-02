@@ -2597,9 +2597,11 @@
 #+BEGIN_SRC emacs-lisp
   (req-package which-key
     ;; :diminish which-key-mode
+    :require diminish
     :config
     (progn
     (which-key-mode)
+    (diminish 'which-key-mode)
     (which-key-setup-side-window-right)
     (validate-setq which-key-side-window-max-width 0.4)
     (setq which-key-max-description-length 45)
@@ -6680,7 +6682,7 @@ thus this function prevents org-babel tangle and setting the file on r/o when ed
               typed-clojure-mode
               undo-tree-mode
               volatile-highlights-mode
-              which-key-mode
+              ;; which-key-mode
               ;; whole-line-or-region-mode
               wrap-region-mode
               )))
