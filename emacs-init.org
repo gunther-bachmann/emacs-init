@@ -6645,6 +6645,18 @@ thus this function prevents org-babel tangle and setting the file on r/o when ed
    (req-package helm-books
      :commands helm-books)
    #+END_SRC
+* tested but discarded
+** helm-navi
+   - does not work together with current org-mode and hide-pw
+     (opening password file does not start folded, passwords are shown)
+   #+BEGIN_SRC emacs-lisp :tangle no
+   (req-package outshine)
+   (req-package navi-mode)
+   (req-package outorg)
+   (req-package helm-navi
+     :require outshine navi-mode
+     :commands helm-navi helm-navi-headings)
+   #+END_SRC
 * finish - up
   #+BEGIN_SRC emacs-lisp
     (req-package-finish);; this command must be at the end !ALWAYS!
