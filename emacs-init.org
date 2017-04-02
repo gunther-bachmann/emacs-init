@@ -2305,8 +2305,10 @@
     (yes: C-w)
     #+BEGIN_SRC emacs-lisp
       (req-package whole-line-or-region
+      :require diminish
       :config
-      (whole-line-or-region-mode 1))
+      (whole-line-or-region-mode 1)
+      (diminish 'whole-line-or-region-mode))
     #+END_SRC
 ** subword (internal programming minor mode)
    #+BEGIN_SRC emacs-lisp
@@ -6679,7 +6681,7 @@ thus this function prevents org-babel tangle and setting the file on r/o when ed
               undo-tree-mode
               volatile-highlights-mode
               which-key-mode
-              whole-line-or-region-mode
+              ;; whole-line-or-region-mode
               wrap-region-mode
               )))
   #+END_SRC
