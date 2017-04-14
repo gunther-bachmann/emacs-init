@@ -2079,9 +2079,9 @@
        (bind-key "C-\" s" (lambda () (interactive) (insert "ß")))
        (bind-key "C-\" S" (lambda () (interactive) (insert "ß"))))
    #+END_SRC
-** hungry delete
+** hungry delete (disabled, testing smart hungry delete)
    - delete all spaces before/after when using backspace/delete
-   #+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp :tangle no
      (req-package hungry-delete
        ;; :diminish hungry-delete-mode
        :bind (( "C-S-d" . hungry-delete-forward)
@@ -6648,6 +6648,14 @@ thus this function prevents org-babel tangle and setting the file on r/o when ed
    #+BEGIN_SRC emacs-lisp
    (req-package helm-books
      :commands helm-books)
+   #+END_SRC
+* to try
+** smart hungry delete
+   - possible replacement for hungry-delete
+   #+BEGIN_SRC emacs-lisp
+     (req-package smart-hungry-delete
+       :bind (("S-<backspace>" . smart-hungry-delete-backward-char)
+   		      ("C-S-d" . smart-hungry-delete-forward-char)))
    #+END_SRC
 * tested but discarded
 ** helm-navi
