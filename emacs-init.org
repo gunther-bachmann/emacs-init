@@ -6650,6 +6650,13 @@ thus this function prevents org-babel tangle and setting the file on r/o when ed
      :commands helm-books)
    #+END_SRC
 * to try
+** symbol-overlay
+   - see [[https://github.com/wolray/symbol-overlay/][here]]
+   - add some keylinks
+   #+BEGIN_SRC emacs-lisp
+   (req-package symbol-overlay
+     :config (setq symbol-overlay-colors '("dodger blue" "spring green" "orchid" "salmon")))
+   #+END_SRC
 ** smart hungry delete
    - possible replacement for hungry-delete
    #+BEGIN_SRC emacs-lisp
