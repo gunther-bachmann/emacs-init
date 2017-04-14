@@ -958,6 +958,13 @@
         ;; on macos x the right alt key is used to get e.g. the pipe '|' (alt-7)
         (setq ns-right-alternate-modifier nil) ;; 'meta
 
+        (defun gb/keyboard-off-macbook-internal () "switch the internal keyboard of the macbook pro off"
+          (interactive)
+          (shell-command "sudo kextunload /System/Library/Extensions/AppleUSBTopCase.kext/Contents/PlugIns/AppleUSBTCKeyboard.kext/"))
+
+        (defun gb/keyboard-on-macbook-internal () "switch the internal keyboard of the macbook pro on"
+          (interactive)
+          (shell-command "sudo kextload /System/Library/Extensions/AppleUSBTopCase.kext/Contents/PlugIns/AppleUSBTCKeyboard.kext/"))
         ))
 #+END_SRC
 ** correct shell path behaviour
