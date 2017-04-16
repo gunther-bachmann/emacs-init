@@ -752,7 +752,7 @@
            (kill-new new-kill-string))))
 
      (require 'subr-x)
-     (defun _nix-program-exists-in-path-p (program-string) 
+     (defun _nix-program-exists-in-path-p (program-string)
        "Does the given exist as file and is on the path?
           PROGRAM is the name of the program without path, given as string.
 
@@ -793,7 +793,7 @@
 
      (defmacro check-file-existence-status (var-name full-file-string file-name warning)
        ""
-       `(progn 
+       `(progn
           (setq ,var-name (all-files-exist ,full-file-string))
           (if (not ,var-name)
               (message (concat "WARNING: " ,file-name " missing, " ,warning))
@@ -806,7 +806,7 @@
           (macro VAR-NAME FULL-PROGRAM-STRING PROGRAM-NAME WARNING)
           "
        `(if (is-ms-windows-p)
-            (progn 
+            (progn
               (setq ,var-name (all-files-executable ,full-program-string))
               (if (not ,var-name)
                   (message (concat "WARNING: " ,program-name " installation missing, " ,warning))
@@ -821,13 +821,13 @@
 
           (macro VAR-NAME PROGRAM-STRING PROGRAM-NAME WARNING)
           "
-       `(if (is-_nix-p) 
+       `(if (is-_nix-p)
             (progn
               (setq ,var-name (all-_nix-program-exists-in-path-p ,program-string))
               (if (not ,var-name)
                   (message (concat "WARNING: " ,program-name " installation missing, " ,warning))
                 (message (concat "OK: " ,program-name " installed."))))
-          (progn 
+          (progn
             (setq ,var-name nil)
             (message (concat "UNCHECKED (*nix) : " ,program-name)))))
 
@@ -2012,6 +2012,7 @@
    #+END_SRC
 * editing related stuff
 ** auto-fill-mode configuration
+   - will word break / line break after column _
    #+BEGIN_SRC emacs-lisp
      (setq fill-column 140)
      (set-default 'fill-column 140)
@@ -2046,6 +2047,17 @@
    #+BEGIN_SRC emacs-lisp
    (setq auto-save-interval 500)
    #+END_SRC
+** ws-butler
+   - remove trailing whitespaces upon save (unobtrusively, that is only in lines actually changed)
+   - [[https://github.com/lewang/ws-butler][home page]]
+   #+BEGIN_SRC emacs-lisp
+     (req-package ws-butler
+       :config
+       (progn
+         (ws-butler-global-mode 1)
+         (when (package-installed-p 'diminish)
+           (diminish 'ws-butler-mode))))
+   #+END_SRC
 ** encoding
    #+BEGIN_SRC emacs-lisp
      (prefer-coding-system 'utf-8-unix)
@@ -2054,6 +2066,7 @@
      (set-keyboard-coding-system 'utf-8-unix)
      (set-selection-coding-system 'utf-8-unix)
      (setq-default buffer-file-coding-system 'utf-8-unix)
+     ;; (set-language-environment "UTF-8")
    #+END_SRC
 ** schrute mode (make suggestions) disabled
    #+begin_src emacs-lisp :tangle no
@@ -2200,9 +2213,10 @@
      (define-key gb/toggle-map "p" #'toggle-serif)
      (define-key gb/toggle-map "q" #'toggle-debug-on-quit)
      (define-key gb/toggle-map "r" #'toggle-word-wrap)
+     (define-key gb/toggle-map "s" #'flyspell-mode)
      (when (fboundp 'gb/toggle-ligatures)
        (define-key gb/toggle-map "t" #'gb/toggle-ligatures))
-     (define-key gb/toggle-map "u" #'focus-mode)
+     (define-key gb/toggle-map "u" #'gb/switch-dictionary)
      (define-key gb/toggle-map "w" #'whitespace-mode)
      (define-key gb/toggle-map "5" #'toggle-frame-fullscreen)
    #+END_SRC
@@ -2264,8 +2278,8 @@
        :config (require 'vlf-setup))
    #+END_SRC
 ** volatile hightlighting
-   highlight blocks associated with buffer commands until any key is pressed
-   (e.g. highlight pasted text)
+   - highlight blocks associated with buffer commands until any key is pressed
+     (e.g. highlight pasted text)
    #+BEGIN_SRC emacs-lisp
      (req-package volatile-highlights
        ;; :diminish volatile-highlights-mode
@@ -2449,9 +2463,8 @@
 
        (setq highlight-thing-mode-temporary nil)
 
-       ;; switch the tepmorary switched off mode on again (if it was on)
-
-       (defun highlight-thing-mode-temporary-on () 
+       (defun highlight-thing-mode-temporary-on ()
+         "switch the tepmorary switched off mode on again (if it was on)"
          (interactive)
          (if highlight-thing-mode-temporary
              (progn
@@ -2459,9 +2472,8 @@
                (highlight-thing-mode 1)
                (highlight-thing-schedule-timer))))
 
-       ;; switch highlight thing mode temporary off (if it was on)
-
        (defun highlight-thing-mode-temporary-off ()
+         "switch highlight thing mode temporary off (if it was on)"
          (interactive)
          (let ((hlmode highlight-thing-mode))
            (if hlmode
@@ -2470,7 +2482,6 @@
                  (highlight-thing-remove-last)
                  (highlight-thing-mode 0))
              )))
-
 
        ;; make sure that during marking words, the highlighting is switched (temporarily) off
        (add-hook 'activate-mark-hook 'highlight-thing-mode-temporary-off)
@@ -2526,18 +2537,20 @@
    - https://github.com/Kungsgeten/selected.el
    #+BEGIN_SRC emacs-lisp 
      (req-package selected
-       :config 
+       :config
        (progn
          (add-hook 'org-mode-hook 'selected-minor-mode)
          (add-hook 'prog-mode-hook 'selected-minor-mode)
+         (bind-key "a" 'mc/mark-all-like-this selected-keymap)
+         (bind-key "d" 'downcase-region selected-keymap)
+         (bind-key "i" 'indent-region selected-keymap)
+         (bind-key "m" 'mc/mark-more-like-this-extended selected-keymap)
          (bind-key "q" 'selected-off selected-keymap)
          (bind-key "u" 'upcase-region selected-keymap)
-         (bind-key "d" 'downcase-region selected-keymap)
          (bind-key "w" 'count-words-region selected-keymap)
-         (bind-key "a" 'mc/mark-all-like-this selected-keymap)
          (bind-key "<" 'mc/mark-previous-like-this selected-keymap)
          (bind-key ">" 'mc/mark-next-like-this selected-keymap)
-         (bind-key "m" 'mc/mark-more-like-this-extended selected-keymap))
+         )
        ;; :diminish selected-minor-mode
        )
    #+END_SRC
@@ -2557,8 +2570,6 @@
      (setq ispell-dictionary "deutsch8")
      (setq ispell-local-dictionary "deutsch8")
      (setq flyspell-default-dictionary "deutsch8")
-     ;; (set-language-environment "UTF-8")
-     ;; (setq selection-coding-system 'utf-8)
 
      ;; for programmiong modes, switch to english and activate flyspell-prog-mode
      ;; (dolist (hook '(prog-mode-hook))
@@ -2650,6 +2661,12 @@
     :config
     (progn
       (setq company-show-numbers t)
+      ;; use numbers 0-9 to select company completion candidates
+      (let ((map company-active-map))
+        (mapc (lambda (x) (define-key map (format "%d" x)
+                       `(lambda () (interactive) (company-complete-number ,x))))
+              (number-sequence 0 9)))
+
       (setq company-minimum-prefix-length 4)
       (setq company-tooltip-limit 15)
       (setq company-tooltip-flip-when-above t)
@@ -2699,73 +2716,73 @@
        (with-eval-after-load 'company (add-hook 'company-mode-hook (lambda () (add-to-list 'company-backends 'company-capf))) (company-flx-mode +1)))
    #+END_SRC
 ** IMPLEMENT company-shell 
-*** provide company help for fish (or other shell) completions within modes like (fish-mode, shell-mode)
-#+BEGIN_SRC emacs-lisp
-  (req-package company-shell
-    :require company
-    :config (add-to-list 'company-backends 'company-shell))
-#+END_SRC
+   - provide company help for fish (or other shell) completions within modes like (fish-mode, shell-mode)
+   #+BEGIN_SRC emacs-lisp
+     (req-package company-shell
+       :require company
+       :config (add-to-list 'company-backends 'company-shell))
+   #+END_SRC
 ** helm-company
-#+BEGIN_SRC emacs-lisp
-  (req-package helm-company
-    :require helm company 
-             bind-key ;; optional, bind keys
-    :config
-    (when (package-installed-p 'bind-key)
-      (bind-key "C-:" 'helm-company company-mode-map)
-      (bind-key "C-:" 'helm-company company-active-map)))
-#+END_SRC
+   #+BEGIN_SRC emacs-lisp
+     (req-package helm-company
+       :require helm company
+                bind-key ;; optional, bind keys
+       :config
+       (when (package-installed-p 'bind-key)
+         (bind-key "C-:" 'helm-company company-mode-map)
+         (bind-key "C-:" 'helm-company company-active-map)))
+   #+END_SRC
 ** helm-descbind
-#+BEGIN_SRC emacs-lisp
-  (req-package helm-descbinds
-    :require helm company
-    :ensure t
-    :bind (("\C-h b" . helm-descbinds)))
-#+END_SRC
+   - describe current keybindings with helm interface
+   #+BEGIN_SRC emacs-lisp
+     (req-package helm-descbinds
+       :require helm company
+       :bind (("\C-h b" . helm-descbinds)))
+   #+END_SRC
 ** helm-dash
    - add new sources for helm dash via helm-dash-install-docset
    - browse doc set via helm-dash
- #+BEGIN_SRC emacs-lisp
-   (req-package helm-dash
-     :bind (("\C-z SPC d" . helm-dash-at-point))
-     :require helm
-     :config
-     (progn
-     (defun clojure-dash-doc ()
-       (interactive) 
-       (setq-local helm-dash-docsets '("Clojure")))
+   #+BEGIN_SRC emacs-lisp
+     (req-package helm-dash
+       :bind (("\C-z SPC d" . helm-dash-at-point))
+       :require helm
+       :config
+       (progn
+       (defun clojure-dash-doc ()
+         (interactive)
+         (setq-local helm-dash-docsets '("Clojure")))
 
-     (add-hook 'clojure-mode-hook 'clojure-dash-doc)
+       (add-hook 'clojure-mode-hook 'clojure-dash-doc)
 
-     (defun java-dash-doc ()
-       (interactive)
-       (setq-local helm-dash-docsets '("Java_SE8"))) 
+       (defun java-dash-doc ()
+         (interactive)
+         (setq-local helm-dash-docsets '("Java_SE8")))
 
-     (add-hook 'java-mode-hook 'java-dash-doc)
+       (add-hook 'java-mode-hook 'java-dash-doc)
 
-     (defun bash-dash-doc ()
-       (interactive)
-       (setq-local helm-dash-docset '("Bash")))
+       (defun bash-dash-doc ()
+         (interactive)
+         (setq-local helm-dash-docset '("Bash")))
 
-     (add-hook 'shell-mode-hook 'bash-dash-doc)
+       (add-hook 'shell-mode-hook 'bash-dash-doc)
 
-     (if w3m-installed
-         (setq helm-dash-browser-func 'w3m-browse-url))
-     (setq helm-dash-docsets '("Bash"
-                               "Clojure"
-                               "Docker"
-                               "Emacs Lisp"
-                               "Groovy"
-                               "Groovy JDK"
-                               "Gradle Groovy API"
-                               "Gradle DSL"
-                               "Gradle User Guide"
-                               "Java"
-                               "LaTeX"
-                               "PostgreSQL"
-                               "Vagrant"
-                               "XSLT"))))
- #+END_SRC
+       (if w3m-installed
+           (setq helm-dash-browser-func 'w3m-browse-url))
+       (setq helm-dash-docsets '("Bash"
+                                 "Clojure"
+                                 "Docker"
+                                 "Emacs Lisp"
+                                 "Groovy"
+                                 "Groovy JDK"
+                                 "Gradle Groovy API"
+                                 "Gradle DSL"
+                                 "Gradle User Guide"
+                                 "Java"
+                                 "LaTeX"
+                                 "PostgreSQL"
+                                 "Vagrant"
+                                 "XSLT"))))
+    #+END_SRC
 *** Installing docsets
 
     Helm-dash uses the same docsets as Dash. You can install them with
@@ -2781,18 +2798,18 @@
     tar --exclude='.DS_Store' -cvzf <docset name>.tgz <docset name>.docset
 
     as explained here.
+** dash at point
+   #+BEGIN_SRC emacs-lisp
+     (req-package dash-at-point
+       :bind (("C-z SPC h d" . dash-at-point-with-docset)
+              ("C-z SPC h D" . dash-at-point)))
+   #+END_SRC
 ** helm-swoop
    #+BEGIN_SRC emacs-lisp
      (req-package helm-swoop
        :bind (("C-S-s" . helm-swoop)
               ("C-M-S-s" . helm-multi-swoop-all))
        :require helm)
-   #+END_SRC
-** dash at point
-   #+BEGIN_SRC emacs-lisp
-     (req-package dash-at-point
-       :bind (("C-z SPC h d" . dash-at-point-with-docset)
-              ("C-z SPC h D" . dash-at-point)))
    #+END_SRC
 ** command logging
    - 'M-x command-log-mode' opens a buffer that logs all commands used
@@ -3035,24 +3052,6 @@
     (recentf-mode 1)
     (setq recentf-exclude (list "^.*/\\.emacs\\.d/.*"))
     (setq recentf-max-menu-items 40)))
-#+END_SRC
-** smex
-#+BEGIN_SRC emacs-lisp :tangle no
-
-  ;; Enhances M-x to allow easier execution of commands. Provides
-  ;; a filterable list of possible commands in the minibuffer
-  ;; http://www.emacswiki.org/emacs/Smex
-  (req-package smex
-    :ensure t
-    :disabled t
-    :bind (("M-x" . smex))
-    :config
-    (progn
-    (setq smex-save-file (concat user-emacs-directory ".smex-items"))
-    (smex-initialize)))
-
-
-
 #+END_SRC
 ** counsel
    #+BEGIN_SRC emacs-lisp
@@ -4338,7 +4337,7 @@
    #+BEGIN_SRC emacs-lisp
    (req-package yankpad)
    #+END_SRC
-* organizational (org, mail, news ...)
+* organizational (org, mail, news)
 ** elfeed
  #+BEGIN_SRC emacs-lisp
    (req-package elfeed
@@ -4876,156 +4875,212 @@
 ** IMPLEMENT org
 *** org
   #+BEGIN_SRC emacs-lisp
-    (req-package org
-      :require bind-key hydra diminish
-      :config
-      (require 'ob-clojure)
+        (req-package org
+          :require bind-key hydra diminish
+          :config
+          (require 'ob-clojure)
+          (require 'org-inlinetask)
 
-      (defun gb/wrap-org-edit-src-save (orig-func &rest args)
-        "remove save adjusted hook, execute save and add hook again.
-thus this function prevents org-babel tangle and setting the file on r/o when edited in org edit src mode"
-        (remove-hook 'after-save-hook 'gb/tangle-on-save-org-mode-file)
-        (let ((res (apply orig-func args)))
-          (add-hook 'after-save-hook 'gb/tangle-on-save-org-mode-file)
-          res))
-      ;; ensure that adjusted save hook is not executed when org edit src save is executed    
-      (advice-add 'org-edit-src-save :around #'gb/wrap-org-edit-src-save)
-      ;; ensure that read only mode is removed when org src edit is started
-      (advice-add 'org-edit-special :before #'(lambda (orig-func &rest args) (read-only-mode -1)))
-
-      ;; set org babel backgrounds for several languages
-      (setq org-src-block-faces
-            '(("emacs-lisp" (:background "#1b1010"))
-              ("java" (:background "#1b1010"))))
-
-      (bind-key "C-c l" 'org-store-link)
-
-      (if (package-installed-p 'helm)
-          (bind-key "s-i" 'helm-org-in-buffer-headings org-mode-map))
-
-      ;; make sure that regular font in src block within org is 'white'
-      (custom-set-faces '(org-block ((t (:foreground "gray75")))))
-      (setq flycheck-keymap-prefix (kbd "C-c k"))
-
-      ;; TODO: generalize to all properties
-      (defun gb/activate-properties-in-org-mode ()
-        (when (string= major-mode "org-mode")
-          (let* ((readOnly (gb/org-global-prop-value "readonly")))
-            (if (string= readOnly "yes")
-                (setq buffer-read-only t)))))
-
-      (add-hook 'after-change-major-mode-hook #'gb/activate-properties-in-org-mode)
-      (add-hook 'org-mode-hook #'gb/enable-auto-fill-mode)
-
-      ;;--------------------------------------------------------------------------------
-      (defhydra hydra-org-mode ()
-        "
-          org mode
-          ^-^--------------
-          _ci_: clock in
-          _co_: clock out
-          _cq_: clock cancel/quit
-          _cj_: jump to clock
-          _cd_: display clock times
-
-          %s(hydra-combine-functions-w-key-bindings
-            '((\"  [ci] clock in            \" . org-clock-in)
-              (\"  [co] clock out           \" . org-clock-out)
-              (\"  [cq] clock cancel/quit   \" . org-clock-cancel)
-              (\"  [cj] jump to clock       \" . org-clock-goto)
-              (\"  [cd] display clock times \" . org-clock-display)
-              ))
-        "
-        ("ci" org-clock-in :exit t)
-        ("co" org-clock-out :exit t)
-        ("cq" org-clock-cancel :exit t)
-        ("cj" org-clock-goto :exit t)
-        ("cd" org-clock-display :exit t))
+          (defun gb/org-smart-return (&optional ignore)
+            "Add new list item, heading or table row with RET.
+    A double return on an empty element deletes it.
+    Use a prefix arg to get regular RET.
+    reference: http://kitchingroup.cheme.cmu.edu/blog/2017/04/09/A-better-return-in-org-mode/?utm_source=feedburner&utm_medium=twitter&utm_campaign=Feed:+TheKitchinResearchGroup+(The+Kitchin+Research+Group)"
+            (interactive "P")
+            (if ignore
+                (org-return)
+              (cond
+               ;; Open links like usual
+               ((eq 'link (car (org-element-context)))
+                (org-open-at-point-global))
+               ;; It doesn't make sense to add headings in inline tasks. Thanks Anders
+               ;; Johansson!
+               ((org-inlinetask-in-task-p)
+                (org-return))
+               ;; add checkboxes
+               ((org-at-item-checkbox-p)
+                (org-insert-todo-heading nil))
+               ;; lists end with two blank lines, so we need to make sure we are also not
+               ;; at the beginning of a line to avoid a loop where a new entry gets
+               ;; created with only one blank line.
+               ((and (org-in-item-p) (not (bolp)))
+                (if (org-element-property :contents-begin (org-element-context))
+                    (org-insert-heading)
+                  (beginning-of-line)
+                  (setf (buffer-substring
+                         (line-beginning-position) (line-end-position)) "")
+                  (org-return)))
+               ((org-at-heading-p)
+                (if (not (string= "" (org-element-property :title (org-element-context))))
+                    (progn (org-end-of-meta-data)
+                           (org-insert-heading))
+                  (beginning-of-line)
+                  (setf (buffer-substring
+                         (line-beginning-position) (line-end-position)) "")))
+               ((org-at-table-p)
+                (if (-any?
+                     (lambda (x) (not (string= "" x)))
+                     (nth
+                      (- (org-table-current-dline) 1)
+                      (org-table-to-lisp)))
+                    (org-return)
+                  ;; empty row
+                  (beginning-of-line)
+                  (setf (buffer-substring
+                         (line-beginning-position) (line-end-position)) "")
+                  (org-return)))
+               (t
+                (org-return)))))
 
 
-      ;; Resume clocking tasks when emacs is restarted
-      (org-clock-persistence-insinuate)
+          (define-key org-mode-map (kbd "RET")
+            'gb/org-smart-return)
 
-      ;; make sure that clock display will include all times (even last year ...)
-      (setq org-clock-display-default-range (quote untilnow))
+          (defun gb/wrap-org-edit-src-save (orig-func &rest args)
+            "remove save adjusted hook, execute save and add hook again.
+    thus this function prevents org-babel tangle and setting the file on r/o when edited in org edit src mode"
+            (remove-hook 'after-save-hook 'gb/tangle-on-save-org-mode-file)
+            (let ((res (apply orig-func args)))
+              (add-hook 'after-save-hook 'gb/tangle-on-save-org-mode-file)
+              res))
+          ;; ensure that adjusted save hook is not executed when org edit src save is executed
+          (advice-add 'org-edit-src-save :around #'gb/wrap-org-edit-src-save)
+          ;; ensure that read only mode is removed when org src edit is started
+          (advice-add 'org-edit-special :before #'(lambda (orig-func &rest args) (read-only-mode -1)))
 
-      ;; Yes it's long... but more is better ;
-      (setq org-clock-history-length 35)
+          ;; set org babel backgrounds for several languages
+          (setq org-src-block-faces
+                '(("emacs-lisp" (:background "#1b1010"))
+                  ("java" (:background "#1b1010"))))
 
-      ;; Resume clocking task on clock-in if the clock is open
-      (setq org-clock-in-resume t)
+          (bind-key "C-c l" 'org-store-link)
 
-      ;; name the drawer to be "clocking"
-      (setq org-clock-into-drawer "CLOCKING")
+          (if (package-installed-p 'helm)
+              (bind-key "s-i" 'helm-org-in-buffer-headings org-mode-map))
 
-      (defun gb/org-clock-in-switch-to-state-fn (state)
-        "switch TODO to IMPLEMENT if clocking in!"
-        (if (equal state "TODO")
-            "IMPLEMENT"
-          nil))
+          ;; make sure that regular font in src block within org is 'white'
+          (custom-set-faces '(org-block ((t (:foreground "gray75")))))
+          (setq flycheck-keymap-prefix (kbd "C-c k"))
 
-      ;; Change task state to IMPLEMENT when clocking in (only if in STATE TODO)
-      (setq org-clock-in-switch-to-state (function  gb/org-clock-in-switch-to-state-fn))
+          ;; TODO: generalize to all properties
+          (defun gb/activate-properties-in-org-mode ()
+            (when (string= major-mode "org-mode")
+              (let* ((readOnly (gb/org-global-prop-value "readonly")))
+                (if (string= readOnly "yes")
+                    (setq buffer-read-only t)))))
 
-      (defun gb/org-global-props-key-re (key)
-        "Construct a regular expression matching key and an optional plus and eating the spaces behind.
-     Test for existence of the plus: (match-beginning 1)"
-        (concat "^" (regexp-quote key) "\\(\\+\\)?[[:space:]]+"))
+          (add-hook 'after-change-major-mode-hook #'gb/activate-properties-in-org-mode)
+          (add-hook 'org-mode-hook #'gb/enable-auto-fill-mode)
 
-      (defun gb/org-global-props (&optional buffer)
-        "Get the plists of global org properties of current buffer."
-        (with-current-buffer (or buffer (current-buffer))
-          (org-element-map (org-element-parse-buffer) 'keyword (lambda (el) (when (string-equal (org-element-property :key el) "PROPERTY") (nth 1 el))))))
+          ;;--------------------------------------------------------------------------------
+          (defhydra hydra-org-mode ()
+            "
+              org mode
+              ^-^--------------
+              _ci_: clock in
+              _co_: clock out
+              _cq_: clock cancel/quit
+              _cj_: jump to clock
+              _cd_: display clock times
 
-      (defun gb/org-global-prop-value (key)
-        "Get global org property KEY of current buffer.
-       Adding up values for one key is supported."
-        (let ((key-re (gb/org-global-props-key-re key))
-              (props (gb/org-global-props))
-              ret)
-          (cl-loop with val for prop in props
-                   when (string-match key-re (setq val (plist-get prop :value))) do
-                   (setq
-                    val (substring val (match-end 0))
-                    ret (if (match-beginning 1)
-                            (concat ret " " val)
-                          val)))
-          ret))
-
-
-
-
-      (setq org-ellipsis "…") ;; make the ... at the end (that indicates folding) be a bit less invasive
-      (setq org-hide-leading-stars t) ;; each level only one star
-      (setq org-special-ctrl-a/e t) ;; jump to the head text only (not to the star marking the head)
-
-      ;; replace dashes and bullets with utf-8 bullet
-      ;; (font-lock-add-keywords 'org-mode
-      ;;                         '(("^ +\\([-*]\\) "
-      ;;                            (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
-
-      ;; make level headings larger / bold
-      ;; (let* ((variable-tuple (cond ((x-list-fonts "Source Sans Pro") '(:font "Source Sans Pro"))
-      ;;                             ((x-list-fonts "Lucida Grande")   '(:font "Lucida Grande"))
-      ;;                             ((x-list-fonts "Verdana")         '(:font "Verdana"))
-      ;;                             ((x-family-fonts "Sans Serif")    '(:family "Sans Serif"))
-      ;;                             (nil (warn "Cannot find a Sans Serif Font.  Install Source Sans Pro."))))
-      ;;      (base-font-color     (face-foreground 'default nil 'default))
-      ;;      (headline           `(:inherit default :weight bold )))
-
-      ;;  (custom-theme-set-faces 'user
-      ;;                          `(org-level-8 ((t (,@headline ,@variable-tuple))))
-      ;;                          `(org-level-7 ((t (,@headline ,@variable-tuple))))
-      ;;                          `(org-level-6 ((t (,@headline ,@variable-tuple))))
-      ;;                          `(org-level-5 ((t (,@headline ,@variable-tuple))))
-      ;;                          `(org-level-4 ((t (:foreground "#a97167"))))
-      ;;                          `(org-level-3 ((t (:foreground "#4fa8a8" ,@headline))))
-      ;;                          `(org-level-2 ((t (:foreground "#989848" ,@headline :height 1.1))))
-      ;;                          `(org-level-1 ((t (:foreground "#8888c8" ,@headline :height 1.25))))
-      ;;                          `(org-document-title ((t ( :height 1.5 :underline nil))))))
+              %s(hydra-combine-functions-w-key-bindings
+                '((\"  [ci] clock in            \" . org-clock-in)
+                  (\"  [co] clock out           \" . org-clock-out)
+                  (\"  [cq] clock cancel/quit   \" . org-clock-cancel)
+                  (\"  [cj] jump to clock       \" . org-clock-goto)
+                  (\"  [cd] display clock times \" . org-clock-display)
+                  ))
+            "
+            ("ci" org-clock-in :exit t)
+            ("co" org-clock-out :exit t)
+            ("cq" org-clock-cancel :exit t)
+            ("cj" org-clock-goto :exit t)
+            ("cd" org-clock-display :exit t))
 
 
-      )
+          ;; Resume clocking tasks when emacs is restarted
+          (org-clock-persistence-insinuate)
+
+          ;; make sure that clock display will include all times (even last year ...)
+          (setq org-clock-display-default-range (quote untilnow))
+
+          ;; Yes it's long... but more is better ;
+          (setq org-clock-history-length 35)
+
+          ;; Resume clocking task on clock-in if the clock is open
+          (setq org-clock-in-resume t)
+
+          ;; name the drawer to be "clocking"
+          (setq org-clock-into-drawer "CLOCKING")
+
+          (defun gb/org-clock-in-switch-to-state-fn (state)
+            "switch TODO to IMPLEMENT if clocking in!"
+            (if (equal state "TODO")
+                "IMPLEMENT"
+              nil))
+
+          ;; Change task state to IMPLEMENT when clocking in (only if in STATE TODO)
+          (setq org-clock-in-switch-to-state (function  gb/org-clock-in-switch-to-state-fn))
+
+          (defun gb/org-global-props-key-re (key)
+            "Construct a regular expression matching key and an optional plus and eating the spaces behind.
+         Test for existence of the plus: (match-beginning 1)"
+            (concat "^" (regexp-quote key) "\\(\\+\\)?[[:space:]]+"))
+
+          (defun gb/org-global-props (&optional buffer)
+            "Get the plists of global org properties of current buffer."
+            (with-current-buffer (or buffer (current-buffer))
+              (org-element-map (org-element-parse-buffer) 'keyword (lambda (el) (when (string-equal (org-element-property :key el) "PROPERTY") (nth 1 el))))))
+
+          (defun gb/org-global-prop-value (key)
+            "Get global org property KEY of current buffer.
+           Adding up values for one key is supported."
+            (let ((key-re (gb/org-global-props-key-re key))
+                  (props (gb/org-global-props))
+                  ret)
+              (cl-loop with val for prop in props
+                       when (string-match key-re (setq val (plist-get prop :value))) do
+                       (setq
+                        val (substring val (match-end 0))
+                        ret (if (match-beginning 1)
+                                (concat ret " " val)
+                              val)))
+              ret))
+
+
+
+
+          (setq org-ellipsis "…") ;; make the ... at the end (that indicates folding) be a bit less invasive
+          (setq org-hide-leading-stars t) ;; each level only one star
+          (setq org-special-ctrl-a/e t) ;; jump to the head text only (not to the star marking the head)
+
+          ;; replace dashes and bullets with utf-8 bullet
+          ;; (font-lock-add-keywords 'org-mode
+          ;;                         '(("^ +\\([-*]\\) "
+          ;;                            (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
+
+          ;; make level headings larger / bold
+          ;; (let* ((variable-tuple (cond ((x-list-fonts "Source Sans Pro") '(:font "Source Sans Pro"))
+          ;;                             ((x-list-fonts "Lucida Grande")   '(:font "Lucida Grande"))
+          ;;                             ((x-list-fonts "Verdana")         '(:font "Verdana"))
+          ;;                             ((x-family-fonts "Sans Serif")    '(:family "Sans Serif"))
+          ;;                             (nil (warn "Cannot find a Sans Serif Font.  Install Source Sans Pro."))))
+          ;;      (base-font-color     (face-foreground 'default nil 'default))
+          ;;      (headline           `(:inherit default :weight bold )))
+
+          ;;  (custom-theme-set-faces 'user
+          ;;                          `(org-level-8 ((t (,@headline ,@variable-tuple))))
+          ;;                          `(org-level-7 ((t (,@headline ,@variable-tuple))))
+          ;;                          `(org-level-6 ((t (,@headline ,@variable-tuple))))
+          ;;                          `(org-level-5 ((t (,@headline ,@variable-tuple))))
+          ;;                          `(org-level-4 ((t (:foreground "#a97167"))))
+          ;;                          `(org-level-3 ((t (:foreground "#4fa8a8" ,@headline))))
+          ;;                          `(org-level-2 ((t (:foreground "#989848" ,@headline :height 1.1))))
+          ;;                          `(org-level-1 ((t (:foreground "#8888c8" ,@headline :height 1.25))))
+          ;;                          `(org-document-title ((t ( :height 1.5 :underline nil))))))
+
+
+          )
   #+END_SRC
 *** org capture
     - for capture templates see [[http://orgmode.org/manual/Template-elements.html#Template-elements]]
@@ -6624,17 +6679,6 @@ thus this function prevents org-babel tangle and setting the file on r/o when ed
    #+BEGIN_SRC emacs-lisp
    (req-package historian)
    #+END_SRC
-** ws-butler
-   remove trailing whitespaces upon save (unobtrusively, that is only in lines actually changed)
-   [[https://github.com/lewang/ws-butler][home page]]
-   #+BEGIN_SRC emacs-lisp
-     (req-package ws-butler
-       :config
-       (progn
-         (ws-butler-global-mode 1)
-         (when (package-installed-p 'diminish)
-           (diminish 'ws-butler-mode))))
-   #+END_SRC
 ** org-brain
    organize org files within org-brain-path into somthing like a mindmap / wiki that can be browsed
    check the [[https://github.com/Kungsgeten/org-brain][home page]]
@@ -6688,6 +6732,21 @@ thus this function prevents org-babel tangle and setting the file on r/o when ed
    (req-package helm-navi
      :require outshine navi-mode
      :commands helm-navi helm-navi-headings)
+   #+END_SRC
+** smex
+   - replaced by helm-M-x, a helm interface to M-x
+   #+BEGIN_SRC emacs-lisp :tangle no
+     ;; Enhances M-x to allow easier execution of commands. Provides
+     ;; a filterable list of possible commands in the minibuffer
+     ;; http://www.emacswiki.org/emacs/Smex
+     (req-package smex
+       :ensure t
+       :disabled t
+       :bind (("M-x" . smex))
+       :config
+       (progn
+       (setq smex-save-file (concat user-emacs-directory ".smex-items"))
+       (smex-initialize)))
    #+END_SRC
 * finish - up
   #+BEGIN_SRC emacs-lisp
