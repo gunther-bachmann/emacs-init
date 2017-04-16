@@ -711,6 +711,12 @@
    #+END_SRC
 ** other
    #+BEGIN_SRC emacs-lisp
+     (defun sudo-shell-command (command)
+       (interactive "MShell command (root): ")
+       (with-temp-buffer
+         (cd "/sudo::/")
+         (async-shell-command command)))
+
      (defun dont-kill-emacs()
        "Disable C-x C-c binding execute kill-emacs."
        (interactive)
@@ -960,11 +966,11 @@
 
         (defun gb/keyboard-off-macbook-internal () "switch the internal keyboard of the macbook pro off"
           (interactive)
-          (shell-command "sudo kextunload /System/Library/Extensions/AppleUSBTopCase.kext/Contents/PlugIns/AppleUSBTCKeyboard.kext/"))
+          (sudo-shell-command "kextunload /System/Library/Extensions/AppleUSBTopCase.kext/Contents/PlugIns/AppleUSBTCKeyboard.kext/"))
 
         (defun gb/keyboard-on-macbook-internal () "switch the internal keyboard of the macbook pro on"
           (interactive)
-          (shell-command "sudo kextload /System/Library/Extensions/AppleUSBTopCase.kext/Contents/PlugIns/AppleUSBTCKeyboard.kext/"))
+          (sudo-shell-command "kextload /System/Library/Extensions/AppleUSBTopCase.kext/Contents/PlugIns/AppleUSBTCKeyboard.kext/"))
         ))
 #+END_SRC
 ** correct shell path behaviour
