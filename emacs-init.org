@@ -6715,6 +6715,15 @@
        :bind (("S-<backspace>" . smart-hungry-delete-backward-char)
    		      ("C-S-d" . smart-hungry-delete-forward-char)))
    #+END_SRC
+** org recent headings
+   - keep a list of lru org headings to choose from
+   #+BEGIN_SRC emacs-lisp
+     (req-package org-recent-headings
+       :config
+       (progn
+         (bind-key "M-s-i" #'org-recent-headings-helm)
+         (org-recent-headings-mode)))
+   #+END_SRC
 ** org sticky headers
    - keep last header of org in head line displayed if other wise scrolling out of view
    - problematic, sometimes org-sticky-header is empty
