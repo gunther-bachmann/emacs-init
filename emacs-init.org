@@ -6702,12 +6702,14 @@
 ** symbol-overlay
    - see [[https://github.com/wolray/symbol-overlay/][here]]
    - add some keylinks
+   - allow highlighting of symbols
    #+BEGIN_SRC emacs-lisp
    (req-package symbol-overlay
      :config (setq symbol-overlay-colors '("dodger blue" "spring green" "orchid" "salmon")))
    #+END_SRC
 ** smart hungry delete
    - possible replacement for hungry-delete
+   - do smart delete of spaces
    #+BEGIN_SRC emacs-lisp
      (req-package smart-hungry-delete
        :bind (("S-<backspace>" . smart-hungry-delete-backward-char)
