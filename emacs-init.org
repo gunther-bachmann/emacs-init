@@ -6730,6 +6730,19 @@
    #+BEGIN_SRC emacs-lisp :tangle no
    (req-package org-sticky-header)
    #+END_SRC
+** spaceline all the icons
+   - important: install fonts located [[https://github.com/domtronn/all-the-icons.el/tree/master/fonts][here]]
+   #+begin_SRC emacs-lisp
+     (req-package spaceline-all-the-icons
+       :require spaceline
+       :config (spaceline-all-the-icons-theme)
+       (spaceline-all-the-icons--setup-anzu)
+       (spaceline-all-the-icons--setup-paradox)
+       (custom-set-variables  '(spaceline-all-the-icons-highlight-file-name t)
+                              '(spaceline-all-the-icons-separator-type (quote arrow))
+                              '(spaceline-all-the-icons-slim-render t)
+                              ))
+   #+END_SRC
 * tested but discarded
 ** major mode icons
    - does not work with spaceline (nor powerline)
