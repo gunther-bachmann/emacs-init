@@ -4971,6 +4971,7 @@
 
           (add-hook 'after-change-major-mode-hook #'gb/activate-properties-in-org-mode)
           (add-hook 'org-mode-hook #'gb/enable-auto-fill-mode)
+          (add-hook 'org-mode-hook #'org-sticky-header)
 
           ;;--------------------------------------------------------------------------------
           (defhydra hydra-org-mode ()
@@ -6721,6 +6722,12 @@
      (req-package smart-hungry-delete
        :bind (("S-<backspace>" . smart-hungry-delete-backward-char)
    		      ("C-S-d" . smart-hungry-delete-forward-char)))
+   #+END_SRC
+** org sticky headers
+   - keep last header of org in head line displayed if other wise scrolling out of view
+   - problematic, sometimes org-sticky-header is empty
+   #+BEGIN_SRC emacs-lisp :tangle no
+   (req-package org-sticky-header)
    #+END_SRC
 * tested but discarded
 ** helm-navi
