@@ -6647,15 +6647,6 @@
    #+BEGIN_SRC emacs-lisp :tangle no
    (req-package wolfram)
    #+END_SRC
-** major mode icons (disabled, does not work with powerline)
-   #+BEGIN_SRC emacs-lisp :tangle no
-     ;; (req-package major-mode-icons
-     ;;   :config 
-     ;;   (progn
-     ;;     (setq mode-line-end-spaces
-     ;;           (quote ((:eval (major-mode-icons/show)))))
-     ;;     (major-mode-icons-mode 1)))
-   #+END_SRC
 ** yaml
    #+BEGIN_SRC emacs-lisp
    (req-package yaml-mode)
@@ -6708,7 +6699,6 @@
    (req-package helm-books
      :commands helm-books)
    #+END_SRC
-* to try
 ** symbol-overlay
    - see [[https://github.com/wolray/symbol-overlay/][here]]
    - add some keylinks
@@ -6730,6 +6720,18 @@
    (req-package org-sticky-header)
    #+END_SRC
 * tested but discarded
+** major mode icons
+   - does not work with spaceline (nor powerline)
+   #+BEGIN_SRC emacs-lisp :tangle no
+     (req-package xpm)
+     (req-package major-mode-icons
+       :require xpm
+       :config
+       (progn
+         (setq mode-line-end-spaces
+               (quote ((:eval (major-mode-icons/show)))))
+         (major-mode-icons-mode 1)))
+   #+END_SRC
 ** helm-navi
    - does not work together with current org-mode and hide-pw
      (opening password file does not start folded, passwords are shown)
