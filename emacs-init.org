@@ -1708,6 +1708,11 @@
                                '(spaceline-all-the-icons-file-name-highlight t)
                                )
 
+        ;; Valid Values: alternate, arrow, arrow-fade, bar, box, brace,
+        ;; butt, chamfer, contour, curve, rounded, roundstub, wave, zigzag,
+        ;; utf-8
+        (setq powerline-default-separator 'box)
+
         (spaceline-install '((gb/buffer-status :face highlight-face)
                              auto-compile
                              ;; buffer-size
@@ -1758,11 +1763,6 @@
                               ;; :separator (spaceline-all-the-icons--separator "|" " ") :face default-face
                               )
                              ))
-
-        ;; Valid Values: alternate, arrow, arrow-fade, bar, box, brace,
-        ;; butt, chamfer, contour, curve, rounded, roundstub, wave, zigzag,
-        ;; utf-8
-        (setq powerline-default-separator 'box)
 
         (setq-default mode-line-format '("%e" (:eval (spaceline-ml-main))))
         )
