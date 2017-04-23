@@ -1729,7 +1729,7 @@
 
                                ;;  all-the-icons-projectile
                                ;; (minor-modes :when active)
-                               (gb/version-control :when (not (buffer-file-name)))
+                               (gb/version-control :when (string= major-mode "shell-mode"))
                                ;; all-the-icons-vc-icon
                                (all-the-icons-vc-status
                                 all-the-icons-git-ahead
