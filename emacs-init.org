@@ -4104,8 +4104,8 @@
        :bind (("C-c s !" . shell-here)))
      ;;      (define-key (current-global-map) "\C-c!" 'shell-here) ;
    #+END_SRC
-** shell ansi colors configuration
-   #+BEGIN_SRC emacs-lisp
+** shell ansi colors configuration (disabled)
+   #+BEGIN_SRC emacs-lisp :tangle no
      (req-package ansi-color
        :config
        (setq ansi-color-names-vector
@@ -4115,6 +4115,13 @@
 
        (add-hook 'shell-mode-hook 'ansi-color-for-comint-mode-on)
        (add-to-list 'comint-output-filter-functions 'ansi-color-process-output))
+   #+END_SRC
+** xterm color
+   #+BEGIN_SRC emacs-lisp
+        (req-package xterm-color
+          :config
+          (progn (add-hook 'comint-preoutput-filter-functions 'xterm-color-filter)
+                 (setq comint-output-filter-functions (remove 'ansi-color-process-output comint-output-filter-functions))))
    #+END_SRC
 ** friendly iteractive shell
    #+BEGIN_SRC emacs-lisp
