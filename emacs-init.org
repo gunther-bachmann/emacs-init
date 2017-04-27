@@ -5024,7 +5024,7 @@
 
           (add-hook 'after-change-major-mode-hook #'gb/activate-properties-in-org-mode)
           (add-hook 'org-mode-hook #'gb/enable-auto-fill-mode)
-          (add-hook 'org-mode-hook #'org-sticky-header)
+          ;; (add-hook 'org-mode-hook #'org-sticky-header)
 
           ;;--------------------------------------------------------------------------------
           (defhydra hydra-org-mode ()
