@@ -2721,7 +2721,17 @@
                            company-oddmuse company-dabbrev)))
       (setq company-dabbrev-code-modes
             (quote
-             (prog-mode batch-file-mode css-mode erlang-mode haskell-mode jde-mode lua-mode python-mode clojure-mode scala-mode)))
+             (prog-mode
+              batch-file-mode
+              css-mode
+              ;; erlang-mode
+              ;; haskell-mode
+              ;; jde-mode
+              ;; lua-mode
+              ;; python-mode
+              clojure-mode
+              ;; scala-mode
+              )))
 
       (custom-set-faces
        '(company-echo-common ((t (:inherit company-echo :foreground "black"))))
