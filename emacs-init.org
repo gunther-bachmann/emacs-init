@@ -1700,8 +1700,6 @@
         :require spaceline
         :config
         (spaceline-all-the-icons-theme)
-        (spaceline-all-the-icons--setup-anzu)
-        (spaceline-all-the-icons--setup-paradox)
         (custom-set-variables  '(spaceline-all-the-icons-highlight-file-name t)
                                '(spaceline-all-the-icons-separator-type (quote slant)) ;; cup, slant, wave, arrow
                                '(spaceline-all-the-icons-slim-render nil)
@@ -1765,6 +1763,8 @@
                              ))
 
         (setq-default mode-line-format '("%e" (:eval (spaceline-ml-main))))
+        (spaceline-all-the-icons--setup-anzu)
+        ;; (spaceline-all-the-icons--setup-paradox)
         )
     #+END_SRC
 *** rich minority mode (hide minor modes from smart mode line) (disabled)
