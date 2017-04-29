@@ -263,6 +263,10 @@
            req-package
            el-get))
 
+  ;; make sure to add el-get tot he load path
+  (add-to-list 'load-path "~/.emacs.d/el-get/el-get")
+
+
   ;; add mac specific packages
   (when (gb/on-mac-p)
     (add-to-list 'package-to-install-initially 'exec-path-from-shell))
@@ -2479,15 +2483,16 @@
 
          ))
 
-;; space-chord
-     ;; (add-to-list 'load-path "~/.emacs.d/space-chord/")
-     ;; (req-package space-chord
-     ;;   :loader :path
-     ;;   :config
-     ;;   (progn
-     ;;     (setq space-chord-delay 0.08)
-     ;;     ;;(space-chord-define-global "f" 'find-file)
-     ;;     ))
+     ;; last time I had to install this via M-x el-get-list-packages before it actually started working
+     (el-get-bundle space-chord)
+     (req-package space-chord
+       :loader :el-get
+       :require key-chord
+       :config
+       (progn
+         (setq space-chord-delay 0.08)
+         (space-chord-define-global "f" 'find-file) ;; just an example
+         ))
    #+END_SRC
 ** highlight thing
    #+BEGIN_SRC emacs-lisp
