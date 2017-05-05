@@ -1711,6 +1711,19 @@
 *** spaceline all the icons
     - important: install fonts located [[https://github.com/domtronn/all-the-icons.el/tree/master/fonts][here]]
     #+begin_SRC emacs-lisp
+      (defun gb/warn-missing-font (font-name)
+        "warn of font missing, if not found"
+        (if (member font-name (font-family-list))
+            (message (concat "OK: font '" font-name "' is installed."))
+          (message (concat "WARNING: make sure font '" font-name  "' is installed."))))
+
+      (gb/warn-missing-font "all-the-icons")
+      (gb/warn-missing-font "file-icons")
+      (gb/warn-missing-font "FontAwesome")
+      (gb/warn-missing-font "Material Icons")
+      (gb/warn-missing-font "github-octicons")
+      (gb/warn-missing-font "Weather Icons")
+
       (req-package spaceline-all-the-icons
         :require spaceline
         :config
