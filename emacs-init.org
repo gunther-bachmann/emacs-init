@@ -1131,7 +1131,7 @@
        (message (concat "WARNING: expected font '" gb/default-font "' not found in available font list.")))
 
      (require 'ht)
-     (defun gb/get-font-heights (display-width win-system) 
+     (defun gb/get-font-heights (display-width win-system)
        "Get font heights depending on display width"
        (if (memq win-system '(mac ns))
            (cond ((> display-width 3400)
@@ -1164,6 +1164,10 @@
                              :weight (ht-get attr-map 'variable-pitch-weight))))
 
      (gb/setup-main-fonts)
+     (if after-init-time
+         (gb/setup-main-fonts)
+       (add-hook 'after-init-hook 'gb/setup-main-fonts))
+
    #+END_SRC
    - the following is not functional within (my) emacs => it is not tangled
      #+BEGIN_SRC emacs-lisp :tangle no
