@@ -1169,41 +1169,6 @@
        (add-hook 'after-init-hook 'gb/setup-main-fonts))
 
    #+END_SRC
-   - the following is not functional within (my) emacs => it is not tangled
-     #+BEGIN_SRC emacs-lisp :tangle no
-
-       ;; if font with ligatures is selected, define some font compositions
-       (when (string= gb/default-font "Fira Code")
-         (let ((alist '((33 . ".\\(?:\\(?:==\\|!!\\)\\|[!=]\\)")
-                        (35 . ".\\(?:###\\|##\\|_(\\|[#(?[_{]\\)")
-                        (36 . ".\\(?:>\\)")
-                        (37 . ".\\(?:\\(?:%%\\)\\|%\\)")
-                        (38 . ".\\(?:\\(?:&&\\)\\|&\\)")
-                        (42 . ".\\(?:\\(?:\\*\\*/\\)\\|\\(?:\\*[*/]\\)\\|[*/>]\\)")
-                        (43 . ".\\(?:\\(?:\\+\\+\\)\\|[+>]\\)")
-                        (45 . ".\\(?:\\(?:-[>-]\\|<<\\|>>\\)\\|[<>}~-]\\)")
-                        (46 . ".\\(?:\\(?:\\.[.<]\\)\\|[.=-]\\)")
-                        (47 . ".\\(?:\\(?:\\*\\*\\|//\\|==\\)\\|[*/=>]\\)")
-                        (48 . ".\\(?:x[a-zA-Z]\\)")
-                        (58 . ".\\(?:::\\|[:=]\\)")
-                        (59 . ".\\(?:;;\\|;\\)")
-                        (60 . ".\\(?:\\(?:!--\\)\\|\\(?:~~\\|->\\|\\$>\\|\\*>\\|\\+>\\|--\\|<[<=-]\\|=[<=>]\\||>\\)\\|[*$+~/<=>|-]\\)")
-                        (61 . ".\\(?:\\(?:/=\\|:=\\|<<\\|=[=>]\\|>>\\)\\|[<=>~]\\)")
-                        (62 . ".\\(?:\\(?:=>\\|>[=>-]\\)\\|[=>-]\\)")
-                        (63 . ".\\(?:\\(\\?\\?\\)\\|[:=?]\\)")
-                        (91 . ".\\(?:]\\)")
-                        (92 . ".\\(?:\\(?:\\\\\\\\\\)\\|\\\\\\)")
-                        (94 . ".\\(?:=\\)")
-                        (119 . ".\\(?:ww\\)")
-                        (123 . ".\\(?:-\\)")
-                        (124 . ".\\(?:\\(?:|[=|]\\)\\|[=>|]\\)")
-                        (126 . ".\\(?:~>\\|~~\\|[>=@~-]\\)")
-                        )
-                      ))
-           (dolist (char-regexp alist)
-             (set-char-table-range composition-function-table (car char-regexp)
-                                   `([,(cdr char-regexp) 0 font-shape-gstring])))))
-     #+END_SRC
    - install ligatures via fira code symbol (had to install [[https://github.com/tonsky/FiraCode/files/412440/FiraCode-Regular-Symbol.zip][fira code symbol]] for the following to work)
      #+BEGIN_SRC emacs-lisp
        (setq fira-code-symbol-installed (member "Fira Code Symbol" (font-family-list)))
@@ -1590,7 +1555,7 @@
          echo $s | awk '{print \"rx:\"$7}'
          echo $s | awk '{print \"tx:\"$8}'
 
-         s=`ps -e -o %%cpu | awk '{x+=$1} END {print x/8}' | sed 's/,.*//'`
+         s=`ps -e -o %%cpu | awk '{x+=$1} END {print x/8}' | sed 's/,.*//'`           ### cpu number is 8 => /8
          echo \"cpu:$s\"
 
          m1=`sysctl hw.memsize | sed 's/.*:\s*//'`
@@ -1795,7 +1760,7 @@
         ;; (spaceline-all-the-icons--setup-paradox)
         )
     #+END_SRC
-*** rich minority mode (hide minor modes from smart mode line) (disabled)
+*** rich minority mode (hide minor modes from smart mode line) (disabled, smart mode line not in use anymore)
     #+BEGIN_SRC emacs-lisp :tangle no
       (req-package rich-minority
         :config
@@ -1877,10 +1842,10 @@
           (add-to-list 'sml/replacer-regexp-list '("^~/Documents/clojure/workspace" ":clj:"))))
 
     #+END_SRC
-*** fancy battery (for modeline)
+*** fancy battery (for modeline, disabled)
     Display of battery status in the emacs mode line (all the way to the left)
     See [[https://github.com/lunaryorn/fancy-battery.el][link]]
-   #+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp :tangle no
    (req-package fancy-battery
      :config (progn (add-hook 'after-init-hook #'fancy-battery-mode)))
    #+END_SRC
@@ -6835,6 +6800,42 @@
    (req-package lsp-rust :require lsp-mode)
    #+END_SRC
 * tested but discarded
+** fonts with ligatures (realized differently)
+   - the following is not functional within (my) emacs => it is not tangled
+     #+BEGIN_SRC emacs-lisp :tangle no
+
+       ;; if font with ligatures is selected, define some font compositions
+       (when (string= gb/default-font "Fira Code")
+         (let ((alist '((33 . ".\\(?:\\(?:==\\|!!\\)\\|[!=]\\)")
+                        (35 . ".\\(?:###\\|##\\|_(\\|[#(?[_{]\\)")
+                        (36 . ".\\(?:>\\)")
+                        (37 . ".\\(?:\\(?:%%\\)\\|%\\)")
+                        (38 . ".\\(?:\\(?:&&\\)\\|&\\)")
+                        (42 . ".\\(?:\\(?:\\*\\*/\\)\\|\\(?:\\*[*/]\\)\\|[*/>]\\)")
+                        (43 . ".\\(?:\\(?:\\+\\+\\)\\|[+>]\\)")
+                        (45 . ".\\(?:\\(?:-[>-]\\|<<\\|>>\\)\\|[<>}~-]\\)")
+                        (46 . ".\\(?:\\(?:\\.[.<]\\)\\|[.=-]\\)")
+                        (47 . ".\\(?:\\(?:\\*\\*\\|//\\|==\\)\\|[*/=>]\\)")
+                        (48 . ".\\(?:x[a-zA-Z]\\)")
+                        (58 . ".\\(?:::\\|[:=]\\)")
+                        (59 . ".\\(?:;;\\|;\\)")
+                        (60 . ".\\(?:\\(?:!--\\)\\|\\(?:~~\\|->\\|\\$>\\|\\*>\\|\\+>\\|--\\|<[<=-]\\|=[<=>]\\||>\\)\\|[*$+~/<=>|-]\\)")
+                        (61 . ".\\(?:\\(?:/=\\|:=\\|<<\\|=[=>]\\|>>\\)\\|[<=>~]\\)")
+                        (62 . ".\\(?:\\(?:=>\\|>[=>-]\\)\\|[=>-]\\)")
+                        (63 . ".\\(?:\\(\\?\\?\\)\\|[:=?]\\)")
+                        (91 . ".\\(?:]\\)")
+                        (92 . ".\\(?:\\(?:\\\\\\\\\\)\\|\\\\\\)")
+                        (94 . ".\\(?:=\\)")
+                        (119 . ".\\(?:ww\\)")
+                        (123 . ".\\(?:-\\)")
+                        (124 . ".\\(?:\\(?:|[=|]\\)\\|[=>|]\\)")
+                        (126 . ".\\(?:~>\\|~~\\|[>=@~-]\\)")
+                        )
+                      ))
+           (dolist (char-regexp alist)
+             (set-char-table-range composition-function-table (car char-regexp)
+                                   `([,(cdr char-regexp) 0 font-shape-gstring])))))
+     #+END_SRC
 ** major mode icons
    - does not work with spaceline (nor powerline)
    #+BEGIN_SRC emacs-lisp :tangle no
@@ -6878,6 +6879,7 @@
     (req-package-finish);; this command must be at the end !ALWAYS!
 
     (require 'server)
+    ;; start a server to allow reuse of this server when opening other files from within the os
     (unless (server-running-p)
       (server-start))
     ;; (maximize-frame)
