@@ -4496,12 +4496,15 @@
         "
               gnus summary
               ------------
-              _W_: reply w/ original
+              [_W_] : reply w/ original
+              [_A_] : reply w/ original and all attachments
 
             %s(hydra-combine-functions-w-key-bindings 
-              '((\"  [W] reply w/ original\" . gnus-summary-wide-reply-with-original)))
+              '((\"  [W] reply w/ original\" . gnus-summary-wide-reply-with-original)
+                (\"  [A] reply w/ original and attachments\" . gnus-summary-mail-forward)))
             "
-        ("W" gnus-summary-wide-reply-with-original :exit t))
+        ("W" gnus-summary-wide-reply-with-original :exit t)
+        ("A" gnus-summary-mail-forward :exit t))
 
       ;;--------------------------------------------------------------------------------
       (defhydra hydra-gnus-group ()
