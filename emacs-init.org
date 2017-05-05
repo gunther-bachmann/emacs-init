@@ -1499,9 +1499,12 @@
 #+BEGIN_SRC emacs-lisp
   (req-package transpose-frame
     :bind (
-    ("C-s-+" . flip-frame) ;; exchange top with bottom windows
+    ("C-s-+" . flip-frame) ;; exchange top with bottom windows (german layout)
+    ("C-s-]" . flip-frame) ;; us layout
     ("C-s-#" . flop-frame) ;; exchange right with left windows
+    ("C-s-'" . flop-frame) ;; us layout
     ("C-s--" . transpose-frame) ;; exchange splitted vertically with splitted horizontally window
+    ("C-s-/" . transpose-frame) ;; us layout
     ))
 #+END_SRC
 ** bind-key
@@ -1548,6 +1551,9 @@
        (bind-key "s-+" 'decrease-transparency)
        (bind-key "s--" 'increase-transparency)
        (bind-key "s-#" 'disable-transparency)
+       (bind-key "s-]" 'decrease-transparency)
+       (bind-key "s-'" 'increase-transparency)
+       (bind-key "s-/" 'disable-transparency)
 
        (bind-key "C-;" 'toggle-comment-on-line)
 
