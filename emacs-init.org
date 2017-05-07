@@ -4077,11 +4077,13 @@
    #+end_src
 ** settings
    #+BEGIN_SRC emacs-lisp
-     ;; shell scripts
-
      ;; make sure M-x shell opens into currently open window (and does not open a new one)
      (add-to-list 'display-buffer-alist
                   '("^\\*shell\\*$" . (display-buffer-same-window)))
+
+     (setq comint-password-prompt-regexp
+             (concat comint-password-prompt-regexp
+                     "\\|^Enter passphrase for .*:\\s *\\'"))
 
      (setq-default sh-basic-offset 2)
      (setq-default sh-indentation 2)
