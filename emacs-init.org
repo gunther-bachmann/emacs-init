@@ -1842,10 +1842,10 @@
           (add-to-list 'sml/replacer-regexp-list '("^~/Documents/clojure/workspace" ":clj:"))))
 
     #+END_SRC
-*** fancy battery (for modeline, disabled)
+*** fancy battery (for modeline)
     Display of battery status in the emacs mode line (all the way to the left)
     See [[https://github.com/lunaryorn/fancy-battery.el][link]]
-   #+BEGIN_SRC emacs-lisp :tangle no
+   #+BEGIN_SRC emacs-lisp
    (req-package fancy-battery
      :config (progn (add-hook 'after-init-hook #'fancy-battery-mode)))
    #+END_SRC
