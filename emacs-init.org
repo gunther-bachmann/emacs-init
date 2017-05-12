@@ -4485,13 +4485,16 @@
               ------------
               [_W_] : reply w/ original
               [_A_] : reply w/ original and all attachments
+              [_v_] : save all mime parts
 
             %s(hydra-combine-functions-w-key-bindings 
-              '((\"  [W] reply w/ original\" . gnus-summary-wide-reply-with-original)
-                (\"  [A] reply w/ original and attachments\" . gnus-summary-mail-forward)))
+              '((\"  [W] reply w/ original                \" . gnus-summary-wide-reply-with-original)
+                (\"  [A] reply w/ original and attachments\" . gnus-summary-mail-forward)
+                (\"  [v] save all mime parts              \" . gnus-summary-save-parts)))
             "
         ("W" gnus-summary-wide-reply-with-original :exit t)
-        ("A" gnus-summary-mail-forward :exit t))
+        ("A" gnus-summary-mail-forward :exit t)
+        ("v" gnus-summary-save-parts :exit t))
 
       ;;--------------------------------------------------------------------------------
       (defhydra hydra-gnus-group ()
