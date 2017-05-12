@@ -63,8 +63,10 @@
       package 'session' which stores lots of session information into
       the file .session in the .emacs.d
 * enhancements and todos
+** todo commit message should not store any cursor position info but should always start at the beginning of the buffer
+   - session does probably store this position even though COMMIT_EDITMSG is explicitly excluded from this behaviour
+   - look at M-x customize-group session-name  session-name-disable-regexp
 ** todo allow duplex/non-duplex configuration of printer / printing (see org header "printer")
-** todo install xcape into the linux installtions to allow for using space as control where possible
 ** todo move diminish at the end of file to the respective packages
 ** todo minimap mode results in ligatures being misplaced!
 ** todo describe each packages' benefit for my configuration
@@ -72,7 +74,7 @@
 ** todo define something like layers
    e.g. layer for core, editing, navigation, programming ... such that these layers can be easily switched off and on at the top of the init
    file
-** todo define keybindings depending on keyboard layout => e.g. key-chords won't make sense in us-keyboard layout 
+** todo define keybindings depending on keyboard layout => e.g. key-chords won't make sense in us-keyboard layout
 ** implement synchronise linux and mac os x init
    - state "implement"  from "todo"       [2017-01-27 fr 20:02]
 *** todo some org-babel packages are not resolved during bootstrap of init.el (sed, shell, groovy)
@@ -111,6 +113,9 @@
 ** planned explore org-contacts as bbdb replacement (look [[https://julien.danjou.info/projects/emacs-packages#org-contacts][here]] and [[http://kitchingroup.cheme.cmu.edu/blog/2016/12/22/context-specific-org-mode-speed-keys/?utm_source=feedburner&utm_medium=twitter&utm_campaign=feed:+thekitchinresearchgroup+(the+kitchin+research+group)][here]])
 ** planned add additional modes to store linenumbers when capturing
    [[file:~/.emacs.d/init.el::org-file-lineno-store-link][file:~/.emacs.d/init.el::org-file-lineno-store-link]]
+** PLANNED install xcape into the linux installtions to allow for using space as control where possible
+   - configuring needs to be streamlined to allow space-down key-down key-up space-up to work as control
+   - all other uses (especially space-down key-down space-up key-up should function as space then key) should work as with normal space mapping
 ** PLANNED rebind C-x C-k keymacros to some other binding (since C-x C-k is used for killing buffers and windows)
 ** PLANNED define additional capture templates
    [[file:~/.emacs.d/init.el::org-capture-templates][file:~/.emacs.d/init.el::org-capture-templates]]
