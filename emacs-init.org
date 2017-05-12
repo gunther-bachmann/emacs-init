@@ -1092,8 +1092,7 @@
 #+END_SRC
 ** add theme
    #+BEGIN_SRC emacs-lisp
-     ;; TODO change to use varaible user-init-file, chop off init.el at the end and use it as path
-     (if (file-exists-p (concat user-emacs-directory "themes"))
+      (if (file-exists-p (concat user-emacs-directory "themes"))
          (progn
            (add-to-list 'custom-theme-load-path (concat user-emacs-directory "themes"))
            (add-to-list 'load-path (concat user-emacs-directory "themes"))
@@ -2268,12 +2267,14 @@
      ;; When you visit a file, point goes to the last place where it
      ;; was when you previously visited the same file.
      ;; http://www.emacswiki.org/emacs/SavePlace
+     (if (not (version< emacs-version "25.0"))
+     (progn (save-place-mode +1)(setq save-place-file (concat user-emacs-directory "places")))
      (req-package saveplace
        :config
        (progn
          (save-place-mode +1)
          ;; keep track of saved places in ~/.emacs.d/places
-         (setq save-place-file (concat user-emacs-directory "places"))))
+         (setq save-place-file (concat user-emacs-directory "places")))))
    #+END_SRC
 ** save on focus loss
    #+BEGIN_SRC emacs-lisp
