@@ -4095,7 +4095,7 @@
      ;; make sure M-x shell opens into currently open window (and does not open a new one)
      (add-to-list 'display-buffer-alist
                   '("^\\*shell\\*$" . (display-buffer-same-window)))
-
+     (require 'comint) ;; part of emacs
      (setq comint-password-prompt-regexp
              (concat comint-password-prompt-regexp
                      "\\|^Enter passphrase for .*:\\s *\\'"))
