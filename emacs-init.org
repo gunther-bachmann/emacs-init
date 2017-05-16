@@ -63,6 +63,10 @@
       package 'session' which stores lots of session information into
       the file .session in the .emacs.d
 * enhancements and todos
+** todo pixel wise scrolling
+   - look at sublimity defvar 'sublimity--post-vscroll-functions' which is called for scrolling with the amount of lines to actually scroll
+     (negative for up). this could be used to actually call pixelwise scrolling on the last line of the scroll action which would make the
+     scrolling much more smooth.
 ** todo commit message should not store any cursor position info but should always start at the beginning of the buffer
    - session does probably store this position even though COMMIT_EDITMSG is explicitly excluded from this behaviour
    - look at M-x customize-group session-name  session-name-disable-regexp
@@ -6828,6 +6832,15 @@
        (req-package flycheck-ledger
          :require ledger-mode flycheck))
    #+END_SRC
+** pixel-scroll (pixel wise scrolling)
+   #+BEGIN_SRC emacs-lisp
+     ;; currently on the load path by .emacs.d/additionals
+     (if (not  (file-exists-p "~/.emacs.d/additionals/pixel-scroll.el"))
+         (message "WARNING: pixel-scroll.el does not exist, it will not be installed")
+       (progn
+         (message "OK: pixel-scroll.el locally found, will be installed")
+         (req-package pixel-scroll
+           :load-path "~/.emacs.d/additionals/")))
    #+END_SRC
 * tested but discarded
 ** fonts with ligatures (realized differently)
