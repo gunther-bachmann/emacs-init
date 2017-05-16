@@ -1027,6 +1027,8 @@
 
           (check-_nix-program-status git-lfs-installed "git-lfs" "git-lfs" "magit-lfs will not be available")
 
+          (check-_nix-program-status ledger-installed "ledger" "ledger" "ledger-mode will not be available")
+
           (setq gnu-ls-installed (not (is-ms-windows-p)))
               (if gnu-ls-installed
                     (setq gnu-ls-bin-path (car (split-string (shell-command-to-string "which ls")))))
@@ -6818,6 +6820,14 @@
    (req-package lsp-java :require lsp-mode)
    (req-package lsp-python :require lsp-mode)
    (req-package lsp-rust :require lsp-mode)
+   #+END_SRC
+** ledger (accounting manager)
+   #+BEGIN_SRC emacs-lisp
+     (when ledger-installed
+       (req-package ledger-mode)
+       (req-package flycheck-ledger
+         :require ledger-mode flycheck))
+   #+END_SRC
    #+END_SRC
 * tested but discarded
 ** fonts with ligatures (realized differently)
