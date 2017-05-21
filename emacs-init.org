@@ -6840,7 +6840,25 @@
        (progn
          (message "OK: pixel-scroll.el locally found, will be installed")
          (req-package pixel-scroll
-           :load-path "~/.emacs.d/additionals/")))
+           :load-path "~/.emacs.d/additionals/"
+           :require sublimity-scroll
+           :config
+           (progn
+             (require 'sublimity-scroll)
+             (defun sublimity-scroll--vscroll-effect (lins)
+               (save-excursion
+                 (let ((speeds (sublimity-scroll--gen-speeds (if (> (abs lins) 5) (* (signum lins) (- (abs lins) 1)) lins)))
+                       (cursor-type (and (not sublimity-scroll-hide-cursor) cursor-type)))
+                   ;; (message (concat "scroll: " (number-to-string lins) ", at: " (number-to-string (nlinum--line-number-at-pos))))
+                   (sublimity-scroll--vscroll (- lins))
+                   (dolist (speed speeds)
+                     (sublimity-scroll--vscroll speed)
+                     (force-window-update (selected-window))
+                     (redisplay))
+                   (if (> lins 5)
+                       (progn (pixel-scroll-up 1)))
+                   (if (< lins -5)
+                       (pixel-scroll-down 1)))))))))
    #+END_SRC
 * tested but discarded
 ** fonts with ligatures (realized differently)
