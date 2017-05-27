@@ -6847,17 +6847,19 @@
              (require 'sublimity-scroll)
              (defun sublimity-scroll--vscroll-effect (lins)
                (save-excursion
-                 (let ((speeds (sublimity-scroll--gen-speeds (if (> (abs lins) 5) (* (signum lins) (- (abs lins) 1)) lins)))
-                       (cursor-type (and (not sublimity-scroll-hide-cursor) cursor-type)))
+                 (let* ((pixel-scroll-last-line (and (not (equal major-mode 'org-mode)) (> (abs lins) 5)))
+                        (speeds (sublimity-scroll--gen-speeds (if pixel-scroll-last-line (* (signum lins) (- (abs lins) 1)) lins)))
+                        (cursor-type (and (not sublimity-scroll-hide-cursor) cursor-type)))
                    ;; (message (concat "scroll: " (number-to-string lins) ", at: " (number-to-string (nlinum--line-number-at-pos))))
+                   ;; (message pixel-scroll-last-line)
                    (sublimity-scroll--vscroll (- lins))
                    (dolist (speed speeds)
                      (sublimity-scroll--vscroll speed)
                      (force-window-update (selected-window))
                      (redisplay))
-                   (if (> lins 5)
+                   (if  (and (> lins 0) pixel-scroll-last-line)
                        (progn (pixel-scroll-up 1)))
-                   (if (< lins -5)
+                   (if (and (< lins 0) pixel-scroll-last-line)
                        (pixel-scroll-down 1)))))))))
    #+END_SRC
 * tested but discarded
