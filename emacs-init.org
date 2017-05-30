@@ -6867,6 +6867,11 @@
                    (if (and (< lins 0) pixel-scroll-last-line)
                        (pixel-scroll-down 1)))))))))
    #+END_SRC
+** comint (shell extensions)
+   - see [[https://github.com/riscy/shx-for-emacs/blob/master/README.org][homepage]]
+   #+BEGIN_SRC emacs-lisp
+   (req-package shx)
+   #+END_SRC
 * tested but discarded
 ** fonts with ligatures (realized differently)
    - the following is not functional within (my) emacs => it is not tangled
