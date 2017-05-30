@@ -6867,6 +6867,21 @@
                    (if (and (< lins 0) pixel-scroll-last-line)
                        (pixel-scroll-down 1)))))))))
    #+END_SRC
+** move frames around
+   #+BEGIN_SRC emacs-lisp
+     (defun move-frame-right-800 () "move the selected frame by 800 pixel to the right"
+            (interactive)
+            (let ((xpos (car (frame-position (selected-frame))))
+                  (ypos (cdr (frame-position (selected-frame))))
+                  (maxx (-  (display-pixel-width) 800)))
+              (set-frame-position (selected-frame) (min (+ xpos 800) maxx) ypos)))
+
+     (defun move-frame-left-800 () "move the selected frame by 800 pixel to the right"
+            (interactive)
+            (let ((xpos (car (frame-position (selected-frame))))
+                  (ypos (cdr (frame-position (selected-frame)))))
+              (set-frame-position (selected-frame) (max (- xpos 800) 0) ypos)))
+   #+END_SRC
 ** comint (shell extensions)
    - see [[https://github.com/riscy/shx-for-emacs/blob/master/README.org][homepage]]
    #+BEGIN_SRC emacs-lisp
