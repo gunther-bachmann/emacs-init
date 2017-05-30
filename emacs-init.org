@@ -5326,6 +5326,7 @@
         :commands org-caldav-sync
         :config
         (setq org-icalendar-timezone "Europe/Berlin")
+        (setq org-caldav-delete-org-entries 'never)
 
         (require 'calendar-accounts)
         (gb/load-calendar-credentials)
