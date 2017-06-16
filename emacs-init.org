@@ -6921,6 +6921,10 @@
    #+BEGIN_SRC emacs-lisp
    (req-package shx)
    #+END_SRC
+* to test
+** treemacs (tre
+** indium (java script development environment)
+   - [[https://github.com/NicolasPetton/Indium][home page]]
 * tested but discarded
 ** fonts with ligatures (realized differently)
    - the following is not functional within (my) emacs => it is not tangled
