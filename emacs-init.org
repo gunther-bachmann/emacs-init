@@ -932,6 +932,7 @@
 
         (setq browse-url-browser-function 'browse-url-chromium)
         (setq browse-url-chromium-program "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome")
+        (setq browse-url-firefox-program "/Applications/Firefox.app/Contents/MacOS/firefox")
 
         ;;     ns-alternate-modifier
         ;;     ns-command-modifier
@@ -6628,7 +6629,21 @@
           '(define-key markdown-mode-map (kbd "C-c '") 'markdown-edit-indirect))))
   #+END_SRC
   
-* tryout
+* currently evaluated
+** flymd
+   - opens firefox to display a live view of the markdown in the buffer.
+     saving the buffer does automatically update the browser view of it!
+   #+BEGIN_SRC emacs-lisp
+   (req-package flymd
+     :commands flymd-flyit
+     :config
+     (progn
+        ;; make sure firefox is opened, since flymd-flyit does not work with chrome!
+        (defun my-flymd-browser-function (url)
+          (let ((browse-url-browser-function 'browse-url-firefox))
+            (browse-url url)))
+        (setq flymd-browser-open-function 'my-flymd-browser-function)))
+   #+END_SRC
 ** helm google
    #+BEGIN_SRC emacs-lisp
    (req-package helm-google
@@ -6639,10 +6654,6 @@
    #+BEGIN_SRC emacs-lisp
    (req-package ivy-hydra
      :require hydra) ;; adds an hydra for ivy/swiper TODO: include into own hydras
-   #+END_SRC
-** flymd
-   #+BEGIN_SRC emacs-lisp
-   (req-package flymd) ;; allow live preview of markdown
    #+END_SRC
 ** ripgrep over directory trees
    #+BEGIN_SRC emacs-lisp
