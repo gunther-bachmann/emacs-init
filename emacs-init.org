@@ -6893,6 +6893,10 @@
                   (ypos (cdr (frame-position (selected-frame)))))
               (set-frame-position (selected-frame) (max (- xpos 800) 0) ypos)))
    #+END_SRC
+** json-navigator
+   #+BEGIN_SRC emacs-lisp
+   (req-package json-navigator)
+   #+END_SRC
 ** comint (shell extensions)
    - see [[https://github.com/riscy/shx-for-emacs/blob/master/README.org][homepage]]
    #+BEGIN_SRC emacs-lisp
