@@ -5323,17 +5323,20 @@
     #+BEGIN_SRC emacs-lisp
     (when calendar-accounts-exists
       (req-package org-caldav
-        :require org calendar-accounts
+        :require org calendar-accounts oauth2
         :commands org-caldav-sync
         :config
         (setq org-icalendar-timezone "Europe/Berlin")
         (setq org-caldav-delete-org-entries 'never)
+        (setq org-caldav-delete-calendar-entries 'never)
+        (setq org-caldav-debug-level 3)
 
         (require 'calendar-accounts)
         (gb/load-calendar-credentials)
 
         ;; redefine sync to cal
         (require 'org-caldav)
+        ;;(setq org-caldav-url 'google)
 
         ;; make sure cal is not deleted
         (defun org-caldav-delete-event (uid)
@@ -5353,7 +5356,7 @@
                nil))))
 
         ;; make sure that update never deletes from calendar
-        (defun org-caldav-update-events-in-cal (icsbuf)
+        (defun old-org-caldav-update-events-in-cal (icsbuf)
           "Update events in calendar.
       ICSBUF is the buffer containing the exported iCalendar file."
           (message "executing patched version of org-caldav-update-event-in-cal")
