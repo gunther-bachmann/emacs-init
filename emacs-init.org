@@ -6644,6 +6644,36 @@
             (browse-url url)))
         (setq flymd-browser-open-function 'my-flymd-browser-function)))
    #+END_SRC
+** pixel-scroll (pixel wise scrolling)
+   #+BEGIN_SRC emacs-lisp
+     ;; currently on the load path by .emacs.d/additionals
+     (if (not  (file-exists-p "~/.emacs.d/additionals/pixel-scroll.el"))
+         (message "WARNING: pixel-scroll.el does not exist, it will not be installed")
+       (progn
+         (message "OK: pixel-scroll.el locally found, will be installed")
+         (req-package pixel-scroll
+           :load-path "~/.emacs.d/additionals/"
+           :require sublimity-scroll
+           :config
+           (progn
+             (require 'sublimity-scroll)
+             (defun sublimity-scroll--vscroll-effect (lins)
+               (save-excursion
+                 (let* ((pixel-scroll-last-line (and (not (equal major-mode 'org-mode)) (> (abs lins) 5)))
+                        (speeds (sublimity-scroll--gen-speeds (if pixel-scroll-last-line (* (signum lins) (- (abs lins) 1)) lins)))
+                        (cursor-type (and (not sublimity-scroll-hide-cursor) cursor-type)))
+                   ;; (message (concat "scroll: " (number-to-string lins) ", at: " (number-to-string (nlinum--line-number-at-pos))))
+                   ;; (message pixel-scroll-last-line)
+                   (sublimity-scroll--vscroll (- lins))
+                   (dolist (speed speeds)
+                     (sublimity-scroll--vscroll speed)
+                     (force-window-update (selected-window))
+                     (redisplay))
+                   (if  (and (> lins 0) pixel-scroll-last-line)
+                       (progn (pixel-scroll-up 1)))
+                   (if (and (< lins 0) pixel-scroll-last-line)
+                       (pixel-scroll-down 1)))))))))
+   #+END_SRC
 ** helm google
    #+BEGIN_SRC emacs-lisp
    (req-package helm-google
@@ -6847,36 +6877,6 @@
        (req-package ledger-mode)
        (req-package flycheck-ledger
          :require ledger-mode flycheck))
-   #+END_SRC
-** pixel-scroll (pixel wise scrolling)
-   #+BEGIN_SRC emacs-lisp
-     ;; currently on the load path by .emacs.d/additionals
-     (if (not  (file-exists-p "~/.emacs.d/additionals/pixel-scroll.el"))
-         (message "WARNING: pixel-scroll.el does not exist, it will not be installed")
-       (progn
-         (message "OK: pixel-scroll.el locally found, will be installed")
-         (req-package pixel-scroll
-           :load-path "~/.emacs.d/additionals/"
-           :require sublimity-scroll
-           :config
-           (progn
-             (require 'sublimity-scroll)
-             (defun sublimity-scroll--vscroll-effect (lins)
-               (save-excursion
-                 (let* ((pixel-scroll-last-line (and (not (equal major-mode 'org-mode)) (> (abs lins) 5)))
-                        (speeds (sublimity-scroll--gen-speeds (if pixel-scroll-last-line (* (signum lins) (- (abs lins) 1)) lins)))
-                        (cursor-type (and (not sublimity-scroll-hide-cursor) cursor-type)))
-                   ;; (message (concat "scroll: " (number-to-string lins) ", at: " (number-to-string (nlinum--line-number-at-pos))))
-                   ;; (message pixel-scroll-last-line)
-                   (sublimity-scroll--vscroll (- lins))
-                   (dolist (speed speeds)
-                     (sublimity-scroll--vscroll speed)
-                     (force-window-update (selected-window))
-                     (redisplay))
-                   (if  (and (> lins 0) pixel-scroll-last-line)
-                       (progn (pixel-scroll-up 1)))
-                   (if (and (< lins 0) pixel-scroll-last-line)
-                       (pixel-scroll-down 1)))))))))
    #+END_SRC
 ** move frames around
    #+BEGIN_SRC emacs-lisp
