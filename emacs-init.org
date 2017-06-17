@@ -3966,6 +3966,18 @@
      (ad-activate 'delete-other-windows)
      (bind-key "s-a" 'sr-speedbar-toggle))
  #+END_SRC
+** markdown
+   - see usage documentation on [[http://jblevins.org/projects/markdown-mode/][homepage]]
+   #+BEGIN_SRC emacs-lisp
+   (req-package markdown-mode
+     :commands (markdown-mode gfm-mode)
+     :mode (("\\.text\\'" . markdown-mode)
+            ("\\.markdown\\'" . markdown-mode)
+            ("README\\.md\\'" . gfm-mode)
+            ("\\.md\\'" . markdown-mode))
+     :config
+     (progn))
+   #+END_SRC
 ** plantuml
    - https://github.com/skuro/plantuml-mode
    #+BEGIN_SRC emacs-lisp 
