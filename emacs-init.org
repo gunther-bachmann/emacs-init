@@ -1034,6 +1034,21 @@
 
           (check-_nix-program-status ledger-installed "ledger" "ledger" "ledger-mode will not be available")
 
+          (check-_nix-program-status chromium-installed "chromium" "chromium" "chromium not found, flymd will not work")
+
+          (check-_nix-program-status firefox-installed "firefox" "firefox" "firefox not found")
+
+          (if firefox-installed
+            (progn
+              (setq browse-url-browser-function 'browse-url-firefox)
+              (setq browse-url-firefox-program "/Applications/Firefox.app/Contents/MacOS/firefox")))
+
+          ;; chromium takes precedence (over firefox)
+          (if chromium-installed
+            (progn
+              (setq browse-url-browser-function 'browse-url-chromium)
+              (setq browse-url-chromium-program "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome")))
+
           (setq gnu-ls-installed (not (is-ms-windows-p)))
               (if gnu-ls-installed
                     (setq gnu-ls-bin-path (car (split-string (shell-command-to-string "which ls")))))
@@ -6653,15 +6668,16 @@
    - opens firefox to display a live view of the markdown in the buffer.
      saving the buffer does automatically update the browser view of it!
    #+BEGIN_SRC emacs-lisp
-   (req-package flymd
-     :commands flymd-flyit
-     :config
-     (progn
-        ;; make sure firefox is opened, since flymd-flyit does not work with chrome!
-        (defun my-flymd-browser-function (url)
-          (let ((browse-url-browser-function 'browse-url-firefox))
-            (browse-url url)))
-        (setq flymd-browser-open-function 'my-flymd-browser-function)))
+     (if chromium-installed
+         (req-package flymd
+           :commands flymd-flyit
+           :config
+           ((progn )
+            ;; make (setq  )ure firefox is opened, since flymd-flyit does not work with chrome!
+            (defun gb/flymd-browser-function (url)
+              (let ((browse-url-browser-function 'browse-url-firefox))
+                (browse-url url)))
+            (setq flymd-browser-(or  )pen-function 'gb/flymd-browser-function))))
    #+END_SRC
 ** pixel-scroll (pixel wise scrolling)
    #+BEGIN_SRC emacs-lisp
