@@ -3114,10 +3114,8 @@
    #+BEGIN_SRC emacs-lisp
      ;; display # of matches in modeline when searching
      (req-package anzu
-       :require diminish
        :config
-       (global-anzu-mode +1)
-       (diminish 'anzu-mode))
+       (global-anzu-mode +1))
    #+END_SRC
 ** other (recentf, uniquify)
 #+BEGIN_SRC emacs-lisp
@@ -3947,6 +3945,7 @@
    simply call helm-gitignore and select language for which to create this gitignore
  #+BEGIN_SRC emacs-lisp
    (req-package helm-gitignore
+     :commands helm-gitignore
      :require helm)
  #+END_SRC
 ** IMPLEMENT code library
@@ -6337,38 +6336,6 @@
   (req-package clear-text
     :commands clear-text-mode)
 #+END_SRC
-* mode icons (disabled)
-#+BEGIN_SRC emacs-lisp :tangle no
-  (req-package mode-icons
-    :disabled t
-    :config
-    (mode-icons-mode)
-    (setq mode-icons-desaturate-inactive t)
-    (setq mode-icons-desaturate-active nil)
-    (setq mode-icons-grayscale-transform t))
-
-    ;; (defvar minor-mode-icon-list
-    ;;   '((paredit-mode paredit-mode-hook "~/icons/clojure-icon-small.png" png))
-    ;;   "define a list of icon replacements for the given minor modes")
-
-    ;; (defun install-minor-mode-icons (rem-minor-mode-icon-list) 
-    ;;   (let* ((minor-mode-icon (car rem-minor-mode-icon-list))
-    ;;          (rem-minor-mode-icon-list-new (cdr rem-minor-mode-icon-list)))
-    ;;     (if minor-mode-icon
-    ;;         (add-hook (nth 1 minor-mode-icon) 
-    ;;                   `(lambda () 
-    ;;                      (let* ((mode-id (nth 0 ,minor-mode-icon))
-    ;;                             (icon-path (nth 2 ,minor-mode-icon))
-    ;;                             (icon-type (nth 3 ,minor-mode-icon))
-    ;;                             (image-line `(image :type ,icon-type :file ,icon-path :ascent center :margin ( 3 . 0 )))
-    ;;                             (minor-mode-element (assoc mode-id minor-mode-alist)))
-    ;;                        (if (message "FORMATSTRING" &optional ARGS)inor-mode-element
-    ;;                          (setf (cdr minor-mode-element) (list (propertize "dummy" 'display image-line))))))))
-    ;;     (if rem-minor-mode-icon-list-new
-    ;;         install-minor-mode-icons rem-minor-mode-icon-list-new)))
-
-    ;; (install-minor-mode-icons minor-mode-icon-list)
-#+END_SRC
 * guide keys (disabled)
 ** alternative to which-key
 *** can be tuned to react to certain prefixes only
@@ -6961,6 +6928,39 @@
 ** indium (java script development environment)
    - [[https://github.com/NicolasPetton/Indium][home page]]
 * tested but discarded
+** mode icons (disabled)
+   - no longer used, since spaceline brings its own set of mode icons
+ #+BEGIN_SRC emacs-lisp :tangle no
+   (req-package mode-icons
+     :disabled t
+     :config
+     (mode-icons-mode)
+     (setq mode-icons-desaturate-inactive t)
+     (setq mode-icons-desaturate-active nil)
+     (setq mode-icons-grayscale-transform t))
+
+     ;; (defvar minor-mode-icon-list
+     ;;   '((paredit-mode paredit-mode-hook "~/icons/clojure-icon-small.png" png))
+     ;;   "define a list of icon replacements for the given minor modes")
+
+     ;; (defun install-minor-mode-icons (rem-minor-mode-icon-list)
+     ;;   (let* ((minor-mode-icon (car rem-minor-mode-icon-list))
+     ;;          (rem-minor-mode-icon-list-new (cdr rem-minor-mode-icon-list)))
+     ;;     (if minor-mode-icon
+     ;;         (add-hook (nth 1 minor-mode-icon)
+     ;;                   `(lambda ()
+     ;;                      (let* ((mode-id (nth 0 ,minor-mode-icon))
+     ;;                             (icon-path (nth 2 ,minor-mode-icon))
+     ;;                             (icon-type (nth 3 ,minor-mode-icon))
+     ;;                             (image-line `(image :type ,icon-type :file ,icon-path :ascent center :margin ( 3 . 0 )))
+     ;;                             (minor-mode-element (assoc mode-id minor-mode-alist)))
+     ;;                        (if (message "FORMATSTRING" &optional ARGS)inor-mode-element
+     ;;                          (setf (cdr minor-mode-element) (list (propertize "dummy" 'display image-line))))))))
+     ;;     (if rem-minor-mode-icon-list-new
+     ;;         install-minor-mode-icons rem-minor-mode-icon-list-new)))
+
+     ;; (install-minor-mode-icons minor-mode-icon-list)
+ #+END_SRC
 ** fonts with ligatures (realized differently)
    - the following is not functional within (my) emacs => it is not tangled
      #+BEGIN_SRC emacs-lisp :tangle no
