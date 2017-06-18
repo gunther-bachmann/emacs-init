@@ -1780,8 +1780,8 @@
                              ;;(global :when active)
                              ((buffer-position
                                hud))
-                             ((all-the-icons-battery-status
-                               all-the-icons-time)
+                             (((all-the-icons-battery-status :when active)
+                               (all-the-icons-time :when active))
                               ;; :separator (spaceline-all-the-icons--separator "|" " ") :face default-face
                               )
                              ))
