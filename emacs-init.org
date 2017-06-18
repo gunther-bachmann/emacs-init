@@ -6925,6 +6925,11 @@
    #+END_SRC
 * to test
 ** treemacs (tre
+** projectile-codesearch (use codesearch to query projects)
+** zop-to-char (more options during zap to char)
+** sx (elaborate stack exchange interface for emacs)
+** swiper-helm (helm interface for swipter)
+** html5-schema (html5 support for nXML)
 ** indium (java script development environment)
    - [[https://github.com/NicolasPetton/Indium][home page]]
 * tested but discarded
