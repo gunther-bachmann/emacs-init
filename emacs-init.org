@@ -1635,6 +1635,11 @@
                 (buffer-read-only gb/mode-line-buffer-read-only-symbol)
                 ((buffer-modified-p) gb/mode-line-buffer-modified-symbol)
                 (t " ")))
+        (spaceline-define-segment gb/date-and-cw
+          "display date and calendar week of window is broad enough"
+          (if (> (window-width) 150)
+              (format-time-string "%m-%d/%V")
+            ""))
         (spaceline-define-segment gb/buffer-id
           (buffer-name))
         (spaceline-define-segment gb/buffer-file-name
@@ -1770,7 +1775,6 @@
                            '(which-function
                              (python-pyvenv :fallback python-pyenv)
                              purpose
-                             ;;(battery :when active)
                              selection-info
                              input-method
                              ((buffer-encoding-abbrev
@@ -1780,8 +1784,10 @@
                              ;;(global :when active)
                              ((buffer-position
                                hud))
-                             (((all-the-icons-battery-status :when active)
-                               (all-the-icons-time :when active))
+                             (gb/date-and-cw :tight t :when active :face default-face)
+                             ((all-the-icons-battery-status :when active :tight t)
+                              (all-the-icons-time :when active :tight t)
+
                               ;; :separator (spaceline-all-the-icons--separator "|" " ") :face default-face
                               )
                              ))
