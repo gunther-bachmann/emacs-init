@@ -1787,7 +1787,7 @@
                              ((buffer-position
                                hud))
                              (gb/date-and-cw :tight t :when active :face default-face)
-                             ((all-the-icons-battery-status :when active :tight t)
+                             ((all-the-icons-battery-status :tight t)
                               (all-the-icons-time :when active :tight t)
 
                               ;; :separator (spaceline-all-the-icons--separator "|" " ") :face default-face
