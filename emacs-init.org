@@ -2101,7 +2101,10 @@
    - will keep recent in file location even for org files
    #+begin_src emacs-lisp 
      (req-package session
-       :config (add-hook 'after-init-hook 'session-initialize))
+       :config
+       (progn
+         (setq session-name-disable-regexp "\\(\\`/tmp\\|COMMIT_EDITMSG\\)")
+         (add-hook 'after-init-hook 'session-initialize)))
    #+end_src
 ** TODO smart-region (evaluate)
    1. set mark, repetitive calls to M-x smart-region will call er/expand-region
