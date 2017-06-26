@@ -63,22 +63,17 @@
       package 'session' which stores lots of session information into
       the file .session in the .emacs.d
 * enhancements and todos
-** todo pixel wise scrolling
-   - look at sublimity defvar 'sublimity--post-vscroll-functions' which is called for scrolling with the amount of lines to actually scroll
-     (negative for up). this could be used to actually call pixelwise scrolling on the last line of the scroll action which would make the
-     scrolling much more smooth.
+** todo switch gnus mail sync with google calendar to ...
 ** todo commit message should not store any cursor position info but should always start at the beginning of the buffer
    - session does probably store this position even though COMMIT_EDITMSG is explicitly excluded from this behaviour
    - look at M-x customize-group session-name  session-name-disable-regexp
 ** todo allow duplex/non-duplex configuration of printer / printing (see org header "printer")
-** todo move diminish at the end of file to the respective packages
 ** todo minimap mode results in ligatures being misplaced!
 ** todo describe each packages' benefit for my configuration
 ** todo undo-tree workaround: [2017-02-25 Sat] currently org src block fontification is disabled if undo tree is called, since undo tree exits on up/down in the tree
 ** todo define something like layers
    e.g. layer for core, editing, navigation, programming ... such that these layers can be easily switched off and on at the top of the init
    file
-** todo define keybindings depending on keyboard layout => e.g. key-chords won't make sense in us-keyboard layout
 ** implement synchronise linux and mac os x init
    - state "implement"  from "todo"       [2017-01-27 fr 20:02]
 *** todo some org-babel packages are not resolved during bootstrap of init.el (sed, shell, groovy)
@@ -95,8 +90,6 @@
     - bind-key
     - key-chord
     - benchmark (currently via loadpath)
-** todo accepting invitations go into agenda, syncing google calendar goes into gcal
-   it seems that accepted invitations (accepted within emacs from mail) does not correctly sync with google calendar
 ** implement find keybinding for jumplist, complete jumplist-hook-commands
    - state "implement"  from "todo"       [2015-11-16 mon 12:58]
 ** implement list modes actually in use and think about optimal key/function binding
@@ -149,6 +142,12 @@
    - see http://mbork.pl/2015-10-31_Smart_comma_and_other_punctuation
 ** PLANNED define hydra for dired
 ** PLANNED define hydra for pdf-tools
+** DONE todo define keybindings depending on keyboard layout => e.g. key-chords won't make sense in us-keyboard layout
+   - State "DONE"       from              [2017-06-26 Mon 16:45]
+** DONE pixel wise scrolling
+   - look at sublimity defvar 'sublimity--post-vscroll-functions' which is called for scrolling with the amount of lines to actually scroll
+     (negative for up). this could be used to actually call pixelwise scrolling on the last line of the scroll action which would make the
+     scrolling much more smooth.
 ** DONE selected workaround: [2017-02-22 Wed] reactivate package selected, currently running in an error, thus expand/contract region does not work anymore
 ** DONE extend check prerequisites to check multiple programs to exist
 ** DONE copy windows setup into separate region
@@ -170,6 +169,11 @@
    - State "DONE"       from "TODO"       [2016-11-28 Mon 08:06]
 ** DONE put this file into version control
    - State "DONE"       from "TODO"       [2016-11-06 So 18:20]
+** OBSOLETE todo accepting invitations go into agenda, syncing google calendar goes into gcal
+   - State "OBSOLETE"   from              [2017-06-26 Mon 16:45]
+   it seems that accepted invitations (accepted within emacs from mail) does not correctly sync with google calendar
+** OBSOLETE todo move diminish at the end of file to the respective packages
+   - State "OBSOLETE"   from              [2017-06-26 Mon 16:44]
 * initial unsetting of global keys
   #+BEGIN_SRC emacs-lisp
   (global-unset-key "\C-z")     ;; (now mapped to prefix -- dash)
@@ -182,12 +186,6 @@
 ;; (require 'benchmark-init-loaddefs)
 ;; (benchmark-init/activate)
 #+END_SRC
-* initial functions
-  #+BEGIN_SRC emacs-lisp
-    (defun gb/on-mac-p ()
-      "is emacs running on mac os x?"
-      (memq window-system '(mac ns)))
-  #+END_SRC
 * initial accounts setup
   #+BEGIN_SRC emacs-lisp
     (setq agenda-accounts-exists (file-exists-p (concat user-emacs-directory "accounts/agenda-accounts.el")))
@@ -201,21 +199,25 @@
   #+END_SRC
 * initial function setup
   #+BEGIN_SRC emacs-lisp
-     (defun is-ms-windows-p ()
-       "check whether this system is microsoft windows"
-       (string-match "windows" (symbol-name system-type)))
+    (defun gb/on-mac-p ()
+      "is emacs running on mac os x?"
+      (memq window-system '(mac ns)))
 
-     (defun is-linux-p ()
-       "check whether this system is microsoft windows"
-       (string-match "linux" (symbol-name system-type)))
+    (defun is-ms-windows-p ()
+      "check whether this system is microsoft windows"
+      (string-match "windows" (symbol-name system-type)))
 
-     (defun is-macos-p ()
-       "check whether this system is microsoft windows"
-       (string-match "darwin" (symbol-name system-type)))
+    (defun is-linux-p ()
+      "check whether this system is a linux"
+      (string-match "linux" (symbol-name system-type)))
 
-     (defun is-_nix-p ()
-       "check whether this is a *nix derivative (either linux or macos"
-       (or (is-linux-p) (is-macos-p)))  
+    (defun is-macos-p ()
+      "check whether this system is mac os"
+      (string-match "darwin" (symbol-name system-type)))
+
+    (defun is-_nix-p ()
+      "check whether this is a *nix derivative (either linux or macos)"
+      (or (is-linux-p) (is-macos-p)))
   #+END_SRC
 * proxy setup (if present)
   #+BEGIN_SRC emacs-lisp
@@ -3178,6 +3180,17 @@
                  (highlight-thing-mode 1))))
          (setq highlight-thing-what-thing 'symbol)))
    #+END_SRC
+** minimap
+   #+BEGIN_SRC emacs-lisp
+   (req-package minimap
+     :bind (("s-m" . minimap-mode))
+     ;; :diminish minimap-mode
+     :config
+     (progn
+       (setq minimap-major-modes (quote (prog-mode org-mode nxml-mode)))
+       (setq minimap-window-location (quote right))
+       (custom-set-faces '(minimap-active-region-background ((t (:background "gray23")))))))
+ #+END_SRC
 * programming language related
 ** functional-editing
 *** OBSOLETE parinfer (currently disabled)
@@ -4204,17 +4217,6 @@
        (interactive)
        (ansi-term "/usr/local/bin/zsh"))
    #+END_SRC
-* minimap
-#+BEGIN_SRC emacs-lisp
-  (req-package minimap
-    :bind (("s-m" . minimap-mode))
-    ;; :diminish minimap-mode
-    :config
-    (progn
-      (setq minimap-major-modes (quote (prog-mode org-mode nxml-mode)))
-      (setq minimap-window-location (quote right))
-      (custom-set-faces '(minimap-active-region-background ((t (:background "gray23")))))))
-#+END_SRC
 * ebooks
   #+BEGIN_SRC emacs-lisp
     (req-package ereader
@@ -6862,7 +6864,7 @@
      (req-package org-recent-headings
        :config
        (progn
-         (bind-key "M-s-i" #'org-recent-headings-helm)
+         (bind-key "M-s-^" #'org-recent-headings-helm) ;; equivalent to M-s-i
          (org-recent-headings-mode)))
    #+END_SRC
 ** org sticky headers
@@ -7056,39 +7058,6 @@
       (server-start))
     ;; (maximize-frame)
     (toggle-frame-fullscreen)
-    (when (package-installed-p 'diminish)
-      (mapc #'diminish
-            '(abbrev-mode
-              ;; ace-isearch-mode
-              ;; anzu-mode
-              auto-fill-function
-              ;; auto-fill-mode
-              auto-revert-mode
-              back-button-mode
-              clj-refactor-mode
-              company-mode
-              easy-escape-minor-mode
-              eldoc-overlay-mode
-              elisp-slime-nav-mode
-              flycheck-mode
-              form-feed-mode
-              git-gutter-mode
-              helm-mode
-              hidepw-mode
-              hs-minor-mode
-              minimap-mode
-              org-src-mode
-              org-table-sticky-header-mode
-              paredit-mode
-              selected-minor-mode
-              subword-mode
-              typed-clojure-mode
-              undo-tree-mode
-              volatile-highlights-mode
-              ;; which-key-mode
-              ;; whole-line-or-region-mode
-              wrap-region-mode
-              )))
   #+END_SRC
 
 #  LocalWords:  flyspell
