@@ -4258,9 +4258,6 @@
         (("1.8.0_40" . "/Library/Java/JavaVirtualMachines/jdk1.8.0_40.jdk/Contents/Home")
          ("1.7.0_40" . "/Library/Java/JavaVirtualMachines/jdk1.7.0_40.jdk/Contents/Home"))))
      '(malabar-repl-grooysh "/usr/local/bin/groovysh")
-     '(org-time-clocksum-format
-       (quote
-        (:hours "%d" :require-hours t :minutes ":%02d" :require-minutes t))) ;; make sure that clock sums in org mode show hours and minutes only (no days)
      '(ps-font-size (quote (7 . 6.5)))
      '(ps-paper-type (quote a4))
      '(recentf-max-saved-items 80)
@@ -5080,7 +5077,8 @@
                 '(("emacs-lisp" (:background "#1b1010"))
                   ("java" (:background "#1b1010"))))
 
-          (bind-key "C-c l" 'org-store-link)
+          (bind-key "C-c l" #'org-store-link org-mode-map)
+          (bind-key "C-c t i" #'org-toggle-item org-mode-map)
 
           (if (package-installed-p 'helm)
               (bind-key "s-i" 'helm-org-in-buffer-headings org-mode-map))
@@ -5104,26 +5102,28 @@
           (defhydra hydra-org-mode ()
             "
               org mode
-              ^-^--------------
-              _ci_: clock in
+              ^-^------------------------------------------------
+              _ci_: clock in             _cti_: toggle item
               _co_: clock out
               _cq_: clock cancel/quit
               _cj_: jump to clock
               _cd_: display clock times
 
               %s(hydra-combine-functions-w-key-bindings
-                '((\"  [ci] clock in            \" . org-clock-in)
-                  (\"  [co] clock out           \" . org-clock-out)
-                  (\"  [cq] clock cancel/quit   \" . org-clock-cancel)
-                  (\"  [cj] jump to clock       \" . org-clock-goto)
-                  (\"  [cd] display clock times \" . org-clock-display)
+                '((\"  [ci]  clock in            \" . org-clock-in)
+                  (\"  [co]  clock out           \" . org-clock-out)
+                  (\"  [cq]  clock cancel/quit   \" . org-clock-cancel)
+                  (\"  [cj]  jump to clock       \" . org-clock-goto)
+                  (\"  [cd]  display clock times \" . org-clock-display)
+                  (\"  [cti] toggle item         \" . org-toggle-item)
                   ))
             "
             ("ci" org-clock-in :exit t)
             ("co" org-clock-out :exit t)
             ("cq" org-clock-cancel :exit t)
             ("cj" org-clock-goto :exit t)
-            ("cd" org-clock-display :exit t))
+            ("cd" org-clock-display :exit t)
+            ("cti" org-toggle-item :exit t))
 
 
           ;; Resume clocking tasks when emacs is restarted
@@ -5140,6 +5140,11 @@
 
           ;; name the drawer to be "clocking"
           (setq org-clock-into-drawer "CLOCKING")
+
+          ;; The format string used when creating CLOCKSUM lines.
+          (setq org-time-clocksum-format
+            (quote
+             (:hours "%d" :require-hours t :minutes ":%02d" :require-minutes t))) ;; make sure that clock sums in org mode show hours and minutes only (no days)
 
           (defun gb/org-clock-in-switch-to-state-fn (state)
             "switch TODO to IMPLEMENT if clocking in!"
