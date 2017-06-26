@@ -6933,8 +6933,22 @@
    #+END_SRC
 ** comint (shell extensions)
    - see [[https://github.com/riscy/shx-for-emacs/blob/master/README.org][homepage]]
+   - e.g. additional highlighting
    #+BEGIN_SRC emacs-lisp
-   (req-package shx)
+   (req-package shx
+     :config (shx-global-mode 1))
+   #+END_SRC
+** ob-rust
+   #+BEGIN_SRC emacs-lisp
+   (req-package ob-rust
+     :require org)
+   #+END_SRC
+** comint (bifocal)
+   - will automatically split a comint buffer, if scrolling into the history (by bifocal-up, down, next, prev)
+     this will enable you to view current comint output (or just keep the input line) while looking at the history of the buffer
+   #+BEGIN_SRC emacs-lisp
+   (req-package bifocal
+     :config (bifocal-global-mode 1))
    #+END_SRC
 * to test
 ** treemacs (tre
