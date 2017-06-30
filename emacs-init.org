@@ -6990,7 +6990,10 @@
                          "-message" message))
          (defun gb/pomodoro-finished-notification ()
            "notify user about finished pomodoro"
-           (notify-osx "Pomodoro completed" "Time for a short break"))
+           (if (gb/on-mac-p)
+               (notify-osx "Pomodoro completed" "Time for a short break")
+             (message "Pomodoro completed, time for a short break") ;; notification for unix missing
+             ))
          (setq org-pomodoro-play-sounds nil)
          (add-hook 'org-pomodoro-finished-hook 'gb/pomodoro-finished-notification)))
    #+END_SRC
