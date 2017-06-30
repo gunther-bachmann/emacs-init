@@ -1690,9 +1690,14 @@
           (if (buffer-file-name)
               (vc-state (buffer-file-name))
               (gb/get-cached-git-state)))
+        (defun gb/buffer-on-remote ()
+          "return whether current buffer is on remote (via tramp)"
+          (file-remote-p (or default-directory buffer-file-name dired-directory "")))
         (spaceline-define-segment gb/projectile-id
-          (if (and (fboundp 'projectile-project-p) (projectile-project-p))
-                  (projectile-project-name) "×"))
+          (cond ((gb/buffer-on-remote) "×")
+                ((and (fboundp 'projectile-project-p) (projectile-project-p))
+                 (projectile-project-name))
+                (t "×")))
         (spaceline-define-segment gb/version-control
           "Version control information."
           (when (gb/in-git-dir-p)
