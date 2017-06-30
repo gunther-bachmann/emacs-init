@@ -3658,38 +3658,93 @@
     (req-package flycheck-haskell
       :require haskell-mode flycheck)
     #+END_SRC
+** web-mode
+   #+BEGIN_SRC emacs-lisp
+   (req-package web-mode
+     :mode (("\\.phtml\\'" . web-mode)
+            ("\\.tpl\\.php\\'" . web-mode)
+            ("\\.[agj]sp\\'" . web-mode)
+            ("\\.as[cp]x\\'" . web-mode)
+            ("\\.erb\\'" . web-mode)
+            ("\\.mustache\\'" . web-mode)
+            ("\\.dhtml\\'" . web-mode)
+            ("\\.html?\\'" . web-mode))
+     :config
+     (progn
+       (setq web-mode-markup-indent-offset 2)
+       (setq web-mode-css-indent-offset 2)
+       (setq web-mode-code-indent-offset 2)))
+   #+END_SRC
+** typescript
+   #+BEGIN_SRC emacs-lisp
+
+     (req-package typescript-mode
+       :mode (("\\.ts\\'" . typescript-mode)))
+
+     (req-package tide
+       :require typescript-mode
+       :config
+       (progn
+         (defun gb/setup-tide-mode ()
+           (interactive)
+           (tide-setup)
+           (flycheck-mode +1)
+           (setq flycheck-check-syntax-automatically '(save mode-enabled))
+           (eldoc-mode +1)
+           (tide-hl-identifier-mode +1)
+           (company-mode +1))
+
+         ;; aligns annotation to the right hand side
+         (setq company-tooltip-align-annotations t)
+
+         ;; formats the buffer before saving
+         ;; (add-hook 'before-save-hook 'tide-format-before-save)
+
+         (add-hook 'typescript-mode-hook #'gb/setup-tide-mode)
+         (add-hook 'js2-mode-hook #'gb/setup-tide-mode)
+         ;; (add-hook 'tide-mode-hook #'gb/setup-tide-mode)
+         (add-hook 'web-mode-hook
+                   (lambda ()
+                     (when (string-equal "tsx" (file-name-extension buffer-file-name))
+                       (gb/setup-tide-mode))))
+         ;; (flycheck-add-next-checker 'javascript-eslint 'jsx-tide 'append)
+         ))
+   #+END_SRC
 ** java script
  #+BEGIN_SRC emacs-lisp
-   (req-package tagedit)
-   (req-package js
-     :require flycheck tagedit
-     :defer 5
-     :config
-     (add-to-list 'auto-mode-alist '("\\.js$" . js-mode))
-     (when (package-installed-p 'subword)        
-       (add-hook 'js-mode-hook 'subword-mode)
-       (add-hook 'html-mode-hook 'subword-mode))
-     (when (package-installed-p 'flycheck)
-       (add-hook 'js-mode-hook 'flycheck-mode))
-     (setq js-indent-level 2)
-     (eval-after-load "sgml-mode"
-       '(progn
-          (require 'tagedit)
-          (tagedit-add-paredit-like-keybindings)
-          (add-hook 'html-mode-hook (lambda () (tagedit-mode 1)))))
+   ;; (req-package tagedit)
+   (req-package js2-mode
+     :mode (("\\.js\\'" . js2-mode)
+            ("\\.jsx?\\'" . js2-jsx-mode)))
+   ;; (req-package js
+   ;;   :require flycheck tagedit
+   ;;   :defer 5
+   ;;   :config
+   ;;   (add-to-list 'auto-mode-alist '("\\.js$" . js-mode))
+   ;;   (when (package-installed-p 'subword)
+   ;;     (add-hook 'js-mode-hook 'subword-mode)
+   ;;     (add-hook 'html-mode-hook 'subword-mode))
+   ;;   (when (package-installed-p 'flycheck)
+   ;;     (add-hook 'js-mode-hook 'flycheck-mode))
+   ;;   (setq js-indent-level 2)
+   ;;   (eval-after-load "sgml-mode"
+   ;;     '(progn
+   ;;        (require 'tagedit)
+   ;;        (tagedit-add-paredit-like-keybindings)
+   ;;        (add-hook 'html-mode-hook (lambda () (tagedit-mode 1)))))
 
 
-     ;; coffeescript
-     (add-to-list 'auto-mode-alist '("\\.coffee.erb$" . coffee-mode))
-     (when (package-installed-p 'subword)
-       (add-hook 'coffee-mode-hook 'subword-mode))
-     (add-hook 'coffee-mode-hook 'highlight-indentation-current-column-mode)
-     (add-hook 'coffee-mode-hook
-               (defun coffee-mode-newline-and-indent ()
-                 (define-key coffee-mode-map "\C-j" 'coffee-newline-and-indent)
-                 (setq coffee-cleanup-whitespace nil)))
-     (custom-set-variables
-      '(coffee-tab-width 4)))
+   ;;   ;; coffeescript
+   ;;   (add-to-list 'auto-mode-alist '("\\.coffee.erb$" . coffee-mode))
+   ;;   (when (package-installed-p 'subword)
+   ;;     (add-hook 'coffee-mode-hook 'subword-mode))
+   ;;   (add-hook 'coffee-mode-hook 'highlight-indentation-current-column-mode)
+   ;;   (add-hook 'coffee-mode-hook
+   ;;             (defun coffee-mode-newline-and-indent ()
+   ;;               (define-key coffee-mode-map "\C-j" 'coffee-newline-and-indent)
+   ;;               (setq coffee-cleanup-whitespace nil)))
+   ;;   (custom-set-variables
+   ;;    '(coffee-tab-width 4)))
  #+END_SRC
 ** java
 *** jde (disabled)
