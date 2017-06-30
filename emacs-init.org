@@ -1700,7 +1700,7 @@
                 (t "×")))
         (spaceline-define-segment gb/version-control
           "Version control information."
-          (when (gb/in-git-dir-p)
+          (when (and (not (gb/buffer-on-remote)) (gb/in-git-dir-p))
             (powerline-raw
              (s-trim (concat (replace-regexp-in-string "^ *Git[:-]" "\ue0a0 " (gb/vc-status)) ;; "  "
                                (pcase (gb/vc-state)
