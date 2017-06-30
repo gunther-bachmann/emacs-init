@@ -6997,9 +6997,19 @@
 ** comint (shell extensions)
    - see [[https://github.com/riscy/shx-for-emacs/blob/master/README.org][homepage]]
    - e.g. additional highlighting
+   - given on the home page:
+     - Display graphics and plots in the shell with a simple markup language (e.g., <view image.png>)
+     - Add event-driven and timed behaviors to any shell session
+     - Open any filename or URL by arrowing up to it and pressing <enter>
+     - Yank any line to the prompt by arrowing up to it and pressing C-<enter>
+     - Check the time a command was run by mousing over its prompt
    #+BEGIN_SRC emacs-lisp
    (req-package shx
-     :config (shx-global-mode 1))
+     :config
+        ;;(shx-global-mode 1) ;; global shx mode resulted in "text read only" error in ielm when pressing return
+        ;; add hook for shell
+        (add-hook 'shell-mode-hook #'shx-mode)
+     )
    #+END_SRC
 ** ob-rust
    #+BEGIN_SRC emacs-lisp
