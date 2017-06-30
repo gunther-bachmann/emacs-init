@@ -705,6 +705,8 @@
      - (setq pdf-misc-print-programm-args '("-o" "media=A4" "-o" "sides=two-sided-long-edge"))
    - these could be set via function to allow duplex/non-duplex printing
    #+BEGIN_SRC emacs-lisp
+     (setq ps-font-size (quote (7 . 6.5)))
+     (setq ps-paper-type (quote a4))
      (defun gb/get-known-printers ()
        "get all printers currently known to the system"
        (let* ((result (shell-command-to-string "lpstat -p -d | awk '{ print $2; }' | grep -v 'default'"))
@@ -1107,7 +1109,8 @@
        ;; (setq scroll-step 1)
        (setq scroll-conservatively 10000)
        (setq auto-window-vscroll nil))
-   #+END_SRC
+       (setq smooth-scroll/vscroll-step-size 3)
+  #+END_SRC
 ** show menu bar (only in case of macos)
  #+BEGIN_SRC emacs-lisp
    (if (gb/on-mac-p)
@@ -4214,11 +4217,11 @@
    #+BEGIN_SRC emacs-lisp
      ;; make sure M-x shell opens into currently open window (and does not open a new one)
      (add-to-list 'display-buffer-alist
-                  '("^\\*shell\\*$" . (display-buffer-same-window)))
+                  '("^\\*shell.*\\*$" . (display-buffer-same-window)))
      (require 'comint) ;; part of emacs
      (setq comint-password-prompt-regexp
              (concat comint-password-prompt-regexp
-                     "\\|^Enter passphrase for .*:\\s *\\'"))
+                     "\\|^.* passphrase.*\\'"))
 
      (setq-default sh-basic-offset 2)
      (setq-default sh-indentation 2)
@@ -4321,15 +4324,12 @@
         (("1.8.0_40" . "/Library/Java/JavaVirtualMachines/jdk1.8.0_40.jdk/Contents/Home")
          ("1.7.0_40" . "/Library/Java/JavaVirtualMachines/jdk1.7.0_40.jdk/Contents/Home"))))
      '(malabar-repl-grooysh "/usr/local/bin/groovysh")
-     '(ps-font-size (quote (7 . 6.5)))
-     '(ps-paper-type (quote a4))
      '(recentf-max-saved-items 80)
      '(region ((t (:background "gray45" :inverse-video nil))))
      '(rng-schema-locating-files
        (quote
         ((concat user-emacs-directory "ant-mode/ant-schemas.xml") "schemas.xml" "~/devel/xspec-read-only/editors/emacs/schemas.xml" "/Applications/Emacs.app/Contents/Resources/etc/schema/schemas.xml")))
      '(send-mail-function (quote smtpmail-multi-send-it))
-     '(smooth-scroll/vscroll-step-size 3)
      '(tool-bar-mode nil)
      '(truncate-lines nil)
      '(xslt-process-registered-stylesheets nil))
@@ -7033,6 +7033,8 @@
 ** sx (elaborate stack exchange interface for emacs)
 ** swiper-helm (helm interface for swipter)
 ** html5-schema (html5 support for nXML)
+** magit-tbdiff (diffing extension for magit)
+   - see [[https://github.com/magit/magit-tbdiff][link]]
 ** indium (java script development environment)
    - [[https://github.com/NicolasPetton/Indium][home page]]
 * tested but discarded
