@@ -1735,8 +1735,23 @@
       (gb/warn-missing-font "github-octicons")
       (gb/warn-missing-font "Weather Icons")
 
+      (req-package all-the-icons
+        :require memoize
+        :config
+        ;; extend list of all-the-icons-mode-icon-alist
+        ;; by
+        ;; (typescript-mode all-the-icons-fileicon "typescript" :v-adjust -0.1 :face all-the-icons-yellow)
+        ;; (tide-mode all-the-icons-fileicon "typescript" :v-adjust -0.1 :face all-the-icons-yellow)
+        (with-eval-after-load 'all-the-icons
+          (progn
+            (add-to-list 'all-the-icons-mode-icon-alist '(typescript-mode all-the-icons-fileicon "typescript" :v-adjust -0.1 :face all-the-icons-yellow) t)
+            (add-to-list 'all-the-icons-mode-icon-alist '(tide-mode all-the-icons-fileicon "typescript" :v-adjust -0.1 :face all-the-icons-yellow) t)
+        )))
+
+      (req-package memoize)
+
       (req-package spaceline-all-the-icons
-        :require spaceline
+        :require spaceline all-the-icons memoize
         :config
         (spaceline-all-the-icons-theme)
         (custom-set-variables  '(spaceline-all-the-icons-highlight-file-name t)
