@@ -6705,10 +6705,7 @@
   #+END_SRC
 * TODO language server protocol mode
   #+BEGIN_SRC emacs-lisp
-  (req-package lsp-mode
-    :config
-    (progn
-      (global-lsp-mode 1)))
+  (req-package lsp-mode)
   #+END_SRC
 * markdown code block edit
   - allows C-' in a markdown code block to edit code in a separate buffer (like org mode does)
