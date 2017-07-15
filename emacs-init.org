@@ -3710,6 +3710,18 @@
    #+END_SRC
 ** typescript
    #+BEGIN_SRC emacs-lisp
+     ;; run ts repl in typescript-mode, allowing to send expressions to the interpreter
+     ;; M-x run-ts ;; starts a comint buffer with repl
+     (req-package ts-comint
+       :require typescript-mode
+       :config
+         (add-hook 'typescript-mode-hook
+            (lambda ()
+              (local-set-key (kbd "C-x C-e") 'ts-send-last-sexp)
+              (local-set-key (kbd "C-M-x") 'ts-send-last-sexp-and-go)
+              (local-set-key (kbd "C-c b") 'ts-send-buffer)
+              (local-set-key (kbd "C-c C-b") 'ts-send-buffer-and-go)
+              (local-set-key (kbd "C-c l") 'ts-load-file-and-go))))
 
      (req-package typescript-mode
        :mode (("\\.ts\\'" . typescript-mode)))
