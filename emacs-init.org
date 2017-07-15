@@ -6955,11 +6955,11 @@
    #+END_SRC
 ** lsp with source-graph language servers
    #+BEGIN_SRC emacs-lisp
-   (req-package lsp-go :require lsp-mode)
-   (req-package lsp-haskell :require lsp-mode)
+   ;; (req-package lsp-go :require lsp-mode)
+   ;; (req-package lsp-haskell :require lsp-mode)
    (req-package lsp-java :require lsp-mode)
-   (req-package lsp-python :require lsp-mode)
-   (req-package lsp-rust :require lsp-mode)
+   ;; (req-package lsp-python :require lsp-mode)
+   ;; (req-package lsp-rust :require lsp-mode)
    #+END_SRC
 ** ledger (accounting manager)
    #+BEGIN_SRC emacs-lisp
