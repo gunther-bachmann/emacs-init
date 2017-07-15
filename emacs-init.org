@@ -7043,6 +7043,19 @@
    #+BEGIN_SRC emacs-lisp
    (req-package yarn-mode)
    #+END_SRC
+** all the icons dired
+   #+BEGIN_SRC emacs-lisp
+     (req-package all-the-icons-dired
+       :require all-the-icons dired)
+   #+END_SRC
+** all the icons gnus
+   - on hold, icons disturb custom ui settings of gnu
+   - [ ] test this package with gnus ui customizations off
+   #+BEGIN_SRC emacs-lisp :tangle no
+   (req-package all-the-icons-gnus
+     :require gnus all-the-icons dash
+     :config (all-the-icons-gnus-setup))
+   #+END_SRC
 ** comint (bifocal)
    - will automatically split a comint buffer, if scrolling into the history (by bifocal-up, down, next, prev)
      this will enable you to view current comint output (or just keep the input line) while looking at the history of the buffer
