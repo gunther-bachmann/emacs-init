@@ -7031,6 +7031,13 @@
    (req-package ob-rust
      :require org)
    #+END_SRC
+** underline with char
+   - call with prefix command let's you select with which char to underline
+   - underlines previous line up to its end with '-'
+   #+BEGIN_SRC emacs-lisp
+     (req-package underline-with-char
+       :commands underline-with-char)
+   #+END_SRC
 ** comint (bifocal)
    - will automatically split a comint buffer, if scrolling into the history (by bifocal-up, down, next, prev)
      this will enable you to view current comint output (or just keep the input line) while looking at the history of the buffer
