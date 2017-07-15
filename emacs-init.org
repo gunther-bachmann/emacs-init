@@ -7061,13 +7061,7 @@
      this will enable you to view current comint output (or just keep the input line) while looking at the history of the buffer
    #+BEGIN_SRC emacs-lisp
    (req-package bifocal
-     :config (bifocal-global-mode 1))
-   #+END_SRC
-** ace popup menu
-   - display regular popup windows (like the one upon C-c $ to correct mispelled words) as a text window (in separate emacs window)
-   #+BEGIN_SRC emacs-lisp
-   (req-package ace-popup-menu
-     :config (ace-popup-menu-mode 1))
+     :commands bifocal-mode)
    #+END_SRC
 * to test
 ** treemacs (tre
