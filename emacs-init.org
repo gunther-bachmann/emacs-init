@@ -63,13 +63,11 @@
       package 'session' which stores lots of session information into
       the file .session in the .emacs.d
 * enhancements and todos
+** todo lsp-mode: check what packages have to be deactivated in order to not interfere with lsp-mode and company suggestions
 ** todo switch gnus mail sync with google calendar to ...
-** todo commit message should not store any cursor position info but should always start at the beginning of the buffer
-   - session does probably store this position even though COMMIT_EDITMSG is explicitly excluded from this behaviour
-   - look at M-x customize-group session-name  session-name-disable-regexp
 ** todo allow duplex/non-duplex configuration of printer / printing (see org header "printer")
 ** todo minimap mode results in ligatures being misplaced!
-** todo describe each packages' benefit for my configuration
+** IMPLEMENT describe each packages' benefit for my configuration
 ** todo undo-tree workaround: [2017-02-25 Sat] currently org src block fontification is disabled if undo tree is called, since undo tree exits on up/down in the tree
 ** todo define something like layers
    e.g. layer for core, editing, navigation, programming ... such that these layers can be easily switched off and on at the top of the init
@@ -105,10 +103,10 @@
 *** java
 *** java script
 *** docker
-** test elfeed: filter news depending on title/feed/url etc.
+** todo elfeed: filter news depending on title/feed/url etc.
    - state "test"       from "todo"       [2016-04-08 fri 15:55]
-** planned explore org-contacts as bbdb replacement (look [[https://julien.danjou.info/projects/emacs-packages#org-contacts][here]] and [[http://kitchingroup.cheme.cmu.edu/blog/2016/12/22/context-specific-org-mode-speed-keys/?utm_source=feedburner&utm_medium=twitter&utm_campaign=feed:+thekitchinresearchgroup+(the+kitchin+research+group)][here]])
-** planned add additional modes to store linenumbers when capturing
+** PLANNED explore org-contacts as bbdb replacement (look [[https://julien.danjou.info/projects/emacs-packages#org-contacts][here]] and [[http://kitchingroup.cheme.cmu.edu/blog/2016/12/22/context-specific-org-mode-speed-keys/?utm_source=feedburner&utm_medium=twitter&utm_campaign=feed:+thekitchinresearchgroup+(the+kitchin+research+group)][here]])
+** PLANNED add additional modes to store linenumbers when capturing
    [[file:~/.emacs.d/init.el::org-file-lineno-store-link][file:~/.emacs.d/init.el::org-file-lineno-store-link]]
 ** PLANNED install xcape into the linux installtions to allow for using space as control where possible
    - configuring needs to be streamlined to allow space-down key-down key-up space-up to work as control
@@ -142,6 +140,9 @@
    - see http://mbork.pl/2015-10-31_Smart_comma_and_other_punctuation
 ** PLANNED define hydra for dired
 ** PLANNED define hydra for pdf-tools
+** DONE commit message should not store any cursor position info but should always start at the beginning of the buffer
+   - session does probably store this position even though COMMIT_EDITMSG is explicitly excluded from this behaviour
+   - look at M-x customize-group session-name  session-name-disable-regexp
 ** DONE todo define keybindings depending on keyboard layout => e.g. key-chords won't make sense in us-keyboard layout
    - State "DONE"       from              [2017-06-26 Mon 16:45]
 ** DONE pixel wise scrolling
@@ -2169,6 +2170,14 @@
      (setq-default buffer-file-coding-system 'utf-8-unix)
      ;; (set-language-environment "UTF-8")
    #+END_SRC
+** easy-escaping
+   #+BEGIN_SRC emacs-lisp
+     (req-package easy-escape
+       :config
+       (progn
+         (set-face-attribute 'easy-escape-face nil :foreground "red") ;; make a \\ stand out as red backslash
+         (add-hook 'prog-mode-hook 'easy-escape-minor-mode)))
+   #+END_SRC
 ** schrute mode (make suggestions) disabled
    #+begin_src emacs-lisp :tangle no
      (req-package schrute
@@ -2570,7 +2579,7 @@
        :config
        (progn
        (setq highlight-thing-delay-seconds 1)
-       (setq highlight-thing-what-thing 'word)
+       (setq highlight-thing-what-thing 'symbol)
        ;; customize face hi-yellow
 
        ;; highlight all identical 'words in view
@@ -2611,7 +2620,7 @@
        :bind (("C-c h" . highlight-symbol))
        :config 
        (progn 
-         (setq  highlight-symbol-foreground-color "LightYellow1")))
+         (setq  highlight-symbol-foreground-color "Gray52")))
    #+END_SRC
 ** TODO bookmarking (needs hydra)
    #+BEGIN_SRC emacs-lisp
@@ -2628,7 +2637,7 @@
    #+END_SRC
 ** additional functions
    #+BEGIN_SRC emacs-lisp
-     (defun replace-buffer-with-yank ()
+     (defun gb/replace-buffer-with-yank ()
        "replace the whole buffer with the first item on the kill ring"
        (interactive)
        (erase-buffer)
@@ -2641,14 +2650,12 @@
    #+BEGIN_SRC emacs-lisp
    (req-package aggressive-indent
      ;; :diminish aggressive-indent-mode
-     :defer t
      :config
      (progn ;; (global-aggressive-indent-mode 1) ;; enable mode for all programming modes
             (add-to-list 'aggressive-indent-excluded-modes 'html-mode)
             ;;(add-to-list 'aggressive-indent-excluded-modes 'clojure-mode)
             ;;(add-to-list 'aggressive-indent-excluded-modes 'emacs-lisp-mode)
             )) ;; disable mode for ...
-
    #+END_SRC
 ** selected (provide special keybindings if selections are active)
    - https://github.com/Kungsgeten/selected.el
@@ -3058,6 +3065,14 @@
 
 
 #+END_SRC
+** ace popup menu
+   - display regular popup windows (like the one upon C-c $ to correct mispelled words) as a text window (in separate emacs window)
+   #+BEGIN_SRC emacs-lisp
+   (req-package avy-menu)
+   (req-package ace-popup-menu
+     :require avy avy-menu
+     :config (ace-popup-menu-mode 1))
+   #+END_SRC
 ** search cursor left
    - C-RET after searching via C-s will leave cursor at start of match
    - RET after searching via C-s will leave cursor at end of match
@@ -4097,6 +4112,17 @@
      :config
      (progn))
    #+END_SRC
+** markdown code block edit
+   - allows C-' in a markdown code block to edit code in a separate buffer (like org mode does)
+   #+BEGIN_SRC emacs-lisp
+     (req-package edit-indirect)
+     (req-package markdown-edit-indirect
+       :require markdown-mode edit-indirect
+       :config
+       (progn
+         (eval-after-load 'markdown-mode
+           '(define-key markdown-mode-map (kbd "C-c '") 'markdown-edit-indirect))))
+   #+END_SRC
 ** plantuml
    - https://github.com/skuro/plantuml-mode
    #+BEGIN_SRC emacs-lisp 
@@ -4120,7 +4146,7 @@
           ;; (add-to-list 'puml-mode-hook #'(lambda () (message "enable flycheck")))
         )
    #+END_SRC
-** jump to definition
+** dumb jump to definition
     - C-M g    jump to definition
     - C-M p    jump back
     - C-M q    like jump but shows tooltip
@@ -4491,8 +4517,7 @@
       (let ((original-point (point)))
         (while (and
                 (not (= (point) (point-min) ))
-                (not
-                 (string-match "[[:space:]\n]" (char-to-string (char-before)))))
+                (not (string-match "[[:space:]\n]" (char-to-string (char-before)))))
           (backward-word 1))
         (let* ((init-word (point))
                (word (buffer-substring init-word original-point))
@@ -6707,17 +6732,6 @@
   #+BEGIN_SRC emacs-lisp
   (req-package lsp-mode)
   #+END_SRC
-* markdown code block edit
-  - allows C-' in a markdown code block to edit code in a separate buffer (like org mode does)
-  #+BEGIN_SRC emacs-lisp
-    (req-package edit-indirect)
-    (req-package markdown-edit-indirect
-      :require markdown-mode edit-indirect
-      :config
-      (progn
-        (eval-after-load 'markdown-mode
-          '(define-key markdown-mode-map (kbd "C-c '") 'markdown-edit-indirect))))
-  #+END_SRC
 * currently evaluated
 ** flymd
    - opens firefox to display a live view of the markdown in the buffer.
@@ -6857,7 +6871,7 @@
          ;;                        (server-address . "https://jenkins-addres")
          ;;                        (auth-file . "~/.authinfo.gpg")))
          ;; The following line should exist in ~/.authinfo.gpg:
-         ;; machine SERVER-NAME login username password password  
+         ;; machine SERVER-NAME login USERNAME password PASSWORD
          ))
    #+END_SRC
 ** mode for unix tool pass
@@ -6882,14 +6896,6 @@
    #+BEGIN_SRC emacs-lisp :tangle no
      (load-file (let ((coding-system-for-read 'utf-8))
                      (shell-command-to-string "agda-mode locate")))
-   #+END_SRC
-** easy-escaping
-   #+BEGIN_SRC emacs-lisp
-     (req-package easy-escape
-       :config
-       (progn
-         (set-face-attribute 'easy-escape-face nil :foreground "red") ;; make a \\ stand out as red backslash
-         (add-hook 'prog-mode-hook 'easy-escape-minor-mode)))
    #+END_SRC
 ** historian
    #+BEGIN_SRC emacs-lisp
