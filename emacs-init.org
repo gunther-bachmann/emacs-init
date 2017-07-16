@@ -7033,6 +7033,12 @@
    #+BEGIN_SRC emacs-lisp
    (req-package json-navigator)
    #+END_SRC
+** dired-collapse
+   - collapse empty directories (like src/main/java... is done by github)
+   #+BEGIN_SRC emacs-lisp
+   (req-package dired-collapse
+     :commands dired-collapse-mode)
+   #+END_SRC
 ** org-pomodoro (time management technique)
    #+BEGIN_SRC emacs-lisp
      (req-package org-pomodoro
