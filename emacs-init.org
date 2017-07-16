@@ -1622,7 +1622,6 @@
 *** spaceline (mode line of spacemacs)
     #+BEGIN_SRC emacs-lisp
       (req-package spaceline
-        :require diminish
         :config
         (require 'spaceline-config)
         (spaceline-spacemacs-theme)
@@ -1755,8 +1754,9 @@
 
       (req-package spaceline-all-the-icons
         :require spaceline all-the-icons memoize
+        ;; :defer 1
         :config
-        (spaceline-all-the-icons-theme)
+        ;; (spaceline-all-the-icons-theme)
         (custom-set-variables  '(spaceline-all-the-icons-highlight-file-name t)
                                '(spaceline-all-the-icons-separator-type (quote slant)) ;; cup, slant, wave, arrow
                                '(spaceline-all-the-icons-slim-render nil)
@@ -2118,9 +2118,8 @@
      (setq fill-column 140)
      (set-default 'fill-column 140)
      (defun gb/enable-auto-fill-mode ()
-       "enable auto-fill-mode regardless of current state (require diminish)"
-       (auto-fill-mode +1)
-       (diminish 'auto-fill-mode))
+       "enable auto-fill-mode regardless of current state"
+       (auto-fill-mode +1))
    #+END_SRC
 ** keep some session stuff
    - will keep helm-M-x history after restart
@@ -2183,7 +2182,6 @@
 ** schrute mode (make suggestions) disabled
    #+begin_src emacs-lisp :tangle no
      (req-package schrute
-       ;; :diminish schrute-mode
        :disabled t
        :config
        (progn
@@ -2225,7 +2223,6 @@
    - delete all spaces before/after when using backspace/delete
    #+BEGIN_SRC emacs-lisp :tangle no
      (req-package hungry-delete
-       ;; :diminish hungry-delete-mode
        :bind (( "C-S-d" . hungry-delete-forward)
               ( "S-<backspace>" . hungry-delete-backward)))
    #+END_SRC
@@ -2400,7 +2397,6 @@
      (e.g. highlight pasted text)
    #+BEGIN_SRC emacs-lisp
      (req-package volatile-highlights
-       ;; :diminish volatile-highlights-mode
        :config
        (volatile-highlights-mode t))
    #+END_SRC
@@ -2411,7 +2407,6 @@
     #+BEGIN_SRC emacs-lisp
       ;; wrap-region
       (req-package wrap-region
-        ;; :diminish wrap-region-mode
         :config
         (progn
           (wrap-region-global-mode 1)
@@ -2459,15 +2454,12 @@
     (yes: C-w)
     #+BEGIN_SRC emacs-lisp
       (req-package whole-line-or-region
-      :require diminish
       :config
-      (whole-line-or-region-mode 1)
-      (diminish 'whole-line-or-region-mode))
+      (whole-line-or-region-mode 1))
     #+END_SRC
 ** subword (internal programming minor mode)
    #+BEGIN_SRC emacs-lisp
    (req-package subword
-     ;; :diminish subword-mode
      )
    #+END_SRC
 ** multicursor
@@ -2651,7 +2643,6 @@
    automatically indents all while typing 
    #+BEGIN_SRC emacs-lisp
    (req-package aggressive-indent
-     ;; :diminish aggressive-indent-mode
      :config
      (progn ;; (global-aggressive-indent-mode 1) ;; enable mode for all programming modes
             (add-to-list 'aggressive-indent-excluded-modes 'html-mode)
@@ -2677,7 +2668,6 @@
          (bind-key "<" 'mc/mark-previous-like-this selected-keymap)
          (bind-key ">" 'mc/mark-next-like-this selected-keymap)
          )
-       ;; :diminish selected-minor-mode
        )
    #+END_SRC
 * language specific stuff
@@ -2750,12 +2740,9 @@
 ** which key
 #+BEGIN_SRC emacs-lisp
   (req-package which-key
-    ;; :diminish which-key-mode
-    :require diminish
     :config
     (progn
     (which-key-mode)
-    (diminish 'which-key-mode)
     (which-key-setup-side-window-right)
     (validate-setq which-key-side-window-max-width 0.4)
     (setq which-key-max-description-length 45)
@@ -2783,7 +2770,6 @@
       ))
   ;; enable company mode anywhere
   (req-package company
-    ;; :diminish company-mode
     :config
     (progn
       (setq company-show-numbers t)
@@ -3009,8 +2995,7 @@
 #+END_SRC
 #+BEGIN_SRC emacs-lisp :tangle no
   (req-package ace-isearch
-    ;; :diminish ace-isearch-mode
-    :require avy helm-swoop ace-jump-mode diminish
+    :require avy helm-swoop ace-jump-mode
     bind-key ;; optional, needed for key binding
     :disabled t
     :config
@@ -3023,7 +3008,6 @@
 
       ;; Enable global ace-isearch mode:
       (global-ace-isearch-mode +1)
-      (diminish 'ace-isearch-mode)
 
       ;; Enable ace-isearch minor mode:
       ;; (ace-isearch-mode +1)
@@ -3090,7 +3074,7 @@
 ** back-button
 #+BEGIN_SRC emacs-lisp
   (req-package back-button
-    ;; :diminish back-button-mode
+    :defer 3
     :require hydra smartrep
     :config
     (progn
@@ -3227,7 +3211,6 @@
    #+BEGIN_SRC emacs-lisp
    (req-package minimap
      :bind (("s-m" . minimap-mode))
-     ;; :diminish minimap-mode
      :config
      (progn
        (setq minimap-major-modes (quote (prog-mode org-mode nxml-mode)))
@@ -3286,7 +3269,6 @@
     - switch on with eldoc-overlay-mode
     #+BEGIN_SRC emacs-lisp
       (req-package eldoc-overlay-mode
-        ;; :diminish eldoc-overlay-mode
         )
     #+END_SRC
 *** paredit
@@ -3294,7 +3276,6 @@
    ;; Automatically load paredit when editing a lisp file
    ;; More at http://www.emacswiki.org/emacs/ParEdit
    (req-package paredit
-     ;; :diminish paredit-mode
      :config
      (progn
        (add-hook 'emacs-lisp-mode-hook       #'enable-paredit-mode)
@@ -3604,7 +3585,6 @@
    (req-package clj-refactor
      :defer t ;; this defer is valid, since via init the loading is ensured 
      :require clojure-mode multiple-cursors
-     ;; :diminish clj-refactor-mode
      :init
      (defun gb/clojure-mode-hook ()
        (clj-refactor-mode 1)
@@ -3618,7 +3598,6 @@
    (req-package typed-clojure-mode
      :require clojure-mode subword
      :defer t ;; this defer is valid, since via init the loading is ensured 
-     ;; :diminish typed-clojure-mode
      :init
      (add-hook 'clojure-mode-hook 'typed-clojure-mode))
  #+END_SRC
@@ -3906,7 +3885,6 @@
 ** flycheck
    #+BEGIN_SRC emacs-lisp
      (req-package flycheck
-       ;; :diminish (flycheck-mode . " ✓ ")
        :config
        (progn
          (define-key flycheck-mode-map flycheck-keymap-prefix nil)
@@ -4528,7 +4506,6 @@
 * yasnippet
 #+BEGIN_SRC emacs-lisp
   (req-package yasnippet
-    ;; :diminish yas-minor-mode
     :require org company
     :config
     (setq yas-snippet-dirs
@@ -4590,6 +4567,7 @@
  #+BEGIN_SRC emacs-lisp
    (req-package elfeed
      :commands elfeed
+     :defer 10
      :config
      (progn
        (setq elfeed-use-curl t)
@@ -4602,6 +4580,7 @@
    ;; Load elfeed-org
    (req-package elfeed-org
      :require elfeed org
+     :defer 10
      :config
      (progn
 
@@ -4640,6 +4619,7 @@
 
    (req-package elfeed-goodies
      :require elfeed elfeed-org
+     :defer 10
      :config
      (progn
        (setq elfeed-goodies/entry-pane-size 0.5)
@@ -5130,7 +5110,7 @@
 *** org
   #+BEGIN_SRC emacs-lisp
         (req-package org
-          :require bind-key hydra diminish
+          :require bind-key hydra
           :config
           (require 'ob-clojure)
           (require 'org-inlinetask)
@@ -5691,7 +5671,8 @@
  #+END_SRC
 *** make org export use better highlighting with htmlize
  #+BEGIN_SRC emacs-lisp
-    (req-package htmlize)
+    (req-package htmlize
+      :defer 30)
  #+END_SRC
 *** IMPLEMENT helm org rifle
 **** TODO find keybindings
@@ -5893,6 +5874,7 @@
      - see [[https://github.com/zweifisch/ob-lfe][homepage]]
      #+BEGIN_SRC emacs-lisp
      (req-package ob-lfe
+       :defer 10
        :require org)
      #+END_SRC
 **** org babel mongo
@@ -5906,6 +5888,7 @@
      - see [[https://github.com/krisajenkins/ob-mongo][homepage]]
      #+BEGIN_SRC emacs-lisp
      (req-package ob-mongo
+       :defer 10
        :require org)
      #+END_SRC
 **** org babel redis
@@ -5913,6 +5896,7 @@
      - see [[https://github.com/stardiviner/ob-redis][homepage]]
      #+BEGIN_SRC emacs-lisp
      (req-package ob-redis
+       :defer 10
        :require org)
      #+END_SRC
 **** org babel translate
@@ -5921,35 +5905,41 @@
      - see [[https://github.com/krisajenkins/ob-translate][homepage]]
      #+BEGIN_SRC emacs-lisp
      (req-package ob-translate
+       :defer 10
        :require org)
      #+END_SRC
 **** org babel typescript
      #+BEGIN_SRC emacs-lisp
      (req-package ob-typescript
+       :defer 10
        :require org)
      #+END_SRC
 **** org babel kotlin
      #+BEGIN_SRC emacs-lisp
      (req-package ob-kotlin
+       :defer 10
        :require org)
      #+END_SRC
 **** org babel elixir
      #+BEGIN_SRC emacs-lisp
      (req-package ob-elixir
+       :defer 10
        :require org)
      #+END_SRC
 **** org babel browser
      #+BEGIN_SRC emacs-lisp
      (req-package ob-browser
+       :defer 10
        :require org)
      #+END_SRC
 *** ob async
     - add ':async t' to #begin_src header, execution of block (C-c C-c within babel block) executes asynchronously)
     #+BEGIN_SRC emacs-lisp
     (req-package ob-async
-    :require org async
-    :config
-    (add-to-list 'org-ctrl-c-ctrl-c-hook 'ob-async-org-babel-execute-src-block))
+       :defer 10
+       :require org async
+       :config
+         (add-to-list 'org-ctrl-c-ctrl-c-hook 'ob-async-org-babel-execute-src-block))
     #+END_SRC
 *** adaptive warp
     #+BEGIN_SRC emacs-lisp
@@ -5968,6 +5958,7 @@
 *** org reveal (presentation)
     #+BEGIN_SRC emacs-lisp
     (req-package ox-reveal
+      :defer 10
       :require org htmlize
       :config
       (progn
@@ -5978,6 +5969,7 @@
     - headers of org tables stay in the header line while scrolling them out of view
     #+BEGIN_SRC emacs-lisp
       (req-package org-table-sticky-header
+        :defer 10
         :require org
         :config
         (progn (add-hook 'org-mode-hook 'org-table-sticky-header-mode)))
@@ -6125,7 +6117,6 @@
            ("C-x C-b" . helm-buffers-list)
            )
     :commands helm-mode
-    ;; :diminish helm-mode
     :config
     (progn
       ;; ignore files in boring file rexp list
@@ -6546,7 +6537,7 @@
 ** auctex
    #+BEGIN_SRC emacs-lisp
      (req-package tex-mode
-       :require flymake diminish
+       :require flymake
        :config
        (progn
          (setq TeX-auto-save t)
@@ -6766,7 +6757,8 @@
   #+END_SRC
 * TODO language server protocol mode
   #+BEGIN_SRC emacs-lisp
-  (req-package lsp-mode)
+  (req-package lsp-mode
+    :commands lsp-mode)
   #+END_SRC
 * currently evaluated
 ** flymd
@@ -7003,15 +6995,19 @@
    #+BEGIN_SRC emacs-lisp
    ;; (req-package lsp-go :require lsp-mode)
    ;; (req-package lsp-haskell :require lsp-mode)
-   (req-package lsp-java :require lsp-mode)
+   (req-package lsp-java
+     :defer 10
+     :require lsp-mode)
    ;; (req-package lsp-python :require lsp-mode)
    ;; (req-package lsp-rust :require lsp-mode)
    #+END_SRC
 ** ledger (accounting manager)
    #+BEGIN_SRC emacs-lisp
      (when ledger-installed
-       (req-package ledger-mode)
+       (req-package ledger-mode
+         :defer 60)
        (req-package flycheck-ledger
+         :defer 60
          :require ledger-mode flycheck))
    #+END_SRC
 ** move frames around
