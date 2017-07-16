@@ -1082,6 +1082,7 @@
    #+BEGIN_SRC emacs-lisp
      (if w3m-installed
          (req-package w3m
+           :commands w3m w3m-search w3m-browse-url
            :config
            (progn
              (setq w3m-default-display-inline-images t)
@@ -1572,6 +1573,7 @@
 ** sytem stats (for minibuffer)
    #+BEGIN_SRC emacs-lisp
      (req-package symon
+       :commands symon-mode
        :config 
        (progn
          ;; make sure to load it
@@ -3672,6 +3674,7 @@
 ** groovy
    #+BEGIN_SRC emacs-lisp
      (req-package groovy-mode
+       :commands groovy-mode
        :config
        (progn
          ;; make sure for some labeled parameters in groovy to indent with 4
@@ -3893,7 +3896,9 @@
  #+END_SRC
 ** xml
    #+BEGIN_SRC emacs-lisp
-     (req-package nxml-mode)
+     (req-package nxml-mode
+       :mode (("\\.xslt\\'" . nxml-mode)
+              ("\\.xml\\'" . nxml-mode)))
      (req-package xml+
        :require dash)
    #+END_SRC
@@ -3953,6 +3958,7 @@
     (if hub-installed
     (req-package magithub
       :require magit
+      :defer 40
       :config
       (progn (magithub-feature-autoinject t))))
     #+END_SRC
@@ -4015,9 +4021,16 @@
 
    (req-package magit-gh-pulls
      :require magit
-     :disabled t
+     :defer 40
      :config
      (add-hook 'magit-mode-hook 'turn-on-magit-gh-pulls))
+
+   (req-package magit-filenotify
+     :require magit
+     :defer 40
+     :config
+     (add-hook 'after-save-hook 'magit-after-save-refresh-status)
+     (add-hook 'magit-status-mode-hook 'magit-filenotify-mode))
 
    ;; use automatic file notification to update magit status buffer
    ;; (add-hook 'magit-status-mode-hook 'magit-filenotify-mode )
@@ -4028,7 +4041,7 @@
 
    (req-package magit-gitflow
      :require magit
-     :disabled t
+     :defer 40
      :config
      (add-hook 'magit-mode-hook 'turn-on-magit-gitflow))
    ;; C-f in magit status buffer will invoke gitflow action selector.
@@ -4066,6 +4079,7 @@
     #+BEGIN_SRC emacs-lisp
     (when git-lfs-installed 
       (req-package magit-lfs
+        :defer 40
         :require magit))
     #+END_SRC
 ** gitignore (creation with helm)
@@ -4349,10 +4363,11 @@
     ;; if not functional do the following: remove package and restart emacs, then allow rebuild of pdf tooling, restart again 
     (if (and make-installed poppler-installed imagemagick-installed)
     (req-package pdf-tools
-      :mode ("\\.pdf\\'" . pdf-view-mode)
+      :mode ("\\.pdf$" . pdf-view-mode)
       :config
       (progn
-        (pdf-tools-install)
+        (add-hook 'after-init-hook 'pdf-tools-install)
+        ;; (add-hook 'pdf-tools-mode-hook 'pdf-isearch-minor-mode)
         (setq pdf-misc-print-programm "/usr/bin/lp")
         (setq pdf-view-display-size (quote fit-page))
         (setq pdf-misc-print-programm-args '("-o" "media=A4" "-o" "sides=two-sided-long-edge")))))
@@ -5698,6 +5713,7 @@
     #+BEGIN_SRC emacs-lisp
       (req-package appt
         :require org
+        :defer 20
         :config
         (setq appt-time-msg-list nil)    ;; clear existing appt list
         (setq appt-display-interval '10) ;; warn every 10 minutes from t - appt-message-warning-time
@@ -5970,12 +5986,14 @@
     - see [[https://github.com/markus1189/org-pdfview][homepage]] 
     #+BEGIN_SRC emacs-lisp
     (req-package org-pdfview
-      :require org)
+      :require org pdf-tools
+      :defer 30)
     #+END_SRC
 *** org magit
     #+BEGIN_SRC emacs-lisp
     (req-package orgit
-      :require org magit)
+      :require org magit
+      :defer 40)
     #+END_SRC
 ** slack (disabled)
  #+BEGIN_SRC emacs-lisp :tangle no
@@ -6233,27 +6251,28 @@
   (req-package vagrant
     :commands vagrant-up vagrant-edit vagrant-status)
   (req-package vagrant-tramp
-    :require vagrant)
+    :defer 20
+    :require vagrant
+    :commands vagrant-tramp-term)
 #+END_SRC
 ** ansible
 *** ansible
     #+BEGIN_SRC emacs-lisp
       (req-package ansible
-        :defer 3
+        :defer 30
         :commands ansible)
     #+END_SRC
 *** ansible-doc
     #+BEGIN_SRC emacs-lisp
     (req-package ansible-doc
-      :defer t
-      :commands ansible-doc ansible-doc-mode
-      :require ansible)
+      :defer 30
+      :commands ansible-doc ansible-doc-mode)
     #+END_SRC
 *** company-ansible
     #+BEGIN_SRC emacs-lisp
     (req-package company-ansible
-      :defer t
-      :require company ansible)
+      :defer 30
+      :require company)
     #+END_SRC
 * imenu
   - display imenu in separate buffer (through 'M-x imenu-list-minor-mode')
@@ -6519,6 +6538,7 @@
   versions can be ediffed with the current
 #+BEGIN_SRC emacs-lisp
   (req-package helm-backup
+    :defer 10
     :config
     (add-hook 'after-save-hook 'helm-backup-versioning))
 #+END_SRC
@@ -6579,10 +6599,12 @@
     (req-package latex-extra
       :require tex-mode)
     (req-package latex-preview-pane
-      :require tex-mode pdf-tools
+      :require tex-mode
       :commands latex-preview-pane-mode
+      :defer 30
       :config
       (progn
+        ;; (require 'pdf-tools)
         (latex-preview-pane-enable)
         (require 'latex-preview-pane)
         ;;    NOTES: adjustments had to be made so that preview works with pdf-tools:
@@ -6621,6 +6643,8 @@
 * dired
 ** configuration
    #+BEGIN_SRC emacs-lisp
+     (req-package dired
+       :commands dired)
      (setq dired-dwim-target t) ;; try to guess the directory to use for dired
      (setq dired-listing-switches "-Alh") ;; default switches for ls to be used for dired listing
      (setq diredp-hide-details-propagate-flag t) ;; opening subfolders inherit details flag (shown/hidden)
@@ -6932,7 +6956,9 @@
    #+END_SRC
 ** org edit latex (edit latex code in separate buffer)
    #+BEGIN_SRC emacs-lisp
-   (req-package org-edit-latex)
+   (req-package org-edit-latex
+     :require org tex-mode
+     :defer 60)
    #+END_SRC
 ** helm books
    - allows searching for book titles using the google book api with helm
@@ -6960,6 +6986,8 @@
    - keep a list of lru org headings to choose from
    #+BEGIN_SRC emacs-lisp
      (req-package org-recent-headings
+       :require org
+       :defer 10
        :config
        (progn
          (bind-key "M-s-^" #'org-recent-headings-helm) ;; equivalent to M-s-i
@@ -7009,6 +7037,7 @@
    #+BEGIN_SRC emacs-lisp
      (req-package org-pomodoro
        :require appt
+       :commands org-pomodoro-clock-in
        :config
        (progn
          (defun notify-osx (title message)
