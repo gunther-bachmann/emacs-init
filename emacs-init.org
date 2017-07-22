@@ -6120,6 +6120,24 @@
     :config
     (progn
       ;; ignore files in boring file rexp list
+      ;; make sure keyboard entry is displayed in header line of helm buffer
+      (setq helm-echo-input-in-header-line t)
+
+      ;; make sure that minibuffer stays untouched if entry is displayed in top of helm buffer
+      (defun gb/helm-hide-minibuffer-maybe ()
+        "Hide minibuffer in Helm session if we use the header line as input field."
+        (when (with-helm-buffer helm-echo-input-in-header-line)
+          (let ((ov (make-overlay (point-min) (point-max) nil nil t)))
+            (overlay-put ov 'window (selected-window))
+            (overlay-put ov 'face
+                         (let ((bg-color (face-background 'default nil)))
+                           `(:background ,bg-color :foreground ,bg-color)))
+            (setq-local cursor-type nil))))
+
+      ;; register new function
+      (add-hook 'helm-minibuffer-set-up-hook
+                'gb/helm-hide-minibuffer-maybe)
+
       (helm-mode 1)
       (setq helm-display-function 'pop-to-buffer)
        (require 'helm-locate)
