@@ -6140,8 +6140,8 @@
 
       (helm-mode 1)
       (setq helm-display-function 'pop-to-buffer)
-       (require 'helm-locate)
-       (setq helm-locate-command "locate %s %s")
+      (require 'helm-locate)
+      (setq helm-locate-command "locate %s %s")
       (custom-set-faces
        '(match ((t (:background "#1d1f21" :foreground "DarkGoldenrod1" :inverse-video nil)))))
       (setq helm-split-window-default-side 'right)
