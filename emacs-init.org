@@ -4619,7 +4619,7 @@
        ))
 
    (req-package elfeed-goodies
-     :require elfeed elfeed-org
+     :require elfeed elfeed-org popwin
      :defer 10
      :config
      (progn
@@ -7130,6 +7130,13 @@
    #+BEGIN_SRC emacs-lisp
    (req-package bifocal
      :commands bifocal-mode)
+   #+END_SRC
+** popwin (make windows like help, completion show in a popupwindow that can be closed via C-g
+   #+BEGIN_SRC emacs-lisp
+     (req-package popwin
+       :config
+       (popwin-mode 1)
+       (setq popwin:popup-window-height 30))
    #+END_SRC
 ** neotree
    #+BEGIN_SRC emacs-lisp
