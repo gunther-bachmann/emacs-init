@@ -4102,7 +4102,8 @@
            )))
      (ad-enable-advice 'delete-other-windows 'after 'my-sr-speedbar-delete-other-window-advice)
      (ad-activate 'delete-other-windows)
-     (bind-key "s-a" 'sr-speedbar-toggle))
+     ;; (bind-key "s-a" 'sr-speedbar-toggle)
+     )
  #+END_SRC
 ** markdown
    - see usage documentation on [[http://jblevins.org/projects/markdown-mode/][homepage]]
@@ -7129,6 +7130,21 @@
    #+BEGIN_SRC emacs-lisp
    (req-package bifocal
      :commands bifocal-mode)
+   #+END_SRC
+** neotree
+   #+BEGIN_SRC emacs-lisp
+     (req-package neotree
+       :bind (("s-a" . neotree-toggle))
+       :config
+         (progn
+         (setq neo-theme (if (display-graphic-p) 'nerd 'arrow))
+         (setq neo-window-width 35)
+         (setq neo-banner-face '((t (:foreground "DarkGoldenrod3" :weight bold))))
+         (setq neo-dir-link-face '((t (:foreground "DarkOrange1"))))
+         (setq neo-expand-btn-face '((t (:foreground "DarkOrange1"))))
+         (setq neo-file-link-face '((t (:foreground "burlywood1"))))
+         (setq neo-smart-open t)
+         (setq projectile-switch-project-action 'neotree-projectile-action)))
    #+END_SRC
 * to test
 ** treemacs (tre
