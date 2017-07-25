@@ -1043,6 +1043,8 @@
 
           (check-_nix-program-status firefox-installed "firefox" "firefox" "firefox not found")
 
+          (check-_nix-program-status git-imerge-installed "git-imerge" "git-imerge" "git-imerge not found")
+
           (if firefox-installed
             (progn
               (setq browse-url-browser-function 'browse-url-firefox)
@@ -4053,6 +4055,17 @@
 
 
  #+END_SRC
+*** magit imerge
+    - will allow for incremental merges
+    - adds 'i' on the merge popup itself for starting incremental merges
+    - incremental merges have the benefit of having minimal conflicts during one merging session,
+      whenever one merge conflict is resolved, this can be persisted in the repo (can be published, left off, picked up again ...)
+    - for more information look [[https://github.com/mhagger/git-imerge][here]]
+    #+BEGIN_SRC emacs-lisp
+      (if git-imerge-installed
+      (req-package magit-imerge
+        :require magit))
+    #+END_SRC
 *** magit lfs
     #+BEGIN_SRC emacs-lisp
     (when git-lfs-installed 
