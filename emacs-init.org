@@ -1720,7 +1720,10 @@
                                  (`needs-update " u")
                                  (`ignored " i")
                                  (_ " x")))))))
-
+(spaceline-define-segment gb/time
+  "A segment to to display the time"
+      (propertize (format-time-string "%H:%M") 'face `(:height ,(spaceline-all-the-icons--height 0.9) :inherit) 'display '(raise 0.1))
+)
         )
     #+END_SRC
 *** spaceline all the icons
@@ -1768,7 +1771,7 @@
         ;; Valid Values: alternate, arrow, arrow-fade, bar, box, brace,
         ;; butt, chamfer, contour, curve, rounded, roundstub, wave, zigzag,
         ;; utf-8
-        (setq powerline-default-separator 'box)
+        (setq powerline-default-separator 'arrow-fade)
 
         (spaceline-install '((gb/buffer-status :face highlight-face)
                              auto-compile
@@ -1816,7 +1819,8 @@
                                hud))
                              (gb/date-and-cw :tight t :when active :face default-face)
                              ((all-the-icons-battery-status :tight t)
-                              (all-the-icons-time :when active :tight t)
+                              ;; (all-the-icons-time :when active :tight t)
+                              (gb/time :when active :tight t)
 
                               ;; :separator (spaceline-all-the-icons--separator "|" " ") :face default-face
                               )
