@@ -2549,6 +2549,7 @@
    #+BEGIN_SRC emacs-lisp
      (req-package ace-mc
        :commands ace-mc-add-multiple-cursors ace-mc-add-single-cursor
+       :bind (("C-|" . ace-mc-add-multiple-cursors))
        :require avy multiple-cursors)
    #+END_SRC
 ** key-chord
