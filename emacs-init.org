@@ -6810,6 +6810,17 @@
     :commands lsp-mode)
   #+END_SRC
 * currently evaluated
+** flycheck inline
+   - display flycheck error messages inline (not as popup)
+   - check whether this clashes with other flycheck packages (like flycheck-tip and flycheck-pos-tip)
+   #+BEGIN_SRC emacs-lisp
+     (req-package flycheck-inline
+       :require flycheck
+       :config
+       ;; (flycheck-inline-mode 1) ;; see readme
+       (add-hook 'text-mode-hook #'flycheck-inline-enable)
+       (add-hook 'prog-mode-hook #'flycheck-inline-enable))
+   #+END_SRC
 ** flymd
    - opens firefox to display a live view of the markdown in the buffer.
      saving the buffer does automatically update the browser view of it!
