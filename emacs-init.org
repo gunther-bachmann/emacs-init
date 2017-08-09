@@ -140,6 +140,7 @@
 ** PLANNED define hydra for dired
 ** PLANNED define hydra for pdf-tools
 ** DONE undo-tree workaround: [2017-02-25 Sat] currently org src block fontification is disabled if undo tree is called, since undo tree exits on up/down in the tree
+** DONE disable smart region '/' in gnus (since / is used to narrow selection and is not used to surround selected text in this context)
 ** DONE commit message should not store any cursor position info but should always start at the beginning of the buffer
    - session does probably store this position even though COMMIT_EDITMSG is explicitly excluded from this behaviour
    - look at M-x customize-group session-name  session-name-disable-regexp
@@ -2137,9 +2138,10 @@
          (setq session-name-disable-regexp "\\(\\`/tmp\\|COMMIT_EDITMSG\\)")
          (add-hook 'after-init-hook 'session-initialize)))
    #+end_src
-** TODO smart-region (evaluate)
+** smart-region
    1. set mark, repetitive calls to M-x smart-region will call er/expand-region
    2. set mark, move up/down, stay in same column, call M-x smart-region will open mc/multiple-cursor on each line
+      easier to reach via C-S-> and C-S-<
    3. set mark, move right/left/up/down, call M-x smart-region will make a rectangular selection
    #+begin_src emacs-lisp 
    (req-package smart-region
@@ -2410,6 +2412,8 @@
              ("_" "_" nil (markdown-mode org-mode))
              ("$" "$" nil (org-mode latex-mode))
              ("/*" "*/" "/" java-mode)))
+          (add-to-list 'wrap-region-except-modes 'gnus-group-mode)
+          (add-to-list 'wrap-region-except-modes 'gnus-summary-mode)  ;; don't remap / key, since it is used to limit mail list
           ;; hooks only useful if global region mode is not set (see above)
           ;; (add-hook 'org-mode-hook 'wrap-region-mode)
           ;; (add-hook 'latex-mode-hook 'wrap-region-mode)
