@@ -68,7 +68,6 @@
 ** todo allow duplex/non-duplex configuration of printer / printing (see org header "printer")
 ** todo minimap mode results in ligatures being misplaced!
 ** IMPLEMENT describe each packages' benefit for my configuration
-** todo undo-tree workaround: [2017-02-25 Sat] currently org src block fontification is disabled if undo tree is called, since undo tree exits on up/down in the tree
 ** todo define something like layers
    e.g. layer for core, editing, navigation, programming ... such that these layers can be easily switched off and on at the top of the init
    file
@@ -140,6 +139,7 @@
    - see http://mbork.pl/2015-10-31_Smart_comma_and_other_punctuation
 ** PLANNED define hydra for dired
 ** PLANNED define hydra for pdf-tools
+** DONE undo-tree workaround: [2017-02-25 Sat] currently org src block fontification is disabled if undo tree is called, since undo tree exits on up/down in the tree
 ** DONE commit message should not store any cursor position info but should always start at the beginning of the buffer
    - session does probably store this position even though COMMIT_EDITMSG is explicitly excluded from this behaviour
    - look at M-x customize-group session-name  session-name-disable-regexp
@@ -2375,22 +2375,7 @@
        (progn
          ;; (setq undo-tree-auto-save-history t) ;; it seems that this feature regularly causes emacs to crash, if this history file cannot be read properly
          (setq undo-tree-visualizer-diff t) ;; display diff to previous
-         (global-undo-tree-mode)
-
-         (defun gb/undo-tree-visualize () 
-           ""
-           (progn (setq org-src-fontify-natively nil)))
-
-         (defun gb/undo-tree-visualizer-quit () 
-           ""
-           (progn (setq org-src-fontify-natively t)))
-
-         ;; make sure that fontification is turned on after leaving the undo tree
-         (advice-add 'undo-tree-visualizer-quit :after 'gb/undo-tree-visualizer-quit)
-         ;; make sure to switch fontification off before displaying the undo tree
-         (advice-add 'undo-tree-visualize :before 'gb/undo-tree-visualize)
-
-         ))
+         (global-undo-tree-mode)))
    #+END_SRC
 ** very large files
    - edit very large files in chunkgs
