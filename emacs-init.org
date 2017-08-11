@@ -1052,10 +1052,10 @@
           ;; hub (for magithub)
           (check-_nix-program-status hub-installed "hub" "hub" "hub command line tool not available, magithub will not be installed")
 
-          ;; gpg2 (for file encryption)
-          (check-_nix-program-status gpg2-installed "gpg2" "gpg2" "gpg2 is necessary for file encryption.")
-          (if gpg2-installed
-              (setq epg-gpg-program "gpg2"))
+          ;; gpg (for file encryption)
+          (check-_nix-program-status gpg-installed "gpg" "gpg" "gpg is necessary for file encryption.")
+          (if gpg-installed
+              (setq epg-gpg-program "gpg"))
 
           (check-_nix-program-status w3m-installed '("w3m") "w3m" "html messages in gnus will not be displayed, helm dash browsing will not use w3m.")
 
