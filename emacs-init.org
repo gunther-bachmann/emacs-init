@@ -4377,6 +4377,7 @@
       (progn
         (add-hook 'after-init-hook 'pdf-tools-install)
         ;; (add-hook 'pdf-tools-mode-hook 'pdf-isearch-minor-mode)
+        (add-hook 'pdf-view-mode-hook 'pdf-misc-minor-mode) ;; misc minor mode offset C-c C-p for printing pdf documents
         (setq pdf-misc-print-programm "/usr/bin/lp")
         (setq pdf-view-display-size (quote fit-page))
         (setq pdf-misc-print-programm-args '("-o" "media=A4" "-o" "sides=two-sided-long-edge")))))
