@@ -6758,9 +6758,12 @@
    #+END_SRC
 ** dired subtree
    #+BEGIN_SRC emacs-lisp
-  (req-package dired-subtree
-    :require dired
-    :commands dired-subtree-toggle) ;; toggle subtree open/close M-x dired-subtree-toggle
+     (req-package dired-subtree
+       :require dired
+       :bind (:map dired-mode-map
+              ("TAB" . dired-subtree-toggle)
+              ("[" . dired-subtree-up))
+       :commands dired-subtree-toggle) ;; toggle subtree open/close M-x dired-subtree-toggle
    #+END_SRC
 * stripe-buffer
   add stripes to background of dired (or any other mode)
