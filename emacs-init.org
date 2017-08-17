@@ -1908,6 +1908,7 @@
       (req-package smart-mode-line-powerline-theme)
       (req-package smart-mode-line
         :require powerline smart-mode-line-powerline-theme
+        :init (add-hook 'after-init-hook 'sml/setup)
         :config
         (progn
           (setq sml/name-width 60) ;; max filename length
@@ -1918,8 +1919,7 @@
           (setq sml/col-number-format "%3c")
 
           (if after-init-time
-              (sml/setup)
-            (add-hook 'after-init-hook 'sml/setup))
+              (sml/setup))
 
           ;; (require 'smart-mode-line-powerline-theme)
           ;; (sml/apply-theme 'dark)
@@ -1942,13 +1942,13 @@
     See [[https://github.com/lunaryorn/fancy-battery.el][link]]
    #+BEGIN_SRC emacs-lisp
    (req-package fancy-battery
-     :config (progn (add-hook 'after-init-hook #'fancy-battery-mode)))
+     :init (progn (add-hook 'after-init-hook #'fancy-battery-mode)))
    #+END_SRC
 ** rainbow identifiers
    #+BEGIN_SRC emacs-lisp
      ;; can be switched off by M-x rainbow-identifiers-mode, which toggles the mode
      (req-package rainbow-identifiers
-       :config
+       :init
        (add-hook 'prog-mode-hook 'rainbow-identifiers-mode))
    #+END_SRC
 ** cursor blinking / beacon
@@ -2123,7 +2123,7 @@
 ** form feed (^L) as h-bar
    #+BEGIN_SRC emacs-lisp
      (req-package form-feed
-       :config
+       :init
        (progn (add-hook 'prog-mode-hook 'form-feed-mode)))
    #+END_SRC
 ** hide show org like (if tab does not indent, folding is done)
@@ -2133,13 +2133,13 @@
 ** highlight indent
    #+BEGIN_SRC emacs-lisp
    (req-package highlight-indent-guides
+     :init (add-hook 'prog-mode-hook 'highlight-indent-guides-mode)
      :config
      (progn
        (set-face-background 'highlight-indent-guides-odd-face "darkgray")
        (set-face-background 'highlight-indent-guides-even-face "dimgray")
        (setq highlight-indent-guides-character ?\|)
-       (setq highlight-indent-guides-method 'character)
-       (add-hook 'prog-mode-hook 'highlight-indent-guides-mode)))
+       (setq highlight-indent-guides-method 'character)))
    #+END_SRC
 * editing related stuff
 ** auto-fill-mode configuration
@@ -2156,10 +2156,10 @@
    - will keep recent in file location even for org files
    #+begin_src emacs-lisp 
      (req-package session
+       :init (add-hook 'after-init-hook 'session-initialize)
        :config
        (progn
-         (setq session-name-disable-regexp "\\(\\`/tmp\\|COMMIT_EDITMSG\\)")
-         (add-hook 'after-init-hook 'session-initialize)))
+         (setq session-name-disable-regexp "\\(\\`/tmp\\|COMMIT_EDITMSG\\)")))
    #+end_src
 ** smart-region
    1. set mark, repetitive calls to M-x smart-region will call er/expand-region
@@ -2205,10 +2205,11 @@
 ** easy-escaping
    #+BEGIN_SRC emacs-lisp
      (req-package easy-escape
+       :init (add-hook 'prog-mode-hook 'easy-escape-minor-mode)
        :config
        (progn
          (set-face-attribute 'easy-escape-face nil :foreground "red") ;; make a \\ stand out as red backslash
-         (add-hook 'prog-mode-hook 'easy-escape-minor-mode)))
+         ))
    #+END_SRC
 ** schrute mode (make suggestions) disabled
    #+begin_src emacs-lisp :tangle no
@@ -2319,7 +2320,7 @@
 
 
   (req-package rainbow-delimiters
-    :config
+    :init
     (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
 
   (defun die-tabs ()
@@ -2589,6 +2590,10 @@
    #+BEGIN_SRC emacs-lisp
      (req-package highlight-thing
        :require key-chord ;; optional, install key chord to highlight thing
+       :init (progn
+         ;; make sure that during marking words, the highlighting is switched (temporarily) off
+         (add-hook 'activate-mark-hook 'highlight-thing-mode-temporary-off)
+         (add-hook 'deactivate-mark-hook 'highlight-thing-mode-temporary-on))
        :config
        (progn
        (setq highlight-thing-delay-seconds 1)
@@ -2622,9 +2627,6 @@
                  (highlight-thing-mode 0))
              )))
 
-       ;; make sure that during marking words, the highlighting is switched (temporarily) off
-       (add-hook 'activate-mark-hook 'highlight-thing-mode-temporary-off)
-       (add-hook 'deactivate-mark-hook 'highlight-thing-mode-temporary-on)          
        ))
    #+END_SRC
 ** highlight symbol
@@ -2673,10 +2675,11 @@
    - https://github.com/Kungsgeten/selected.el
    #+BEGIN_SRC emacs-lisp 
      (req-package selected
+       :init (progn
+         (add-hook 'org-mode-hook 'selected-minor-mode)
+         (add-hook 'prog-mode-hook 'selected-minor-mode))
        :config
        (progn
-         (add-hook 'org-mode-hook 'selected-minor-mode)
-         (add-hook 'prog-mode-hook 'selected-minor-mode)
          (bind-key "a" 'mc/mark-all-like-this selected-keymap)
          (bind-key "d" 'downcase-region selected-keymap)
          (bind-key "i" 'indent-region selected-keymap)
@@ -2699,6 +2702,20 @@
    #+BEGIN_SRC emacs-lisp
    (req-package flyspell
      :require org
+     :init (progn
+     (defun gb/activate-ispell-in-org-mode ()
+       "activate ispell and try to select to right language (e.g. `#+language: de')
+     disable spell checking if `#+PROPERTY: spellcheck no' is set"
+       (let* ((spellCheck (gb/org-global-prop-value "spellcheck")))
+         (if (string= spellCheck "no")
+             (progn (flyspell-mode 0))
+           (let* ((fileLang (plist-get (org-export--get-inbuffer-options) :language)))
+             (if (string= fileLang "de")
+                      (ispell-change-dictionary "deutsch8")
+                    (ispell-change-dictionary "english"))
+                  (turn-on-flyspell)))))
+       (add-hook 'message-mode-hook 'turn-on-flyspell)
+       (add-hook 'org-mode-hook 'gb/activate-ispell-in-org-mode))
      :config
      (progn
      (require 'ox)
@@ -2713,27 +2730,14 @@
      ;; for orgmode, switch to english and activate flyspell
      ;; (dolist (hook '(org-mode-hook))
      ;;   (add-hook hook (lambda () (flyspell-mode 1))))
-     (add-hook 'org-mode-hook 'gb/activate-ispell-in-org-mode)
 
      ;; for mails, switch to german dictionary and activate flyspell
      ;; (dolist (hook '(message-mode-hook))
      ;;   (add-hook hook (lambda () (progn (ispell-change-dictionary "deutsch8")(flyspell-mode 1)))))
-     (add-hook 'message-mode-hook 'turn-on-flyspell)
 
      ;; don't print error message for every mispelled word found
      (setq flyspell-issue-message-flag nil)
 
-     (defun gb/activate-ispell-in-org-mode ()
-       "activate ispell and try to select to right language (e.g. `#+language: de')
-     disable spell checking if `#+PROPERTY: spellcheck no' is set"
-       (let* ((spellCheck (gb/org-global-prop-value "spellcheck")))
-         (if (string= spellCheck "no")
-             (progn (flyspell-mode 0))
-           (let* ((fileLang (plist-get (org-export--get-inbuffer-options) :language)))
-             (if (string= fileLang "de")
-                      (ispell-change-dictionary "deutsch8")
-                    (ispell-change-dictionary "english"))
-                  (turn-on-flyspell)))))
 
      ;; switch between german and english dicionary
      (defun  gb/switch-dictionary()
@@ -2789,6 +2793,8 @@
       ))
   ;; enable company mode anywhere
   (req-package company
+    :init (progn
+      (add-hook 'after-init-hook 'global-company-mode))
     :config
     (progn
       (setq company-show-numbers t)
@@ -2831,7 +2837,6 @@
        '(company-tooltip-annotation ((t (:foreground "gray40")))))
 
 
-      (add-hook 'after-init-hook 'global-company-mode)
       ))
 
   (req-package company-statistics
@@ -2887,25 +2892,27 @@
      (req-package helm-dash
        :bind (("\C-z SPC d" . helm-dash-at-point))
        :require helm
+       :init (progn
+         (add-hook 'clojure-mode-hook 'clojure-dash-doc)
+         (add-hook 'java-mode-hook 'java-dash-doc)
+         (add-hook 'shell-mode-hook 'bash-dash-doc)
+         )
        :config
        (progn
        (defun clojure-dash-doc ()
          (interactive)
          (setq-local helm-dash-docsets '("Clojure")))
 
-       (add-hook 'clojure-mode-hook 'clojure-dash-doc)
 
        (defun java-dash-doc ()
          (interactive)
          (setq-local helm-dash-docsets '("Java_SE8")))
 
-       (add-hook 'java-mode-hook 'java-dash-doc)
 
        (defun bash-dash-doc ()
          (interactive)
          (setq-local helm-dash-docset '("Bash")))
 
-       (add-hook 'shell-mode-hook 'bash-dash-doc)
 
        (if w3m-installed
            (setq helm-dash-browser-func 'w3m-browse-url))
@@ -3246,7 +3253,7 @@
     #+BEGIN_SRC emacs-lisp :tangle no
       (req-package parinfer
         :disabled t
-        :config
+        :init
         (progn
           (add-hook 'clojure-mode-hook #'parinfer-mode)
           (add-hook 'emacs-lisp-mode-hook #'parinfer-mode)
@@ -3295,7 +3302,7 @@
    ;; Automatically load paredit when editing a lisp file
    ;; More at http://www.emacswiki.org/emacs/ParEdit
    (req-package paredit
-     :config
+     :init
      (progn
        (add-hook 'emacs-lisp-mode-hook       #'enable-paredit-mode)
        (add-hook 'eval-expression-minibuffer-setup-hook #'enable-paredit-mode)
@@ -3312,7 +3319,7 @@
     #+BEGIN_SRC emacs-lisp
       ;; allows navigation M-. and M-, to jump to definition and return back
       (req-package elisp-slime-nav
-        :config
+        :init
         (dolist (hook '(emacs-lisp-mode-hook ielm-mode-hook))
           (add-hook hook 'elisp-slime-nav-mode))
         )
@@ -3363,20 +3370,9 @@
      hydra 
      :interpreter "clojure"
      :mode "\\.clj\\'"
-     :config
-     (progn
-       ;; define hydras
-
-    ;;--------------------------------------------------------------------------------
-      (defhydra hydra-all-clojure-refactorings ()
-        "all clojure refactorings as hydra menu"
-        ("c" hydra-cljr-code-menu/body "code refactorings" :exit t)
-        ("n" hydra-cljr-ns-menu/body "namespace refactorings" :exit t)
-        ("p" hydra-cljr-project-menu/body "project refactorings" :exit t)
-        ("t" hydra-cljr-toplevel-form-menu/body "top level form refactorings" :exit t))
-
+     :init (progn
        ;; Enable paredit for Clojure
-       (when (package-installed-p 'paredit)   
+       (when (package-installed-p 'paredit)
          (add-hook 'clojure-mode-hook 'enable-paredit-mode))
 
        (when (package-installed-p 'flycheck)
@@ -3401,7 +3397,27 @@
                       ("(\\(background?\\)"
                        (1 font-lock-keyword-face))))
                    (define-clojure-indent (fact 1))
-                   (define-clojure-indent (facts 1)))))
+                   (define-clojure-indent (facts 1))))
+
+     (defun gb/hs-clojure-mode-hook ()
+       (interactive)
+       (hs-minor-mode 1)
+       (key-chord-define clojure-mode-map "q1" #'hs-toggle-hiding)
+       (gb/hs-clojure-hide-namespace-and-folds))
+
+     (add-hook 'clojure-mode-hook #'gb/hs-clojure-mode-hook)
+       )
+     :config
+     (progn
+       ;; define hydras
+
+    ;;--------------------------------------------------------------------------------
+      (defhydra hydra-all-clojure-refactorings ()
+        "all clojure refactorings as hydra menu"
+        ("c" hydra-cljr-code-menu/body "code refactorings" :exit t)
+        ("n" hydra-cljr-ns-menu/body "namespace refactorings" :exit t)
+        ("p" hydra-cljr-project-menu/body "project refactorings" :exit t)
+        ("t" hydra-cljr-toplevel-form-menu/body "top level form refactorings" :exit t))
 
      (defun gb/hs-clojure-hide-namespace-and-folds ()
        "Hide the first (ns ...) expression in the file, and also all
@@ -3417,13 +3433,7 @@
             (hs-hide-block)
             (next-line)))))
 
-     (defun gb/hs-clojure-mode-hook ()
-       (interactive)
-       (hs-minor-mode 1)
-       (key-chord-define clojure-mode-map "q1" #'hs-toggle-hiding)
-       (gb/hs-clojure-hide-namespace-and-folds))
-
-     (add-hook 'clojure-mode-hook #'gb/hs-clojure-mode-hook))
+     ))
  #+END_SRC
 *** flycheck-clojure
     #+BEGIN_SRC emacs-lisp
@@ -3444,9 +3454,7 @@
      rainbow-delimiters ;; optional minor mode to switch on
      paredit ;; optional paredit minor mode to switch to
      spinner
-     :config
-     (progn
-
+     :init (progn
        ;; provides minibuffer documentation for the code you're typing into the repl
        (add-hook 'cider-mode-hook 'turn-on-eldoc-mode)
 
@@ -3454,6 +3462,19 @@
        (when (package-installed-p 'company)
          (add-hook 'cider-repl-mode-hook #'company-mode)
          (add-hook 'cider-mode-hook #'company-mode))
+
+       ;; enable paredit in your REPL
+       (when (package-installed-p 'paredit) (add-hook 'cider-repl-mode-hook 'paredit-mode))
+
+       ;; make delimiters colorful
+       (when (package-installed-p 'rainbow-delimiters)  (add-hook 'cider-repl-mode-hook #'rainbow-delimiters-mode))
+
+       ;; Replace return key with newline-and-indent when in cider mode.
+       (add-hook 'cider-mode-hook '(lambda () (local-set-key (kbd "RET") 'newline-and-indent)))
+
+       )
+     :config
+     (progn
 
        ;; make sure that nrepl does not automatically scroll down!
        (setq cider-repl-scroll-on-output nil)
@@ -3477,9 +3498,6 @@
        ;; Version of clojure to auto-inject into REPL.
        (setq cider-jack-in-auto-inject-clojure (quote latest))
 
-
-       ;; enable paredit in your REPL
-       (when (package-installed-p 'paredit) (add-hook 'cider-repl-mode-hook 'paredit-mode))
 
        ;; Use clojure mode for other extensions
        (add-to-list 'auto-mode-alist '("\\.edn$" . clojure-mode))
@@ -3509,17 +3527,12 @@
          (interactive)
          (cider-repl-set-ns "user"))
 
-       ;; make delimiters colorful
-       (when (package-installed-p 'rainbow-delimiters)  (add-hook 'cider-repl-mode-hook #'rainbow-delimiters-mode))
 
        (when (package-installed-p 'bind-key)
          (bind-key "C-c C-v" 'cider-start-http-server clojure-mode-map)
          (bind-key "C-M-r" 'cider-refresh clojure-mode-map)
          (bind-key "C-c u" 'cider-user-ns clojure-mode-map)
          (bind-key "C-c u" 'cider-user-ns cider-mode-map))
-
-       ;; Replace return key with newline-and-indent when in cider mode.
-       (add-hook 'cider-mode-hook '(lambda () (local-set-key (kbd "RET") 'newline-and-indent)))
 
        (defun cider-eval-expression-at-point-in-repl ()
          (interactive)
@@ -3673,7 +3686,7 @@
    #+BEGIN_SRC emacs-lisp
      (req-package groovy-mode
        :commands groovy-mode
-       :config
+       :init
        (progn
          ;; make sure for some labeled parameters in groovy to indent with 4
          (add-hook 'groovy-mode-hook
@@ -3715,7 +3728,7 @@
      ;; M-x run-ts ;; starts a comint buffer with repl
      (req-package ts-comint
        :require typescript-mode
-       :config
+       :init
          (add-hook 'typescript-mode-hook
             (lambda ()
               (local-set-key (kbd "C-x C-e") 'ts-send-last-sexp)
@@ -3729,6 +3742,15 @@
 
      (req-package tide
        :require typescript-mode
+       :init (progn
+         (add-hook 'typescript-mode-hook #'gb/setup-tide-mode)
+         (add-hook 'js2-mode-hook #'gb/setup-tide-mode)
+         ;; (add-hook 'tide-mode-hook #'gb/setup-tide-mode)
+         (add-hook 'web-mode-hook
+                   (lambda ()
+                     (when (string-equal "tsx" (file-name-extension buffer-file-name))
+                       (gb/setup-tide-mode))))
+         )
        :config
        (progn
          (defun gb/setup-tide-mode ()
@@ -3746,13 +3768,6 @@
          ;; formats the buffer before saving
          ;; (add-hook 'before-save-hook 'tide-format-before-save)
 
-         (add-hook 'typescript-mode-hook #'gb/setup-tide-mode)
-         (add-hook 'js2-mode-hook #'gb/setup-tide-mode)
-         ;; (add-hook 'tide-mode-hook #'gb/setup-tide-mode)
-         (add-hook 'web-mode-hook
-                   (lambda ()
-                     (when (string-equal "tsx" (file-name-extension buffer-file-name))
-                       (gb/setup-tide-mode))))
          ;; (flycheck-add-next-checker 'javascript-eslint 'jsx-tide 'append)
          ))
    #+END_SRC
@@ -3861,7 +3876,7 @@
  #+BEGIN_SRC emacs-lisp :tangle no
    (req-package php-mode
      
-     :config
+     :init
      ;; make sure that indentation of arrays is more readable
      (add-hook 'php-mode-hook (lambda ()
                                 (defun ywb-php-lineup-arglist-intro (langelem)
@@ -3883,13 +3898,14 @@
      :require org flycheck
      :config 
      (elpy-enable)
+     :init
      (add-hook 'python-mode 'flycheck-mode))
  #+END_SRC
 ** IMPLEMENT scala ensime (enhanced scala mode for emacs)
  #+BEGIN_SRC emacs-lisp
  (req-package ensime
    :commands ensime
-   :config
+   :init
    (add-hook 'scala-mode-hook 'ensime-mode))
  #+END_SRC
 ** xml
@@ -3977,7 +3993,7 @@
    (req-package magit
      :require ido counsel helm
      :commands magit-status
-
+     :init (add-hook 'magit-mode-hook 'gb/disable-smartscan)
      ;; :bind ("C-c v s" . magit-status) ;; <- makes magit load after keystroke, since others (using magit) are not bound correctly, load at startup
      :config
      (require 'magit-mode)
@@ -4001,7 +4017,6 @@
        "" 
        (smartscan-mode -1))
 
-     (add-hook 'magit-mode-hook 'gb/disable-smartscan)
    )
 
    ;; show git relevant change info in the fringe of the frame
@@ -4019,13 +4034,13 @@
    (req-package magit-gh-pulls
      :require magit
      :defer 40
-     :config
+     :init
      (add-hook 'magit-mode-hook 'turn-on-magit-gh-pulls))
 
    (req-package magit-filenotify
      :require magit
      :defer 40
-     :config
+     :init
      (add-hook 'after-save-hook 'magit-after-save-refresh-status)
      (add-hook 'magit-status-mode-hook 'magit-filenotify-mode))
 
@@ -4039,7 +4054,7 @@
    (req-package magit-gitflow
      :require magit
      :defer 40
-     :config
+     :init
      (add-hook 'magit-mode-hook 'turn-on-magit-gitflow))
    ;; C-f in magit status buffer will invoke gitflow action selector.
 
@@ -4321,21 +4336,21 @@
 ** shell ansi colors configuration (disabled)
    #+BEGIN_SRC emacs-lisp :tangle no
      (req-package ansi-color
+       :init (add-hook 'shell-mode-hook 'ansi-color-for-comint-mode-on)
        :config
        (setq ansi-color-names-vector
              ["black" "tomato" "PaleGreen2" "gold1"
               "DeepSkyBlue1" "MediumOrchid1" "cyan" "white"])
        (setq ansi-color-map (ansi-color-make-color-map))
 
-       (add-hook 'shell-mode-hook 'ansi-color-for-comint-mode-on)
        (add-to-list 'comint-output-filter-functions 'ansi-color-process-output))
    #+END_SRC
 ** xterm color
    #+BEGIN_SRC emacs-lisp
         (req-package xterm-color
+          :init (add-hook 'comint-preoutput-filter-functions 'xterm-color-filter)
           :config
-          (progn (add-hook 'comint-preoutput-filter-functions 'xterm-color-filter)
-                 (setq comint-output-filter-functions (remove 'ansi-color-process-output comint-output-filter-functions))))
+          (progn (setq comint-output-filter-functions (remove 'ansi-color-process-output comint-output-filter-functions))))
    #+END_SRC
 ** friendly iteractive shell
    #+BEGIN_SRC emacs-lisp
@@ -4348,8 +4363,7 @@
    #+BEGIN_SRC emacs-lisp
      (req-package sh-script
        :require flycheck
-       
-       :config  
+       :init
        (add-hook 'sh-mode-hook 'flycheck-mode))
    #+END_SRC
 ** zshell
@@ -4373,11 +4387,13 @@
     (if (and make-installed poppler-installed imagemagick-installed)
     (req-package pdf-tools
       :mode ("\\.pdf$" . pdf-view-mode)
-      :config
-      (progn
+      :init (progn
         (add-hook 'after-init-hook 'pdf-tools-install)
         ;; (add-hook 'pdf-tools-mode-hook 'pdf-isearch-minor-mode)
         (add-hook 'pdf-view-mode-hook 'pdf-misc-minor-mode) ;; misc minor mode offset C-c C-p for printing pdf documents
+        )
+      :config
+      (progn
         (setq pdf-misc-print-programm "/usr/bin/lp")
         (setq pdf-view-display-size (quote fit-page))
         (setq pdf-misc-print-programm-args '("-o" "media=A4" "-o" "sides=two-sided-long-edge")))))
@@ -4613,14 +4629,7 @@
    (req-package elfeed-org
      :require elfeed org
      :defer 10
-     :config
-     (progn
-
-       ;; Initialize elfeed-org
-       ;; This hooks up elfeed-org to read the configuration when elfeed
-       ;; is started with =M-x elfeed=
-       (elfeed-org)
-
+     :init (progn
        ;; only programming related books
        (add-hook 'elfeed-new-entry-hook
                  (elfeed-make-tagger :feed-url "pdfbooksplanet"
@@ -4634,6 +4643,15 @@
                                      :entry-link '(not ".*programming.*")
                                      :add 'junk
                                      :remove 'unread))
+       )
+     :config
+     (progn
+
+       ;; Initialize elfeed-org
+       ;; This hooks up elfeed-org to read the configuration when elfeed
+       ;; is started with =M-x elfeed=
+       (elfeed-org)
+
 
        ;; Optionally specify a number of files containing elfeed
        ;; configuration. If not set then the location below is used.
@@ -4670,6 +4688,16 @@
      (req-package gnus
       :commands gnus
       :require smtpmail-multi mm-decode hydra bbdb
+      :init  (progn
+        ;; Sign messages by default
+        (add-hook 'message-setup-hook 'mml-secure-sign-pgpmime)
+   ;; make sure that truncate lines is off and word wrap is on when viewing articels
+   (add-hook 'gnus-article-mode-hook
+     (lambda ()
+       (setq
+         truncate-lines nil
+         word-wrap t)))
+        )
       :config ;; closing bracket follows way down !
  #+END_SRC
 *** hydra
@@ -4769,9 +4797,6 @@
       (setq mml-secure-openpgp-sign-with-sender t)
       (setq mm-fill-flowed nil)
       (setq mm-inline-large-images (quote resize))
-
-      ;; Sign messages by default
-      (add-hook 'message-setup-hook 'mml-secure-sign-pgpmime)
 
       (setq nnmail-extra-headers (quote (To Newsgroups Cc Content-Type)))
 
@@ -4924,12 +4949,6 @@
    ;; turn off flowed mode
    (setq fill-flowed-display-column nil)
 
-   ;; make sure that truncate lines is off and word wrap is on when viewing articels
-   (add-hook 'gnus-article-mode-hook
-     (lambda ()
-       (setq
-         truncate-lines nil
-         word-wrap t)))
 
  #+END_SRC
 *** polling new mails
@@ -5022,6 +5041,12 @@
      ;; make sure that email addresses are stored in the bbdb (database)
 
    (req-package bbdb
+     :init (progn
+     ;; use ; on a message to invoke bbdb interactively
+     (add-hook 'gnus-summary-mode-hook
+               (lambda ()
+                 (define-key gnus-summary-mode-map (kbd ";") 'bbdb-mua-edit-field)
+                 )))
      :config
 
      ;; initialization
@@ -5047,11 +5072,7 @@
      (setq bbdb-file "~/bbdb")
      (setq bbdb-phone-label-list (quote ("" "home" "work" "cell" "other")))
 
-     ;; use ; on a message to invoke bbdb interactively
-     (add-hook 'gnus-summary-mode-hook
-               (lambda ()
-                 (define-key gnus-summary-mode-map (kbd ";") 'bbdb-mua-edit-field)
-                 )))
+     )
 
 
  #+END_SRC
@@ -5143,6 +5164,12 @@
   #+BEGIN_SRC emacs-lisp
         (req-package org
           :require bind-key hydra
+          :init (progn
+          (add-hook 'after-change-major-mode-hook #'gb/activate-properties-in-org-mode)
+          (add-hook 'org-mode-hook #'gb/enable-auto-fill-mode)
+          ;; (add-hook 'org-mode-hook #'org-sticky-header)
+
+            )
           :config
           (require 'ob-clojure)
           (require 'org-inlinetask)
@@ -5235,10 +5262,6 @@
               (let* ((readOnly (gb/org-global-prop-value "readonly")))
                 (if (string= readOnly "yes")
                     (setq buffer-read-only t)))))
-
-          (add-hook 'after-change-major-mode-hook #'gb/activate-properties-in-org-mode)
-          (add-hook 'org-mode-hook #'gb/enable-auto-fill-mode)
-          ;; (add-hook 'org-mode-hook #'org-sticky-header)
 
           ;;--------------------------------------------------------------------------------
           (defhydra hydra-org-mode ()
@@ -5368,6 +5391,10 @@
     (req-package org-capture
       :require org
       :bind ("C-c c" . org-capture)
+      :init (progn
+        ;; when storing a file link, store line number with it (when matching the wanted major mode)
+        (add-hook 'org-store-link-functions 'gb/org-file-lineno-store-link)
+        )
       :config
       (progn 
 
@@ -5394,9 +5421,7 @@
 
         ;; necessary, else an error is reported during org-magit-store-link
         ;; (setq with-editor-file-name-history-exclude nil)
-
-        ;; when storing a file link, store line number with it (when matching the wanted major mode)
-        (add-hook 'org-store-link-functions 'gb/org-file-lineno-store-link)))
+        ))
   #+END_SRC
 *** org agenda
   #+BEGIN_SRC emacs-lisp
@@ -5679,10 +5704,13 @@
             :loader :path
             :load-path "~/.emacs.d/additionals/"
             :require org
+            :init (progn
+              (add-hook 'org-mode-hook  'hidepw-mode)
+              )
             :config
             (progn
               (setq hidepw-pattern ":PASSWORD: \\(.*\\)")
-              (add-hook 'org-mode-hook  'hidepw-mode)))
+              ))
         (message "WARNING: hidepw.el not found. passwords will not be hidden in gpg files."))
     #+END_SRC
 *** export modules (e.g. ox-confluence)
@@ -5727,6 +5755,7 @@
       (req-package appt
         :require org
         :defer 20
+        :init (add-hook 'org-finalize-agenda-hook 'org-agenda-to-appt) ;; update appt list on agenda view
         :config
         (setq appt-time-msg-list nil)    ;; clear existing appt list
         (setq appt-display-interval '10) ;; warn every 10 minutes from t - appt-message-warning-time
@@ -5739,7 +5768,6 @@
 
         (org-agenda-to-appt)             ;; generate the appt list from org agenda files on emacs launch
         (run-at-time "24:01" 3600 'org-agenda-to-appt)           ;; update appt list hourly
-        (add-hook 'org-finalize-agenda-hook 'org-agenda-to-appt) ;; update appt list on agenda view
 
         ;; set up the call to terminal-notifier
         (defvar gb/appt-notifier-path "/usr/local/bin/terminal-notifier")  
@@ -6003,7 +6031,7 @@
       (req-package org-table-sticky-header
         :defer 10
         :require org
-        :config
+        :init
         (progn (add-hook 'org-mode-hook 'org-table-sticky-header-mode)))
     #+END_SRC
 *** org pdfview links
@@ -6149,6 +6177,11 @@
            ("C-x C-b" . helm-buffers-list)
            )
     :commands helm-mode
+    :init (progn
+      ;; register new function
+      (add-hook 'helm-minibuffer-set-up-hook
+                'gb/helm-hide-minibuffer-maybe)
+    )
     :config
     (progn
       ;; ignore files in boring file rexp list
@@ -6166,9 +6199,6 @@
                            `(:background ,bg-color :foreground ,bg-color)))
             (setq-local cursor-type nil))))
 
-      ;; register new function
-      (add-hook 'helm-minibuffer-set-up-hook
-                'gb/helm-hide-minibuffer-maybe)
 
       (helm-mode 1)
       (setq helm-display-function 'pop-to-buffer)
@@ -6580,7 +6610,7 @@
 #+BEGIN_SRC emacs-lisp
   (req-package helm-backup
     :defer 10
-    :config
+    :init
     (add-hook 'after-save-hook 'helm-backup-versioning))
 #+END_SRC
 * latex (auctex)
@@ -6588,14 +6618,7 @@
    #+BEGIN_SRC emacs-lisp
      (req-package tex-mode
        :require flymake
-       :config
-       (progn
-         (setq TeX-auto-save t)
-         (setq TeX-parse-self t)
-         (setq TeX-save-query nil)
-
-         (global-prettify-symbols-mode)
-
+       :init (progn
          ;; latex, activate flyspell
          (add-hook 'TeX-mode-hook (lambda () (progn (flyspell-mode 1))))
 
@@ -6605,7 +6628,16 @@
          ;; make sure that flymake works with latex installation on mac
          (defun flymake-get-tex-args (file-name)
            (list "pdflatex" (list "-file-line-error" "-draftmode" "-interaction=nonstopmode" file-name)))
-         (add-hook 'TeX-mode-hook (lambda () (flymake-mode 1)))))
+         (add-hook 'TeX-mode-hook (lambda () (flymake-mode 1)))       )
+       :config
+       (progn
+         (setq TeX-auto-save t)
+         (setq TeX-parse-self t)
+         (setq TeX-save-query nil)
+
+         (global-prettify-symbols-mode)
+
+         ))
    #+END_SRC
 ** company for auctex
    #+BEGIN_SRC emacs-lisp
@@ -6617,6 +6649,7 @@
      (req-package company-math
        
        :require company tex-mode
+       :init (add-hook 'TeX-mode-hook 'gb/latex-mode-setup)
        :config
        ;; local configuration for TeX modes
        (defun gb/latex-mode-setup ()
@@ -6624,7 +6657,6 @@
                      (append '((company-math-symbols-latex company-latex-commands))
                              company-backends)))
 
-       (add-hook 'TeX-mode-hook 'gb/latex-mode-setup)
        )
    #+END_SRC
 ** bibtex
@@ -6769,11 +6801,13 @@
   add stripes to background of dired (or any other mode)
   #+BEGIN_SRC emacs-lisp
     (req-package stripe-buffer
+      :init (progn
+      (add-hook 'dired-mode-hook 'turn-on-stripe-buffer-mode)
+      ;; (add-hook 'dired-mode-hook 'stripe-listify-buffer)
+      )
       :config
       (custom-set-faces
        '(stripe-highlight ((t (:background "gray15")))))
-      (add-hook 'dired-mode-hook 'turn-on-stripe-buffer-mode)
-      ;; (add-hook 'dired-mode-hook 'stripe-listify-buffer)
       )
   #+END_SRC
 * figlet (text->ascii art)
@@ -6820,10 +6854,13 @@
    #+BEGIN_SRC emacs-lisp
      (req-package flycheck-inline
        :require flycheck
+       :init (progn
+       (add-hook 'text-mode-hook #'flycheck-inline-enable)
+       (add-hook 'prog-mode-hook #'flycheck-inline-enable)
+       )
        :config
        ;; (flycheck-inline-mode 1) ;; see readme
-       (add-hook 'text-mode-hook #'flycheck-inline-enable)
-       (add-hook 'prog-mode-hook #'flycheck-inline-enable))
+       )
    #+END_SRC
 ** flymd
    - opens firefox to display a live view of the markdown in the buffer.
@@ -6909,7 +6946,7 @@
    (req-package cider-profile ;; CIDER profiling support [https://github.com/thunknyc/nrepl-profile]
      :defer 10
      :require cider
-     :config
+     :init
      (progn
        (add-hook 'cider-mode-hook 'cider-profile-mode)
        (add-hook 'cider-repl-mode-hook 'cider-profile-mode)))
@@ -7104,6 +7141,7 @@
      (req-package org-pomodoro
        :require appt
        :commands org-pomodoro-clock-in
+       :init (add-hook 'org-pomodoro-finished-hook 'gb/pomodoro-finished-notification)
        :config
        (progn
          (defun notify-osx (title message)
@@ -7120,7 +7158,7 @@
              (message "Pomodoro completed, time for a short break") ;; notification for unix missing
              ))
          (setq org-pomodoro-play-sounds nil)
-         (add-hook 'org-pomodoro-finished-hook 'gb/pomodoro-finished-notification)))
+         ))
    #+END_SRC
 ** comint (shell extensions)
    - see [[https://github.com/riscy/shx-for-emacs/blob/master/README.org][homepage]]
@@ -7133,10 +7171,12 @@
      - Check the time a command was run by mousing over its prompt
    #+BEGIN_SRC emacs-lisp
    (req-package shx
-     :config
-        ;;(shx-global-mode 1) ;; global shx mode resulted in "text read only" error in ielm when pressing return
+     :init (progn
         ;; add hook for shell
         (add-hook 'shell-mode-hook #'shx-mode)
+     )
+     :config
+        ;;(shx-global-mode 1) ;; global shx mode resulted in "text read only" error in ielm when pressing return
      )
    #+END_SRC
 ** ob-rust
