@@ -2037,12 +2037,8 @@
 ** linenumbers
    #+BEGIN_SRC emacs-lisp
      (req-package nlinum
-       :config
-       (progn
-         (setq linum-delay t)
-         (global-set-key [remap goto-line] 'goto-line-with-feedback)
-
-         ;; (setq global-nlinum-mode t)
+       :bind (("M-g M-g" . goto-line-with-feedback))
+       :init (progn
          (defun goto-line-with-feedback ()
            "Show line numbers temporarily, while prompting for the line number input"
            (interactive)
@@ -2051,6 +2047,13 @@
                  (nlinum-mode 1)
                  (goto-line (read-number "Goto line: ")))
              (nlinum-mode -1)))
+       )
+       :config
+       (progn
+         (setq linum-delay t)
+         ;; (global-set-key [remap goto-line] 'goto-line-with-feedback)
+
+         ;; (setq global-nlinum-mode t)
          ))
    #+END_SRC
 ** toggle serif font
@@ -2408,6 +2411,7 @@
    - edit very large files in chunkgs
    #+BEGIN_SRC emacs-lisp
      (req-package vlf
+       :defer 7
        :config (require 'vlf-setup))
    #+END_SRC
 ** volatile hightlighting
@@ -3216,11 +3220,15 @@
 ** counsel
    #+BEGIN_SRC emacs-lisp
      (req-package counsel
+       :bind (("M-y" . counsel-yank-pop)
+              :map ivy-minibuffer-map
+              ("M-y" . ivy-next-line))
        :config
        (progn
          (setq counsel-grep-swiper-limit 3000000)
-         (bind-key "M-y" 'counsel-yank-pop)        
-         (bind-key "M-y" 'ivy-next-line ivy-minibuffer-map)))
+         ;;(bind-key "M-y" 'counsel-yank-pop)
+         ;;(bind-key "M-y" 'ivy-next-line ivy-minibuffer-map)
+         ))
    #+END_SRC
 ** highlight-thing
    #+BEGIN_SRC emacs-lisp
