@@ -4635,6 +4635,7 @@
      :config
      (progn
        (setq elfeed-use-curl t)
+       (define-key elfeed-search-mode-map "l" #'recenter-top-bottom)
        (custom-set-faces
         '(elfeed-search-feed-face ((t (:foreground "NavajoWhite2"))))
         '(elfeed-search-title-face ((t (:foreground "dark gray"))))
