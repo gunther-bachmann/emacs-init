@@ -1653,110 +1653,110 @@
 *** spaceline (mode line of spacemacs)
     #+BEGIN_SRC emacs-lisp
       (req-package spaceline
-	:config
-	(require 'spaceline-config)
-	(spaceline-spacemacs-theme)
-	(spaceline-helm-mode)
-	(custom-set-faces
-	 '(spaceline-highlight-face ((t (:background "DarkGoldenrod3" :foreground "#000000" :inherit (quote mode-line))))))
+        :config
+        (require 'spaceline-config)
+        (spaceline-spacemacs-theme)
+        (spaceline-helm-mode)
+        (custom-set-faces
+         '(spaceline-highlight-face ((t (:background "DarkGoldenrod3" :foreground "#000000" :inherit (quote mode-line))))))
 
-	(setq gb/mode-line-buffer-read-only-symbol (if fira-code-symbol-installed "\ue0a2" "o"))  ;; ""
-	(setq gb/mode-line-buffer-modified-ro-symbol (if fira-code-symbol-installed "\ue16b" "x"))  ;; ""
-	(setq gb/mode-line-buffer-modified-symbol (if fira-code-symbol-installed "\ue16f" "*"))  ;; ""
-	(setq gb/mode-line-branch-up-to-date-symbol "\u2713")  ;; "✓"
-	(setq gb/mode-line-branch-edited-symbol (if fira-code-symbol-installed "\ue16f" "*"))  ;; ""
-	(setq gb/mode-line-cutted-path-prefix-symbol "\u2025") ;; "…"
+        (setq gb/mode-line-buffer-read-only-symbol (if fira-code-symbol-installed "\ue0a2" "o"))  ;; ""
+        (setq gb/mode-line-buffer-modified-ro-symbol (if fira-code-symbol-installed "\ue16b" "x"))  ;; ""
+        (setq gb/mode-line-buffer-modified-symbol (if fira-code-symbol-installed "\ue16f" "*"))  ;; ""
+        (setq gb/mode-line-branch-up-to-date-symbol "\u2713")  ;; "✓"
+        (setq gb/mode-line-branch-edited-symbol (if fira-code-symbol-installed "\ue16f" "*"))  ;; ""
+        (setq gb/mode-line-cutted-path-prefix-symbol "\u2025") ;; "…"
 
-	(spaceline-define-segment gb/buffer-status
-	  "Buffer status (read-only, modified), with color"
-	  (cond ((and buffer-read-only (buffer-modified-p)) gb/mode-line-buffer-modified-ro-symbol)
-		(buffer-read-only gb/mode-line-buffer-read-only-symbol)
-		((buffer-modified-p) gb/mode-line-buffer-modified-symbol)
-		(t " ")))
-	(spaceline-define-segment gb/date-and-cw
-	  "display date and calendar week of window is broad enough"
-	  (if (> (window-width) 150)
-	      (propertize (format-time-string "%m-%d/%V")
-			  'help-echo "month-day/calendarweek")
-	    ""))
-	(spaceline-define-segment gb/buffer-id
-	  (propertize (buffer-name) 'help-echo (buffer-name)))
-	(spaceline-define-segment gb/buffer-file-name
-	  "provide fullpath to buffer file name, shortened to 35 characters if too long"
-	  ;; limit path length to a certain number of characters (currently 35)
-	  ;; TODO: allow replacing certain paths with some shorthands (e.g. :doc: for ~/Documents/)
-	  (let* ((path (replace-regexp-in-string (concat "^" (regexp-quote (expand-file-name "~"))) "~" (or (file-name-directory (or buffer-file-name "")) "")))
-		 (maxlen (max 0 (- (window-width) 57 (length (buffer-name)))))
-		 (spath (cond ((>= 0 maxlen) "")
-			      ((> (length path) maxlen)
-			       (concat gb/mode-line-cutted-path-prefix-symbol (substring path (- maxlen) nil)))
-			      (t path))))
-	     (propertize spath 'help-echo path))
--       ;;     (or spath "")
-        :tight t)
-	(defun gb/in-git-dir-p ()
-	  (not (string-match "^fatal" (shell-command-to-string "git rev-parse --git-dir"))))
-	(defun gb/vc-status ()
-	  (if vc-mode
-	      vc-mode
-	    (concat "\ue0a0 " (car (split-string (shell-command-to-string "git rev-parse --abbrev-ref HEAD"))))))
-	(setq gb/vc-status-cache-delay "10 sec")
-	(setq gb/vc-status-cache-buffer-id nil)
-	(setq gb/vc-status-cache nil)
-	(setq gb/vc-status-cache-timer nil)
-	(defun gb/get-cached-git-state ()
-	  "if cache filled and within same buffer (name) refresh in five seconds and return cached value, else refresh cache and return new values"
-	  (if (and gb/vc-status-cache (string= (buffer-name) gb/vc-status-cache-buffer-id))
-	      ;; only if no timer is running!
-	      (unless gb/vc-status-cache-timer
-		(setq gb/vc-status-cache-timer (run-at-time gb/vc-status-cache-delay nil 'gb/refresh-vc-status-cache)))
-	    (gb/refresh-vc-status-cache))
-	  gb/vc-status-cache)
-	(defun gb/refresh-vc-status-cache ()
-	  "refresh values with actual git call and clear timer (maybe cancel?)"
-	  (setq gb/vc-status-cache-buffer-id (buffer-name))
-	  (setq gb/vc-status-cache (gb/git-state))
-	  (setq gb/vc-status-cache-timer nil))
-	(defun gb/git-state ()
-	  "query git status for the currently active buffer, refresh on buffer switches"
-	  (let* ((git-output (shell-command-to-string "git status -s")))
-	    ;; (message (concat  "git querried " (current-time-string))) ;; just for debugging, please remove when done
-	    (if (string-empty-p git-output)
-		'up-to-date
-	      'dirty)))
-	(defun gb/vc-state ()
-	  (if (buffer-file-name)
-	      (vc-state (buffer-file-name))
-	    (gb/get-cached-git-state)))
-	(defun gb/buffer-on-remote ()
-	  "return whether current buffer is on remote (via tramp)"
-	  (file-remote-p (or default-directory buffer-file-name dired-directory "")))
-	(spaceline-define-segment gb/projectile-id
-	  (cond ((gb/buffer-on-remote) "×")
-		((and (fboundp 'projectile-project-p) (projectile-project-p))
-		 (projectile-project-name))
-		(t "×")))
-	(spaceline-define-segment gb/version-control
-	  "Version control information."
-	  (when (and (not (gb/buffer-on-remote)) (gb/in-git-dir-p))
-	    (powerline-raw
-	     (s-trim (concat (replace-regexp-in-string "^ *Git[:-]" "\ue0a0 " (gb/vc-status)) ;; "  "
-			     (pcase (gb/vc-state)
-			       (`up-to-date (concat " " gb/mode-line-branch-up-to-date-symbol))
-			       (`edited (concat " " gb/mode-line-branch-edited-symbol))
-			       (`added " +")
-			       (`unregistered " ?")
-			       (`removed " -")
-			       (`needs-merge " m")
-			       (`needs-update " u")
-			       (`ignored " i")
-			       (_ " x")))))))
-	(spaceline-define-segment gb/time
-	  "A segment to to display the time"
-	  (propertize (format-time-string "%H:%M")
-		      'face `(:height ,(spaceline-all-the-icons--height 0.9) :inherit)
-		      'display '(raise 0.1)
-		      'help-echo (format-time-string "%A, %Y.%m.%d %H:%M"))))
+        (spaceline-define-segment gb/buffer-status
+          "Buffer status (read-only, modified), with color"
+          (cond ((and buffer-read-only (buffer-modified-p)) gb/mode-line-buffer-modified-ro-symbol)
+                (buffer-read-only gb/mode-line-buffer-read-only-symbol)
+                ((buffer-modified-p) gb/mode-line-buffer-modified-symbol)
+                (t " ")))
+        (spaceline-define-segment gb/date-and-cw
+          "display date and calendar week of window is broad enough"
+          (if (> (window-width) 150)
+              (propertize (format-time-string "%m-%d/%V")
+                          'help-echo "month-day/calendarweek")
+            ""))
+        (spaceline-define-segment gb/buffer-id
+          (propertize (buffer-name) 'help-echo (format "%s, size: %d" (buffer-name) (buffer-size))))
+        (spaceline-define-segment gb/buffer-file-name
+          "provide fullpath to buffer file name, shortened to 35 characters if too long"
+          ;; limit path length to a certain number of characters (currently 35)
+          ;; TODO: allow replacing certain paths with some shorthands (e.g. :doc: for ~/Documents/)
+          (let* ((path (replace-regexp-in-string (concat "^" (regexp-quote (expand-file-name "~"))) "~" (or (file-name-directory (or buffer-file-name "")) "")))
+                 (maxlen (max 0 (- (window-width) 57 (length (buffer-name)))))
+                 (spath (cond ((>= 0 maxlen) "")
+                              ((> (length path) maxlen)
+                               (concat gb/mode-line-cutted-path-prefix-symbol (substring path (- maxlen) nil)))
+                              (t path))))
+            (propertize spath 'help-echo path))
+          -       ;;     (or spath "")
+          :tight t)
+        (defun gb/in-git-dir-p ()
+          (not (string-match "^fatal" (shell-command-to-string "git rev-parse --git-dir"))))
+        (defun gb/vc-status ()
+          (if vc-mode
+              vc-mode
+            (concat "\ue0a0 " (car (split-string (shell-command-to-string "git rev-parse --abbrev-ref HEAD"))))))
+        (setq gb/vc-status-cache-delay "10 sec")
+        (setq gb/vc-status-cache-buffer-id nil)
+        (setq gb/vc-status-cache nil)
+        (setq gb/vc-status-cache-timer nil)
+        (defun gb/get-cached-git-state ()
+          "if cache filled and within same buffer (name) refresh in five seconds and return cached value, else refresh cache and return new values"
+          (if (and gb/vc-status-cache (string= (buffer-name) gb/vc-status-cache-buffer-id))
+              ;; only if no timer is running!
+              (unless gb/vc-status-cache-timer
+                (setq gb/vc-status-cache-timer (run-at-time gb/vc-status-cache-delay nil 'gb/refresh-vc-status-cache)))
+            (gb/refresh-vc-status-cache))
+          gb/vc-status-cache)
+        (defun gb/refresh-vc-status-cache ()
+          "refresh values with actual git call and clear timer (maybe cancel?)"
+          (setq gb/vc-status-cache-buffer-id (buffer-name))
+          (setq gb/vc-status-cache (gb/git-state))
+          (setq gb/vc-status-cache-timer nil))
+        (defun gb/git-state ()
+          "query git status for the currently active buffer, refresh on buffer switches"
+          (let* ((git-output (shell-command-to-string "git status -s")))
+            ;; (message (concat  "git querried " (current-time-string))) ;; just for debugging, please remove when done
+            (if (string-empty-p git-output)
+                'up-to-date
+              'dirty)))
+        (defun gb/vc-state ()
+          (if (buffer-file-name)
+              (vc-state (buffer-file-name))
+            (gb/get-cached-git-state)))
+        (defun gb/buffer-on-remote ()
+          "return whether current buffer is on remote (via tramp)"
+          (file-remote-p (or default-directory buffer-file-name dired-directory "")))
+        (spaceline-define-segment gb/projectile-id
+          (cond ((gb/buffer-on-remote) "×")
+                ((and (fboundp 'projectile-project-p) (projectile-project-p))
+                 (projectile-project-name))
+                (t "×")))
+        (spaceline-define-segment gb/version-control
+          "Version control information."
+          (when (and (not (gb/buffer-on-remote)) (gb/in-git-dir-p))
+            (powerline-raw
+             (s-trim (concat (replace-regexp-in-string "^ *Git[:-]" "\ue0a0 " (gb/vc-status)) ;; "  "
+                             (pcase (gb/vc-state)
+                               (`up-to-date (concat " " gb/mode-line-branch-up-to-date-symbol))
+                               (`edited (concat " " gb/mode-line-branch-edited-symbol))
+                               (`added " +")
+                               (`unregistered " ?")
+                               (`removed " -")
+                               (`needs-merge " m")
+                               (`needs-update " u")
+                               (`ignored " i")
+                               (_ " x")))))))
+        (spaceline-define-segment gb/time
+          "A segment to to display the time"
+          (propertize (format-time-string "%H:%M")
+                      'face `(:height ,(spaceline-all-the-icons--height 0.9) :inherit)
+                      'display '(raise 0.1)
+                      'help-echo (format-time-string "%A, %Y.%m.%d %H:%M"))))
     #+END_SRC
 *** spaceline all the icons
     - important: install fonts located [[https://github.com/domtronn/all-the-icons.el/tree/master/fonts][here]]
