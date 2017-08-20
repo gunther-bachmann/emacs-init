@@ -1946,6 +1946,11 @@
    (req-package fancy-battery
      :init (progn (add-hook 'after-init-hook #'fancy-battery-mode)))
    #+END_SRC
+** rainbow mode
+   #+BEGIN_SRC emacs-lisp
+   (req-package rainbow-mode
+     :init (add-hook 'help-mode-hook #'rainbow-mode))
+   #+END_SRC
 ** rainbow identifiers
    #+BEGIN_SRC emacs-lisp
      ;; can be switched off by M-x rainbow-identifiers-mode, which toggles the mode
