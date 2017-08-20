@@ -313,6 +313,7 @@
    #+BEGIN_SRC emacs-lisp 
           (req-package paradox
             :commands paradox-list-packages
+            :bind (:map paradox-menu-mode-map ("<f1>" . hydra-paradox-list-packages/body))
             :config
             (progn 
               (let* ((github-token-file "~/.github-token.properties.gpg"))
@@ -344,7 +345,7 @@
                   ("d" package-menu-mark-delete)
                   ("U" package-menu-mark-upgrades)
                   ("q" (message "Abort") :exit t))
-                (bind-key "<f1>" 'hydra-paradox-list-packages/body paradox-menu-mode-map)))
+                ))
             )
    #+END_SRC
 * startup config
@@ -2124,20 +2125,24 @@
                     (text-scale-decrease 2)
                     (message "Restored default fonts."))))))
    #+END_SRC
-** form feed (^L) as h-bar
+** form feed
+   - display ^L as h-bar
    #+BEGIN_SRC emacs-lisp
      (req-package form-feed
        :init
-       (progn (add-hook 'prog-mode-hook 'form-feed-mode)))
+       (progn (add-hook 'prog-mode-hook #'form-feed-mode)))
    #+END_SRC
-** hide show org like (if tab does not indent, folding is done)
+** hide show org like
+   - if tab does not indent, folding is done
    #+BEGIN_SRC emacs-lisp
-   (req-package hideshow-org)
+   (req-package hideshow-org
+     :init (add-hook 'text-mode #'hs-org/minor-mode))
    #+END_SRC
 ** highlight indent
+   - Minor mode to highlight indentation
    #+BEGIN_SRC emacs-lisp
    (req-package highlight-indent-guides
-     :init (add-hook 'prog-mode-hook 'highlight-indent-guides-mode)
+     :init (add-hook 'prog-mode-hook #'highlight-indent-guides-mode)
      :config
      (progn
        (set-face-background 'highlight-indent-guides-odd-face "darkgray")
@@ -2207,6 +2212,7 @@
      ;; (set-language-environment "UTF-8")
    #+END_SRC
 ** easy-escaping
+   - display escaping \ (which is normaly doubled) as single red backslash
    #+BEGIN_SRC emacs-lisp
      (req-package easy-escape
        :init (add-hook 'prog-mode-hook 'easy-escape-minor-mode)
@@ -2370,6 +2376,7 @@
      (define-key gb/toggle-map "5" #'toggle-frame-fullscreen)
    #+END_SRC
 ** browse kill ring
+   - allow to browse kill ring via M-y and insert from arbitrary positions
    #+BEGIN_SRC emacs-lisp
      (req-package browse-kill-ring
        ;; bind M-y to interactively browsing the kill ring buffer
@@ -2377,12 +2384,14 @@
        (browse-kill-ring-default-keybindings))
    #+END_SRC
 ** save-place
+   - When you visit a file, point goes to the last place where it
+     was when you previously visited the same file.
+   - http://www.emacswiki.org/emacs/SavePlace
    #+BEGIN_SRC emacs-lisp
-     ;; When you visit a file, point goes to the last place where it
-     ;; was when you previously visited the same file.
-     ;; http://www.emacswiki.org/emacs/SavePlace
      (if (not (version< emacs-version "25.0"))
-     (progn (save-place-mode +1)(setq save-place-file (concat user-emacs-directory "places")))
+        ;; for later emacs versions, save place is no separate packate, but built in
+        (progn (save-place-mode +1)
+               (setq save-place-file (concat user-emacs-directory "places")))
      (req-package saveplace
        :config
        (progn
@@ -2398,8 +2407,8 @@
      (add-hook 'focus-out-hook 'save-all)
    #+END_SRC
 ** undo tree
+   - C-x u opens the undo tree and lets you move through the tree of undo/redo
    #+BEGIN_SRC emacs-lisp 
-     ;; C-x u opens the undo tree and lets you move through the tree
      (req-package undo-tree
        :config
        (progn
@@ -2424,8 +2433,8 @@
    #+END_SRC
 ** region related editing
 *** wrap-region
-    works nicely together with expand region
-    simple mark a region and hit the key '(' e.g. to wrap marked region with parenthesis
+    - works nicely together with expand region
+    - simple mark a region and hit the key '(' e.g. to wrap marked region with parenthesis
     #+BEGIN_SRC emacs-lisp
       ;; wrap-region
       (req-package wrap-region
@@ -2496,33 +2505,33 @@
 ** multicursor
    #+BEGIN_SRC emacs-lisp
        (req-package multiple-cursors
-         :require hydra bind-key
+         :require hydra
          ;; bind currently does not work since some other project loads multiple cursors without req-package actually loading this!
-         ;; :bind (
-         ;;        ;; When you have an active region that spans multiple lines, the following will
-         ;;        ;; add a cursor to each line:
-         ;;        ("C-S-c C-S-c" . mc/edit-lines)
+          :bind (
+                 ;; When you have an active region that spans multiple lines, the following will
+                 ;; add a cursor to each line:
+                 ("C-S-c C-S-c" . mc/edit-lines)
 
-         ;;        ;; When you want to add multiple cursors not based on continuous lines, but based on
-         ;;        ;; keywords in the buffer, use:
+                 ;; When you want to add multiple cursors not based on continuous lines, but based on
+                 ;; keywords in the buffer, use:
 
-         ;;        ("C->" . mc/mark-next-like-this)
-         ;;        ("C-<" . mc/mark-previous-like-this)
-         ;;        ("C-c C-<" . mc/mark-all-like-this) ;; mark textually (even substrings)
-         ;;        ("C-c C->" . mc/mark-all-symbols-like-this) ;; mark more semantically (no substrings)
-         ;;        )
+                 ("C->" . mc/mark-next-like-this)
+                 ("C-<" . mc/mark-previous-like-this)
+                 ("C-c C-<" . mc/mark-all-like-this) ;; mark textually (even substrings)
+                 ("C-c C->" . mc/mark-all-symbols-like-this) ;; mark more semantically (no substrings)
+                 )
          :config
          (progn
            ;; add a cursor to each line:
-           (bind-key "C-S-c C-S-c" 'mc/edit-lines)
+           ;; (bind-key "C-S-c C-S-c" 'mc/edit-lines)
 
            ;; When you want to add multiple cursors not based on continuous lines, but based on
            ;; keywords in the buffer, use:
 
-           (bind-key "C->" 'mc/mark-next-like-this)
-           (bind-key "C-<" 'mc/mark-previous-like-this)
-           (bind-key "C-c C-<" 'mc/mark-all-like-this) ;; mark textually (even substrings)
-           (bind-key "C-c C->" 'mc/mark-all-symbols-like-this) ;; mark more semantically (no substrings)
+           ;; (bind-key "C->" 'mc/mark-next-like-this)
+           ;; (bind-key "C-<" 'mc/mark-previous-like-this)
+           ;; (bind-key "C-c C-<" 'mc/mark-all-like-this) ;; mark textually (even substrings)
+           ;; (bind-key "C-c C->" 'mc/mark-all-symbols-like-this) ;; mark more semantically (no substrings)
            (defhydra hydra-multiple-cursors ()
              "
                      ^Up^            ^Down^          ^Other^
@@ -2690,19 +2699,18 @@
        :init (progn
          (add-hook 'org-mode-hook 'selected-minor-mode)
          (add-hook 'prog-mode-hook 'selected-minor-mode))
+       :bind (:map selected-keymap
+              ("a" . mc/mark-all-like-this)
+              ("d" . downcase-region)
+              ("i" . indent-region)
+              ("m" . mc/mark-more-like-this-extended)
+              ("q" . selected-off)
+              ("u" . upcase-region)
+              ("w" . count-words-region)
+              ("<" . mc/mark-previous-like-this)
+              (">" . mc/mark-next-like-this))
        :config
-       (progn
-         (bind-key "a" 'mc/mark-all-like-this selected-keymap)
-         (bind-key "d" 'downcase-region selected-keymap)
-         (bind-key "i" 'indent-region selected-keymap)
-         (bind-key "m" 'mc/mark-more-like-this-extended selected-keymap)
-         (bind-key "q" 'selected-off selected-keymap)
-         (bind-key "u" 'upcase-region selected-keymap)
-         (bind-key "w" 'count-words-region selected-keymap)
-         (bind-key "<" 'mc/mark-previous-like-this selected-keymap)
-         (bind-key ">" 'mc/mark-next-like-this selected-keymap)
-         )
-       )
+       (progn ))
    #+END_SRC
 * language specific stuff
 ** flyspell
@@ -2726,8 +2734,19 @@
                       (ispell-change-dictionary "deutsch8")
                     (ispell-change-dictionary "english"))
                   (turn-on-flyspell)))))
-       (add-hook 'message-mode-hook 'turn-on-flyspell)
-       (add-hook 'org-mode-hook 'gb/activate-ispell-in-org-mode))
+
+     ;; switch between german and english dicionary
+     (defun  gb/switch-dictionary()
+       (interactive)
+       (let* ((oldLang ispell-current-dictionary)
+              (newLang (if (string= oldLang "deutsch8") "english" "deutsch8")))
+         (ispell-change-dictionary newLang)
+         (message "Dictionary switched from `%s' to `%s'" oldLang newLang)))
+
+     (add-hook 'message-mode-hook 'turn-on-flyspell)
+     (add-hook 'org-mode-hook 'gb/activate-ispell-in-org-mode)
+     )
+     :bind (("C-x l" . gb/switch-dictionary))
      :config
      (progn
      (require 'ox)
@@ -2751,30 +2770,21 @@
      (setq flyspell-issue-message-flag nil)
 
 
-     ;; switch between german and english dicionary
-     (defun  gb/switch-dictionary()
-       (interactive)
-       (let* ((oldLang ispell-current-dictionary)
-              (newLang (if (string= oldLang "deutsch8") "english" "deutsch8")))
-         (ispell-change-dictionary newLang)
-         (message "Dictionary switched from `%s' to `%s'" oldLang newLang)))
-
-     (bind-key "C-x l" 'gb/switch-dictionary)))
+     ))
    #+END_SRC
 ** look up definition
    - 'H-d' (it's fn-d on mac) will lookup (english) definition of the word at point
    - 'H-D' will query for the word to find the definition for
    #+BEGIN_SRC emacs-lisp
      (req-package define-word
-       :config
-       (progn
-       (bind-key "H-d" 'define-word-at-point)
-       (bind-key "H-D" 'define-word)))
+       :bind (("H-d" . define-word-at-point)
+              ("H-D" . define-word)))
    #+END_SRC
 * auto complete, help, man etc.
 ** which key
 #+BEGIN_SRC emacs-lisp
   (req-package which-key
+    :bind (("C-h y" . which-key-show-top-level))
     :config
     (progn
     (which-key-mode)
@@ -2782,7 +2792,7 @@
     (validate-setq which-key-side-window-max-width 0.4)
     (setq which-key-max-description-length 45)
     (setq which-key-popup-type 'side-window)
-    (bind-key "C-h y" 'which-key-show-top-level)))
+    ))
 #+END_SRC
 ** keyfreq
    #+BEGIN_SRC emacs-lisp
@@ -2884,11 +2894,10 @@
    #+BEGIN_SRC emacs-lisp
      (req-package helm-company
        :require helm company
-                bind-key ;; optional, bind keys
-       :config
-       (when (package-installed-p 'bind-key)
-         (bind-key "C-:" 'helm-company company-mode-map)
-         (bind-key "C-:" 'helm-company company-active-map)))
+       :bind (:map company-mode-map
+              ("C-:" . helm-company)
+              :map company-active-map
+              ("C-:" . helm-company)))
    #+END_SRC
 ** helm-descbind
    - describe current keybindings with helm interface
@@ -3005,15 +3014,19 @@
 #+BEGIN_SRC emacs-lisp
   (req-package ace-link
     :require gnus
+    :bind (
+      ;; bind within org mode
+      :map org-mode-map
+      ("M-o" . ace-link-org)
+      ;; bind within gnus
+      :map gnus-summary-mode-map
+      ("M-o" . ace-link-gnus)
+      :map gnus-article-mode-map
+      ("M-o" . ace-link-gnus))
     :config
     (progn
       ;; bind "o" within info, help, woman, eww compilation and custom mode
-      (ace-link-setup-default)
-      ;; bind within org mode
-      (bind-key "M-o" 'ace-link-org org-mode-map)
-      ;; bind within gnus
-      (bind-key "M-o" 'ace-link-gnus gnus-summary-mode-map)
-      (bind-key "M-o" 'ace-link-gnus gnus-article-mode-map)))
+      (ace-link-setup-default)))
 
   (req-package ace-window  ;; select open window with one key
     :require key-chord ;; optional, key binding
@@ -3060,7 +3073,11 @@
 #+END_SRC
 #+BEGIN_SRC emacs-lisp
   (req-package avy
-    :require bind-key ;; optional, for key binding
+    :bind (("C-S-SPC" . avy-goto-char-timer)
+           ("C-c SPC" . avy-goto-char-timer)
+           ("C-c C-SPC" . avy-goto-char-timer)
+           ("C-x SPC" . avy-pop-mark)
+           ("C-x C-SPC" . avy-pop-mark))
     :config
     (progn
       (setq avy-background t)
@@ -3069,23 +3086,15 @@
        '(avy-lead-face ((t (:foreground "red"))))
        '(avy-lead-face-0 ((t (:foreground "orange"))))
        '(avy-lead-face-1 ((t (:foreground "yellow"))))
-       '(avy-lead-face-2 ((t (:foreground "white")))))
+       '(avy-lead-face-2 ((t (:foreground "white")))))))
 
-      (when (package-installed-p 'bind-key)
-        (bind-key "C-S-SPC" 'avy-goto-char-timer)
-        (bind-key "C-c SPC" 'avy-goto-char-timer)
-        (bind-key "C-c C-SPC" 'avy-goto-char-timer)
-        (bind-key "C-x SPC" 'avy-pop-mark)
-        (bind-key "C-x C-SPC" 'avy-pop-mark))))
 
 
   (req-package avy-zap
     :require avy
-    bind-key ;; optional, for key binding
-    :config
-    (when (package-installed-p 'bind-key)
-      (bind-key "M-Z" 'avy-zap-to-char-dwim)
-      (bind-key "M-z" 'avy-zap-up-to-char)))
+    :bind
+      (("M-Z" . avy-zap-to-char-dwim)
+       ("M-z" . avy-zap-up-to-char)))
 
 
 #+END_SRC
@@ -3160,6 +3169,7 @@
          cider-find-resource cider-find-file cider-find-var cider-find-var-file))))
 #+END_SRC
 ** region-state
+   - Show the number of chars/lines or rows/columns in the region
 #+BEGIN_SRC emacs-lisp
   (req-package region-state
     :config
@@ -3225,10 +3235,7 @@
               ("M-y" . ivy-next-line))
        :config
        (progn
-         (setq counsel-grep-swiper-limit 3000000)
-         ;;(bind-key "M-y" 'counsel-yank-pop)
-         ;;(bind-key "M-y" 'ivy-next-line ivy-minibuffer-map)
-         ))
+         (setq counsel-grep-swiper-limit 3000000)))
    #+END_SRC
 ** highlight-thing
    #+BEGIN_SRC emacs-lisp
@@ -3279,7 +3286,8 @@
           (add-hook 'lisp-interaction-mode-hook #'parinfer-mode)
           (add-hook 'scheme-mode-hook           #'parinfer-mode)))
     #+END_SRC
-*** TODO eros (display result of eval as overlay) 
+*** TODO eros (display result of eval as overlay)
+    - shows eval-last-sexp as overlay behind the expression evaluated (instead of only minibuffer)
     #+BEGIN_SRC emacs-lisp 
       (req-package eros
         :config 
@@ -3308,10 +3316,12 @@
 
     #+END_SRC
 *** eldoc overlay mode
-    - switch on with eldoc-overlay-mode
+    - displays eldoc in an overlay right before cursor
+    - does this all the time, after some delay.
+    - this may become anoying
     #+BEGIN_SRC emacs-lisp
       (req-package eldoc-overlay-mode
-        )
+        :commands eldoc-overlay-mode)
     #+END_SRC
 *** paredit
  #+BEGIN_SRC emacs-lisp
@@ -3464,12 +3474,18 @@
    (req-package cider
      :commands cider-jack-in
      :require clojure-mode
-     bind-key ;; optional for binding
      company ;; optional for completion
      flycheck-clojure ;; optional for checking on the fly
      rainbow-delimiters ;; optional minor mode to switch on
      paredit ;; optional paredit minor mode to switch to
      spinner
+     :bind (:map clojure-mode-map
+         ("C-c C-v" . cider-start-http-server)
+         ("C-M-r" . cider-refresh)
+         ("C-c u" . cider-user-ns)
+         :map cider-mode-map
+         ("C-c C--" . cider-eval-expression-at-point-in-repl)
+         ("C-c u" . cider-user-ns))
      :init (progn
        ;; provides minibuffer documentation for the code you're typing into the repl
        (add-hook 'cider-mode-hook 'turn-on-eldoc-mode)
@@ -3487,6 +3503,68 @@
 
        ;; Replace return key with newline-and-indent when in cider mode.
        (add-hook 'cider-mode-hook '(lambda () (local-set-key (kbd "RET") 'newline-and-indent)))
+
+       ;; Use clojure mode for other extensions
+       (add-to-list 'auto-mode-alist '("\\.edn$" . clojure-mode))
+       (add-to-list 'auto-mode-alist '("\\.boot$" . clojure-mode))
+       ;; (add-to-list 'auto-mode-alist '("\\.cljs.*$" . clojure-mode)) ;; might collide with clojure mode check of current major mode!!
+       (add-to-list 'auto-mode-alist '("lein-env" . enh-ruby-mode))
+
+       (autoload 'cider--make-result-overlay "cider-overlays")
+
+       (defun endless/eval-overlay (value point)
+         (cider--make-result-overlay (format "%S" value)
+                                     :where point
+                                     :duration 'command)
+         ;; Preserve the return value.
+         value)
+
+       (advice-add 'eval-region :around
+                   (lambda (f beg end &rest r)
+                     (endless/eval-overlay
+                      (apply f beg end r)
+                      end)))
+
+       (advice-add 'eval-last-sexp :filter-return
+                   (lambda (r)
+                     (endless/eval-overlay r (point))))
+
+       (advice-add 'eval-defun :filter-return
+                   (lambda (r)
+                     (endless/eval-overlay
+                      r
+                      (save-excursion
+                        (end-of-defun)
+                        (point)))))
+
+       ;; these help me out with the way I usually develop web apps
+       (defun cider-start-http-server ()
+         (interactive)
+         (cider-load-current-buffer)
+         (let ((ns (cider-current-ns)))
+           (cider-repl-set-ns ns)
+           (cider-interactive-eval (format "(println '(def server (%s/start))) (println 'server)" ns))
+           (cider-interactive-eval (format "(def server (%s/start)) (println server)" ns))))
+
+       (defun cider-refresh ()
+         (interactive)
+         (cider-interactive-eval (format "(user/reset)")))
+
+       (defun cider-user-ns ()
+         (interactive)
+         (cider-repl-set-ns "user"))
+
+
+       (defun cider-eval-expression-at-point-in-repl ()
+         (interactive)
+         (let ((form (cider-defun-at-point)))
+           ;; Strip excess whitespace
+           (while (string-match "\\`\s+\\|\n+\\'" form)
+             (setq form (replace-match "" t t form)))
+           (set-buffer (cider-get-repl-buffer))
+           (goto-char (point-max))
+           (insert form)
+           (cider-repl-return)))
 
        )
      :config
@@ -3515,80 +3593,9 @@
        (setq cider-jack-in-auto-inject-clojure (quote latest))
 
 
-       ;; Use clojure mode for other extensions
-       (add-to-list 'auto-mode-alist '("\\.edn$" . clojure-mode))
-       (add-to-list 'auto-mode-alist '("\\.boot$" . clojure-mode))
-       ;; (add-to-list 'auto-mode-alist '("\\.cljs.*$" . clojure-mode)) ;; might collide with clojure mode check of current major mode!!
-       (add-to-list 'auto-mode-alist '("lein-env" . enh-ruby-mode))
-
        ;; do flycheck setup for clojure
        (when (package-installed-p 'flycheck-clojure)  (flycheck-clojure-setup))
 
-       ;; key bindings
-       ;; these help me out with the way I usually develop web apps
-       (defun cider-start-http-server ()
-         (interactive)
-         (cider-load-current-buffer)
-         (let ((ns (cider-current-ns)))
-           (cider-repl-set-ns ns)
-           (cider-interactive-eval (format "(println '(def server (%s/start))) (println 'server)" ns))
-           (cider-interactive-eval (format "(def server (%s/start)) (println server)" ns))))
-
-
-       (defun cider-refresh ()
-         (interactive)
-         (cider-interactive-eval (format "(user/reset)")))
-
-       (defun cider-user-ns ()
-         (interactive)
-         (cider-repl-set-ns "user"))
-
-
-       (when (package-installed-p 'bind-key)
-         (bind-key "C-c C-v" 'cider-start-http-server clojure-mode-map)
-         (bind-key "C-M-r" 'cider-refresh clojure-mode-map)
-         (bind-key "C-c u" 'cider-user-ns clojure-mode-map)
-         (bind-key "C-c u" 'cider-user-ns cider-mode-map))
-
-       (defun cider-eval-expression-at-point-in-repl ()
-         (interactive)
-         (let ((form (cider-defun-at-point)))
-           ;; Strip excess whitespace
-           (while (string-match "\\`\s+\\|\n+\\'" form)
-             (setq form (replace-match "" t t form)))
-           (set-buffer (cider-get-repl-buffer))
-           (goto-char (point-max))
-           (insert form)
-           (cider-repl-return)))
-
-       (define-key cider-mode-map
-         (kbd "C-c C--") 'cider-eval-expression-at-point-in-repl)
-       (autoload 'cider--make-result-overlay "cider-overlays")
-
-       (defun endless/eval-overlay (value point)
-         (cider--make-result-overlay (format "%S" value)
-                                     :where point
-                                     :duration 'command)
-         ;; Preserve the return value.
-         value)
-
-       (advice-add 'eval-region :around
-                   (lambda (f beg end &rest r)
-                     (endless/eval-overlay
-                      (apply f beg end r)
-                      end)))
-
-       (advice-add 'eval-last-sexp :filter-return
-                   (lambda (r)
-                     (endless/eval-overlay r (point))))
-
-       (advice-add 'eval-defun :filter-return
-                   (lambda (r)
-                     (endless/eval-overlay
-                      r
-                      (save-excursion
-                        (end-of-defun)
-                        (point)))))
 
        ))
  #+END_SRC
@@ -3975,18 +3982,20 @@
  #+BEGIN_SRC emacs-lisp
  (req-package persp-projectile
    :require projectile perspective bind-key
-    :config
-   ;; switch project on super-s
-   (bind-key "s-s" 'projectile-persp-switch-project projectile-mode-map)
-   ;; (define-key projectile-mode-map (kbd "s-s") 'projectile-persp-switch-project)
-   (setq projectile-mode-line '(:eval (format " Proj[%s]" (projectile-project-name)))))
+   :bind (
+     ;; switch project on super-s
+     :map  projectile-mode-map
+     ("s-s" . projectile-persp-switch-project))
+   :config
+     ;; (define-key projectile-mode-map (kbd "s-s") 'projectile-persp-switch-project)
+     (setq projectile-mode-line '(:eval (format " Proj[%s]" (projectile-project-name)))))
  #+END_SRC
 ** git
 *** magithub
-    #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp :tangle no
     (if hub-installed
     (req-package magithub
-      :require magit
+      :require magit ghub+ apiwrap
       :defer 40
       :config
       (progn (magithub-feature-autoinject t))))
@@ -4009,11 +4018,18 @@
    (req-package magit
      :require ido counsel helm
      :commands magit-status
-     :init (add-hook 'magit-mode-hook 'gb/disable-smartscan)
-     ;; :bind ("C-c v s" . magit-status) ;; <- makes magit load after keystroke, since others (using magit) are not bound correctly, load at startup
+     :bind (
+       ("C-c v s" . magit-status)
+       :map magit-mode-map
+       ("C-x f" . counsel-git))
+     :init (progn
+       (defun gb/disable-smartscan ()
+         ""
+         (smartscan-mode -1))
+
+       (add-hook 'magit-mode-hook 'gb/disable-smartscan))
      :config
      (require 'magit-mode)
-     (bind-key "C-x f" 'counsel-git magit-mode-map)
      (setq magit-completing-read-function 'helm--completing-read-default)  ;; magit-ido-completing-read)
      (setq magit-fetch-arguments (quote ("--prune")))
      (setq magit-item-highlight-face nil)
@@ -4027,13 +4043,7 @@
        (add-to-list 'display-buffer-alist
                     `(,(rx "*magit: ")
                       (gb/display-buffer-fullframe)
-                      (reusable-frames . nil))))
-
-     (defun gb/disable-smartscan () 
-       "" 
-       (smartscan-mode -1))
-
-   )
+                      (reusable-frames . nil)))))
 
    ;; show git relevant change info in the fringe of the frame
    ;; git-gutter-fringe works with nlinum-mode !
@@ -4134,8 +4144,8 @@
  #+BEGIN_SRC emacs-lisp
    (req-package code-library)
  #+END_SRC
-** speedbar
- #+BEGIN_SRC emacs-lisp
+** speedbar (currently disabled, see neotree)
+ #+BEGIN_SRC emacs-lisp :tangle no
    (req-package sr-speedbar
      :require bind-key
      :config
@@ -4333,9 +4343,10 @@
      (setq-default sh-basic-offset 2)
      (setq-default sh-indentation 2)
    #+END_SRC
-** TODO tmux
-   see https://github.com/syohex/emacs-emamux
-   #+BEGIN_SRC emacs-lisp 
+** tmux (disabled for now)
+   - enables interaction with tmux sessions
+   - see https://github.com/syohex/emacs-emamux
+   #+BEGIN_SRC emacs-lisp :tangle no
      (req-package emamux
        :config
        ;; (global-set-key (kbd "C-z") emamux:keymap)
@@ -4376,6 +4387,7 @@
        (ansi-term "/usr/local/bin/fish"))
    #+END_SRC
 ** shell (bash) checking
+   - built in shell editing mode, explicitly initialized here to enable flycheck-mode
    #+BEGIN_SRC emacs-lisp
      (req-package sh-script
        :require flycheck
@@ -4624,18 +4636,26 @@
    - use functions yankpad-map, yankpad-expand
    - see [[https://github.com/Kungsgeten/yankpad][homepage]]
    #+BEGIN_SRC emacs-lisp
-   (req-package yankpad)
+   (req-package yankpad
+     :require company
+     :bind (("<f7>" . yankpad-map)
+            ("<f12>" . yankpad-expand))
+     :init
+       ;; If you want to complete snippets using company-mode
+       (add-to-list 'company-backends #'company-yankpad)
+     :config
+       (setq yankpad-file "~/yankpad.org"))
    #+END_SRC
 * organizational (org, mail, news)
 ** elfeed
  #+BEGIN_SRC emacs-lisp
    (req-package elfeed
      :commands elfeed
-     :defer 10
+     :bind (:map elfeed-search-mode-map
+            ("l" . recenter-top-bottom))
      :config
      (progn
        (setq elfeed-use-curl t)
-       (define-key elfeed-search-mode-map "l" #'recenter-top-bottom)
        (custom-set-faces
         '(elfeed-search-feed-face ((t (:foreground "NavajoWhite2"))))
         '(elfeed-search-title-face ((t (:foreground "dark gray"))))
@@ -4645,7 +4665,6 @@
    ;; Load elfeed-org
    (req-package elfeed-org
      :require elfeed org
-     :defer 10
      :init (progn
        ;; only programming related books
        (add-hook 'elfeed-new-entry-hook
@@ -4686,7 +4705,6 @@
 
    (req-package elfeed-goodies
      :require elfeed elfeed-org popwin
-     :defer 10
      :config
      (progn
        (setq elfeed-goodies/entry-pane-size 0.5)
@@ -4705,6 +4723,23 @@
      (req-package gnus
       :commands gnus
       :require smtpmail-multi mm-decode hydra bbdb
+      :bind (
+        :map gnus-group-mode-map
+        ("<f1>" . hydra-gnus-group/body)
+        ("C-c b l" . gnus-bookmark-bmenu-list)
+        :map gnus-summary-mode-map
+        ("<f1>" . hydra-gnus-summary/body)
+        ("C-c b l" . gnus-bookmark-bmenu-list)
+        ("C-c b m" . gnus-bookmark-set)
+        ("C-c b s" . gnus-bookmark-set)
+        :map gnus-article-edit-mode-map
+        ("<f1>" . hydra-gnus-article-mime-part/body)
+        :map gnus-article-mode-map
+        ("<f1>" . hydra-gnus-article-mime-part/body)
+        ("C-c b l" . gnus-bookmark-bmenu-list)
+        :map message-mode-map
+        ("<f1>" . hydra-gnus-article-mime-part/body)
+      )
       :init  (progn
         ;; Sign messages by default
         (add-hook 'message-setup-hook 'mml-secure-sign-pgpmime)
@@ -4784,11 +4819,6 @@
         ("e" mml-secure-message-encrypt-pgpmime :exit t)
         ("s" mml-secure-message-sign-pgpmime :exit t))
 
-      (bind-key "<f1>" #'hydra-gnus-group/body gnus-group-mode-map)
-      (bind-key "<f1>" #'hydra-gnus-summary/body gnus-summary-mode-map)
-      (bind-key "<f1>" #'hydra-gnus-article-mime-part/body gnus-article-edit-mode-map)
-      (bind-key "<f1>" #'hydra-gnus-article-mime-part/body gnus-article-mode-map)
-      (bind-key "<f1>" #'hydra-gnus-article-mime-part/body message-mode-map) 
     #+END_SRC
 *** vars
     #+BEGIN_SRC emacs-lisp
@@ -4826,12 +4856,6 @@
    (setq shr-color-visible-luminance-min 80)
    (setq shr-use-fonts nil) ;; don't use proportional fonts
 
-   ;; bind gnus bookmarks to keys
-   (bind-key "C-c b l" 'gnus-bookmark-bmenu-list gnus-group-mode-map)
-   (bind-key "C-c b l" 'gnus-bookmark-bmenu-list gnus-summary-mode-map)
-   (bind-key "C-c b l" 'gnus-bookmark-bmenu-list gnus-article-mode-map)
-   (bind-key "C-c b m" 'gnus-bookmark-set gnus-summary-mode-map)
-   (bind-key "C-c b s" 'gnus-bookmark-set gnus-summary-mode-map)
 
    ;; Gnus formatting and colorizing
    (copy-face 'default 'mysubject)
@@ -5180,14 +5204,28 @@
 *** org
   #+BEGIN_SRC emacs-lisp
         (req-package org
-          :require bind-key hydra
+          :require hydra helm
+          :bind (
+            :map  org-mode-map
+            ("<f1>" . hydra-org-mode/body)
+            ("s-i" . helm-org-in-buffer-headings)
+            ("RET" . gb/org-smart-return)
+            ("C-c l" . org-store-link)
+            ("C-c t i" . org-toggle-item))
           :init (progn
           (add-hook 'after-change-major-mode-hook #'gb/activate-properties-in-org-mode)
           (add-hook 'org-mode-hook #'gb/enable-auto-fill-mode)
           ;; (add-hook 'org-mode-hook #'org-sticky-header)
 
+          ;; ensure that adjusted save hook is not executed when org edit src save is executed
+          (advice-add 'org-edit-src-save :around #'gb/wrap-org-edit-src-save)
+          ;; ensure that read only mode is removed when org src edit is started
+          (advice-add 'org-edit-special :before #'(lambda (orig-func &rest args) (read-only-mode -1)))
+
+
             )
           :config
+          (progn
           (require 'ob-clojure)
           (require 'org-inlinetask)
 
@@ -5242,10 +5280,6 @@
                (t
                 (org-return)))))
 
-
-          (define-key org-mode-map (kbd "RET")
-            'gb/org-smart-return)
-
           (defun gb/wrap-org-edit-src-save (orig-func &rest args)
             "remove save adjusted hook, execute save and add hook again.
     thus this function prevents org-babel tangle and setting the file on r/o when edited in org edit src mode"
@@ -5253,25 +5287,36 @@
             (let ((res (apply orig-func args)))
               (add-hook 'after-save-hook 'gb/tangle-on-save-org-mode-file)
               res))
-          ;; ensure that adjusted save hook is not executed when org edit src save is executed
-          (advice-add 'org-edit-src-save :around #'gb/wrap-org-edit-src-save)
-          ;; ensure that read only mode is removed when org src edit is started
-          (advice-add 'org-edit-special :before #'(lambda (orig-func &rest args) (read-only-mode -1)))
+          (defun gb/org-clock-in-switch-to-state-fn (state)
+            "switch TODO to IMPLEMENT if clocking in!"
+            (if (equal state "TODO")
+                "IMPLEMENT"
+              nil))
 
-          ;; set org babel backgrounds for several languages
-          (setq org-src-block-faces
-                '(("emacs-lisp" (:background "#1b1010"))
-                  ("java" (:background "#1b1010"))))
+          (defun gb/org-global-props-key-re (key)
+            "Construct a regular expression matching key and an optional plus and eating the spaces behind.
+         Test for existence of the plus: (match-beginning 1)"
+            (concat "^" (regexp-quote key) "\\(\\+\\)?[[:space:]]+"))
 
-          (bind-key "C-c l" #'org-store-link org-mode-map)
-          (bind-key "C-c t i" #'org-toggle-item org-mode-map)
+          (defun gb/org-global-props (&optional buffer)
+            "Get the plists of global org properties of current buffer."
+            (with-current-buffer (or buffer (current-buffer))
+              (org-element-map (org-element-parse-buffer) 'keyword (lambda (el) (when (string-equal (org-element-property :key el) "PROPERTY") (nth 1 el))))))
 
-          (if (package-installed-p 'helm)
-              (bind-key "s-i" 'helm-org-in-buffer-headings org-mode-map))
-
-          ;; make sure that regular font in src block within org is 'white'
-          (custom-set-faces '(org-block ((t (:foreground "gray75")))))
-          (setq flycheck-keymap-prefix (kbd "C-c k"))
+          (defun gb/org-global-prop-value (key)
+            "Get global org property KEY of current buffer.
+           Adding up values for one key is supported."
+            (let ((key-re (gb/org-global-props-key-re key))
+                  (props (gb/org-global-props))
+                  ret)
+              (cl-loop with val for prop in props
+                       when (string-match key-re (setq val (plist-get prop :value))) do
+                       (setq
+                        val (substring val (match-end 0))
+                        ret (if (match-beginning 1)
+                                (concat ret " " val)
+                              val)))
+              ret))
 
           ;; TODO: generalize to all properties
           (defun gb/activate-properties-in-org-mode ()
@@ -5279,6 +5324,16 @@
               (let* ((readOnly (gb/org-global-prop-value "readonly")))
                 (if (string= readOnly "yes")
                     (setq buffer-read-only t)))))
+
+          ;; set org babel backgrounds for several languages
+          (setq org-src-block-faces
+                '(("emacs-lisp" (:background "#1b1010"))
+                  ("java" (:background "#1b1010"))))
+
+
+          ;; make sure that regular font in src block within org is 'white'
+          (custom-set-faces '(org-block ((t (:foreground "gray75")))))
+          (setq flycheck-keymap-prefix (kbd "C-c k"))
 
           ;;--------------------------------------------------------------------------------
           (defhydra hydra-org-mode ()
@@ -5328,40 +5383,8 @@
             (quote
              (:hours "%d" :require-hours t :minutes ":%02d" :require-minutes t))) ;; make sure that clock sums in org mode show hours and minutes only (no days)
 
-          (defun gb/org-clock-in-switch-to-state-fn (state)
-            "switch TODO to IMPLEMENT if clocking in!"
-            (if (equal state "TODO")
-                "IMPLEMENT"
-              nil))
-
           ;; Change task state to IMPLEMENT when clocking in (only if in STATE TODO)
           (setq org-clock-in-switch-to-state (function  gb/org-clock-in-switch-to-state-fn))
-
-          (defun gb/org-global-props-key-re (key)
-            "Construct a regular expression matching key and an optional plus and eating the spaces behind.
-         Test for existence of the plus: (match-beginning 1)"
-            (concat "^" (regexp-quote key) "\\(\\+\\)?[[:space:]]+"))
-
-          (defun gb/org-global-props (&optional buffer)
-            "Get the plists of global org properties of current buffer."
-            (with-current-buffer (or buffer (current-buffer))
-              (org-element-map (org-element-parse-buffer) 'keyword (lambda (el) (when (string-equal (org-element-property :key el) "PROPERTY") (nth 1 el))))))
-
-          (defun gb/org-global-prop-value (key)
-            "Get global org property KEY of current buffer.
-           Adding up values for one key is supported."
-            (let ((key-re (gb/org-global-props-key-re key))
-                  (props (gb/org-global-props))
-                  ret)
-              (cl-loop with val for prop in props
-                       when (string-match key-re (setq val (plist-get prop :value))) do
-                       (setq
-                        val (substring val (match-end 0))
-                        ret (if (match-beginning 1)
-                                (concat ret " " val)
-                              val)))
-              ret))
-
 
           ;; mark checked lists a bit differently
           (font-lock-add-keywords
@@ -5399,7 +5422,7 @@
           ;;                          `(org-document-title ((t ( :height 1.5 :underline nil))))))
 
 
-          )
+          ))
   #+END_SRC
 *** org capture
     - for capture templates see [[http://orgmode.org/manual/Template-elements.html#Template-elements]]
@@ -5409,6 +5432,17 @@
       :require org
       :bind ("C-c c" . org-capture)
       :init (progn
+        ;;
+        (defun gb/org-file-lineno-store-link ()
+          "provide function that stores a file link with line number (when matching the wanted major mode)"
+          (cond
+           ((string-match "\\(emacs-lisp-mode\\|nxml-mode\\)" (format "%s" major-mode))
+            (let* ((link (format "file:%s::%d" (file-truename buffer-file-name)
+                                 (line-number-at-pos))))
+              (org-store-link-props
+               :type "file"
+               :link link)))))
+
         ;; when storing a file link, store line number with it (when matching the wanted major mode)
         (add-hook 'org-store-link-functions 'gb/org-file-lineno-store-link)
         )
@@ -5425,16 +5459,6 @@
         ;; make sure that org templates for ical export into org agenda works
         ;; (gnus-calendar-insinuate-org-templates)
 
-        ;; 
-        (defun gb/org-file-lineno-store-link ()
-          "provide function that stores a file link with line number (when matching the wanted major mode)"
-          (cond 
-           ((string-match "\\(emacs-lisp-mode\\|nxml-mode\\)" (format "%s" major-mode))
-            (let* ((link (format "file:%s::%d" (file-truename buffer-file-name) 
-                                 (line-number-at-pos))))
-              (org-store-link-props
-               :type "file"
-               :link link)))))
 
         ;; necessary, else an error is reported during org-magit-store-link
         ;; (setq with-editor-file-name-history-exclude nil)
@@ -5497,10 +5521,13 @@
           :require org org-agenda
           :loader :path
           :load-path "~/.emacs.d/accounts/"
+          :bind (
+           :map  org-agenda-keymap
+            ("i" . gb/org-agenda-diary-entry)
+          )
           :config
           (progn
-            (bind-key "i" #'gb/org-agenda-diary-entry org-agenda-keymap) ;; not a :bind entry, since loading must be done before actually calling org-agenda
-            (defun gb/org-agenda-diary-entry () 
+            (defun gb/org-agenda-diary-entry ()
               "enter a new date into diary and allow selection of which calendar this should go into"
               (interactive)
               ;; now select and set org-agenda-diary-file
@@ -5680,9 +5707,9 @@
  #+BEGIN_SRC emacs-lisp
  (req-package org-bullets
    :require org
-   :defer t
    :init
    (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
+   :config
    (setq org-bullets-bullet-list '("●" "￮" "◉" "◦" "∙" "⚬" "❍" "◎" "○" "◌" "◎" "◯" "○" "☉" "⚪" "⊙" "⊚" "⊛" "⚫" "∘")))
  #+END_SRC
 *** level 3
@@ -5755,7 +5782,7 @@
 **** TODO find keybindings
   #+BEGIN_SRC emacs-lisp
     (req-package helm-org-rifle
-       :require helm
+       :require helm org
        :commands helm-org-rifle helm-org-rifle-directories helm-org-rifle-files)
   #+END_SRC
 **** available functions
@@ -6192,6 +6219,9 @@
            ("s-f" . helm-for-files)
            ("C-x s-f" . helm-for-files)
            ("C-x C-b" . helm-buffers-list)
+           ("C-s-i" . helm-semantic-or-imenu)
+           ;; resume previous helm session whatever it was, with the selection that was active then
+           ;; helm-resume
            )
     :commands helm-mode
     :init (progn
@@ -6394,15 +6424,13 @@
 * hydra
 #+BEGIN_SRC emacs-lisp
   (req-package hydra
-    :require bind-key avy-zap dash 
+    :require dash
     :bind (
            ( "<f1>" . hydra-allhydras/body) ;; globally defined, can be locally redefined
            ( "<M-f1>" . hydra-allhydras/body) ;; always jump to the global hydra
            ;; make buffer specific f1 bindings
            ;; :map org-agenda-mode-map
            ;; ( "<f1>" . hydra-org-agenda-view/body )
-           :map org-mode-map
-           ( "<f1>" . hydra-org-mode/body)
            )
     :config
 
@@ -6734,15 +6762,18 @@
 ** configuration
    #+BEGIN_SRC emacs-lisp
      (req-package dired
-       :commands dired)
+       :commands dired
+       :bind (("C-x d" . dired)
+              :map dired-mode-map
+              ("e" . gb/dired-ediff-files))
+       :init
+         (add-hook 'dired-mode-hook 'auto-revert-mode)
+       :config
      (setq dired-dwim-target t) ;; try to guess the directory to use for dired
      (setq dired-listing-switches "-Alh") ;; default switches for ls to be used for dired listing
      (setq diredp-hide-details-propagate-flag t) ;; opening subfolders inherit details flag (shown/hidden)
-     (add-hook 'dired-mode-hook 'auto-revert-mode)
      (if gnu-ls-installed
        (setq insert-directory-program gnu-ls-bin-path))
-
-     (bind-key  "e" #'gb/dired-ediff-files dired-mode-map)
 
      ;; snippet from https://oremacs.com/2017/03/18/dired-ediff/
      (defun gb/dired-ediff-files ()
@@ -6764,7 +6795,7 @@
                          (lambda ()
                            (setq ediff-after-quit-hook-internal nil)
                            (set-window-configuration wnd))))
-           (error "no more than 2 files should be marked"))))
+           (error "no more than 2 files should be marked")))))
    #+END_SRC
 ** dired ls (lisp emulation)
    #+BEGIN_SRC emacs-lisp
@@ -6849,15 +6880,14 @@
       ;; bind key is used within config section, since vr/... are functions of visual-regexp which
       ;; are adviced by visual-regexp-steroids. If used within :bind-key, this package is not loaded!!
       :require multiple-cursors visual-regexp
+      :bind (("M-%" . vr/query-replace)
+             ;; ("C-c r" . vr/replace)
+             ;; ("C-r" . vr/isearch-backward)
+             ;; ("C-s" . vr/isearch-forward)
+             ("C-c m" . vr/mc-mark))
       :config
       (progn 
-        (setq vr/default-regexp-modifiers (quote (:I t :M t :S nil :U nil)))
-        ;; ("C-c r" . vr/replace)
-        (bind-key "M-%" 'vr/query-replace)
-        (bind-key "C-c m" 'vr/mc-mark)
-        ;; ("C-r" . vr/isearch-backward)
-        ;; ("C-s" . vr/isearch-forward)
-        ))
+        (setq vr/default-regexp-modifiers (quote (:I t :M t :S nil :U nil)))))
   #+END_SRC
 * TODO language server protocol mode
   #+BEGIN_SRC emacs-lisp
@@ -7097,17 +7127,17 @@
    #+BEGIN_SRC emacs-lisp
      (req-package org-recent-headings
        :require org
-       :defer 10
+       :bind (("M-s-^" . org-recent-headings-helm)) ;; equivalent to M-s-i
        :config
        (progn
-         (bind-key "M-s-^" #'org-recent-headings-helm) ;; equivalent to M-s-i
          (org-recent-headings-mode)))
    #+END_SRC
 ** org sticky headers
    - keep last header of org in head line displayed if other wise scrolling out of view
    - problematic, sometimes org-sticky-header is empty
    #+BEGIN_SRC emacs-lisp :tangle no
-   (req-package org-sticky-header)
+   (req-package org-sticky-header
+     :require org)
    #+END_SRC
 ** lsp with source-graph language servers
    #+BEGIN_SRC emacs-lisp
