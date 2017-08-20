@@ -16,6 +16,11 @@
 #   - entries with 'preinstall' mark packages that are installed up front
 #   - entries with 'ok: ... installed' mark checks for external programs that are needed for some packages to work
 #
+* benchmarking
+  - simply call M-x profiler-report after loading
+  #+BEGIN_SRC emacs-lisp
+    ;; (profiler-start 'cpu)
+  #+END_SRC
 * info
 ** el-get packages
    - example of how to load packages dynamically via el-get from git sources
@@ -182,12 +187,6 @@
   (global-unset-key "\C-x\C-k") ;; keyboard makros prefix (now mapped to kill buffer)
   (global-unset-key "\M-%")     ;; replaced by visual-regexp ...
   #+END_SRC
-* init benchmarking (disabled)
-#+BEGIN_SRC emacs-lisp :tangle no
-;; (add-to-list 'load-path "~/.emacs.d/benchmark/")
-;; (require 'benchmark-init-loaddefs)
-;; (benchmark-init/activate)
-#+END_SRC
 * initial accounts setup
   #+BEGIN_SRC emacs-lisp
     (setq agenda-accounts-exists (file-exists-p (concat user-emacs-directory "accounts/agenda-accounts.el")))
