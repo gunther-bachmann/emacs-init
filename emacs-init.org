@@ -6914,6 +6914,37 @@
     :commands lsp-mode)
   #+END_SRC
 * currently evaluated
+** edit-at-point
+   - edit(copy,cut..) current things(word,symbol..) under cursor
+   #+BEGIN_SRC emacs-lisp
+   (req-package edit-at-point)
+   #+END_SRC
+** eno, ace like copy, cut, past and move
+   #+BEGIN_SRC emacs-lisp
+     (req-package eno
+       :require dash edit-at-point
+       :bind
+         (("M-s-w j" . eno-word-goto) ;; Meta super w as leader key
+          ("M-s-w c" . eno-word-copy)
+          ("M-s-w t" . eno-word-cut)
+          ("M-s-w p" . eno-word-paste)
+          ("M-s-b j" . eno-symbol-goto)
+          ("M-s-b c" . eno-symbol-copy)
+          ("M-s-b t" . eno-symbol-cut)
+          ("M-s-b p" . eno-symbol-paste)
+          ("M-s-s j" . eno-str-goto)
+          ("M-s-s c" . eno-str-copy)
+          ("M-s-s t" . eno-str-cut)
+          ("M-s-s p" . eno-str-paste)
+          ("M-s-l j" . eno-line-goto)
+          ("M-s-l c" . eno-line-copy)
+          ("M-s-l t" . eno-line-cut)
+          ("M-s-l p" . eno-line-paste)
+          ("M-s-p j" . eno-paren-goto)
+          ("M-s-p c" . eno-paren-copy)
+          ("M-s-p t" . eno-paren-cut)
+          ("M-s-p p" . eno-paren-paste)))
+   #+END_SRC
 ** flycheck inline
    - display flycheck error messages inline (not as popup)
    - check whether this clashes with other flycheck packages (like flycheck-tip and flycheck-pos-tip)
