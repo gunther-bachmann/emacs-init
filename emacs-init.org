@@ -276,10 +276,6 @@
            req-package
            el-get))
 
-  ;; make sure to add el-get tot he load path
-  (add-to-list 'load-path "~/.emacs.d/el-get/el-get")
-
-
   ;; add mac specific packages
   (when (gb/on-mac-p)
     (add-to-list 'package-to-install-initially 'exec-path-from-shell))
@@ -4653,7 +4649,7 @@
             ("<f12>" . yankpad-expand))
      :init
        ;; If you want to complete snippets using company-mode
-       (add-to-list 'company-backends #'company-yankpad)
+       ;; (add-to-list 'company-backends #'company-yankpad)
      :config
        (setq yankpad-file "~/yankpad.org"))
    #+END_SRC
