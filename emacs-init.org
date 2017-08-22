@@ -2967,43 +2967,43 @@
        :bind (("\C-z SPC d" . helm-dash-at-point))
        :require helm
        :init (progn
-         (add-hook 'clojure-mode-hook 'clojure-dash-doc)
-         (add-hook 'java-mode-hook 'java-dash-doc)
-         (add-hook 'shell-mode-hook 'bash-dash-doc)
-         )
+               (defun clojure-dash-doc ()
+                 (interactive)
+                 (setq-local helm-dash-docsets '("Clojure")))
+
+
+               (defun java-dash-doc ()
+                 (interactive)
+                 (setq-local helm-dash-docsets '("Java_SE8")))
+
+
+               (defun bash-dash-doc ()
+                 (interactive)
+                 (setq-local helm-dash-docset '("Bash")))
+
+
+               (add-hook 'clojure-mode-hook 'clojure-dash-doc)
+               (add-hook 'java-mode-hook 'java-dash-doc)
+               (add-hook 'shell-mode-hook 'bash-dash-doc)
+               )
        :config
        (progn
-       (defun clojure-dash-doc ()
-         (interactive)
-         (setq-local helm-dash-docsets '("Clojure")))
-
-
-       (defun java-dash-doc ()
-         (interactive)
-         (setq-local helm-dash-docsets '("Java_SE8")))
-
-
-       (defun bash-dash-doc ()
-         (interactive)
-         (setq-local helm-dash-docset '("Bash")))
-
-
-       (if w3m-installed
-           (setq helm-dash-browser-func 'w3m-browse-url))
-       (setq helm-dash-docsets '("Bash"
-                                 "Clojure"
-                                 "Docker"
-                                 "Emacs Lisp"
-                                 "Groovy"
-                                 "Groovy JDK"
-                                 "Gradle Groovy API"
-                                 "Gradle DSL"
-                                 "Gradle User Guide"
-                                 "Java"
-                                 "LaTeX"
-                                 "PostgreSQL"
-                                 "Vagrant"
-                                 "XSLT"))))
+         (if w3m-installed
+             (setq helm-dash-browser-func 'w3m-browse-url))
+         (setq helm-dash-docsets '("Bash"
+                                   "Clojure"
+                                   "Docker"
+                                   "Emacs Lisp"
+                                   "Groovy"
+                                   "Groovy JDK"
+                                   "Gradle Groovy API"
+                                   "Gradle DSL"
+                                   "Gradle User Guide"
+                                   "Java"
+                                   "LaTeX"
+                                   "PostgreSQL"
+                                   "Vagrant"
+                                   "XSLT"))))
     #+END_SRC
 *** Installing docsets
 
