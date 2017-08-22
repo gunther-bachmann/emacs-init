@@ -197,6 +197,7 @@
   #+BEGIN_SRC emacs-lisp
     ;; must be set before loading use-package in order to work
     (setq use-package-enable-imenu-support t) ;; enable locating package loaded by use-package within init.el
+    (setq gc-cons-threshold 8000000)
   #+END_SRC
 * initial function setup
   #+BEGIN_SRC emacs-lisp
@@ -7513,6 +7514,7 @@
       (server-start))
     ;; (maximize-frame)
     (toggle-frame-fullscreen)
+    (setq gc-cons-threshold 80000)
   #+END_SRC
 
 #  LocalWords:  flyspell
