@@ -4691,8 +4691,6 @@
    #+BEGIN_SRC emacs-lisp
    (req-package yankpad
      :require company
-     :bind (("<f7>" . yankpad-map)
-            ("<f12>" . yankpad-expand))
      :init
        ;; If you want to complete snippets using company-mode
        ;; (add-to-list 'company-backends #'company-yankpad)
