@@ -670,7 +670,8 @@
        (-non-nil 
         (--map 
          (let ((kb (keys-for-function (cdr it)))) 
-           (if (string-empty-p kb) nil (concat (car it) " <" kb ">"))) pairs))))
+           (if (string-empty-p kb) nil (concat (car it) " <" kb ">")))
+           pairs))))
    #+END_SRC
 ** org
    #+BEGIN_SRC emacs-lisp
@@ -7386,6 +7387,23 @@
          (setq projectile-switch-project-action 'neotree-projectile-action)))
    #+END_SRC
 * to test
+** shrink-path
+   - do fish like reduciton of paths (e.g. for modeline)
+** highlight-function-calls
+   - highlight functions in lisp specially
+** org-mind-map
+   - translater an org file into a mind map
+** org-super-agenda
+   - This package lets you "supercharge" your Org daily/weekly agenda. The idea is to group items into sections, rather than having them all
+     in one big list.
+** org-projectile-helm
+   - This package aims to provide an easy interface to creating per project org-mode TODO headings.
+** org-category-capture
+   - This package aims to provide an easy interface to creating per project org-mode TODO headings.
+     #+BEGIN_SRC emacs-lisp
+     (req-package org-category-capture
+       :require org)
+     #+END_SRC
 ** treemacs (tre
 ** projectile-codesearch (use codesearch to query projects)
 ** zop-to-char (more options during zap to char)
@@ -7396,6 +7414,7 @@
    - see [[https://github.com/magit/magit-tbdiff][link]]
 ** indium (java script development environment)
    - [[https://github.com/NicolasPetton/Indium][home page]]
+* look at
 * tested but discarded
 ** mode icons (disabled)
    - no longer used, since spaceline brings its own set of mode icons
