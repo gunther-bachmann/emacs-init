@@ -1818,8 +1818,9 @@
       (gb/warn-missing-font "github-octicons")
       (gb/warn-missing-font "Weather Icons")
 
+      (req-package font-lock+)
       (req-package all-the-icons
-        :require memoize
+        :require memoize font-lock+
         :config
         ;; extend list of all-the-icons-mode-icon-alist
         ;; by
@@ -3282,9 +3283,16 @@
     (setq recentf-exclude (list "^.*/\\.emacs\\.d/.*"))
     (setq recentf-max-menu-items 40)))
 #+END_SRC
+** swiper
+   #+BEGIN_SRC emacs-lisp
+   (req-package ivy)
+   (req-package swiper
+     :require ivy)
+   #+END_SRC
 ** counsel
    #+BEGIN_SRC emacs-lisp
      (req-package counsel
+       :require swiper
        :bind (("M-y" . counsel-yank-pop)
               :map ivy-minibuffer-map
               ("M-y" . ivy-next-line))
@@ -3757,8 +3765,10 @@
    #+END_SRC
 **** erlang company
      #+BEGIN_SRC emacs-lisp :tangle no
+     (req-package ivy-erlang-complete
+       :requre ivy counsel erlang async)
      (req-package company-erlang
-       :require erlang)
+       :require erlang ivy-erlang-complete company)
      #+END_SRC
 ** groovy
    #+BEGIN_SRC emacs-lisp
@@ -3972,8 +3982,10 @@
  #+END_SRC
 ** python
  #+BEGIN_SRC emacs-lisp
+   (req-package find-file-in-project
+     :require ivy)
    (req-package elpy
-     :require org flycheck
+     :require org flycheck find-file-in-project
      :config 
      (elpy-enable)
      :init
@@ -5891,7 +5903,7 @@
                   org-ref-list-of-tables
                   org-ref-list-of-figures
                   org-ref-helm-insert-label-link
-        :require org helm-bibtex pdf-tools)
+        :require org helm-bibtex pdf-tools ivy)
     #+END_SRC
 *** org babel
     #+BEGIN_SRC emacs-lisp
@@ -7059,7 +7071,7 @@
 ** ivy swiper hydra
    #+BEGIN_SRC emacs-lisp
    (req-package ivy-hydra
-     :require hydra) ;; adds an hydra for ivy/swiper TODO: include into own hydras
+     :require hydra ivy) ;; adds an hydra for ivy/swiper TODO: include into own hydras
    #+END_SRC
 ** ripgrep over directory trees
    #+BEGIN_SRC emacs-lisp
