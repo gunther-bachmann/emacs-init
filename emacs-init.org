@@ -19,6 +19,7 @@
 * preset
   #+BEGIN_SRC emacs-lisp
     (setq gb/log-startup-timing nil) ;; set true for timing messages during startup
+    (setq gb/debug-req-package nil) ;; debug req package (look into message buffer)
 
     (setq gb/time (float-time))
 
@@ -248,15 +249,15 @@
   (report-elapsed "enter package setup")
   (require 'package)
 
-;;  (setq req-package-log-level 'debug
-;;        use-package-verbose t)
+  (when gb/debug-req-package
+    (setq req-package-log-level 'debug
+          use-package-verbose t))
 
   ;; package access either through secure https, or insecure http
   (setq secure-package-access t)
 
   (if secure-package-access
       (setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
-                               ;; ("marmalade" . "https://marmalade-repo.org/packages/")
                                ("melpa-stable" . "https://stable.melpa.org/packages/")
                                ("melpa" . "https://melpa.org/packages/")))
     (setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
@@ -266,7 +267,6 @@
 
   (setq package-archive-priorities
         '(("melpa-stable" . 20)  ;; stable is preferred
-          ;; ("marmalade" . 20)
           ("melpa" . 10)
           ("gnu" . 0)))
 
@@ -296,6 +296,7 @@
            validate
            use-package
            req-package
+           seq
            el-get))
 
   ;; add mac specific packages
@@ -331,6 +332,7 @@
 ** paradox (package list alternative)
    #+BEGIN_SRC emacs-lisp 
           (req-package paradox
+            :require hydra
             :commands paradox-list-packages
             :bind (:map paradox-menu-mode-map ("<f1>" . hydra-paradox-list-packages/body))
             :init (report-elapsed ":init-enter paradox")
@@ -1706,6 +1708,7 @@
 *** spaceline (mode line of spacemacs)
     #+BEGIN_SRC emacs-lisp
       (req-package spaceline
+        :require powerline
         :config
         (require 'spaceline-config)
         (spaceline-spacemacs-theme)
@@ -1981,7 +1984,8 @@
       ;; (sml/setup)
 
       (req-package powerline)
-      (req-package smart-mode-line-powerline-theme)
+      (req-package smart-mode-line-powerline-theme
+        :require powerline)
       (req-package smart-mode-line
         :require powerline smart-mode-line-powerline-theme
         :init (add-hook 'after-init-hook 'sml/setup)
@@ -2651,7 +2655,7 @@
      (req-package ace-mc
        :commands ace-mc-add-multiple-cursors ace-mc-add-single-cursor
        :bind (("C-|" . ace-mc-add-multiple-cursors))
-       :require avy multiple-cursors)
+       :require avy multiple-cursors ace-jump-mode)
    #+END_SRC
 ** key-chord
    #+BEGIN_SRC emacs-lisp
@@ -2770,6 +2774,11 @@
             ;;(add-to-list 'aggressive-indent-excluded-modes 'clojure-mode)
             ;;(add-to-list 'aggressive-indent-excluded-modes 'emacs-lisp-mode)
             )) ;; disable mode for ...
+   #+END_SRC
+** with editor
+   #+BEGIN_SRC emacs-lisp
+   (req-package with-editor
+     :require async)
    #+END_SRC
 ** selected (provide special keybindings if selections are active)
    - https://github.com/Kungsgeten/selected.el
@@ -3126,11 +3135,9 @@
 #+BEGIN_SRC emacs-lisp :tangle no
   (req-package ace-isearch
     :require avy helm-swoop ace-jump-mode
-    bind-key ;; optional, needed for key binding
     :disabled t
     :config
     (progn
-
       (setq ace-isearch-function (quote avy-goto-word-1)) ;; use thus function if only one character was searched for
       ;; (setq ace-isearch-input-length 3) ;; start helm swoop at a length of 3 characters
       ;; (setq ace-isearch-jump-delay 0.35) 
@@ -3455,6 +3462,7 @@
   #+BEGIN_SRC emacs-lisp
     (req-package lispy
      :bind (("C-1" . lispy-describe-inline)) ;; make C-1 available even without lispy mode!
+     :require hydra
      :config
      (custom-set-faces
        '(lispy-face-hint ((t (:background "gray20" :foreground "#fff3bc")))))
@@ -3723,9 +3731,13 @@
  #+END_SRC
 *** clj-refactor
  #+BEGIN_SRC emacs-lisp
+   (req-package inflections)
+   (req-package peg)
+   (req-package edn
+     :require peg)
    (req-package clj-refactor
      :defer t ;; this defer is valid, since via init the loading is ensured 
-     :require clojure-mode multiple-cursors
+     :require hydra s seq yasnippet paredit multiple-cursors clojure-mode cider edn inflections
      :init
      (defun gb/clojure-mode-hook ()
        (clj-refactor-mode 1)
@@ -4031,6 +4043,21 @@
        :require dash)
    #+END_SRC
 * programming related
+** flymake
+   #+BEGIN_SRC emacs-lisp
+   (req-package flymake)
+   (req-package flymake-easy
+     :require flymake)
+   (req-package flymake-yaml
+     :require flymake-easy
+     :init (add-hook 'yaml-mode-hook 'flymake-yaml-load))
+   (req-package flymake-shell
+     :require flymake-easy
+     :init (add-hook 'sh-set-shell-hook 'flymake-shell-load))
+   (req-package flymake-json
+     :require flymake-easy
+     :init (add-hook 'js-mode-hook 'flymake-json-maybe-load))
+   #+END_SRC
 ** flycheck
    #+BEGIN_SRC emacs-lisp
      (req-package flycheck
@@ -4106,8 +4133,10 @@
          (delete-other-windows window))
        window))
 
+   (req-package magit-popup
+     :require async)
    (req-package magit
-     :require ido counsel helm
+     :require ido counsel helm async dash with-editor git-commit magit-popup
      :commands magit-status
      :bind (
        ("C-c v s" . magit-status)
@@ -4673,7 +4702,6 @@
 * yasnippet
 #+BEGIN_SRC emacs-lisp
   (req-package yasnippet
-    :require org company
     :config
     (setq yas-snippet-dirs
           `(,(concat user-emacs-directory "snippets"))) ;; my snippets library
@@ -4703,36 +4731,39 @@
             (insert key)
             (yas-expand)))))
 
-  
-    ;; Add yasnippet support for all company backends
-    ;; https://github.com/syl20bnr/spacemacs/pull/179
-    (defvar company-mode/enable-yas t
-      "Enable yasnippet for all backends.")
-     
-    ;; instrument a backend ":with company-yasnippet"
-    (defun company-mode/backend-with-yas (backend)
-      (if (or (not company-mode/enable-yas) (and (listp backend) (member 'company-yasnippet backend)))
-          backend
-        (append (if (consp backend) backend (list backend))
-                '(:with company-yasnippet))))
 
-    ;; instrument all existing backends with yasnippet
-    (setq company-backends (mapcar #'company-mode/backend-with-yas company-backends))
+    (when (package-installed-p 'company)
 
-    ;; make sure that M-<tab> is available in yas-minor-mode
-    (define-key yas-minor-mode-map (kbd "M-<tab>") #'company-try-hard))
+      ;; Add yasnippet support for all company backends
+      ;; https://github.com/syl20bnr/spacemacs/pull/179
+      (defvar company-mode/enable-yas t
+        "Enable yasnippet for all backends.")
+
+      ;; instrument a backend ":with company-yasnippet"
+      (defun company-mode/backend-with-yas (backend)
+        (if (or (not company-mode/enable-yas) (and (listp backend) (member 'company-yasnippet backend)))
+            backend
+          (append (if (consp backend) backend (list backend))
+                  '(:with company-yasnippet))))
+
+      ;; instrument all existing backends with yasnippet
+      (setq company-backends (mapcar #'company-mode/backend-with-yas company-backends))
+
+      ;; make sure that M-<tab> is available in yas-minor-mode
+      (define-key yas-minor-mode-map (kbd "M-<tab>") #'company-try-hard)))
 #+END_SRC
 ** yankpad
    - init (setq yankpad-file "~/yankpad.org")
    - use functions yankpad-map, yankpad-expand
    - see [[https://github.com/Kungsgeten/yankpad][homepage]]
    #+BEGIN_SRC emacs-lisp
-   (req-package yankpad
-     :require company
-     :init
-       ;; If you want to complete snippets using company-mode
-       ;; (add-to-list 'company-backends #'company-yankpad)
-     :config
+     (req-package yankpad
+       :init
+       (when (package-installed-p 'company)
+         ;; If you want to complete snippets using company-mode
+         ;; (add-to-list 'company-backends #'company-yankpad)
+         )
+       :config
        (setq yankpad-file "~/yankpad.org"))
    #+END_SRC
 * organizational (org, mail, news)
@@ -4753,7 +4784,7 @@
 
    ;; Load elfeed-org
    (req-package elfeed-org
-     :require elfeed org
+     :require elfeed org dash
      :init (progn
        ;; only programming related books
        (add-hook 'elfeed-new-entry-hook
@@ -4792,8 +4823,10 @@
        ;; (setq elfeed-search-filter "@6-months-old +unread")
        ))
 
+   (req-package noflet)
+
    (req-package elfeed-goodies
-     :require elfeed elfeed-org popwin
+     :require elfeed popwin powerline noflet ace-jump-mode
      :config
      (progn
        (setq elfeed-goodies/entry-pane-size 0.5)
@@ -5927,7 +5960,7 @@
                   org-ref-list-of-tables
                   org-ref-list-of-figures
                   org-ref-helm-insert-label-link
-        :require org helm-bibtex pdf-tools ivy)
+        :require org helm-bibtex pdf-tools ivy hydra helm)
     #+END_SRC
 *** org babel
     #+BEGIN_SRC emacs-lisp
@@ -6307,7 +6340,14 @@
 * helm
 ** helm
 #+BEGIN_SRC emacs-lisp
+  (req-package async) ;; TODO: add all async requirements, otherwise this will not work
+  (req-package popup)
+  ;;(req-package helm-core
+  ;;  :require async)
   (req-package helm
+    :require
+    async
+    popup
     :bind (("M-x" . helm-M-x)
            ("C-x C-f" . helm-find-files)
            ("s-f" . helm-for-files)
@@ -6317,7 +6357,6 @@
            ;; resume previous helm session whatever it was, with the selection that was active then
            ;; helm-resume
            )
-    :commands helm-mode
     :init (progn
       ;; register new function
       (add-hook 'helm-minibuffer-set-up-hook
@@ -6518,7 +6557,6 @@
 * hydra
 #+BEGIN_SRC emacs-lisp
   (req-package hydra
-    :require dash
     :bind (
            ( "<f1>" . hydra-allhydras/body) ;; globally defined, can be locally redefined
            ( "<M-f1>" . hydra-allhydras/body) ;; always jump to the global hydra
@@ -6779,10 +6817,12 @@
          ))
    #+END_SRC
 ** company for auctex
+   - see [[https://github.com/alexeyr/company-auctex/][here]]
+   - adds company backend for latex proposals
    #+BEGIN_SRC emacs-lisp
      (req-package company-auctex
-       
-       :require tex-mode company)
+       :require tex-mode company yasnippet
+       :config (company-auctex-init))
    #+END_SRC
    #+BEGIN_SRC emacs-lisp
      (req-package company-math
@@ -6801,8 +6841,14 @@
 ** bibtex
    - check https://nickhigham.wordpress.com/2016/01/06/managing-bibtex-files-with-emacs/
    #+BEGIN_SRC emacs-lisp
+     (req-package parsebib)
+     (req-package let-alist)
+     (req-package biblio-core
+       :require let-alist seq dash)
+     (req-package biblio
+       :require biblio-core)
      (req-package helm-bibtex
-       :require helm)
+       :require helm parsebib dash biblio)
    #+END_SRC
 ** latex extra
    - see [[https://github.com/Malabarba/latex-extra][here]]
@@ -6913,7 +6959,7 @@
    #+BEGIN_SRC emacs-lisp
    (when gnu-ls-installed
      (req-package dired-quick-sort
-       :require dired
+       :require dired hydra
        :config
        (dired-quick-sort-setup)))
    #+END_SRC
@@ -6927,10 +6973,7 @@
 ** dired+
    #+BEGIN_SRC emacs-lisp
   ;; adds lots of functions all starting with diredp-
-  (req-package dired+
-    :require dired bookmark+
-    :config
-    (progn))
+  (req-package dired+)
    #+END_SRC
 ** dired rainbow
    #+BEGIN_SRC emacs-lisp
@@ -7229,6 +7272,7 @@
            (helm-org-rifle-directories (list org-brain-path)))))
    #+END_SRC
 ** org edit latex (edit latex code in separate buffer)
+   - see [[https://github.com/et2010/org-edit-latex][here]]
    #+BEGIN_SRC emacs-lisp
    (req-package org-edit-latex
      :require org tex-mode
