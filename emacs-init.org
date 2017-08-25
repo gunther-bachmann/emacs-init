@@ -16,6 +16,24 @@
 #   - entries with 'preinstall' mark packages that are installed up front
 #   - entries with 'ok: ... installed' mark checks for external programs that are needed for some packages to work
 #
+* preset
+  #+BEGIN_SRC emacs-lisp
+    (setq gb/log-startup-timing nil) ;; set true for timing messages during startup
+
+    (setq gb/time (float-time))
+
+    (setq gc-cons-threshold 800000000)
+
+    (defun report-elapsed (msg-prefix)
+      "record an message time since last call of this function"
+           (if gb/log-startup-timing
+               (progn
+                 (setq gb/elapsed-time (- (float-time) gb/time))
+                 (setq gb/time (float-time))
+                 (message (format "%s: %f seconds" msg-prefix gb/elapsed-time)))))
+
+    (report-elapsed "preset")
+  #+END_SRC
 * benchmarking
   - simply call M-x profiler-report after loading
   #+BEGIN_SRC emacs-lisp
@@ -197,7 +215,6 @@
   #+BEGIN_SRC emacs-lisp
     ;; must be set before loading use-package in order to work
     (setq use-package-enable-imenu-support t) ;; enable locating package loaded by use-package within init.el
-    (setq gc-cons-threshold 8000000)
   #+END_SRC
 * initial function setup
   #+BEGIN_SRC emacs-lisp
@@ -228,6 +245,7 @@
   #+END_SRC
 * package setup
 #+BEGIN_SRC emacs-lisp
+  (report-elapsed "enter package setup")
   (require 'package)
 
   ;; package access either through secure https, or insecure http
@@ -305,13 +323,16 @@
              (message (concat "pacakge '" (symbol-name pkg) "' is required"))
              ,(req-package pkg @cl-keys))
         '(message (concat "package '" (symbol-name pkg) "' is not required, layer '" (symbol-name cl-layer) "' is not part of active-layers.")))))
+  (report-elapsed "exit package setup")
 #+END_SRC
 ** paradox (package list alternative)
    #+BEGIN_SRC emacs-lisp 
           (req-package paradox
             :commands paradox-list-packages
             :bind (:map paradox-menu-mode-map ("<f1>" . hydra-paradox-list-packages/body))
+            :init (report-elapsed ":init-enter paradox")
             :config
+            (report-elapsed ":config-enter paradox")
             (progn 
               (let* ((github-token-file "~/.github-token.properties.gpg"))
                 (if (file-exists-p github-token-file)
@@ -343,6 +364,7 @@
                   ("U" package-menu-mark-upgrades)
                   ("q" (message "Abort") :exit t))
                 ))
+            (report-elapsed ":config-exit paradox")
             )
    #+END_SRC
 * startup config
@@ -7537,6 +7559,7 @@
    #+END_SRC
 * finish - up
   #+BEGIN_SRC emacs-lisp
+    (report-elapsed "enter finish - up")
     (req-package-finish);; this command must be at the end !ALWAYS!
 
     (require 'server)
@@ -7546,6 +7569,7 @@
     ;; (maximize-frame)
     (toggle-frame-fullscreen)
     (setq gc-cons-threshold 80000)
+    (report-elapsed "exit finish - up")
   #+END_SRC
 
 #  LocalWords:  flyspell
