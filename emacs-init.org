@@ -6414,7 +6414,7 @@
 ** helm git grep
    #+begin_src emacs-lisp 
      (req-package helm-ls-git
-       :require magit
+       :require helm
        :bind (:map magit-mode-map
                    ("s-f" . helm-ls-git-ls)))
    #+end_src
