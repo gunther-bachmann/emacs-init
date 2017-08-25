@@ -248,6 +248,9 @@
   (report-elapsed "enter package setup")
   (require 'package)
 
+;;  (setq req-package-log-level 'debug
+;;        use-package-verbose t)
+
   ;; package access either through secure https, or insecure http
   (setq secure-package-access t)
 
@@ -399,8 +402,6 @@
 
   ;; Go strait to scratch buffer on startup
   (setq inhibit-startup-message t)
-
-  (setq req-package-log-level 'debug)
 #+END_SRC
 * own utility functions
 ** misc
