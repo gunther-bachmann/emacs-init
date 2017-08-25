@@ -4005,14 +4005,15 @@
  #+END_SRC
 ** python
  #+BEGIN_SRC emacs-lisp
+   (req-package python)
    (req-package find-file-in-project
      :require ivy)
    (req-package elpy
-     :require org flycheck find-file-in-project
-     :config 
-     (elpy-enable)
+     :require org flycheck find-file-in-project python
+     :mode (("\\.py\\'" . python-mode))
      :init
-     (add-hook 'python-mode 'flycheck-mode))
+     (add-hook 'python-mode-hook #'elpy-enable)
+     (add-hook 'python-mode-hook #'flycheck-mode))
  #+END_SRC
 ** IMPLEMENT scala ensime (enhanced scala mode for emacs)
  #+BEGIN_SRC emacs-lisp
@@ -7193,9 +7194,11 @@
    #+END_SRC
 ** yaml
    #+BEGIN_SRC emacs-lisp
-   (req-package yaml-mode)
+   (req-package yaml-mode
+     :mode (("\\.yml\\'" . yaml-mode)))
    (req-package yaml-tomato
-     :require yaml-mode)
+     :require yaml-mode
+     :commands (yaml-tomato-show-current-path yaml-tomato-copy))
    #+END_SRC
 ** agda (deactivated)
    - 'agda-mode locate' will provide the path to agda.el which in turn holds all code to actually implement the agda mode.
@@ -7372,7 +7375,8 @@
 ** yarn mode
    - open yarn lock files in a read only mode
    #+BEGIN_SRC emacs-lisp
-   (req-package yarn-mode)
+   (req-package yarn-mode
+     :mode (("\\yarn.lock\\'" . yarn-mode)))
    #+END_SRC
 ** all the icons dired
    #+BEGIN_SRC emacs-lisp
