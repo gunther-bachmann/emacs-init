@@ -474,7 +474,7 @@
               (file-string-nomultiline (replace-regexp-in-string "[^\\\\]\\(\\\\\n *\\)" "" file-string nil nil 1)) ;; incomplete! 1)
               (file-string-nobackslash-escaping (replace-regexp-in-string "\\\\\\\\" "\\\\" file-string-nomultiline))
               (file-string-nodoublecolon-and-spaces (replace-regexp-in-string " *\\(:\\|=\\) *" "=" file-string-nobackslash-escaping))
-              (prop-matches (re-seq "^[^#!=:][^=:]*\\(=\\|:\\)[^=:]+$" file-string-nodoublecolon-and-spaces))
+              (prop-matches (re-seq "^[^#!=:][^=:]*\\(=\\|:\\)[^=:\n]+$" file-string-nodoublecolon-and-spaces))
               (hash-map (make-hash-table :test 'equal)))
          (--map 
           (let* ((splitted-prop (split-string it "="))
