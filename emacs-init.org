@@ -5704,12 +5704,9 @@
           :require org org-agenda
           :loader :path
           :load-path "~/.emacs.d/accounts/"
-          :bind (
-           :map  org-agenda-keymap
-            ("i" . gb/org-agenda-diary-entry)
-          )
           :config
           (progn
+            (bind-key "i" #'gb/org-agenda-diary-entry org-agenda-keymap) ;; don't use :bind, since loading should be done before actully hitting this key!
             (defun gb/org-agenda-diary-entry ()
               "enter a new date into diary and allow selection of which calendar this should go into"
               (interactive)
