@@ -4855,16 +4855,23 @@
        ;; only programming related books
        (add-hook 'elfeed-new-entry-hook
                  (elfeed-make-tagger :feed-url "pdfbooksplanet"
-                                     :entry-link '(not ".*programming.*")
+                                     :entry-link '(not "programming")
                                      :add 'junk
                                      :remove 'unread))
 
        ;; only programming related books
        (add-hook 'elfeed-new-entry-hook
                  (elfeed-make-tagger :feed-url "BookDL"
-                                     :entry-link '(not ".*programming.*")
+                                     :entry-link '(not "programming")
                                      :add 'junk
                                      :remove 'unread))
+
+       (add-hook 'elfeed-new-entry-hook
+                 (elfeed-make-tagger :feed-url "lobste\\.rs"
+                                     :entry-link '(not "emacs")
+                                     :add 'junk
+                                     :remove 'unread))
+
        )
      :config
      (progn
