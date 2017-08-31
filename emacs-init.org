@@ -202,9 +202,13 @@
    - State "OBSOLETE"   from              [2017-06-26 Mon 16:44]
 * initial unsetting of global keys
   #+BEGIN_SRC emacs-lisp
-  (global-unset-key "\C-z")     ;; (now mapped to prefix -- dash)
-  (global-unset-key "\C-x\C-k") ;; keyboard makros prefix (now mapped to kill buffer)
-  (global-unset-key "\M-%")     ;; replaced by visual-regexp ...
+    (global-unset-key "\C-z")     ;; (now mapped to prefix -- dash)
+    (global-unset-key "\C-x\C-k") ;; keyboard makros prefix (now mapped to kill buffer)
+    (global-unset-key "\M-%")     ;; replaced by visual-regexp ...
+    ;; unbind all super key bindings
+    (dolist (key '(& \, \^ \` \| \~ \? a b c d e f g h i j k l m n o p q r s t u v w x y z))
+      (global-unset-key (kbd (concat "s-" (symbol-name key))))
+      (global-unset-key (kbd (concat "s-" (upcase (symbol-name key))))))
   #+END_SRC
 * initial accounts setup
   #+BEGIN_SRC emacs-lisp
