@@ -4182,15 +4182,12 @@
  #+END_SRC
 *** persp-projectile
  #+BEGIN_SRC emacs-lisp
- (req-package persp-projectile
-   :require projectile perspective bind-key
-   :bind (
-     ;; switch project on super-s
-     :map  projectile-mode-map
-     ("s-s" . projectile-persp-switch-project))
-   :config
-     ;; (define-key projectile-mode-map (kbd "s-s") 'projectile-persp-switch-project)
-     (setq projectile-mode-line '(:eval (format " Proj[%s]" (projectile-project-name)))))
+   (req-package persp-projectile
+     :require projectile perspective helm
+     :bind (
+       ;; switch project on super-s
+       :map  projectile-mode-map
+       ("s-s" . helm-projectile-switch-project)))
  #+END_SRC
 ** git
 *** magithub
