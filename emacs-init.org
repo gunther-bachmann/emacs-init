@@ -7127,6 +7127,13 @@
     :commands lsp-mode)
   #+END_SRC
 * currently evaluated
+** helpful
+   - allow for additional help information for functions
+   #+BEGIN_SRC emacs-lisp
+     (req-package helpful
+       :commands (helpful-macro helpful-function helpful-command helpful-variable helpful-at-point)
+       :bind ("s-h" . helpful-at-point))
+   #+END_SRC
 ** edit-at-point
    - edit(copy,cut..) current things(word,symbol..) under cursor
    #+BEGIN_SRC emacs-lisp
