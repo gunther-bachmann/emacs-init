@@ -6048,6 +6048,13 @@
                   org-ref-helm-insert-label-link
         :require org helm-bibtex pdf-tools ivy hydra helm)
     #+END_SRC
+*** org clip
+    - ox-clip-formatted-copy copies selected region of org mode file as rtf into clipboard for insertion into e.g. open office
+    #+BEGIN_SRC emacs-lisp
+    (req-package ox-clip
+      :commands ox-clip-formatted-copy
+      :require org htmlize)
+    #+END_SRC
 *** org babel
     #+BEGIN_SRC emacs-lisp
       ;; set jar path for ditaa
