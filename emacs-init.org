@@ -2945,6 +2945,16 @@
 
      ))
    #+END_SRC
+** dictionary
+   - description [[http://mbork.pl/2017-01-14_I'm_now_using_the_right_dictionary][here]]
+   - downloaded from [[https://github.com/gucong/emacs-sdcv][here]]
+   - use dictionary in startdict format from ~/.stardict/dic
+   #+BEGIN_SRC emacs-lisp
+     (if (file-exists-p "~/.emacs.d/additionals/sdcv-mode.el")
+         (req-package sdcv-mode
+           :commands sdcv-search
+           :load-path "~/.emacs.d/additionals"))
+   #+END_SRC
 ** look up definition
    - 'H-d' (it's fn-d on mac) will lookup (english) definition of the word at point
    - 'H-D' will query for the word to find the definition for
