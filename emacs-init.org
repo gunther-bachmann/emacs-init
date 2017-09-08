@@ -2994,6 +2994,7 @@
     :config
       (progn
       (global-set-key (kbd "M-TAB") #'company-try-hard)
+      (global-set-key (kbd "<C-tab>") #'company-try-hard)
       (define-key company-active-map (kbd "M-TAB") #'company-try-hard)
       ))
   ;; enable company mode anywhere
