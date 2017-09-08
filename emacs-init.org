@@ -3408,11 +3408,13 @@
    #+BEGIN_SRC emacs-lisp
      (req-package counsel
        :require swiper
-       :bind (("M-y" . counsel-yank-pop)
-              :map ivy-minibuffer-map
-              ("M-y" . ivy-next-line))
+       ;; :bind (("M-y" . counsel-yank-pop)
+       ;;        :map ivy-minibuffer-map
+       ;;        ("M-y" . ivy-next-line))
        :config
        (progn
+         (bind-key "M-y" #'counsel-yank-pop ) ;; no :bind, since counsel needs to be loaded for magit
+         (bind-key "M-y" #'ivy-next-line ivy-minibuffer-map )
          (setq counsel-grep-swiper-limit 3000000)))
    #+END_SRC
 ** highlight-thing
@@ -3968,11 +3970,18 @@
            (setq flycheck-check-syntax-automatically '(save mode-enabled))
            (eldoc-mode +1)
            (tide-hl-identifier-mode +1)
-           (company-mode +1))
+           (company-mode +1)
+           (subword-mode +1)
+           (setq typescript-indent-level 2))
 
          ;; aligns annotation to the right hand side
          (setq company-tooltip-align-annotations t)
 
+         ;; use 2 for indent
+         (setq typescript-indent-level 2)
+
+         (setq json-reformat:indent-width 2)
+         (setq js-indent-level 2)
          ;; formats the buffer before saving
          ;; (add-hook 'before-save-hook 'tide-format-before-save)
 
@@ -3984,7 +3993,8 @@
    ;; (req-package tagedit)
    (req-package js2-mode
      :mode (("\\.js\\'" . js2-mode)
-            ("\\.jsx?\\'" . js2-jsx-mode)))
+            ("\\.jsx?\\'" . js2-jsx-mode))
+     :config (setq js-indent-level 2))
    ;; (req-package js
    ;;   :require flycheck tagedit
    ;;   :defer 5
@@ -4128,6 +4138,11 @@
        :require dash)
    #+END_SRC
 * programming related
+** editorconfig
+   #+BEGIN_SRC emacs-lisp
+      (req-package editorconfig
+       :config (editorconfig-mode 1))
+   #+END_SRC
 ** flymake
    #+BEGIN_SRC emacs-lisp
    (req-package flymake)
@@ -5585,6 +5600,7 @@
           (setq org-clock-into-drawer "CLOCKING")
 
           ;; The format string used when creating CLOCKSUM lines.
+          (setq org-duration-format '((special . h:mm)))
           (setq org-time-clocksum-format
             (quote
              (:hours "%d" :require-hours t :minutes ":%02d" :require-minutes t))) ;; make sure that clock sums in org mode show hours and minutes only (no days)
