@@ -4291,12 +4291,12 @@
      :init
      (add-hook 'magit-mode-hook 'turn-on-magit-gh-pulls))
 
-   (req-package magit-filenotify
-     :require magit
-     :defer 40
-     :init
-     (add-hook 'after-save-hook 'magit-after-save-refresh-status)
-     (add-hook 'magit-status-mode-hook 'magit-filenotify-mode))
+;;   (req-package magit-filenotify
+;;     :require magit
+;;     :defer 40
+;;     :init
+;;     (add-hook 'after-save-hook 'magit-after-save-refresh-status)
+;;     (add-hook 'magit-status-mode-hook 'magit-filenotify-mode))
 
    ;; use automatic file notification to update magit status buffer
    ;; (add-hook 'magit-status-mode-hook 'magit-filenotify-mode )
@@ -7597,12 +7597,15 @@
          (setq projectile-switch-project-action 'neotree-projectile-action)))
    #+END_SRC
 * to test
+** ox-hugo
+   - export org markdown to hugo blog entries
+   - see [[https://github.com/kaushalmodi/ox-hugo][here]]
 ** shrink-path
    - do fish like reduciton of paths (e.g. for modeline)
 ** highlight-function-calls
    - highlight functions in lisp specially
 ** org-mind-map
-   - translater an org file into a mind map
+   - translate an org file into a mind map
 ** org-super-agenda
    - This package lets you "supercharge" your Org daily/weekly agenda. The idea is to group items into sections, rather than having them all
      in one big list.
@@ -7621,6 +7624,10 @@
 ** swiper-helm (helm interface for swipter)
 ** html5-schema (html5 support for nXML)
 ** magit-tbdiff (diffing extension for magit)
+   - git-tbdiff is a git extension that allows diffs for topic branches
+   - tbdiff shows the differences between two versions of a patch series, or more generally, two sets of commits (ignoring merges). To do
+     this in a meaningful way, it tries to find a good correspondence between commits in the two versions (see Algorithm below), and then
+     shows the difference between the pairs found. It also copes with removal and addition of commits.
    - see [[https://github.com/magit/magit-tbdiff][link]]
 ** indium (java script development environment)
    - [[https://github.com/NicolasPetton/Indium][home page]]
