@@ -6591,7 +6591,7 @@
        (setq helm-locate-library-fuzzy-match t)))
  #+END_SRC
 ** helm extensions
-   #+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp :tangle no
    (req-package helm-ext
      :require helm
      :config
