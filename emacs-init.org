@@ -2284,7 +2284,7 @@
    #+BEGIN_SRC emacs-lisp
      (req-package form-feed
        :init
-       (progn (add-hook 'prog-mode-hook #'form-feed-mode)))
+       (progn (add-hook 'text-mode-hook #'form-feed-mode)))
    #+END_SRC
 ** hide show org like
    - if tab does not indent, folding is done
@@ -7288,13 +7288,13 @@
    #+BEGIN_SRC emacs-lisp
    (req-package company-bibtex
      :require company tex-mode) ;; add bibtex references using company
+   #+END_SRC
+** cider stuff
+   #+BEGIN_SRC emacs-lisp
    ;; C-c C-t (hydra for test in cider)
    ;; C-c M-r (hydra for repl)
    ;; C-c M-t (test)
    ;; C-c C-d (hydra for documentation)
-   #+END_SRC
-** cider stuff
-   #+BEGIN_SRC emacs-lisp
    (req-package cider-hydra ;; adds hydras
      :require hydra cider)
    (req-package cider-decompile ;; decompilation extension for cider [https://github.com/clojure-emacs/cider-decompile]
@@ -7615,8 +7615,10 @@
 ** org-mind-map
    - translate an org file into a mind map
 ** org-super-agenda
+   - see [[https://github.com/alphapapa/org-super-agenda][here]]
    - This package lets you "supercharge" your Org daily/weekly agenda. The idea is to group items into sections, rather than having them all
      in one big list.
+   - lets you group agenda entries based on tags, regex on title, todo status etc.
 ** org-projectile-helm
    - This package aims to provide an easy interface to creating per project org-mode TODO headings.
 ** org-category-capture
