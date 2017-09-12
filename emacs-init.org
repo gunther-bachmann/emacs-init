@@ -7163,8 +7163,8 @@
    - C-c f <char> : goto the next occurrance of <char>. <char> can then be repeatedly pressed to move on to the next after that
      #+BEGIN_SRC emacs-lisp
        (req-package iy-go-to-char
-         :bind (("C-c f" . 'iy-go-to-char)
-                ("C-c F" . 'iy-go-to-char-backward))
+         :bind (("C-c f" . iy-go-to-char)
+                ("C-c F" . iy-go-to-char-backward))
          )
      #+END_SRC
 ** helpful
