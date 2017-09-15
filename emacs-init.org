@@ -5724,6 +5724,12 @@
         ;; include all diary events into org-agenda view
         (setq org-agenda-include-diary t) ;; this includes the holidays, too
 
+
+        ;; make sure that a todo cannot switch to done, if one of its descendants is not done yet
+        (setq org-enforce-todo-dependencies t)
+        ;; make sure that todo cannot switch to done if a checkbox within its descendants is not checked!
+        (setq org-enforce-todo-checkbox-dependencies t)
+
         ;; customize todo lists
         (setq org-todo-keywords
               '((sequence "TODO"               ;; currently to do task
