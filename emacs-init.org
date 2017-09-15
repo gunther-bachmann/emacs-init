@@ -492,96 +492,6 @@
      ;;    currently the test checks whether there is a single backslash at the end of the line!
 
    #+END_SRC
-** xml
-   #+BEGIN_SRC emacs-lisp
-     ;; make sure flyspell works with nxml mode
-     ;; (add-to-list 'flyspell-prog-text-faces 'nxml-text-face)
-     ;; make sure to use flyspell-prog-mode, though
-
-     ;; if interactively used, print the current path to the mini buffer
-     ;; if used non interactively, return the same
-     (defun nxml-where ()
-       "Display the hierarchy of XML elements the point is on as a path."
-       (interactive)
-       (let ((path nil))
-         (save-excursion
-           (save-restriction
-             (widen)
-             (while (and (< (point-min) (point)) ;; Doesn't error if point is at beginning of buffer
-                         (condition-case nil
-                             (progn
-                               (nxml-backward-up-element) ; always returns nil
-                               t)
-                           (error nil)))
-               (setq path (cons (xmltok-start-tag-qname) path)))
-             (let ((result (format "/%s" (mapconcat 'identity path "/"))))
-               (if (called-interactively-p t)
-                   (message result)
-                 result))))))
-
-     (defun nxml-where-to-clipboard ()
-       "paste xpath of the current location into clipboard and message buffer"
-       (interactive)
-       (let ((result (nxml-where)))
-         (kill-new result)
-         (message result)))
-
-     (defun nxml-pretty-format ()
-       "use command line tool xmllint to format (large) xml files"
-       (interactive)
-       (save-excursion
-         (shell-command-on-region (point-min) (point-max) "xmllint -nowarning --format -" (buffer-name) t)
-         (nxml-mode)
-         (indent-region begin end)))
-
-     (defun nxml-xpath (xpath)
-       "run an xpath (may NOT include namespaces) on the currently selected buffed. 
-     output is pasted into buffer *xpath-output*"
-       (interactive (list (read-string "xpath:" nil 'xpath-history)))
-       (let* ((out-buffer "*xpath-output*")
-              (new-buffer (get-buffer-create out-buffer)) 
-              (cmd (concat "xmllint --nowarning --xpath " (shell-quote-argument xpath) " -")))
-         (if (fboundp 'persp-add-buffer)
-             (persp-add-buffer out-buffer)) 
-         (shell-command-on-region (point-min) (point-max) cmd out-buffer)
-         (with-current-buffer out-buffer 
-           (condition-case nil
-               (if (string= "<" (buffer-substring-no-properties 1 2))
-                   (nxml-mode)
-                 (text-mode))
-             (error (text-mode))))
-         (if (not (get-buffer-window out-buffer))
-             (message (concat "output is on buffer " out-buffer)))))
-
-     (defun nxml-xpath-on-file (xpath)
-       "run an xpath (may include namespaces) on the FILE of the currently selected buffed. 
-     output is pasted into buffer *xpath-output*"
-       (interactive (list (read-string "xpath:" nil 'xpath-history)))
-       (let ((cmd (concat "echo -e \"setrootns\ncat " xpath "\" | xmllint --nowarning --shell " 
-                          (buffer-file-name (window-buffer (minibuffer-selected-window))) 
-                          "| grep -v -e \"^/ >\""))
-             (out-buffer "*xpath-output*"))
-         (if (fboundp 'persp-add-buffer)
-             (persp-add-buffer out-buffer))
-         (shell-command cmd out-buffer)
-         (with-current-buffer out-buffer 
-           (condition-case nil
-               (if (string= "<" (buffer-substring-no-properties 1 2))
-                   (nxml-mode)
-                 (text-mode))
-             (error (text-mode))))
-         (if (not (get-buffer-window out-buffer))
-             (message (concat "output is on buffer " out-buffer)))))
-
-     (defun nxml-run-xmllint-shell ()
-       "run an interactive xmllint shell on the FILE of the currently selected buffer"
-       (interactive)
-       (compile (concat "xmllint --shell " (buffer-file-name (window-buffer (minibuffer-selected-window)))) t))
-   #+END_SRC
-
-   #+RESULTS:
-   : nxml-run-xmllint-shell
-
 ** transparency
    #+BEGIN_SRC emacs-lisp
        (defun disable-transparency ()
@@ -1103,6 +1013,10 @@
           ;; install via "brew install imagemagick" or "pacman -S imagemagick"
           (check-_nix-program-status imagemagick-installed "animate" "ImageMagick" "pdf-tools not installed!")
           (check-_nix-program-status poppler-installed "pdfinfo" "poppler" "pdf-tools not installed!")
+          (check-_nix-program-status gnutls-cli-installed "gnutls-cli" "gnutls-cli" "gnutls-cli not installed!")
+
+          (check-_nix-program-status xmllint-installed "xmllint" "xmllint" "xmllint not installed, some xml functions will not be accessible (e.g. formatting)")
+
 
           ;; graphviz brings dot (and other) cl tools which are needed for plantuml to work
           (check-_nix-program-status graphviz-installed "dot" "GraphViz" "dot is not available, thus plantuml cannot be used!")
@@ -1159,6 +1073,98 @@
       (message "OK: Image type png is supported.")
     (message "WARNING: image type png is NOT supported."))
   #+END_SRC
+* own utility functions (based on installed utils)
+** xml
+   #+BEGIN_SRC emacs-lisp
+     ;; make sure flyspell works with nxml mode
+     ;; (add-to-list 'flyspell-prog-text-faces 'nxml-text-face)
+     ;; make sure to use flyspell-prog-mode, though
+
+     ;; if interactively used, print the current path to the mini buffer
+     ;; if used non interactively, return the same
+     (defun nxml-where ()
+       "Display the hierarchy of XML elements the point is on as a path."
+       (interactive)
+       (let ((path nil))
+         (save-excursion
+           (save-restriction
+             (widen)
+             (while (and (< (point-min) (point)) ;; Doesn't error if point is at beginning of buffer
+                         (condition-case nil
+                             (progn
+                               (nxml-backward-up-element) ; always returns nil
+                               t)
+                           (error nil)))
+               (setq path (cons (xmltok-start-tag-qname) path)))
+             (let ((result (format "/%s" (mapconcat 'identity path "/"))))
+               (if (called-interactively-p t)
+                   (message result)
+                 result))))))
+
+     (defun nxml-where-to-clipboard ()
+       "paste xpath of the current location into clipboard and message buffer"
+       (interactive)
+       (let ((result (nxml-where)))
+         (kill-new result)
+         (message result)))
+
+     (when xmllint-installed
+     (defun nxml-pretty-format ()
+       "use command line tool xmllint to format (large) xml files"
+       (interactive)
+       (save-excursion
+         (shell-command-on-region (point-min) (point-max) "xmllint -nowarning --format -" (buffer-name) t)
+         (nxml-mode)
+         (indent-region begin end))))
+
+     (when xmllint-installed
+     (defun nxml-xpath (xpath)
+       "run an xpath (may NOT include namespaces) on the currently selected buffed.
+     output is pasted into buffer *xpath-output*"
+       (interactive (list (read-string "xpath:" nil 'xpath-history)))
+       (let* ((out-buffer "*xpath-output*")
+              (new-buffer (get-buffer-create out-buffer))
+              (cmd (concat "xmllint --nowarning --xpath " (shell-quote-argument xpath) " -")))
+         (if (fboundp 'persp-add-buffer)
+             (persp-add-buffer out-buffer))
+         (shell-command-on-region (point-min) (point-max) cmd out-buffer)
+         (with-current-buffer out-buffer
+           (condition-case nil
+               (if (string= "<" (buffer-substring-no-properties 1 2))
+                   (nxml-mode)
+                 (text-mode))
+             (error (text-mode))))
+         (if (not (get-buffer-window out-buffer))
+             (message (concat "output is on buffer " out-buffer))))))
+
+     (when xmllint-installed
+     (defun nxml-xpath-on-file (xpath)
+       "run an xpath (may include namespaces) on the FILE of the currently selected buffed.
+     output is pasted into buffer *xpath-output*"
+       (interactive (list (read-string "xpath:" nil 'xpath-history)))
+       (let ((cmd (concat "echo -e \"setrootns\ncat " xpath "\" | xmllint --nowarning --shell "
+                          (buffer-file-name (window-buffer (minibuffer-selected-window)))
+                          "| grep -v -e \"^/ >\""))
+             (out-buffer "*xpath-output*"))
+         (if (fboundp 'persp-add-buffer)
+             (persp-add-buffer out-buffer))
+         (shell-command cmd out-buffer)
+         (with-current-buffer out-buffer
+           (condition-case nil
+               (if (string= "<" (buffer-substring-no-properties 1 2))
+                   (nxml-mode)
+                 (text-mode))
+             (error (text-mode))))
+         (if (not (get-buffer-window out-buffer))
+             (message (concat "output is on buffer " out-buffer))))))
+
+     (when xmllint-installed
+     (defun nxml-run-xmllint-shell ()
+       "run an interactive xmllint shell on the FILE of the currently selected buffer"
+       (interactive)
+       (compile (concat "xmllint --shell " (buffer-file-name (window-buffer (minibuffer-selected-window)))) t)))
+   #+END_SRC
+
 * encryption
 ** epa (see 'check-installation-status *nix)
 ** pinentry (currently not functional, disabled)
@@ -2873,13 +2879,14 @@
    #+END_SRC
 ** additional functions
    #+BEGIN_SRC emacs-lisp
+     (when (functionp #'nxml-pretty-format)
      (defun gb/replace-buffer-with-yank ()
        "replace the whole buffer with the first item on the kill ring"
        (interactive)
        (erase-buffer)
        (yank)
        (if (string/starts-with (buffer-substring 1 6) "<?xml")
-           (nxml-pretty-format)))
+           (nxml-pretty-format))))
    #+END_SRC
 ** aggressive indent mode (also used by parinfer) 
    automatically indents all while typing 
