@@ -4285,11 +4285,11 @@
      :require git-gutter
      :config (global-git-gutter-mode +1))
 
-   (req-package magit-gh-pulls
-     :require magit
-     :defer 40
-     :init
-     (add-hook 'magit-mode-hook 'turn-on-magit-gh-pulls))
+;;   (req-package magit-gh-pulls
+;;     :require magit
+;;     :defer 40
+;;     :init
+;;     (add-hook 'magit-mode-hook 'turn-on-magit-gh-pulls))
 
 ;;   (req-package magit-filenotify
 ;;     :require magit
@@ -4305,11 +4305,11 @@
    ;; To always enable the mode when opening the magit-status buffer add magit-filenotify-mode to the magit-status-mode-hook.
 
 
-   (req-package magit-gitflow
-     :require magit
-     :defer 40
-     :init
-     (add-hook 'magit-mode-hook 'turn-on-magit-gitflow))
+;;   (req-package magit-gitflow
+;;     :require magit
+;;     :defer 40
+;;     :init
+;;     (add-hook 'magit-mode-hook 'turn-on-magit-gitflow))
    ;; C-f in magit status buffer will invoke gitflow action selector.
 
    (req-package git-blamed
@@ -6633,20 +6633,20 @@
     :commands vagrant-tramp-term)
 #+END_SRC
 ** ansible
-*** ansible
-    #+BEGIN_SRC emacs-lisp
+*** ansible (disabled)
+    #+BEGIN_SRC emacs-lisp :tangle no
       (req-package ansible
         :defer 30
         :commands ansible)
     #+END_SRC
-*** ansible-doc
-    #+BEGIN_SRC emacs-lisp
+*** ansible-doc (disabled)
+    #+BEGIN_SRC emacs-lisp :tangle no
     (req-package ansible-doc
       :defer 30
       :commands ansible-doc ansible-doc-mode)
     #+END_SRC
-*** company-ansible
-    #+BEGIN_SRC emacs-lisp
+*** company-ansible (disabled)
+    #+BEGIN_SRC emacs-lisp :tangle no
     (req-package company-ansible
       :defer 30
       :require company)
