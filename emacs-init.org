@@ -962,6 +962,8 @@
     (if (is-ms-windows-p)
         (progn
 
+          (setq gnutls-cli-installed nil)
+
           ;; make sure that git asks for the credentials via gui
           (setenv "GIT_ASKPASS" "git-gui--askpass")
 
@@ -1167,6 +1169,21 @@
        (progn 
          ;; (pinentry-start)
          ))
+   #+END_SRC
+* networking
+** tls
+   - --tofu                 Enable trust on first use authentication
+   - --strict-tofu          Fail to connect if a known certificate has changed
+   - %p inserts port
+   - %h inserts host
+   - keys are saved in ~/.gnutls/known_hosts
+   #+BEGIN_SRC emacs-lisp
+    (req-package tls
+      :config (when gnutls-cli-installed (add-to-list 'tls-program "gnutls-cli -p %p %h")))
+   #+END_SRC
+   - fetch a certificate and put it into known_hosts
+   #+BEGIN_SRC sh :tangle no
+   gnutls-cli --tofu -p 443 imap.gmail.com
    #+END_SRC
 * browser
 ** w3m
