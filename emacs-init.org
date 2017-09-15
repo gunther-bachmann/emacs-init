@@ -1180,6 +1180,21 @@
              (setq w3m-toggle-inline-images t))))
    #+END_SRC
 * ui related stuff
+** command logging
+   - 'M-x command-log-mode' opens a buffer that logs all commands used
+   - other functions use prefix 'clm/'
+   #+BEGIN_SRC emacs-lisp
+     (req-package command-log-mode
+       :commands clm/toggle-command-log-buffer
+       :config
+       (setq command-log-mode-auto-show t))
+   #+END_SRC
+** interaction log
+   - start via ilog-log-buffer-mode, creates a buffer called *Emacs log*, just open it
+   #+BEGIN_SRC emacs-lisp
+   (req-package interaction-log
+     :commands ilog-log-buffer-mode)
+   #+END_SRC
 ** copy of window init from spacemacs
    #+BEGIN_SRC emacs-lisp
      (defvar gb--after-display-system-init-list '()
@@ -3163,14 +3178,6 @@
        :bind (("C-S-s" . helm-swoop)
               ("C-M-S-s" . helm-multi-swoop-all))
        :require helm)
-   #+END_SRC
-** command logging
-   - 'M-x command-log-mode' opens a buffer that logs all commands used
-   - other functions use prefix 'clm/'
-   #+BEGIN_SRC emacs-lisp
-     (req-package command-log-mode
-       :config
-       (setq command-log-mode-auto-show t))
    #+END_SRC
 ** pos tip
    #+BEGIN_SRC emacs-lisp
