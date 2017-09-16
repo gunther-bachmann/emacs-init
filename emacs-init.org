@@ -6122,130 +6122,173 @@
     #+END_SRC
 *** org babel
     #+BEGIN_SRC emacs-lisp
-      ;; set jar path for ditaa
-      ;; sh 'brew info ditaa | grep -oe "/usr/local[^ ]*"' produces path to /usr/local/Cellar/ditaa/0.10
-      ;; within this dir the file INSTALL_RECEIPT.json exists.
-      ;; within this json file, under the key source.version.stable = '0.10' the version string is accessible
-      ;; thus the org-ditaa-jar-path can be constructed (which is true for mac os brew systems)
-      (setq org-ditaa-jar-path "/usr/local/Cellar/ditaa/0.10/libexec/ditaa0_10.jar") ;; "/usr/local/bin/ditaa"
+       ;; set jar path for ditaa
+       ;; sh 'brew info ditaa | grep -oe "/usr/local[^ ]*"' produces path to /usr/local/Cellar/ditaa/0.10
+       ;; within this dir the file INSTALL_RECEIPT.json exists.
+       ;; within this json file, under the key source.version.stable = '0.10' the version string is accessible
+       ;; thus the org-ditaa-jar-path can be constructed (which is true for mac os brew systems)
+       (setq org-ditaa-jar-path "/usr/local/Cellar/ditaa/0.10/libexec/ditaa0_10.jar") ;; "/usr/local/bin/ditaa"
 
-      ;; set sed command for org babel
-      (setq org-babel-sed-command "/usr/local/opt/gnu-sed/libexec/gnubin/sed")
+       ;; set sed command for org babel
+       (setq org-babel-sed-command "/usr/local/opt/gnu-sed/libexec/gnubin/sed")
 
-      (setq org-src-fontify-natively t)
+       (setq org-src-fontify-natively t)
 
-      ;; (addToList org-babel-shell-names "fish")
+       ;; (addToList org-babel-shell-names "fish")
 
-      ;; do not ask for confirmation when executing functions in org babel
-      ;; (setq org-confirm-babel-evaluate nil)
-      ;; Disable confirmation question when evaluating (C-c C-c) these languages
-      (defun gb/org-confirm-babel-evaluate (lang body)
-        (not (or (string= lang "plantuml")
-                 ;; ... add more above this line when needed ...
-                 )))
-      (setq org-confirm-babel-evaluate 'gb/org-confirm-babel-evaluate)
+       ;; do not ask for confirmation when executing functions in org babel
+       ;; (setq org-confirm-babel-evaluate nil)
+       ;; Disable confirmation question when evaluating (C-c C-c) these languages
+       (defun gb/org-confirm-babel-evaluate (lang body)
+         (not (or (string= lang "plantuml")
+                  ;; ... add more above this line when needed ...
+                  )))
+       (setq org-confirm-babel-evaluate 'gb/org-confirm-babel-evaluate)
 
-      ;; redisplay images after org babel execute
-      (add-hook 'org-babel-after-execute-hook #'org-redisplay-inline-images)
+       ;; redisplay images after org babel execute
+       (add-hook 'org-babel-after-execute-hook #'org-redisplay-inline-images)
 
-      ;; execute org babel if current majore mode is org-mode
-      ;; and the file has source code regions
-      ;; and the file defines a header-args property with value :tangle ...
-      (defun gb/tangle-on-save-org-mode-file()
-        (when (string= major-mode "org-mode")
-          (progn
-            (let ((has-source-regions (gb/buffer-contains-string "^ *#\\+BEGIN_SRC"))
-                  (should-tangle (gb/buffer-contains-string "^#\\+PROPERTY: +header-args +:tangle")))
-              (if (and has-source-regions should-tangle)
-                  (progn
-                    (when (package-installed-p 'yankpad)
-                      (remove-hook 'after-change-major-mode-hook #'yankpad-local-category-to-major-mode))
-                    (when (package-installed-p 'pretty-mode)
-                      (global-pretty-mode -1))
-                    (when ligatures-enabled
-                      (remove-hook 'prog-mode-hook
-                                   #'add-fira-code-symbol-keywords))
-                    (message "executing org-babel-tangle ...")
-                    (let ((inhibit-message t))
-                      (org-babel-tangle))
-                    (message "executing org-babel-tangle ... done.")
-                    (when ligatures-enabled
-                      (add-hook 'prog-mode-hook
-                                #'add-fira-code-symbol-keywords))
-                    ;; check whether readonly should be applied again
-                    ;; only if currently not in detailed edit mode
-                    (gb/activate-properties-in-org-mode)
-                    ;; the following currently takes about 3 seconds (which I don't want to spend)
-                    ;;(when (package-installed-p 'pretty-mode)
-                    ;;  (global-pretty-mode 1))
-                    (when (package-installed-p 'yankpad)
-                      (add-hook 'after-change-major-mode-hook #'yankpad-local-category-to-major-mode))))))))
 
-      ;; execute org babel on safe (if major mode is org-mode
-      (add-hook 'after-save-hook 'gb/tangle-on-save-org-mode-file)
+      ;;    - original source http://www.holgerschurig.de/en/emacs-init-tangle/
+      (defun gb/speedy-emacs-init-tangle (filename)
+        "This function will write all source blocks from FILENAME into
+      ~/.emacs.d/init.el that are ...
 
-      ;; set default header args for plantuml
-      (setq org-babel-default-header-args:PlantUML
-            '((:results . "file") (:exports . "results") (:noweb . "yes") (:cmdline . "-charset UTF-8")))
+      - not marked as =tangle: no=
+      - doesn't have the TODO state =CANCELLED=
+      - have a source-code of =emacs-lisp="
+        (require 'org)
+        (let* ((body-list ())
+               (output-file "~/.emacs.d/init.el")
+               (org-babel-default-header-args (org-babel-merge-params org-babel-default-header-args
+                                                                      (list (cons :tangle output-file)))))
+          (message "Writing %s ..." output-file)
+          (save-restriction
+            (save-excursion
+              (org-babel-map-src-blocks filename
+                                        (let* ((info (org-babel-get-src-block-info 'light))
+                                               (tfile (cdr (assq :tangle (nth 2 info))))
+                                               (match))
+                                          (save-excursion
+                                            (catch 'exit
+                                              (org-back-to-heading t)
+                                              (when (looking-at org-outline-regexp)
+                                                (goto-char (1- (match-end 0))))
+                                              (when (looking-at (concat " +" org-todo-regexp "\\( +\\|[ \t]*$\\)"))
+                                                (setq match (match-string 1)))))
+                                          (unless (or (string= "no" tfile)
+                                                      (string= "CANCELED" match)
+                                                      (not (string= "emacs-lisp" lang)))
+                                            (add-to-list 'body-list body)))))
+            (with-temp-file output-file
+              (insert (format ";; Don't edit this file, edit '%s' instead ...\n\n" filename))
+              (insert (apply 'concat (reverse body-list))))
+            (message "Wrote %s ..." output-file))))
 
-      ;; use cider as backend for clojure
-      (setq org-babel-clojure-backend (quote cider))
+       ;; execute org babel if current major mode is org-mode
+       ;; and the file has source code regions
+       ;; and the file defines a header-args property with value :tangle ...
+       ;; if this file writes into ~/.emacs.d/init.el then gb/speedy-emacs-init-tangle is used
+       (defun gb/tangle-on-save-org-mode-file()
+         (when (string= major-mode "org-mode")
+           (progn
+             (let ((has-source-regions (gb/buffer-contains-string "^ *#\\+BEGIN_SRC"))
+                   (should-tangle (gb/buffer-contains-string "^#\\+PROPERTY: +header-args +:tangle"))
+                   (target-is-initel (gb/buffer-contains-string (concat "^#\\+PROPERTY: +header-args +:tangle +" (regexp-quote "~/.emacs.d/init.el")))))
+               (if (and has-source-regions should-tangle)
+                   (progn
+                     (when (package-installed-p 'yankpad)
+                       (remove-hook 'after-change-major-mode-hook #'yankpad-local-category-to-major-mode))
+                     (when (package-installed-p 'pretty-mode)
+                       (global-pretty-mode -1))
+                     (when ligatures-enabled
+                       (remove-hook 'prog-mode-hook
+                                    #'add-fira-code-symbol-keywords))
 
-      ;; function is renamed to ...x (since it should not collide with impl. in org)
-      (require 'ob-clojure) ;; load this first, then define the new function
-      (defun org-babel-execute:clojure (body params)
-        "Execute a block of Clojure code with Babel. Changes by GB"
-        (let ((expanded (org-babel-expand-body:clojure body params))
-              result)
-          (cl-case org-babel-clojure-backend
-            (cider
-             (require 'cider)
-             (let ((result-params (cdr (assq :result-params params))))
-               (setq result
-                     (nrepl-dict-get
-                      (nrepl-sync-request:eval
-                       expanded (cider-current-connection)) ;; <------------- change in cider api
-                      (if (or (member "output" result-params)
-                              (member "pp" result-params))
-                          "out"
-                        "value")))))
-            (slime
-             (require 'slime)
-             (with-temp-buffer
-               (insert expanded)
-               (setq result
-                     (slime-eval
-                      `(swank:eval-and-grab-output
-                        ,(buffer-substring-no-properties (point-min) (point-max)))
-                      (cdr (assq :package params)))))))
-          (org-babel-result-cond (cdr (assq :result-params params))
-            result
-            (condition-case nil (org-babel-script-escape result)
-              (error result)))))
+                     (message "executing org-babel-tangle ...")
+                     (if target-is-initel
+                         (gb/speedy-emacs-init-tangle (buffer-file-name))
+                       (let ((inhibit-message t))
+                         (org-babel-tangle)))
+                     (message "executing org-babel-tangle ... done.")
 
-      ;; enable all languages listed below within org babel
-      (when (version<= "9.0.5" (org-version))
-      (org-babel-do-load-languages
-       'org-babel-load-languages
-       '((java . t)
-         (clojure . t)
-         (ditaa . t)
-         (dot . t)
-         ;; (elixir . t)
-         (emacs-lisp . t)
-         (gnuplot . t)
-         (groovy . t)
-         (latex . t) ;; needs org-edit-latex
-         ;; (max . t) ;; maxima
-         (plantuml . t)
-         ;; (prolog . t)
-         (python . t)
-         (scala . t)
-         (scheme . t)
-         (sed . t)
-         (shell . t)
-         ;; (sml . t) ;; standard ml
-         (sql . t))))
+                     (when ligatures-enabled
+                       (add-hook 'prog-mode-hook
+                                 #'add-fira-code-symbol-keywords))
+                     ;; check whether readonly should be applied again
+                     ;; only if currently not in detailed edit mode
+                     (gb/activate-properties-in-org-mode)
+                     ;; the following currently takes about 3 seconds (which I don't want to spend)
+                     ;;(when (package-installed-p 'pretty-mode)
+                     ;;  (global-pretty-mode 1))
+                     (when (package-installed-p 'yankpad)
+                       (add-hook 'after-change-major-mode-hook #'yankpad-local-category-to-major-mode))))))))
+
+       ;; execute org babel on safe (if major mode is org-mode
+       (add-hook 'after-save-hook 'gb/tangle-on-save-org-mode-file)
+
+       ;; set default header args for plantuml
+       (setq org-babel-default-header-args:PlantUML
+             '((:results . "file") (:exports . "results") (:noweb . "yes") (:cmdline . "-charset UTF-8")))
+
+       ;; use cider as backend for clojure
+       (setq org-babel-clojure-backend (quote cider))
+
+       ;; function is renamed to ...x (since it should not collide with impl. in org)
+       (require 'ob-clojure) ;; load this first, then define the new function
+       (defun org-babel-execute:clojure (body params)
+         "Execute a block of Clojure code with Babel. Changes by GB"
+         (let ((expanded (org-babel-expand-body:clojure body params))
+               result)
+           (cl-case org-babel-clojure-backend
+             (cider
+              (require 'cider)
+              (let ((result-params (cdr (assq :result-params params))))
+                (setq result
+                      (nrepl-dict-get
+                       (nrepl-sync-request:eval
+                        expanded (cider-current-connection)) ;; <------------- change in cider api
+                       (if (or (member "output" result-params)
+                               (member "pp" result-params))
+                           "out"
+                         "value")))))
+             (slime
+              (require 'slime)
+              (with-temp-buffer
+                (insert expanded)
+                (setq result
+                      (slime-eval
+                       `(swank:eval-and-grab-output
+                         ,(buffer-substring-no-properties (point-min) (point-max)))
+                       (cdr (assq :package params)))))))
+           (org-babel-result-cond (cdr (assq :result-params params))
+             result
+             (condition-case nil (org-babel-script-escape result)
+               (error result)))))
+
+       ;; enable all languages listed below within org babel
+       (when (version<= "9.0.5" (org-version))
+       (org-babel-do-load-languages
+        'org-babel-load-languages
+        '((java . t)
+          (clojure . t)
+          (ditaa . t)
+          (dot . t)
+          ;; (elixir . t)
+          (emacs-lisp . t)
+          (gnuplot . t)
+          (groovy . t)
+          (latex . t) ;; needs org-edit-latex
+          ;; (max . t) ;; maxima
+          (plantuml . t)
+          ;; (prolog . t)
+          (python . t)
+          (scala . t)
+          (scheme . t)
+          (sed . t)
+          (shell . t)
+          ;; (sml . t) ;; standard ml
+          (sql . t))))
 
     #+END_SRC
 **** org babel lfe
