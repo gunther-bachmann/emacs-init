@@ -2864,7 +2864,7 @@
        (progn 
          (setq  highlight-symbol-foreground-color "Gray52")))
    #+END_SRC
-** TODO bookmarking (needs hydra)
+** bookmarking (needs hydra)
    #+BEGIN_SRC emacs-lisp
      (req-package bm
        :bind
@@ -3508,7 +3508,7 @@
           (add-hook 'lisp-interaction-mode-hook #'parinfer-mode)
           (add-hook 'scheme-mode-hook           #'parinfer-mode)))
     #+END_SRC
-*** TODO eros (display result of eval as overlay)
+*** eros (display result of eval as overlay)
     - shows eval-last-sexp as overlay behind the expression evaluated (instead of only minibuffer)
     #+BEGIN_SRC emacs-lisp 
       (req-package eros
@@ -4667,7 +4667,7 @@
       :mode ("\\.epub\\'" . ereader-mode))
   #+END_SRC
 * pdf-tooling
-  TODO check whether all that is required tools are installed for pdf tools to function, message if not, install if ok
+  - TODO check whether all that is required tools are installed for pdf tools to function, message if not, install if ok
   #+BEGIN_SRC emacs-lisp
     ;; allow in emacs pdf view/annotate etc.
     ;; if not functional do the following: remove package and restart emacs, then allow rebuild of pdf tooling, restart again 
@@ -5323,7 +5323,7 @@
  #+BEGIN_SRC emacs-lisp
  ) ;; closes req-package of gnus!
  #+END_SRC
-*** TODO nnir (make mails searchable)
+*** nnir (make mails searchable)
 **** add keybindings for searching imap groups (currently 'G G' within top top level)
 **** construct hydra 
   #+BEGIN_SRC emacs-lisp
@@ -5550,6 +5550,7 @@
             (let ((res (apply orig-func args)))
               (add-hook 'after-save-hook 'gb/tangle-on-save-org-mode-file)
               res))
+
           (defun gb/org-clock-in-switch-to-state-fn (state)
             "switch TODO to IMPLEMENT if clocking in!"
             (if (equal state "TODO")
@@ -6046,7 +6047,7 @@
       :defer 30)
  #+END_SRC
 *** IMPLEMENT helm org rifle
-**** TODO find keybindings
+**** find keybindings
   #+BEGIN_SRC emacs-lisp
     (req-package helm-org-rifle
        :require helm org
@@ -6095,13 +6096,13 @@
         (setq appt-disp-window-function (function gb/appt-display)))
 
     #+END_SRC
-*** TODO org review
+*** org review
     #+BEGIN_SRC emacs-lisp
       (req-package org-review
         :commands org-review-insert-next-review org-review-insert-last-review
         :require org)
     #+END_SRC
-*** TODO org ref
+*** org ref
     - see https://github.com/jkitchin/org-ref
     #+BEGIN_SRC emacs-lisp
       (req-package org-ref
@@ -7203,7 +7204,7 @@
         (bind-key "C-c m" #'vr/mc-mark)
         (setq vr/default-regexp-modifiers (quote (:I t :M t :S nil :U nil)))))
   #+END_SRC
-* TODO language server protocol mode
+* language server protocol mode
   #+BEGIN_SRC emacs-lisp
   (req-package lsp-mode
     :commands lsp-mode)
