@@ -6852,6 +6852,17 @@
         ("l" avy-goto-line :exit t)
         ("i" avy-goto-char-in-line :exit t))) 
 
+  (defhydra hydra-ui-info ()
+       "
+         ui-info
+         -----------------------------
+         _=_: what cursor position (C-u for font information)
+
+         %s(hydra-combine-functions-w-key-bindings
+            '((\" [=] what cursor position \" . what-cursor-position))))
+
+       "
+       ("=" what-cursor-position :exit t))
 
     ;;--------------------------------------------------------------------------------
     ;; TODO: install only those hydras that are actually defined
@@ -6865,6 +6876,7 @@
           _om_: org mode              _gg_: gnus group
           _pp_: emacs profiler        _a_ : avy
           _i_ : ivy                   _d_ : dash
+          _u_ : ui info
           ^ ^                         _q_ : quit
         "
       ("a" hydra-avy/body :exit t)
@@ -6879,6 +6891,7 @@
       ("pp" hydra-profiler/body :exit t)
       ("i" hydra-ivy/body :exit t)
       ("d" hydra-dash/body :exit t)
+      ("u" hydra-ui-info/body :exit t)
       ("q" (message "Abort") :exit t))
 
     )  
