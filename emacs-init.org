@@ -6169,7 +6169,16 @@
                                             (add-to-list 'body-list body)))))
             (with-temp-file output-file
               (insert (format ";; Don't edit this file, edit '%s' instead ...\n\n" filename))
-              (insert (apply 'concat (reverse body-list))))
+              (insert (apply 'concat (reverse body-list)))
+              (emacs-lisp-mode)
+              (condition-case nil
+                  (check-parens)
+                ;; error case is not executed even though user-error should be signaled if an error occurs
+                (user-error (with-current-buffer (generate-new-buffer "*Generated init.el*")
+                         (insert-file output-file)
+                         (emacs-lisp-mode)
+                         (check-parens)
+                         (switch-to-buffer "*Generated init.el*")))))
             (message "Wrote %s ..." output-file))))
 
        ;; execute org babel if current major mode is org-mode
