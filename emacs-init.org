@@ -17,6 +17,7 @@
 #   - entries with 'ok: ... installed' mark checks for external programs that are needed for some packages to work
 #
 * preset
+  - things to setup before anything else happens
   #+BEGIN_SRC emacs-lisp
     (setq gb/log-startup-timing nil) ;; set true for timing messages during startup
     (setq gb/debug-req-package nil) ;; debug req package (look into message buffer)
@@ -38,9 +39,11 @@
 * benchmarking
   - simply call M-x profiler-report after loading
   #+BEGIN_SRC emacs-lisp
-    ;; (profiler-start 'cpu)
+    (if gb/log-startup-timing
+      (profiler-start 'cpu))
   #+END_SRC
 * info
+  - information about this file and usages of certain functionalities
 ** el-get packages
    - example of how to load packages dynamically via el-get from git sources
    #+BEGIN_SRC emacs-lisp :tangle no
@@ -87,15 +90,16 @@
       package 'session' which stores lots of session information into
       the file .session in the .emacs.d
 * enhancements and todos
-** todo lsp-mode: check what packages have to be deactivated in order to not interfere with lsp-mode and company suggestions
-** todo switch gnus mail sync with google calendar to ...
-** todo allow duplex/non-duplex configuration of printer / printing (see org header "printer")
-** todo minimap mode results in ligatures being misplaced!
+  list of todos and enhancements to be implmented, checked, verified (some day)
+** TODO lsp-mode: check what packages have to be deactivated in order to not interfere with lsp-mode and company suggestions
+** TODO switch gnus mail sync with google calendar to org-gcal
+** TODO allow duplex/non-duplex configuration of printer / printing (see org header "printer")
+** TODO minimap mode results in ligatures being misplaced!
 ** IMPLEMENT describe each packages' benefit for my configuration
-** todo define something like layers
+** TODO define something like layers
    e.g. layer for core, editing, navigation, programming ... such that these layers can be easily switched off and on at the top of the init
    file
-** implement synchronise linux and mac os x init
+** IMPLEMENT synchronise linux and mac os x init
    - state "implement"  from "todo"       [2017-01-27 fr 20:02]
 *** todo some org-babel packages are not resolved during bootstrap of init.el (sed, shell, groovy)
 *** todo loadpath dependencies that should be resolved
@@ -111,9 +115,9 @@
     - bind-key
     - key-chord
     - benchmark (currently via loadpath)
-** implement find keybinding for jumplist, complete jumplist-hook-commands
+** IMPLEMENT find keybinding for jumplist, complete jumplist-hook-commands
    - state "implement"  from "todo"       [2015-11-16 mon 12:58]
-** implement list modes actually in use and think about optimal key/function binding
+** IMPLEMENT list modes actually in use and think about optimal key/function binding
    - state "implement"  from "planned"    [2016-11-28 mon 08:08]
 *** gnus
 *** elfeed
@@ -126,7 +130,7 @@
 *** java
 *** java script
 *** docker
-** todo elfeed: filter news depending on title/feed/url etc.
+** TODO elfeed: filter news depending on title/feed/url etc.
    - state "test"       from "todo"       [2016-04-08 fri 15:55]
 ** PLANNED explore org-contacts as bbdb replacement (look [[https://julien.danjou.info/projects/emacs-packages#org-contacts][here]] and [[http://kitchingroup.cheme.cmu.edu/blog/2016/12/22/context-specific-org-mode-speed-keys/?utm_source=feedburner&utm_medium=twitter&utm_campaign=feed:+thekitchinresearchgroup+(the+kitchin+research+group)][here]])
 ** PLANNED add additional modes to store linenumbers when capturing
@@ -205,12 +209,17 @@
     (global-unset-key "\C-z")     ;; (now mapped to prefix -- dash)
     (global-unset-key "\C-x\C-k") ;; keyboard makros prefix (now mapped to kill buffer)
     (global-unset-key "\M-%")     ;; replaced by visual-regexp ...
-    ;; unbind all super key bindings
-    (dolist (key '(& \, \^ \` \| \~ \? a b c d e f g h i j k l m n o p q r s t u v w x y z))
+    ;; unbind super key bindings with the given keys
+    (dolist (key '(& \, \^ \` \| \~ \?))
       (global-unset-key (kbd (concat "s-" (symbol-name key))))
       (global-unset-key (kbd (concat "s-" (upcase (symbol-name key))))))
+    ;; unbind super key bindings with letters (lower and upper case variant)
+    (dotimes (i 26)
+      (let ((letter (byte-to-string (+ 65 i))))
+        (global-unset-key (kbd (concat "s-" letter)))
+        (global-unset-key (kbd (concat "s-" (downcase letter))))))
   #+END_SRC
-* initial accounts setup
+* check account configuration files
   #+BEGIN_SRC emacs-lisp
     (setq agenda-accounts-exists (file-exists-p (concat user-emacs-directory "accounts/agenda-accounts.el")))
     (setq calendar-accounts-exists (file-exists-p (concat user-emacs-directory "accounts/calendar-accounts.el")))
@@ -225,23 +234,25 @@
   #+BEGIN_SRC emacs-lisp
     (defun is-ms-windows-p ()
       "check whether this system is microsoft windows"
-      (string-match "windows" (symbol-name system-type)))
+      (if (string-match "windows" (symbol-name system-type))
+          t
+        nil))
 
     (defun is-linux-p ()
       "check whether this system is a linux"
-      (string-match "linux" (symbol-name system-type)))
+      (if (string-match "linux" (symbol-name system-type))
+          t
+        nil))
 
     (defun is-macos-p ()
       "check whether this system is mac os"
-      (string-match "darwin" (symbol-name system-type)))
+      (if (string-match "darwin" (symbol-name system-type))
+          t
+        nil))
 
     (defun is-_nix-p ()
       "check whether this is a *nix derivative (either linux or macos)"
       (or (is-linux-p) (is-macos-p)))
-
-    (defun gb/on-mac-p ()
-      "is emacs running on mac os x?"
-      (is-macos-p))
   #+END_SRC
 * proxy setup (if present)
   #+BEGIN_SRC emacs-lisp
@@ -253,12 +264,13 @@
   (report-elapsed "enter package setup")
   (require 'package)
 
+  ;; package access either through secure https, or insecure http
+  (setq secure-package-access t)
+
+
   (when gb/debug-req-package
     (setq req-package-log-level 'debug
           use-package-verbose t))
-
-  ;; package access either through secure https, or insecure http
-  (setq secure-package-access t)
 
   (if secure-package-access
       (setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
@@ -275,7 +287,7 @@
           ("melpa" . 10)
           ("gnu" . 0)))
 
-  (setq package-menu-async nil) ;; defaulting operations to be async (is problematic on windows systems)
+  (setq package-menu-async (is-_nix-p)) ;; defaulting operations to be async (is problematic on windows systems)
 
   (package-initialize) ;; cannot use t as parameter since initialization is necessary for init file to work
 
@@ -305,7 +317,7 @@
            el-get))
 
   ;; add mac specific packages
-  (when (gb/on-mac-p)
+  (when (is-macos-p)
     (add-to-list 'package-to-install-initially 'exec-path-from-shell))
 
   (dolist (package package-to-install-initially)
@@ -377,13 +389,13 @@
             (report-elapsed ":config-exit paradox")
             )
    #+END_SRC
-* startup config
+* splash and initial buffer config
 #+BEGIN_SRC emacs-lisp
   ;; set scratch window content
-  (let* ((total-ram (if (gb/on-mac-p) 
+  (let* ((total-ram (if (is-macos-p)
                         (/ (string-to-int (shell-command-to-string "sysctl hw.memsize | sed 's/.*:\s*//'")) (* 1024 1024 1024) )
                       (/ (nth 0 (memory-info)) (* 1024 1024))))
-         (free-ram (if (gb/on-mac-p) 0 (/ (nth 1 (memory-info)) (* 1024 1024))))
+         (free-ram (if (is-macos-p) 0 (/ (nth 1 (memory-info)) (* 1024 1024))))
          (total-ram-str (concat (number-to-string total-ram) "GB" ))
          (free-ram-str (if (= 0 free-ram) "LOTS OF" (concat (number-to-string free-ram) "GB" )))
          (len-avail-for-memory (+ (length emacs-version) 1))
@@ -399,9 +411,6 @@
                               free-ram-str
                               " EMACS LISP BYTES FREE\n;; READY\n")
                       ;; properties do not work here, since they are overwritten/not used
-                      ;; 'face 'bold
-                      ;; 'face '(background-color . blue)
-                      ;; 'bgcolor 'blue
                       )))
 
   ;; make sure no *Messages* buffer is open on startup 
@@ -582,7 +591,7 @@
          (scroll-down-line 7)
          (previous-line 7))
    #+END_SRC
-** hydra
+** hydra utils
    #+BEGIN_SRC emacs-lisp
     (defun keys-for-function (fun-symbol)
       "find a key binding for the given function
@@ -613,7 +622,7 @@
            (if (string-empty-p kb) nil (concat (car it) " <" kb ">")))
            pairs))))
    #+END_SRC
-** org
+** org utils
    #+BEGIN_SRC emacs-lisp
      (defun gb/execute-startup-block ()
        "execute within this org file the source code block that's named 'startup'"
@@ -747,28 +756,6 @@
        (ibuffer-list-buffers)
        (other-window 1))
 
-     (defun copy-buffer-file-name-as-kill (choice)
-       "Copyies the buffer {name/mode}, file {name/full path/directory} to the kill-ring."
-       (interactive "cCopy (b) buffer name, (m) buffer major mode, (f) full buffer-file path, (d) buffer-file directory, (n) buffer-file basename")
-       (let ((new-kill-string)
-             (name (if (eq major-mode 'dired-mode)
-                       (dired-get-filename)
-                     (or (buffer-file-name) ""))))
-         (cond ((eq choice ?f)
-                (setq new-kill-string name))
-               ((eq choice ?d)
-                (setq new-kill-string (file-name-directory name)))
-               ((eq choice ?n)
-                (setq new-kill-string (file-name-nondirectory name)))
-               ((eq choice ?b)
-                (setq new-kill-string (buffer-name)))
-               ((eq choice ?m)
-                (setq new-kill-string (format "%s" major-mode)))
-               (t (message "Quit")))
-         (when new-kill-string
-           (message "%s copied" new-kill-string)
-           (kill-new new-kill-string))))
-
      (require 'subr-x)
      (defun _nix-program-exists-in-path-p (program-string)
        "Does the given exist as file and is on the path?
@@ -798,19 +785,21 @@
          (-none-p 'null (-map 'file-executable-p full-file-string-list))))
 
      (defun all-_nix-program-exists-in-path-p (program-string)
-     ""
-     (if (stringp program-string)
-         (_nix-program-exists-in-path-p program-string)
-       (-none? 'null (-map '_nix-program-exists-in-path-p program-string))))
+       "make sure that the PROGRAM-STRING exists as executable reachable for unix.
+     If PROGRAM-STRING is a list, make sure this is true for all elements of the list"
+       (if (stringp program-string)
+           (_nix-program-exists-in-path-p program-string)
+         (-none? 'null (-map '_nix-program-exists-in-path-p program-string))))
 
      (defun report-string-or-list (string-or-list)
-     ""
-     (if (stringp string-or-list)
-         string-or-list
-       (string-join string-or-list ", ")))
+       "return STRING-OR-LIST if it is a string, else join the list of strings with comma"
+       (if (stringp string-or-list)
+           string-or-list
+         (string-join string-or-list ", ")))
 
      (defmacro check-file-existence-status (var-name full-file-string file-name warning)
-       ""
+       "set VAR-NAME to t iff all files in FULL-FILE-STRING exist. additionall
+     report existing files (with ok) and non existing files (with warning)."
        `(progn
           (setq ,var-name (all-files-exist ,full-file-string))
           (if (not ,var-name)
@@ -869,7 +858,7 @@
   #+END_SRC
 * ms windows specific stuff
   #+BEGIN_SRC emacs-lisp
-    (if (is-ms-windows-p)
+    (when (is-ms-windows-p)
         (progn
 
           (setq gnutls-cli-installed nil)
@@ -925,15 +914,13 @@
           (if aspell-installed
               (progn
                 (add-to-list 'exec-path (concat aspell-installation-path "bin/"))
-                (setq ispell-program-name "aspell")))
-
-          ))
+                (setq ispell-program-name "aspell")))))
   #+END_SRC
 * mac os x specific stuff
 ** misc
 #+BEGIN_SRC emacs-lisp
   ;; mac specific adjustments (keyboard etc)
-    (when (gb/on-mac-p)
+    (when (is-macos-p)
       (progn
 
         (setq browse-url-browser-function 'browse-url-chromium)
@@ -998,7 +985,7 @@
    #+BEGIN_SRC emacs-lisp
   ;; make sure this is run before anything else, since all shell program starts need the correct path
   ;; exec-path-from-shell alread required (w/i initial package setup)
-  (when (gb/on-mac-p)
+  (when (is-macos-p)
     (exec-path-from-shell-initialize)
     (exec-path-from-shell-copy-envs
      '("PATH")))
@@ -1006,7 +993,7 @@
 * check installation status of programs (*nix)
   - make sure this is done, after path is properly setup (mac os problem)
   #+BEGIN_SRC emacs-lisp
-    (if (is-_nix-p)
+    (when (is-_nix-p)
         (progn
 
           ;; is imagemagick installed (program for command line image manipulation)
@@ -1280,7 +1267,7 @@
   #+END_SRC
 ** show menu bar (only in case of macos)
  #+BEGIN_SRC emacs-lisp
-   (if (gb/on-mac-p)
+   (if (is-macos-p)
        (menu-bar-mode 1)
      (menu-bar-mode -1))
  #+END_SRC
@@ -7605,7 +7592,7 @@
                          "-message" message))
          (defun gb/pomodoro-finished-notification ()
            "notify user about finished pomodoro"
-           (if (gb/on-mac-p)
+           (if (is-macos-p)
                (notify-osx "Pomodoro completed" "Time for a short break")
              (message "Pomodoro completed, time for a short break") ;; notification for unix missing
              ))
