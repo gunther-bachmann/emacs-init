@@ -355,6 +355,9 @@
             :init (report-elapsed ":init-enter paradox")
             :config
             (report-elapsed ":config-enter paradox")
+
+            ;; description is pastell sand like color
+            (custom-set-faces '(paradox-description-face ((t (:foreground "#e0d0a0")))))
             (progn 
               (let* ((github-token-file "~/.github-token.properties.gpg"))
                 (if (file-exists-p github-token-file)
@@ -1278,14 +1281,17 @@
 #+END_SRC
 ** add theme
    #+BEGIN_SRC emacs-lisp
-      (if (file-exists-p (concat user-emacs-directory "themes"))
-         (progn
-           (add-to-list 'custom-theme-load-path (concat user-emacs-directory "themes"))
-           (add-to-list 'load-path (concat user-emacs-directory "themes"))
-           (if (file-exists-p (concat user-emacs-directory "themes/sanityinc-tomorrow-night-theme.el"))
-               (load-theme 'sanityinc-tomorrow-night t)
-             (message (concat "WARNING: theme folder '" user-emacs-directory "themes' does not contain 'sanityinc-tomorrow-night"))))
-       (message (concat "WARNING: theme folder '" user-emacs-directory "themes' not found. Themes will not be loaded")))
+     (if (file-exists-p (concat user-emacs-directory "themes"))
+        (progn
+          (add-to-list 'custom-theme-load-path (concat user-emacs-directory "themes"))
+          (add-to-list 'load-path (concat user-emacs-directory "themes"))
+          (if (file-exists-p (concat user-emacs-directory "themes/sanityinc-tomorrow-night-theme.el"))
+              (progn
+                (load-theme 'sanityinc-tomorrow-night t)
+                (custom-set-faces '(link-face ((t (:foreground "#81a2be" :underline (:style line :color "#41526e"))))))
+                (custom-set-faces '(link ((t (:foreground "#81a2be" :underline (:style line :color "#41526e")))))))
+            (message (concat "WARNING: theme folder '" user-emacs-directory "themes' does not contain 'sanityinc-tomorrow-night"))))
+      (message (concat "WARNING: theme folder '" user-emacs-directory "themes' not found. Themes will not be loaded")))
    #+END_SRC
 ** display symbols (pretty-mode, prettify-greek)
    #+BEGIN_SRC emacs-lisp
