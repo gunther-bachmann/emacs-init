@@ -5152,6 +5152,11 @@
 
 
    ;; Gnus formatting and colorizing
+
+   ;; customize org link
+   (custom-set-faces '(org-link ((t (:foreground "#81a2be" :underline (:style line :color "#41526e"))))))
+   (custom-set-faces '(org-date ((t (:foreground "#81a2be" :underline (:style line :color "#41526e"))))))
+
    (copy-face 'default 'mysubject)
    (setq gnus-face-1 'mysubject)
 
