@@ -5031,28 +5031,13 @@
         ("<f1>" . hydra-gnus-article-mime-part/body)
       )
       :init  (progn
-
-
-      ;; well, actually strict tls should be applied to message fetch only, shouldn't it?
-      (setq gb/strict-gnutls "gnutls-cli --strict-tofu -p %p %h")
-      (defun gb/restrict-tls-access-for-gnus ()
-        ""
-          (when gnutls-cli-installed (add-to-list 'tls-program gb/strict-gnutls)))
-
-      (defun gb/remove-tls-restriction ()
-        ""
-        (when (string= (first tls-program) gb/strict-gnu-tls)
-          (setq tls-program (rest tls-program))))
-
-      (add-hook 'gnus-started-hook #'gb/restrict-tls-access-for-gnus)
-      (add-hook 'gnus-exit-gnus-hook #'gb/remove-tls-restriction)
-
         ;; Sign messages by default
         (add-hook 'message-setup-hook 'mml-secure-sign-pgpmime)
    ;; make sure that truncate lines is off and word wrap is on when viewing articels
    (add-hook 'gnus-article-mode-hook
      (lambda ()
        (setq
+         fill-column 60
          truncate-lines nil
          word-wrap t)))
         )
@@ -5148,6 +5133,9 @@
       (setq mm-sign-option nil)
       ;; use the sender to select default key
       (setq mml-secure-openpgp-sign-with-sender t)
+      (setq mm-verify-option (quote known))
+      (setq mml-secure-fail-when-key-problem t)
+
       (setq mm-fill-flowed nil)
       (setq mm-inline-large-images (quote resize))
 
