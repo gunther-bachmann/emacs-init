@@ -1040,6 +1040,9 @@
 
           (check-_nix-program-status git-imerge-installed "git-imerge" "git-imerge" "git-imerge not found")
 
+          (check-_nix-program-status languagetool-installed "languagetool" "languagetool" "languagetool not found")
+
+
           (if firefox-installed
             (progn
               (setq browse-url-browser-function 'browse-url-firefox)
@@ -2926,37 +2929,38 @@
      json parsing with elisp see [[http://tess.oconnor.cx/2006/03/json.el][here]]
      adjustments to (langtool--process-filter) will have to be made, in order to parse json results
    #+BEGIN_SRC emacs-lisp
-     (req-package langtool
-       :require s
-       :commands (langtool-check
-                  langtool-check-done
-                  langtool-switch-default-language
-                  langtool-show-message-at-point
-                  langtool-correct-buffer)
-       :init
-       (progn
-         (defun langtool-autoshow-detail-popup (overlays)
-           (when (require 'popup nil t)
-             ;; Do not interrupt current popup
-             (unless (or popup-instances
-                        ;; suppress popup after type `C-g` .
-                        (memq last-command '(keyboard-quit)))
-               (let ((msg (langtool-details-error-message overlays)))
-                 (popup-tip msg)))))
-         (setq langtool-autoshow-message-function
-               'langtool-autoshow-detail-popup)
-         )
-       :config
-       (when (is-_nix-p)
-         (let ((jar-file (s-trim (shell-command-to-string "cat `which languagetool` | sed -n 's/.*-jar.\\(.*\\) \".*/\\1/p'"))))
-           (if (file-exists-p jar-file)
-               (progn
-                 (message "OK: langtool jar file found")
-                 (setq langtool-language-tool-jar jar-file))
-             (message (format "ERROR: langtool jar not found at '%s'" jar-file)))))
+     (when languagetool-installed
+       (req-package langtool
+         :require s
+         :commands (langtool-check
+                    langtool-check-done
+                    langtool-switch-default-language
+                    langtool-show-message-at-point
+                    langtool-correct-buffer)
+         :init
+         (progn
+           (defun langtool-autoshow-detail-popup (overlays)
+             (when (require 'popup nil t)
+               ;; Do not interrupt current popup
+               (unless (or popup-instances
+                           ;; suppress popup after type `C-g` .
+                           (memq last-command '(keyboard-quit)))
+                 (let ((msg (langtool-details-error-message overlays)))
+                   (popup-tip msg)))))
+           (setq langtool-autoshow-message-function
+                 'langtool-autoshow-detail-popup)
+           )
+         :config
+         (when (is-_nix-p)
+           (let ((jar-file (s-trim (shell-command-to-string "cat `which languagetool` | sed -n 's/.*-jar.\\(.*\\) \".*/\\1/p'"))))
+             (if (file-exists-p jar-file)
+                 (progn
+                   (message "OK: langtool jar file found")
+                   (setq langtool-language-tool-jar jar-file))
+               (message (format "ERROR: langtool jar not found at '%s'" jar-file)))))
 
-       (setq langtool-default-language "en-US")
-       (setq langtool-java-user-arguments '("-Dfile.encoding=UTF-8")))
+         (setq langtool-default-language "en-US")
+         (setq langtool-java-user-arguments '("-Dfile.encoding=UTF-8"))))
    #+END_SRC
 ** flyspell
    installation of ispell german dictionary:
