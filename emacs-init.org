@@ -2922,6 +2922,9 @@
    - instrument languagetool (see [[https://www.languagetool.org/][here]])
      installed via 'brew install languagetool'
    - description see [[https://github.com/mhayashi1120/Emacs-langtool][here]]
+   - TODO: change interface to use json (thus some other details can be used for display)
+     json parsing with elisp see [[http://tess.oconnor.cx/2006/03/json.el][here]]
+     adjustments to (langtool--process-filter) will have to be made, in order to parse json results
    #+BEGIN_SRC emacs-lisp
      (req-package langtool
        :require s
@@ -2930,6 +2933,19 @@
                   langtool-switch-default-language
                   langtool-show-message-at-point
                   langtool-correct-buffer)
+       :init
+       (progn
+         (defun langtool-autoshow-detail-popup (overlays)
+           (when (require 'popup nil t)
+             ;; Do not interrupt current popup
+             (unless (or popup-instances
+                        ;; suppress popup after type `C-g` .
+                        (memq last-command '(keyboard-quit)))
+               (let ((msg (langtool-details-error-message overlays)))
+                 (popup-tip msg)))))
+         (setq langtool-autoshow-message-function
+               'langtool-autoshow-detail-popup)
+         )
        :config
        (when (is-_nix-p)
          (let ((jar-file (s-trim (shell-command-to-string "cat `which languagetool` | sed -n 's/.*-jar.\\(.*\\) \".*/\\1/p'"))))
