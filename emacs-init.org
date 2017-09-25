@@ -2952,6 +2952,13 @@
            )
          :config
          (when (is-_nix-p)
+           (let ((jar-file (concat (s-trim (shell-command-to-string "cat `which languagetool` | sed -n 's/^CP=\\(.*\\)/\\1/p'")) "/languagetool-commandline.jar")))
+             (if (file-exists-p jar-file)
+                 (progn
+                   (message "OK: langtool jar file found")
+                   (setq langtool-language-tool-jar jar-file))
+               (message (format "ERROR: langtool jar not found at '%s'" jar-file)))))
+         (when (is-macos-p)
            (let ((jar-file (s-trim (shell-command-to-string "cat `which languagetool` | sed -n 's/.*-jar.\\(.*\\) \".*/\\1/p'"))))
              (if (file-exists-p jar-file)
                  (progn
