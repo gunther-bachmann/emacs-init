@@ -5532,6 +5532,21 @@
           (add-hook 'org-mode-hook #'gb/enable-auto-fill-mode)
           ;; (add-hook 'org-mode-hook #'org-sticky-header)
 
+          ;; make sure source blocks are collapsed at first
+          ;; and C-x t b expands and recollapses them
+          ;; see [[https://emacs.stackexchange.com/questions/7211/collapse-src-blocks-in-org-mode-by-default][here]]
+          (defvar gb/org-block-visible nil)
+          (defun gb/org-toggle-block-visibility ()
+            ""
+            (interactive)
+            (if gb/org-block-visible
+                (org-hide-block-all)
+              (org-show-block-all))
+            (setq-local gb/org-block-visible (not gb/org-block-visible)))
+          (add-hook 'org-mode-hook #'gb/org-toggle-block-visibility)
+
+          (define-key gb/toggle-map "b" #'gb/org-toggle-block-visibility)
+
           ;; ensure that adjusted save hook is not executed when org edit src save is executed
           (advice-add 'org-edit-src-save :around #'gb/wrap-org-edit-src-save)
           ;; ensure that read only mode is removed when org src edit is started
