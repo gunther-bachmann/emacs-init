@@ -1591,7 +1591,7 @@
   (setq ;; makes killing/yanking interact with the clipboard
         select-enable-clipboard t
 
-        ;; I'm actually not sure what this does but it's recommended?
+        ;; use primary selection for cut/paste
         select-enable-primary t
 
         ;; Save clipboard strings into kill ring before replacing them.
@@ -1800,10 +1800,6 @@
     - (spinner-start 'triangle)
     #+BEGIN_SRC emacs-lisp
     (req-package spinner)
-    #+END_SRC
-*** diminish (hide minor modes from spaceline mode line)
-    #+BEGIN_SRC emacs-lisp
-      (req-package diminish) ;; actual diminishing of modes is executed after init is completely run (see end of file)
     #+END_SRC
 *** spaceline (mode line of spacemacs)
     #+BEGIN_SRC emacs-lisp
@@ -2385,9 +2381,7 @@
      (req-package ws-butler
        :config
        (progn
-         (ws-butler-global-mode 1)
-         (when (package-installed-p 'diminish)
-           (diminish 'ws-butler-mode))))
+         (ws-butler-global-mode 1)))
    #+END_SRC
 ** encoding
    #+BEGIN_SRC emacs-lisp
@@ -7532,7 +7526,8 @@
 ** yaml
    #+BEGIN_SRC emacs-lisp
    (req-package yaml-mode
-     :mode (("\\.yml\\'" . yaml-mode)))
+     :mode (("\\.yml\\'" . yaml-mode)
+            ("\\.yaml\\'" . yaml-mode)))
    (req-package yaml-tomato
      :require yaml-mode
      :commands (yaml-tomato-show-current-path yaml-tomato-copy))
@@ -7802,6 +7797,11 @@
    - [[https://github.com/NicolasPetton/Indium][home page]]
 * look at
 * tested but discarded
+** diminish (hide minor modes from spaceline mode line) (obsolete now)
+   - its still a dependency of use-package, so its still loaded
+   #+BEGIN_SRC emacs-lisp :tangle no
+     (req-package diminish) ;; actual diminishing of modes is executed after init is completely run (see end of file)
+   #+END_SRC
 ** use line if no region (deactive, currently evaluating easy-kill)
    uses a line as region if no active region is selected and a
    command is issued that works on regions
