@@ -771,7 +771,8 @@
           the return value is either t or nil."
        (let* ((which-result (shell-command-to-string (concat "which " program-string))))
          (not (or (string-empty-p which-result)
-                  (string-match (concat "no " program-string " in") which-result)))))
+                  (string-match (concat "no " program-string " in") which-result)
+                  (string-match "not found"  which-result)))))
 
      (defun all-files-exist (full-file-string-list)
        "does the given file (list of files, all) exist?
