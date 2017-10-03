@@ -5683,6 +5683,11 @@
                 '(("emacs-lisp" (:background "#1b1010"))
                   ("java" (:background "#1b1010"))))
 
+          ;; make sure latex is highlighted in org mode buffers
+          ;; `latex'    Highlight LaTeX snippets and environments.
+          ;;  `script'   Highlight subscript and superscript.
+          ;;  `entities' Highlight entities.
+          (setq org-highlight-latex-and-related '(latex script entities))
 
           ;; make sure that regular font in src block within org is 'white'
           (custom-set-faces '(org-block ((t (:foreground "gray75")))))
