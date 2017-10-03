@@ -3379,6 +3379,23 @@
        (isearch-exit)
        (goto-char isearch-other-end))
    #+END_SRC
+** visible mark
+   - make the last (2) marks visible (orange, yellow)
+   - C-x C-x exchanges point and mark, spanning a region between the two
+   - C-space sets the mark, marks are put into a ring
+   - back-button allows navigation throught the mark buffer positions
+   #+BEGIN_SRC emacs-lisp
+     (req-package visible-mark
+       :init
+       (defface visible-mark-active ;; put this before (require 'visible-mark)
+         '((((type tty) (class mono)))
+           (t (:background "magenta"))) "")
+       (setq visible-mark-max 2)
+       (setq visible-mark-faces `(visible-mark-face1 visible-mark-face2))
+       :config
+       (global-visible-mark-mode 1) ;; or add (visible-mark-mode) to specific hooks
+       )
+   #+END_SRC
 ** back-button
 #+BEGIN_SRC emacs-lisp
   (req-package back-button
