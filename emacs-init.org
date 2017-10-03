@@ -5764,7 +5764,8 @@
           ;;      (base-font-color     (face-foreground 'default nil 'default))
           ;;      (headline           `(:inherit default :weight bold )))
 
-          ;;  (custom-theme-set-faces 'user
+            (custom-theme-set-faces 'user
+          ;;                          `(org-document-title ((t ( :height 1.5 :underline nil))))
           ;;                          `(org-level-8 ((t (,@headline ,@variable-tuple))))
           ;;                          `(org-level-7 ((t (,@headline ,@variable-tuple))))
           ;;                          `(org-level-6 ((t (,@headline ,@variable-tuple))))
@@ -5772,8 +5773,7 @@
           ;;                          `(org-level-4 ((t (:foreground "#a97167"))))
           ;;                          `(org-level-3 ((t (:foreground "#4fa8a8" ,@headline))))
           ;;                          `(org-level-2 ((t (:foreground "#989848" ,@headline :height 1.1))))
-          ;;                          `(org-level-1 ((t (:foreground "#8888c8" ,@headline :height 1.25))))
-          ;;                          `(org-document-title ((t ( :height 1.5 :underline nil))))))
+                                    `(org-level-1 ((t (:foreground "#de935f")))))
 
 
           ))
