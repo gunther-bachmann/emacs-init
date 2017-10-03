@@ -5831,6 +5831,9 @@
                 (tags priority-down category-keep)
                 (search category-keep)))
 
+        ;; show repeated org agenda entries only once
+        (setq org-agenda-show-future-repeats nil)
+
         ;;open agenda in current window
         (setq org-agenda-window-setup (quote current-window))
         ;;warn me of any deadlines in next 7 days
