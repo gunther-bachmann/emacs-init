@@ -5830,6 +5830,23 @@
       :config
       (progn
 
+        ;;don't show tasks as scheduled if they are already shown as a deadline
+        (setq org-agenda-skip-scheduled-if-deadline-is-shown t)
+
+        ;;don't give a warning colour to tasks with impending deadlines
+        ;;if they are scheduled to be done
+        (setq org-agenda-skip-deadline-prewarning-if-scheduled (quote pre-scheduled))
+
+        ;;don't show tasks that are scheduled or have deadlines in the
+        ;;normal todo list
+        (setq org-agenda-todo-ignore-deadlines (quote all))
+        (setq org-agenda-todo-ignore-scheduled (quote all))
+
+        ;; sort agend entries by,
+        ;; time-up       : Put entries with time-of-day indications first, early first
+        ;; category-up   : Sort alphabetically by category, A-Z.
+        ;; priority-down : Sort numerically by priority, high priority first.
+        ;; category-keep : Keep the default order of categories, corresponding to the sequence in org-agenda-files.
         (setq org-agenda-sorting-strategy
               '((agenda time-up category-up)
                 (todo priority-down todo-state-up category-down)
