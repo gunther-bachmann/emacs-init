@@ -99,22 +99,6 @@
 ** TODO define something like layers
    e.g. layer for core, editing, navigation, programming ... such that these layers can be easily switched off and on at the top of the init
    file
-** IMPLEMENT synchronise linux and mac os x init
-   - state "implement"  from "todo"       [2017-01-27 fr 20:02]
-*** todo some org-babel packages are not resolved during bootstrap of init.el (sed, shell, groovy)
-*** todo loadpath dependencies that should be resolved
-    - ob-clojure
-    - javad
-    - gnus-calendar 
-    - ox-confluence (obsolete)
-    - org-jekyl (obsolete)
-*** done require the emacs package manager, add available repositories and intialize packet manager
-    make sure that the initial (minimal set) packages needed are all loaded
-    - dash
-    - maxframe
-    - bind-key
-    - key-chord
-    - benchmark (currently via loadpath)
 ** IMPLEMENT find keybinding for jumplist, complete jumplist-hook-commands
    - state "implement"  from "todo"       [2015-11-16 mon 12:58]
 ** IMPLEMENT list modes actually in use and think about optimal key/function binding
@@ -132,16 +116,7 @@
 *** docker
 ** TODO elfeed: filter news depending on title/feed/url etc.
    - state "test"       from "todo"       [2016-04-08 fri 15:55]
-** PLANNED explore org-contacts as bbdb replacement (look [[https://julien.danjou.info/projects/emacs-packages#org-contacts][here]] and [[http://kitchingroup.cheme.cmu.edu/blog/2016/12/22/context-specific-org-mode-speed-keys/?utm_source=feedburner&utm_medium=twitter&utm_campaign=feed:+thekitchinresearchgroup+(the+kitchin+research+group)][here]])
-** PLANNED add additional modes to store linenumbers when capturing
-   [[file:~/.emacs.d/init.el::org-file-lineno-store-link][file:~/.emacs.d/init.el::org-file-lineno-store-link]]
-** PLANNED install xcape into the linux installtions to allow for using space as control where possible
-   - configuring needs to be streamlined to allow space-down key-down key-up space-up to work as control
-   - all other uses (especially space-down key-down space-up key-up should function as space then key) should work as with normal space mapping
-** PLANNED rebind C-x C-k keymacros to some other binding (since C-x C-k is used for killing buffers and windows)
-** PLANNED define additional capture templates
-   [[file:~/.emacs.d/init.el::org-capture-templates][file:~/.emacs.d/init.el::org-capture-templates]]
-** PLANNED amplify org-mode
+** TEST amplify org-mode
    #+BEGIN_SRC emacs-lisp :tangle no
      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
      ;; org-mode agenda options                                                ;;
@@ -163,10 +138,36 @@
          (tags priority-down category-keep)
          (search category-keep))))
    #+END_SRC
+** PLANNED explore org-contacts as bbdb replacement (look [[https://julien.danjou.info/projects/emacs-packages#org-contacts][here]] and [[http://kitchingroup.cheme.cmu.edu/blog/2016/12/22/context-specific-org-mode-speed-keys/?utm_source=feedburner&utm_medium=twitter&utm_campaign=feed:+thekitchinresearchgroup+(the+kitchin+research+group)][here]])
+** PLANNED add additional modes to store linenumbers when capturing
+   [[file:~/.emacs.d/init.el::org-file-lineno-store-link][file:~/.emacs.d/init.el::org-file-lineno-store-link]]
+** PLANNED install xcape into the linux installtions to allow for using space as control where possible
+   - configuring needs to be streamlined to allow space-down key-down key-up space-up to work as control
+   - all other uses (especially space-down key-down space-up key-up should function as space then key) should work as with normal space mapping
+** PLANNED rebind C-x C-k keymacros to some other binding (since C-x C-k is used for killing buffers and windows)
+** PLANNED define additional capture templates
+   [[file:~/.emacs.d/init.el::org-capture-templates][file:~/.emacs.d/init.el::org-capture-templates]]
 ** PLANNED adjust selfinsertion commands to put the charater where expected (depending on the mode)
    - see http://mbork.pl/2015-10-31_Smart_comma_and_other_punctuation
 ** PLANNED define hydra for dired
 ** PLANNED define hydra for pdf-tools
+** DONE synchronise linux and mac os x init
+   - State "DONE"       from "IMPLEMENT"  [2017-10-04 Wed 21:47]
+   - state "implement"  from "todo"       [2017-01-27 fr 20:02]
+*** todo some org-babel packages are not resolved during bootstrap of init.el (sed, shell, groovy)
+*** todo loadpath dependencies that should be resolved
+    - ob-clojure
+    - javad
+    - gnus-calendar
+    - ox-confluence (obsolete)
+    - org-jekyl (obsolete)
+*** done require the emacs package manager, add available repositories and intialize packet manager
+    make sure that the initial (minimal set) packages needed are all loaded
+    - dash
+    - maxframe
+    - bind-key
+    - key-chord
+    - benchmark (currently via loadpath)
 ** DONE undo-tree workaround: [2017-02-25 Sat] currently org src block fontification is disabled if undo tree is called, since undo tree exits on up/down in the tree
 ** DONE disable smart region '/' in gnus (since / is used to narrow selection and is not used to surround selected text in this context)
 ** DONE commit message should not store any cursor position info but should always start at the beginning of the buffer
