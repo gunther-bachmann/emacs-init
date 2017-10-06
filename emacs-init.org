@@ -2971,12 +2971,17 @@
    #+END_SRC
 ** flyspell
    installation of ispell german dictionary:
-   - download from https://www.j3e.de/ispell/igerman98/
-   - unpack, edit make file (remove unnecessary languages), execute make
-   - copy *.hash from subdir ispell into /usr/local/Cellar/ispell/3.4.00/lib/ispell/ (e.g. de_DE.hash)
-   - create link 'ln -s de_DE.hash deutsch.hash'
-   - TODO: make gb/switch-dictionary use a variable for hooks that are all called when registration took place! langtool then only registers
-     an additional hook. the hook should use well defined languages as parameters to let each hook what exactly to set
+   - arch linux:
+     #+BEGIN_SRC bash
+     sudo pacman -S aspell-en aspell-de
+     #+END_SRC
+   - mac:
+     - download from https://www.j3e.de/ispell/igerman98/
+     - unpack, edit make file (remove unnecessary languages), execute make
+     - copy *.hash from subdir ispell into /usr/local/Cellar/ispell/3.4.00/lib/ispell/ (e.g. de_DE.hash)
+     - create link 'ln -s de_DE.hash deutsch.hash'
+     - TODO: make gb/switch-dictionary use a variable for hooks that are all called when registration took place! langtool then only registers
+       an additional hook. the hook should use well defined languages as parameters to let each hook what exactly to set
    #+BEGIN_SRC emacs-lisp
      (req-package flyspell
        :require org
