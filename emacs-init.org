@@ -1048,13 +1048,13 @@
           (if firefox-installed
             (progn
               (setq browse-url-browser-function 'browse-url-firefox)
-              (setq browse-url-firefox-program "/Applications/Firefox.app/Contents/MacOS/firefox")))
+              (setq browse-url-firefox-program (s-trim (shell-command-to-string "which firefox")))))
 
           ;; chromium takes precedence (over firefox)
           (if chromium-installed
             (progn
               (setq browse-url-browser-function 'browse-url-chromium)
-              (setq browse-url-chromium-program "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome")))
+              (setq browse-url-chromium-program (s-trim (shell-command-to-string "which chromium")))))
 
           (setq gnu-ls-installed (not (is-ms-windows-p)))
               (if gnu-ls-installed
