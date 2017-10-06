@@ -7835,6 +7835,8 @@
          (setq projectile-switch-project-action 'neotree-projectile-action)))
    #+END_SRC
 * to test
+** lsp-javacomp
+   - lsp support for java using [[https://github.com/tigersoldier/JavaComp][java-comp]]
 ** archive-rpm
    - provide an interface for rpm package open (extends archive-mode)
 ** zoom
