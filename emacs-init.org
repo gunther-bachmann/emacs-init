@@ -6153,11 +6153,15 @@
    ;;        :loader :path)
  #+END_SRC
 *** personal blogs
+    - expects ~/Document/blog/org-jekyll.el to exist
+    - download from [[http://github.com/juanre/org-jekyll][here]]
+    - documentation [[http://juanreyero.com/open/org-jekyll/index.html][here]]
  #+BEGIN_SRC emacs-lisp
-    (req-package org-jekyll
-      :require org
-      :defer 3
-      :load-path "~/Documents/blog")
+   (if (file-exists-p "~/Documents/blog/org-jekyll.el")
+       (req-package org-jekyll
+         :require org
+         :defer 3
+         :load-path "~/Documents/blog"))
  #+END_SRC
 *** make org export use better highlighting with htmlize
  #+BEGIN_SRC emacs-lisp
