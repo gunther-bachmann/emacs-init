@@ -7544,8 +7544,8 @@
      :commands bug-hunter-file bug-hunter-init-file)
 
    #+END_SRC
-** flycheck scala
-   #+BEGIN_SRC emacs-lisp
+** flycheck scala (deactivated, ensime provides all functionality needed here)
+   #+BEGIN_SRC emacs-lisp :tangle no
    ;; install flycheck for scala
    (req-package flycheck-scala-sbt
      :require ensime flycheck
