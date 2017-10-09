@@ -5496,8 +5496,9 @@
    (req-package bbdb-ext
      :require bbdb)
  #+END_SRC
-*** popup window for email selection in mail client (seems to be alternative to bbdb-)
- #+BEGIN_SRC emacs-lisp
+*** DONE popup window for email selection in mail client (seems to be alternative to bbdb-) (deactivated)
+    - seems no longer available
+ #+BEGIN_SRC emacs-lisp :tangle no
    (req-package bbdb-handy
      :require bbdb
      :config
