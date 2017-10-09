@@ -7831,6 +7831,8 @@
 * to test
 ** archive-rpm
    - provide an interface for rpm package open (extends archive-mode)
+** zoom
+   - keeps balanced windows, zooming the one currently having the focus
 ** ox-hugo
    - export org markdown to hugo blog entries
    - see [[https://github.com/kaushalmodi/ox-hugo][here]]
