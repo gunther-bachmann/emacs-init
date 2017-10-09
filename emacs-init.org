@@ -2972,7 +2972,7 @@
 ** flyspell
    installation of ispell german dictionary:
    - arch linux:
-     #+BEGIN_SRC bash
+     #+BEGIN_SRC bash :tangle no
      sudo pacman -S aspell-en aspell-de
      #+END_SRC
    - mac:
