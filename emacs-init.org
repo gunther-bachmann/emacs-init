@@ -4667,6 +4667,8 @@
 
      (setq-default sh-basic-offset 2)
      (setq-default sh-indentation 2)
+
+     (setq warning-suppress-types '((undo discard-info)))
    #+END_SRC
 ** tmux (disabled for now)
    - enables interaction with tmux sessions
