@@ -2553,6 +2553,8 @@
      (define-key gb/toggle-map "i" #'gb/toogle-highlight-what-thing)
      (define-key gb/toggle-map "k" #'flycheck-mode)
      (define-key gb/toggle-map "l" #'toggle-truncate-lines)
+     (when (fboundp 'gb/toggle-visible-mark-mode)
+       (define-key gb/toggle-map "m" #'gb/toggle-visible-mark-mode))
      (define-key gb/toggle-map "p" #'toggle-serif)
      (define-key gb/toggle-map "q" #'toggle-debug-on-quit)
      (define-key gb/toggle-map "r" #'toggle-word-wrap)
@@ -3399,6 +3401,11 @@
            (t (:background "magenta"))) "")
        (setq visible-mark-max 2)
        (setq visible-mark-faces `(visible-mark-face1 visible-mark-face2))
+       (defun gb/toggle-visible-mark-mode ()
+         "toggle visible mark mode"
+         (if (bound-and-true-p visible-mark-mode)
+             (visible-mark-mode -1)
+           (visible-mark-mode t)))
        :config
        (global-visible-mark-mode 1) ;; or add (visible-mark-mode) to specific hooks
        )
