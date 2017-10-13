@@ -91,8 +91,8 @@
       the file .session in the .emacs.d
 * enhancements and todos
   list of todos and enhancements to be implmented, checked, verified (some day)
-** TODO lsp-mode: check what packages have to be deactivated in order to not interfere with lsp-mode and company suggestions
 ** TODO switch gnus mail sync with google calendar to org-gcal
+** TODO lsp-mode: check what packages have to be deactivated in order to not interfere with lsp-mode and company suggestions
 ** TODO allow duplex/non-duplex configuration of printer / printing (see org header "printer")
 ** TODO minimap mode results in ligatures being misplaced!
 ** IMPLEMENT describe each packages' benefit for my configuration
