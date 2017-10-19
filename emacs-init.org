@@ -7395,6 +7395,12 @@
     :commands lsp-mode)
   #+END_SRC
 * currently evaluated
+** company lsp
+   #+BEGIN_SRC emacs-lisp
+   (req-package company-lsp
+     :require company lsp-mode
+     :config (push 'company-lsp company-backends))
+   #+END_SRC
 ** iy-goto-char
    - C-c f <char> : goto the next occurrance of <char>. <char> can then be repeatedly pressed to move on to the next after that
      #+BEGIN_SRC emacs-lisp
