@@ -3393,6 +3393,7 @@
    - C-x C-x exchanges point and mark, spanning a region between the two
    - C-space sets the mark, marks are put into a ring
    - back-button allows navigation throught the mark buffer positions
+   - STATUS: produces errors on post command hooks (default is disabled)
    #+BEGIN_SRC emacs-lisp
      (req-package visible-mark
        :init
@@ -3407,7 +3408,8 @@
              (visible-mark-mode -1)
            (visible-mark-mode t)))
        :config
-       (global-visible-mark-mode 1) ;; or add (visible-mark-mode) to specific hooks
+       ;; (global-visible-mark-mode 1)
+       ;; or add (visible-mark-mode) to specific hooks
        )
    #+END_SRC
 ** back-button
