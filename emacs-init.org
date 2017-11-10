@@ -7435,6 +7435,57 @@
      :require company lsp-mode
      :config (push 'company-lsp company-backends))
    #+END_SRC
+** exwm (emacs window manager)
+   - C-c C-q <next key>: results in next key being send to the x-application unmodified
+   #+BEGIN_SRC emacs-lisp
+     (req-package exwm)
+     (req-package exwm-config
+       :require exwm
+       :config
+       (exwm-config-default)
+
+       ;; make sure multi monitor support is active
+       (require 'exwm-randr)
+       (setq exwm-randr-workspace-output-plist '(0 "VGA1"))
+       ;; (add-hook 'exwm-randr-screen-change-hook
+       ;;           (lambda ()
+       ;;             (start-process-shell-command
+       ;;              "xrandr" nil "xrandr --output VGA1 --left-of LVDS1 --auto")))
+       (exwm-randr-enable)
+
+       (exwm-input-set-simulation-keys
+        '(([?\C-b] . left)
+          ([?\C-f] . right)
+          ([?\C-p] . up)
+          ([?\C-n] . down)
+          ([?\C-a] . home)
+          ([?\C-e] . end)
+          ([?\M-v] . prior)
+          ([?\C-v] . next)
+          ([?\C-d] . delete)
+          ;; ([?\C-y] . c-V)
+          ;; ([?\C-w] . c-C)
+          ([?\C-k] . (S-end delete))))
+
+       ;; enable system tray which is displayed in the message area all the way to the right
+       (require 'exwm-systemtray)
+       (exwm-systemtray-enable)
+
+       (add-hook 'exwm-update-class-hook
+                 (lambda ()
+                   (exwm-workspace-rename-buffer exwm-class-name)))
+
+       (add-hook 'exwm-manage-finish-hook
+                 (lambda ()
+                   (when (and exwm-class-name
+                              (or ;; (string= exwm-class-name "Chromium")
+                                  (string= exwm-class-name "Eclipse")
+                                  ))
+                     (progn
+                       ;; (setq-local exwm-input-prefix-keys '(?\C-l))
+                       (exwm-input-set-local-simulation-keys nil)))))
+       )
+   #+END_SRC
 ** iy-goto-char
    - C-c f <char> : goto the next occurrance of <char>. <char> can then be repeatedly pressed to move on to the next after that
      #+BEGIN_SRC emacs-lisp
