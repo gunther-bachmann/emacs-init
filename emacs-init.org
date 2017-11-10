@@ -4951,7 +4951,7 @@
           `(,(concat user-emacs-directory "snippets"))) ;; my snippets library
 
     ;; (add-hook 'prog-mode-hook #'yas-minor-mode) ;; make it a submode of all programming modes
-    (yas-global-mode 1) ;; make it global
+    ;; (yas-global-mode 1) ;; make it global
 
     ;; Completing point by some yasnippet key
     (defun yas-ido-expand ()
