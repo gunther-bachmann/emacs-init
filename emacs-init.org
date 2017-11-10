@@ -1162,6 +1162,11 @@
 
 * encryption
 ** epa (see 'check-installation-status *nix)
+** configure pinentry
+   #+BEGIN_SRC emacs-lisp
+     ;; (setq epa-pinentry-mode 'loopback)
+     ;; (global-visible-mark-mode -1)
+   #+END_SRC
 ** pinentry (currently not functional, disabled)
    - see ~/.gnupg/gpg-agent.conf
    #+BEGIN_SRC emacs-lisp :tangle no
