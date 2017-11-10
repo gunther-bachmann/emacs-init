@@ -4439,11 +4439,11 @@
    ;; To always enable the mode when opening the magit-status buffer add magit-filenotify-mode to the magit-status-mode-hook.
 
 
-;;   (req-package magit-gitflow
-;;     :require magit
-;;     :defer 40
-;;     :init
-;;     (add-hook 'magit-mode-hook 'turn-on-magit-gitflow))
+   (req-package magit-gitflow
+     :require magit
+     :defer 40
+     :init
+     (add-hook 'magit-mode-hook 'turn-on-magit-gitflow))
    ;; C-f in magit status buffer will invoke gitflow action selector.
 
    (req-package git-blamed
