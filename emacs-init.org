@@ -7523,6 +7523,20 @@
            :config
            (progn
              (require 'sublimity-scroll)
+             ;; redefine pre command for speed up of n no pre commands are present
+             (defun sublimity--pre-command ()
+               (save-excursion (goto-char (window-start)) (setq sublimity--prev-lin (string-to-number (format-mode-line "%l"))))
+               (setq
+                     sublimity--prev-col (window-hscroll)
+                     sublimity--prev-buf (current-buffer)
+                     sublimity--prev-wnd (selected-window)
+                     sublimity--prepared t)
+               (sublimity--run-hooks sublimity--pre-command-functions))
+             (setq gb/modeline-enabled t)
+             (defun gb/modeline ()
+               ""
+               (if gb/modeline-enabled
+                   (spaceline-ml-main)))
              (defun sublimity-scroll--vscroll-effect (lins)
                (save-excursion
                  (let* ((pixel-scroll-last-line (and (not (equal major-mode 'org-mode)) (> (abs lins) 5)))
@@ -7531,14 +7545,20 @@
                    ;; (message (concat "scroll: " (number-to-string lins) ", at: " (number-to-string (nlinum--line-number-at-pos))))
                    ;; (message pixel-scroll-last-line)
                    (sublimity-scroll--vscroll (- lins))
+                   (setq gb/modeline-enabled nil)
+                   ;; (if pixel-scroll-last-line (setq mode-line-format '("%e" (:eval (gb/modeline)))))
                    (dolist (speed speeds)
-                     (sublimity-scroll--vscroll speed)
-                     (force-window-update (selected-window))
-                     (redisplay))
+                     (progn
+                       (sublimity-scroll--vscroll speed)
+                       (force-window-update (selected-window))
+                       (redisplay)))
+                   (setq gb/modeline-enabled t)
+                   ;; (if pixel-scroll-last-line (setq mode-line-format '("%e" (:eval (spaceline-ml-main)))))
                    (if  (and (> lins 0) pixel-scroll-last-line)
                        (progn (pixel-scroll-up 1)))
                    (if (and (< lins 0) pixel-scroll-last-line)
-                       (pixel-scroll-down 1)))))))))
+                       (pixel-scroll-down 1))
+                   )))))))
    #+END_SRC
 ** helm google
    #+BEGIN_SRC emacs-lisp
