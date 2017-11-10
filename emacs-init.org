@@ -1930,7 +1930,13 @@
           (propertize (format-time-string "%H:%M")
                       'face `(:height ,(spaceline-all-the-icons--height 0.9) :inherit)
                       'display '(raise 0.1)
-                      'help-echo (format-time-string "%A, %Y.%m.%d %H:%M")))))
+                      'help-echo (format-time-string "%A, %Y.%m.%d %H:%M")))
+
+(spaceline-define-segment gb/indent-info-mode-line
+""
+(indent-info-mode-line))
+
+))
     #+END_SRC
 *** spaceline all the icons
     - important: install fonts located [[https://github.com/domtronn/all-the-icons.el/tree/master/fonts][here]]
@@ -1947,12 +1953,12 @@
           (progn
             (add-to-list 'all-the-icons-mode-icon-alist '(typescript-mode all-the-icons-fileicon "typescript" :v-adjust -0.1 :face all-the-icons-yellow) t)
             (add-to-list 'all-the-icons-mode-icon-alist '(tide-mode all-the-icons-fileicon "typescript" :v-adjust -0.1 :face all-the-icons-yellow) t)
-        )))
+            )))
 
       (req-package memoize)
 
       (req-package spaceline-all-the-icons
-        :require spaceline all-the-icons memoize
+        :require spaceline all-the-icons memoize indent-info
         ;; :defer 1
         :config
         ;; (spaceline-all-the-icons-theme)
@@ -1969,32 +1975,32 @@
 
         (gb/do-after-display-system-init
          (progn
-      (defun gb/warn-missing-font (font-name)
-        "warn of font missing, if not found"
-        (if (member font-name (font-family-list))
-            (message (concat "OK: font '" font-name "' is installed."))
-          (message (concat "WARNING: make sure font '" font-name  "' is installed."))))
+           (defun gb/warn-missing-font (font-name)
+             "warn of font missing, if not found"
+             (if (member font-name (font-family-list))
+                 (message (concat "OK: font '" font-name "' is installed."))
+               (message (concat "WARNING: make sure font '" font-name  "' is installed."))))
 
-      (gb/warn-missing-font "all-the-icons")
-      (gb/warn-missing-font "file-icons")
-      (gb/warn-missing-font "FontAwesome")
-      (gb/warn-missing-font "Material Icons")
-      (gb/warn-missing-font "github-octicons")
-      (gb/warn-missing-font "Weather Icons")
+           (gb/warn-missing-font "all-the-icons")
+           (gb/warn-missing-font "file-icons")
+           (gb/warn-missing-font "FontAwesome")
+           (gb/warn-missing-font "Material Icons")
+           (gb/warn-missing-font "github-octicons")
+           (gb/warn-missing-font "Weather Icons")
 
            (spaceline-install '((gb/buffer-status :face highlight-face)
-                                auto-compile
+                                ;; auto-compile
                                 ;; buffer-size
                                 gb/buffer-file-name
                                 (gb/buffer-id :face highlight-face) ;; popup-menu-selection-face
-                                remote-host
+                                ;; remote-host
                                 (paradox-menu :when active)
-                                persp-name
+                                ;; persp-name
                                 ;; major-mode
                                 ;;((flycheck-error flycheck-warning flycheck-info)
                                 ;;  :when active)
                                 ((all-the-icons-mode-icon
-                                  gb/projectile-id
+                                  ;; gb/projectile-id
 
                                   ;;  all-the-icons-projectile
                                   ;; (minor-modes :when active)
@@ -2008,17 +2014,19 @@
                                   ;; all-the-icons-flycheck-status-info
                                   all-the-icons-package-updates))
 
-                                (erc-track :when active)
+                                ;; (erc-track :when active)
                                 (process :when active)
                                 (org-pomodoro :when active)
                                 (org-clock :when active)
                                 )
 
-             '(which-function
-               (python-pyvenv :fallback python-pyenv)
-               purpose
+             '(;; which-function
+               ;; (python-pyvenv :fallback python-pyenv)
+               ;; purpose
+
                selection-info
-               input-method
+               gb/indent-info-mode-line
+               ;; input-method
                ((buffer-encoding-abbrev
                  point-position
                  line-column)
@@ -2034,9 +2042,10 @@
                 ;; :separator (spaceline-all-the-icons--separator "|" " ") :face default-face
                 )
                ))
-             (setq-default mode-line-format '("%e" (:eval (spaceline-ml-main))))
-             (spaceline-all-the-icons--setup-anzu)
-             ))
+
+           (setq-default mode-line-format '("%e" (:eval (spaceline-ml-main))))
+           (spaceline-all-the-icons--setup-anzu)
+           ))
 
         ;; (spaceline-all-the-icons--setup-paradox)
         )
