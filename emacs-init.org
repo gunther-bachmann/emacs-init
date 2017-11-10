@@ -1769,7 +1769,20 @@
        :config 
        (progn
          ;; make sure to load it
-         (require 'symon) 
+         (require 'symon)
+         ;; redefine to display right aligned
+         (defun symon--display-update ()
+           "update symon display"
+           (unless (or cursor-in-echo-area (active-minibuffer-window))
+             (let ((message-log-max nil)  ; do not insert to *Messages* buffer
+                   (display-string nil)
+                   (page 0))
+               (dolist (lst symon--display-fns)
+                 (if (= page symon--active-page)
+                     (message "                                                                                                                        %s" (apply 'concat (mapcar 'funcall lst)))
+                   (mapc 'funcall lst))
+                 (setq page (1+ page))))
+             (setq symon--display-active t)))
          ;; then redefine with alternate cpu benchmark (dividing cpu mark by 8 cores)
          (defun symon-darwin--maybe-start-process ()
            (symon--maybe-start-process (format "
