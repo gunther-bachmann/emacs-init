@@ -7419,6 +7419,11 @@
     :commands lsp-mode)
   #+END_SRC
 * currently evaluated
+** indent-info
+   #+BEGIN_SRC emacs-lisp
+   (req-package indent-info
+     :config (global-indent-info-mode 1))
+   #+END_SRC
 ** company lsp
    #+BEGIN_SRC emacs-lisp
    (req-package company-lsp
