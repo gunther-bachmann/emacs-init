@@ -4378,7 +4378,7 @@
    (req-package magit-popup
      :require async)
    (req-package magit
-     :require ido counsel helm async dash with-editor git-commit magit-popup
+     :require counsel helm async dash with-editor git-commit magit-popup
      :commands magit-status
      :bind (
        ("C-c v s" . magit-status)
