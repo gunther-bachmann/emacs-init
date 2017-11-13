@@ -6181,7 +6181,7 @@
               )
             :config
             (progn
-              (setq hidepw-pattern ":PASSWORD: \\(.*\\)")
+              (setq hidepw-pattern ":.*PASS.*: \\(.*\\)")
               ))
         (message "WARNING: hidepw.el not found. passwords will not be hidden in gpg files."))
     #+END_SRC
