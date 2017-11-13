@@ -793,8 +793,8 @@
        "make sure that the PROGRAM-STRING exists as executable reachable for unix.
      If PROGRAM-STRING is a list, make sure this is true for all elements of the list"
        (if (stringp program-string)
-           (_nix-program-exists-in-path-p program-string)
-         (-none? 'null (-map '_nix-program-exists-in-path-p program-string))))
+           (executable-find program-string)
+         (-none? 'null (-map 'executable-find program-string))))
 
      (defun report-string-or-list (string-or-list)
        "return STRING-OR-LIST if it is a string, else join the list of strings with comma"
@@ -4753,7 +4753,7 @@
      (defun shell-fish ()
        "start a friendly interactive shell (fish) within ansi-term"
        (interactive)
-       (ansi-term "/usr/local/bin/fish"))
+       (ansi-term (executable-find "fish")))
    #+END_SRC
 ** shell (bash) checking
    - built in shell editing mode, explicitly initialized here to enable flycheck-mode
