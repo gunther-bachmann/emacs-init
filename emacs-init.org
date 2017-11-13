@@ -2015,8 +2015,8 @@
                                 (paradox-menu :when active)
                                 ;; persp-name
                                 ;; major-mode
-                                ;;((flycheck-error flycheck-warning flycheck-info)
-                                ;;  :when active)
+                                ((flycheck-error flycheck-warning flycheck-info)
+                                  :when active)
                                 ((all-the-icons-mode-icon
                                   ;; gb/projectile-id
 
