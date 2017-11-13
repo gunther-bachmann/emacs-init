@@ -7959,6 +7959,8 @@
    (req-package helm-exwm
      :require exwm)
    #+END_SRC
+** orca (org-capture configuration)
+   - allows filing based on the url it was captured from into special files/headers etc.
 ** lsp-javacomp
    - lsp support for java using [[https://github.com/tigersoldier/JavaComp][java-comp]]
 ** archive-rpm
