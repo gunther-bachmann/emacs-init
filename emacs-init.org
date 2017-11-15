@@ -4272,9 +4272,10 @@
      (add-hook 'python-mode-hook #'elpy-enable)
      (add-hook 'python-mode-hook #'flycheck-mode))
  #+END_SRC
-** IMPLEMENT scala ensime (enhanced scala mode for emacs)
- #+BEGIN_SRC emacs-lisp
+** scala ensime (enhanced scala mode for emacs, currntely disabled)
+ #+BEGIN_SRC emacs-lisp :tangle no
  (req-package ensime
+   :require sbt-mode
    :commands ensime
    :init
    (add-hook 'scala-mode-hook 'ensime-mode))
