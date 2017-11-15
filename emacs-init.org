@@ -8038,6 +8038,10 @@
 ** indium (java script development environment)
    - [[https://github.com/NicolasPetton/Indium][home page]]
 * look at
+** use-package-ensure-system-package
+   - require binaries / packages of the underlying system for installation of package
+   - if provided with installation script might even execute the appropriate installation
+   - see [[https://github.com/waymondo/use-package-ensure-system-package][here]]
 * tested but discarded
 ** diminish (hide minor modes from spaceline mode line) (obsolete now)
    - its still a dependency of use-package, so its still loaded
