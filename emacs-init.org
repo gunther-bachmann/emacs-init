@@ -7425,6 +7425,12 @@
     :commands lsp-mode)
   #+END_SRC
 * currently evaluated
+** helm-exwm (allow for helm based change of exwm buffers)
+   - see [[https://github.com/emacs-helm/helm-exwm][here]]
+   #+BEGIN_SRC emacs-lisp
+   (req-package helm-exwm
+     :require exwm)
+   #+END_SRC
 ** indent-info
    #+BEGIN_SRC emacs-lisp
    (req-package indent-info
@@ -7954,12 +7960,6 @@
          (setq projectile-switch-project-action 'neotree-projectile-action)))
    #+END_SRC
 * to test
-** helm-exwm (allow for helm based change of exwm buffers)
-   - see [[https://github.com/emacs-helm/helm-exwm][here]]
-   #+BEGIN_SRC emacs-lisp :tangle no
-   (req-package helm-exwm
-     :require exwm)
-   #+END_SRC
 ** orca (org-capture configuration)
    - allows filing based on the url it was captured from into special files/headers etc.
 ** lsp-javacomp
