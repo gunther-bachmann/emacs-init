@@ -7444,54 +7444,87 @@
    #+END_SRC
 ** exwm (emacs window manager)
    - C-c C-q <next key>: results in next key being send to the x-application unmodified
+   - [[https://github.com/ch11ng/exwm/wiki/Configuration-example][example configuration]]
    #+BEGIN_SRC emacs-lisp
-     (req-package exwm)
-     (req-package exwm-config
-       :require exwm
-       :config
-       (exwm-config-default)
+          (req-package exwm)
+          (req-package exwm-config
+            :require exwm
+            :config
+            (exwm-config-default)
 
-       ;; make sure multi monitor support is active
-       (require 'exwm-randr)
-       (setq exwm-randr-workspace-output-plist '(0 "VGA1"))
-       ;; (add-hook 'exwm-randr-screen-change-hook
-       ;;           (lambda ()
-       ;;             (start-process-shell-command
-       ;;              "xrandr" nil "xrandr --output VGA1 --left-of LVDS1 --auto")))
-       (exwm-randr-enable)
+            (if (shell-command-to-string "ps -A | grep VBoxClient")
+                (message "OK: VBoxClient seems to be running, thus clipboard sharing is probably active")
+              (message "ERROR: VBoxClient is not running! Clipboard sharing is not available"))
 
-       (exwm-input-set-simulation-keys
-        '(([?\C-b] . left)
-          ([?\C-f] . right)
-          ([?\C-p] . up)
-          ([?\C-n] . down)
-          ([?\C-a] . home)
-          ([?\C-e] . end)
-          ([?\M-v] . prior)
-          ([?\C-v] . next)
-          ([?\C-d] . delete)
-          ;; ([?\C-y] . c-V)
-          ;; ([?\C-w] . c-C)
-          ([?\C-k] . (S-end delete))))
+            (defun gb/start-if-not-running (filename)
+              "start this program if not already running"
+              (let* ((program (file-name-base filename)))
+                (if (and (file-executable-p filename)
+                         (string-empty-p (shell-command-to-string (concat "ps -A | grep " program))))
+                    (async-shell-command filename)
+                  (message (concat "WARNING: program could not be run: " filename)))))
 
-       ;; enable system tray which is displayed in the message area all the way to the right
-       (require 'exwm-systemtray)
-       (exwm-systemtray-enable)
+            ;; make sure multi monitor support is active
+            (require 'exwm-randr)
+            (setq exwm-randr-workspace-output-plist '(0 "VGA1"))
+            ;; (add-hook 'exwm-randr-screen-change-hook
+            ;;           (lambda ()
+            ;;             (start-process-shell-command
+            ;;              "xrandr" nil "xrandr --output VGA1 --left-of LVDS1 --auto")))
+            (exwm-randr-enable)
 
-       (add-hook 'exwm-update-class-hook
-                 (lambda ()
-                   (exwm-workspace-rename-buffer exwm-class-name)))
+            ;; The following example demonstrates how to set a key binding only available
+            ;; in line mode. It's simply done by first push the prefix key to
+            ;; `exwm-input-prefix-keys' and then add the key sequence to `exwm-mode-map'.
+            ;; The example shorten 'C-c q' to 'C-q'.
+            (push ?\C-q exwm-input-prefix-keys)
+            (define-key exwm-mode-map [?\C-q] #'exwm-input-send-next-key)
 
-       (add-hook 'exwm-manage-finish-hook
-                 (lambda ()
-                   (when (and exwm-class-name
-                              (or ;; (string= exwm-class-name "Chromium")
-                                  (string= exwm-class-name "Eclipse")
-                                  ))
-                     (progn
-                       ;; (setq-local exwm-input-prefix-keys '(?\C-l))
-                       (exwm-input-set-local-simulation-keys nil)))))
-       )
+            (exwm-input-set-simulation-keys
+             '(
+               ;; movement
+               ([?\C-b] . left)
+               ([?\M-b] . C-left)
+               ([?\C-f] . right)
+               ([?\M-f] . C-right)
+               ([?\C-p] . up)
+               ([?\C-n] . down)
+               ([?\C-a] . home)
+               ([?\C-e] . end)
+               ([?\M-v] . prior)
+               ([?\C-v] . next)
+               ([?\C-d] . delete)
+               ([?\C-k] . (S-end delete))
+               ;; cut/paste.
+               ([?\C-w] . ?\C-x)
+               ([?\M-w] . ?\C-c)
+               ([?\C-y] . ?\C-v)
+               ;; other
+               ([?\C-g] . escape)
+               ;; search
+               ([?\C-s] . ?\C-f)))
+
+            ;; enable system tray which is displayed in the message area all the way to the right
+            (require 'exwm-systemtray)
+            (exwm-systemtray-enable)
+
+            (add-hook 'exwm-init-hook
+                      (lambda () (gb/start-if-not-running "/usr/bin/pasystray")))
+
+            (add-hook 'exwm-update-class-hook
+                      (lambda ()
+                        (exwm-workspace-rename-buffer exwm-class-name)))
+
+            (add-hook 'exwm-manage-finish-hook
+                      (lambda ()
+                        (when (and exwm-class-name
+                                   (or ;; (string= exwm-class-name "Chromium")
+                                    (string= exwm-class-name "Eclipse")
+                                    ))
+                          (progn
+                            ;; (setq-local exwm-input-prefix-keys '(?\C-l))
+                            (exwm-input-set-local-simulation-keys nil)))))
+            )
    #+END_SRC
 ** iy-goto-char
    - C-c f <char> : goto the next occurrance of <char>. <char> can then be repeatedly pressed to move on to the next after that
