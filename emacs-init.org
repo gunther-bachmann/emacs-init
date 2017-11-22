@@ -5842,6 +5842,33 @@
 
           ))
   #+END_SRC
+*** org mobile
+    - this will put all org files (known to the system) into the transfer folder which is not what I want, I don't want all files to be
+      synced via Dropwizard
+    - could be tamed to not use all agenda files!
+    #+BEGIN_SRC emacs-lisp
+      (req-package org-mobile
+        :commands org-mobile-pull org-mobile-push
+        :require org
+        :config
+        (progn
+        ;; Set to the location of your Org files on your local system
+        (setq org-directory "~")
+        ;; Set to the name of the file where new notes will be stored
+        (setq org-mobile-inbox-for-pull "~/org-dropbox/flagged.org")
+        ;; Set to <your Dropbox root directory>/MobileOrg.
+        (setq org-mobile-directory "~/Dropbox/Apps/MobileOrg")
+        ;; make sure that no agenda files are put into tranfer folder
+        (setq org-mobile-files (quote ("~/notes.synced.org")))
+        ;; (setq org-mobile-agendas nil)
+
+        ;; used for encryption of org mode files
+        (let ((auth-map (jde-read-properties-file "~/.org-mobile.auth.gpg")))
+          (setq org-mobile-encryption-password (gethash "org-mobile-encryption-secret" auth-map)))
+        ;; make sure encryption is used
+        (setq org-mobile-use-encryption t)
+        ))
+    #+END_SRC
 *** org capture
     - for capture templates see [[http://orgmode.org/manual/Template-elements.html#Template-elements]]
     - intro for capture templates see http://cestlaz.github.io/posts/using-emacs-23-capture-1/
