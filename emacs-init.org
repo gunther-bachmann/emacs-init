@@ -5238,6 +5238,13 @@
       ;; gnus will try to build threads from old headers
       (setq gnus-fetch-old-headers t)
     #+END_SRC
+*** gravatar
+    - see [[https://www.gnu.org/software/emacs//manual/html_mono/gnus.html#Gravatars][here]]
+    #+BEGIN_SRC emacs-lisp
+    (setq gnus-treat-from-gravatar 'head) ;; show gravatar in from line
+    ;; (setq gnus-treat-mail-gravatar 'head) ;; show gravator in to and cc line
+    (setq gnus-gravatar-size 75)          ;; size of gravatar (in pixel)
+    #+END_SRC
 *** ui
  #+BEGIN_SRC emacs-lisp
    ;; eww background coloring (to prevent light gray background in htlm mails)
