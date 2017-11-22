@@ -2964,6 +2964,7 @@
        (req-package langtool
          :require s
          :commands (langtool-check
+                    langtool-check-buffer
                     langtool-check-done
                     langtool-switch-default-language
                     langtool-show-message-at-point
@@ -2984,11 +2985,9 @@
          :config
          (when (is-_nix-p)
            (let ((jar-file (concat (s-trim (shell-command-to-string "cat `which languagetool` | sed -n 's/^CP=\\(.*\\)/\\1/p'")) "/languagetool-commandline.jar")))
-             (if (file-exists-p jar-file)
-                 (progn
-                   (message "OK: langtool jar file found")
-                   (setq langtool-language-tool-jar jar-file))
-               (message (format "ERROR: langtool jar not found at '%s'" jar-file)))))
+             (cond ((file-exists-p jar-file) (setq langtool-language-tool-jar jar-file))
+                   ((file-exists-p "/usr/share/languagetool") (setq langtool-java-classpath "/usr/share/languagetool:/usr/share/java/languagetool/*"))
+                   (t (message (format "ERROR: langtool jar not found at '%s' nor in '/usr/share/languagetool'" jar-file))))))
          (when (is-macos-p)
            (let ((jar-file (s-trim (shell-command-to-string "cat `which languagetool` | sed -n 's/.*-jar.\\(.*\\) \".*/\\1/p'"))))
              (if (file-exists-p jar-file)
