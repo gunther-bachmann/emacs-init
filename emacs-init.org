@@ -151,6 +151,8 @@
    - see http://mbork.pl/2015-10-31_Smart_comma_and_other_punctuation
 ** PLANNED define hydra for dired
 ** PLANNED define hydra for pdf-tools
+** DONE check magit ediffing with exwm, seems to have trouble with control window!
+   - State "DONE"       from "TODO"       [2017-11-16 Thu 06:52]
 ** DONE synchronise linux and mac os x init
    - State "DONE"       from "IMPLEMENT"  [2017-10-04 Wed 21:47]
    - state "implement"  from "todo"       [2017-01-27 fr 20:02]
