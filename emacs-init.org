@@ -1579,14 +1579,20 @@
        (progn
          ;; enable smooth scrolling
          (require 'sublimity-scroll)
-         (sublimity-mode 1)
+
+         (defun gb/enable-sublimity-mode ()
+           "do not enable sublimity mode for a certain list of modes"
+           (if (memq major-mode (list 'ansi-term-mode 'term-mode 'shell-mode))
+               (sublimity-mode -1)
+             (sublimity-mode 1)))
+         (add-hook 'after-change-major-mode-hook #'gb/enable-sublimity-mode)
          (setq sublimity-scroll-drift-length 4)
          (setq sublimity-scroll-weight 4.0)
          ;; minimap is explicitly not enabled, since another minimap-mode is used for that
          ;; enable minimap
          ;; (require 'sublimity-map)
          ;; show minimap after x seconds of inactivity
-         ;; (sublimity-map-set-delay 3) 
+         ;; (sublimity-map-set-delay 3)
          ))
    #+END_SRC
 ** other
