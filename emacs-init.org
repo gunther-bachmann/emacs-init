@@ -7523,6 +7523,12 @@
     :commands lsp-mode)
   #+END_SRC
 * currently evaluated
+** pcre2el (replace regular expression syntax with more readable one)
+   - see here
+   #+BEGIN_SRC emacs-lisp
+   (req-package pcre2el
+     :config (pcre-mode 1))
+   #+END_SRC
 ** helm-exwm (allow for helm based change of exwm buffers)
    - see [[https://github.com/emacs-helm/helm-exwm][here]]
    #+BEGIN_SRC emacs-lisp
