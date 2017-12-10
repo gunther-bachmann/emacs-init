@@ -7537,7 +7537,7 @@
    #+END_SRC
 ** helm-exwm (allow for helm based change of exwm buffers)
    - see [[https://github.com/emacs-helm/helm-exwm][here]]
-   #+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp :tangle no
    (req-package helm-exwm
      :require exwm)
    #+END_SRC
