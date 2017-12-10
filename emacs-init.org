@@ -7523,6 +7523,12 @@
     :commands lsp-mode)
   #+END_SRC
 * currently evaluated
+** eterm-256color
+   - see [[http://github.com/dieggsy/eterm-256color][here]]
+   #+BEGIN_SRC emacs-lisp
+   (req-package eterm-256color
+     :init (add-hook 'term-mode-hook #'eterm-256color-mode))
+   #+END_SRC
 ** pcre2el (replace regular expression syntax with more readable one)
    - see here
    #+BEGIN_SRC emacs-lisp
