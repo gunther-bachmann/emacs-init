@@ -4798,20 +4798,67 @@
   - TODO check whether all that is required tools are installed for pdf tools to function, message if not, install if ok
   #+BEGIN_SRC emacs-lisp
     ;; allow in emacs pdf view/annotate etc.
-    ;; if not functional do the following: remove package and restart emacs, then allow rebuild of pdf tooling, restart again 
+    ;; if not functional do the following: remove package and restart emacs, then allow rebuild of pdf tooling, restart again
     (if (and make-installed poppler-installed imagemagick-installed)
-    (req-package pdf-tools
-      :mode ("\\.pdf$" . pdf-view-mode)
-      :init (progn
-        ;; (add-hook 'after-init-hook 'pdf-tools-install)
-        ;; (add-hook 'pdf-tools-mode-hook 'pdf-isearch-minor-mode)
-        (add-hook 'pdf-view-mode-hook 'pdf-misc-minor-mode) ;; misc minor mode offset C-c C-p for printing pdf documents
-        )
-      :config
-      (progn
-        (setq pdf-misc-print-programm "/usr/bin/lp")
-        (setq pdf-view-display-size (quote fit-page))
-        (setq pdf-misc-print-programm-args '("-o" "media=A4" "-o" "sides=two-sided-long-edge")))))
+        (req-package pdf-tools
+          :mode ("\\.pdf$" . pdf-view-mode)
+          :init (progn
+                  ;; (add-hook 'after-init-hook 'pdf-tools-install)
+                  ;; (add-hook 'pdf-tools-mode-hook 'pdf-isearch-minor-mode)
+                  (add-hook 'pdf-view-mode-hook 'pdf-misc-minor-mode) ;; misc minor mode offset C-c C-p for printing pdf documents
+
+
+                  ;; copied from http://babbagefiles.blogspot.de/2017/11/more-pdf-tools-tricks.html
+                  (add-hook 'pdf-view-mode-hook (lambda ()
+                                                  (pdf-view-midnight-minor-mode))) ; automatically turns on midnight-mode for pdfs
+
+                  (setq pdf-view-midnight-colors '("#ff9900" . "#0a0a12" )) ; set the amber profile as default (see below)
+
+                  (defun gb/pdf-no-filter ()
+                    "View pdf without colour filter."
+                    (interactive)
+                    (pdf-view-midnight-minor-mode -1)
+                    )
+
+                  ;; change midnite mode colours functions
+                  (defun gb/pdf-midnite-original ()
+                    "Set pdf-view-midnight-colors to original colours."
+                    (interactive)
+                    (setq pdf-view-midnight-colors '("#839496" . "#002b36" )) ; original values
+                    (pdf-view-midnight-minor-mode)
+                    )
+
+                  (defun gb/pdf-midnite-amber ()
+                    "Set pdf-view-midnight-colors to amber on dark slate blue."
+                    (interactive)
+                    (setq pdf-view-midnight-colors '("#ff9900" . "#0a0a12" )) ; amber
+                    (pdf-view-midnight-minor-mode)
+                    )
+
+                  (defun gb/pdf-midnite-green ()
+                    "Set pdf-view-midnight-colors to green on black."
+                    (interactive)
+                    (setq pdf-view-midnight-colors '("#00B800" . "#000000" )) ; green
+                    (pdf-view-midnight-minor-mode)
+                    )
+
+                  (defun gb/pdf-midnite-colour-schemes ()
+                    "Midnight mode colour schemes bound to keys"
+                    (local-set-key (kbd "!") (quote gb/pdf-no-filter))
+                    (local-set-key (kbd "@") (quote gb/pdf-midnite-amber))
+                    (local-set-key (kbd "#") (quote gb/pdf-midnite-green))
+                    (local-set-key (kbd "$") (quote gb/pdf-midnite-original))
+                    )
+
+                  (add-hook 'pdf-view-mode-hook 'gb/pdf-midnite-colour-schemes)
+
+
+                  )
+          :config
+          (progn
+            (setq pdf-misc-print-programm "/usr/bin/lp")
+            (setq pdf-view-display-size (quote fit-page))
+            (setq pdf-misc-print-programm-args '("-o" "media=A4" "-o" "sides=two-sided-long-edge")))))
   #+END_SRC
 * rest
 #+BEGIN_SRC emacs-lisp
