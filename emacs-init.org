@@ -272,8 +272,12 @@
 
 
   (when gb/debug-req-package
-    (setq req-package-log-level 'debug
-          use-package-verbose t))
+    (setq ;; add verbosity to req package
+          req-package-log-level 'debug
+          ;; add verbosity level to use package
+          use-package-verbose t
+          ;; make sure that use-package does minimal reporting to the message buffer
+          use-package-expand-minimally t))
 
   (if secure-package-access
       (setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
@@ -8041,6 +8045,12 @@
          (setq projectile-switch-project-action 'neotree-projectile-action)))
    #+END_SRC
 * to test
+** scp (use scp to transfer files)
+** smart-jump (smart go to definition)
+** eterm-256color (support for 256 colors in term modes)
+** network-watch (allows hooks to run when network is goiing down/up)
+** latexdiff (diff between two latex files)
+** easy-jekyll (tool to manage jekyll blogs)
 ** orca (org-capture configuration)
    - allows filing based on the url it was captured from into special files/headers etc.
 ** lsp-javacomp
