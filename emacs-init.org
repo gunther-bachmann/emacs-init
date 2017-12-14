@@ -2030,20 +2030,21 @@
                                 ;; major-mode
                                 ((flycheck-error flycheck-warning flycheck-info)
                                   :when active)
-                                ((all-the-icons-mode-icon
+                                ((;; all-the-icons-mode-icon
                                   ;; gb/projectile-id
 
                                   ;;  all-the-icons-projectile
                                   ;; (minor-modes :when active)
                                   (gb/version-control :when (string= major-mode "shell-mode"))
                                   ;; all-the-icons-vc-icon
-                                  (all-the-icons-vc-status
-                                   all-the-icons-git-ahead
-                                   all-the-icons-git-status
-                                   :when (buffer-file-name))
+                                  ;; (all-the-icons-vc-status
+                                  ;;  all-the-icons-git-ahead
+                                  ;;   all-the-icons-git-status
+                                  ;; :when (buffer-file-name))
                                   ;; all-the-icons-flycheck-status
                                   ;; all-the-icons-flycheck-status-info
-                                  all-the-icons-package-updates))
+                                  ;; all-the-icons-package-updates
+                                  ))
 
                                 ;; (erc-track :when active)
                                 (process :when active)
