@@ -4358,7 +4358,8 @@
  (req-package projectile
     :config
    ;; projectile everywhere!
-   (projectile-global-mode))
+   ;; (projectile-global-mode)
+   )
  #+END_SRC
 *** persp-projectile
  #+BEGIN_SRC emacs-lisp
