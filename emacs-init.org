@@ -2647,7 +2647,7 @@
          (global-undo-tree-mode)))
    #+END_SRC
 ** very large files
-   - edit very large files in chunkgs
+   - edit very large files in chunks (see [[https://github.com/m00natic/vlfi][here]])
    #+BEGIN_SRC emacs-lisp
      (req-package vlf
        :defer 7
@@ -4353,6 +4353,7 @@
         '(persp-selected-face ((t (:foreground "Grey70")))))))
  #+END_SRC
 *** projectile
+    - see [[http://batsov.com/projectile/][here]]
  #+BEGIN_SRC emacs-lisp
  (req-package projectile
     :config
@@ -5147,7 +5148,7 @@
    (req-package noflet)
 
    (req-package elfeed-goodies
-     :require elfeed popwin powerline noflet ace-jump-mode
+     :require elfeed popwin noflet ace-jump-mode ;; powerline
      :config
      (progn
        (setq elfeed-goodies/entry-pane-size 0.5)
