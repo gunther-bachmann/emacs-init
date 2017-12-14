@@ -1577,7 +1577,7 @@
 
      #+END_SRC
 ** sublimity
-   #+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp :tangle no
      (req-package sublimity
        :config
        (progn
