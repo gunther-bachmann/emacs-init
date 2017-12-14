@@ -583,13 +583,13 @@
        ;; scroll and move cursor
        (defun scroll-up-line-and-move-cursor ()
          (interactive)
-         (scroll-up-line)
-         (next-line))
-  
+         (scroll-up 1)
+         (forward-line 1))
+
        (defun scroll-down-line-and-move-cursor ()
          (interactive)
-         (scroll-down-line)
-         (previous-line))
+         (scroll-down 1)
+         (forward-line -1))
 
        (defun scroll-up-line-and-move-cursor-7 ()
          (interactive)
@@ -1872,7 +1872,7 @@
              ""))
 
          (spaceline-define-segment gb/buffer-id
-           (propertize (buffer-name) 'help-echo (format "%s, size: %s" (buffer-name) (number-to-string-approx-suffix (buffer-size) t))))
+           (propertize (buffer-name) 'help-echo (format "%s, size: %s" (buffer-name) (number-to-string (buffer-size)))))
 
          (spaceline-define-segment gb/buffer-file-name
            "provide fullpath to buffer file name, shortened to 35 characters if too long"
@@ -7713,7 +7713,7 @@
             (setq flymd-browser-(or  )pen-function 'gb/flymd-browser-function))))
    #+END_SRC
 ** pixel-scroll (pixel wise scrolling)
-   #+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp :tangle no
      ;; currently on the load path by .emacs.d/additionals
      (if (not  (file-exists-p "~/.emacs.d/additionals/pixel-scroll.el"))
          (message "WARNING: pixel-scroll.el does not exist, it will not be installed")
