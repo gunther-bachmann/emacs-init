@@ -1796,7 +1796,7 @@
                    (page 0))
                (dolist (lst symon--display-fns)
                  (if (= page symon--active-page)
-                     (message "                                                                                                                        %s" (apply 'concat (mapcar 'funcall lst)))
+                     (message (concat (make-string  (- (/ (frame-pixel-width) 10) 80) ? ) "%s") (apply 'concat (mapcar 'funcall lst)))
                    (mapc 'funcall lst))
                  (setq page (1+ page))))
              (setq symon--display-active t)))
