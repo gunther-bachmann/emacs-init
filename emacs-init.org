@@ -7560,85 +7560,96 @@
    - C-c C-q <next key>: results in next key being send to the x-application unmodified
    - [[https://github.com/ch11ng/exwm/wiki/Configuration-example][example configuration]]
    #+BEGIN_SRC emacs-lisp
-     (req-package exwm)
-     (req-package exwm-config
-       :require exwm
-       :config
-       (exwm-config-default)
+     (when (string= "ok" (s-trim (shell-command-to-string "cat ~/.xinitrc | grep -q -e '^exec .*emacs' && echo 'ok'")))
+       (req-package exwm)
+       (req-package exwm-config
+         :require exwm
+         :config
+         (exwm-config-default)
 
-       (if (shell-command-to-string "ps -A | grep VBoxClient")
-           (message "OK: VBoxClient seems to be running, thus clipboard sharing is probably active")
-         (message "ERROR: VBoxClient is not running! Clipboard sharing is not available"))
+         (if (shell-command-to-string "ps -A | grep VBoxClient")
+             (message "OK: VBoxClient seems to be running, thus clipboard sharing is probably active")
+           (message "ERROR: VBoxClient is not running! Clipboard sharing is not available"))
 
-       (defun gb/start-if-not-running (filename)
-         "start this program if not already running"
-         (let* ((program (file-name-base filename)))
-           (if (and (file-executable-p filename)
-                    (string-empty-p (shell-command-to-string (concat "ps -A | grep " program))))
-               (async-shell-command filename)
-             (message (concat "WARNING: program could not be run: " filename)))))
+         (defun gb/start-if-not-running (filename)
+           "start this program if not already running"
+           (let* ((program (file-name-base filename)))
+             (if (and (file-executable-p filename)
+                      (string-empty-p (shell-command-to-string (concat "ps -A | grep " program))))
+                 (async-shell-command filename nil nil)
+               (message (concat "WARNING: program could not be run: " filename)))))
 
-       ;; make sure multi monitor support is active
-       (require 'exwm-randr)
-       (setq exwm-randr-workspace-output-plist '(0 "VGA1"))
-       ;; (add-hook 'exwm-randr-screen-change-hook
-       ;;           (lambda ()
-       ;;             (start-process-shell-command
-       ;;              "xrandr" nil "xrandr --output VGA1 --left-of LVDS1 --auto")))
-       (exwm-randr-enable)
+         ;; make sure multi monitor support is active
+         ;; TODO run xrandr to check whether multiple monitors are active
+         (when (string= "2" (s-trim (shell-command-to-string "xrandr --listmonitors | grep \"Monitors\" | awk '{ print $2; }'")))
+           (progn
+             (message "Starting multimonitor support for exwm.")
+             (require 'exwm-randr)
+             (setq exwm-randr-workspace-output-plist '(0 "VGA-1" 1 "VGA-2"))
+             (add-hook 'exwm-randr-screen-change-hook
+                       (lambda ()
+                         (start-process-shell-command
+                          "xrandr" nil "xrandr --output VGA-2 --left-of VGA-1 --auto")))
+             (exwm-randr-enable)))
 
-       ;; The following example demonstrates how to set a key binding only available
-       ;; in line mode. It's simply done by first push the prefix key to
-       ;; `exwm-input-prefix-keys' and then add the key sequence to `exwm-mode-map'.
-       ;; The example shorten 'C-c q' to 'C-q'.
-       (push ?\C-q exwm-input-prefix-keys)
-       (define-key exwm-mode-map [?\C-q] #'exwm-input-send-next-key)
+         ;; The following example demonstrates how to set a key binding only available
+         ;; in line mode. It's simply done by first push the prefix key to
+         ;; `exwm-input-prefix-keys' and then add the key sequence to `exwm-mode-map'.
+         ;; The example shorten 'C-c q' to 'C-q'.
+         (push ?\C-q exwm-input-prefix-keys)
+         (define-key exwm-mode-map [?\C-q] #'exwm-input-send-next-key)
 
-       (exwm-input-set-simulation-keys
-        '(
-          ;; movement
-          ([?\C-b] . left)
-          ([?\M-b] . C-left)
-          ([?\C-f] . right)
-          ([?\M-f] . C-right)
-          ([?\C-p] . up)
-          ([?\C-n] . down)
-          ([?\C-a] . home)
-          ([?\C-e] . end)
-          ([?\M-v] . prior)
-          ([?\C-v] . next)
-          ([?\C-d] . delete)
-          ([?\C-k] . (S-end delete))
-          ;; cut/paste.
-          ([?\C-w] . ?\C-x)
-          ([?\M-w] . ?\C-c)
-          ([?\C-y] . ?\C-v)
-          ;; other
-          ([?\C-g] . escape)
-          ;; search
-          ([?\C-s] . ?\C-f)))
+         (exwm-input-set-simulation-keys
+          '(
+            ;; movement
+            ([?\C-b] . left)
+            ([?\M-b] . C-left)
+            ([?\C-f] . right)
+            ([?\M-f] . C-right)
+            ([?\C-p] . up)
+            ([?\C-n] . down)
+            ([?\C-a] . home)
+            ([?\C-e] . end)
+            ([?\M-v] . prior)
+            ([?\C-v] . next)
+            ([?\C-d] . delete)
+            ([?\C-k] . (S-end delete))
+            ;; cut/paste.
+            ([?\C-w] . ?\C-x)
+            ([?\M-w] . ?\C-c)
+            ([?\C-y] . ?\C-v)
+            ;; other
+            ([?\C-g] . escape)
+            ;; search
+            ([?\C-s] . ?\C-f)))
 
-       ;; enable system tray which is displayed in the message area all the way to the right
-       (require 'exwm-systemtray)
-       (exwm-systemtray-enable)
+         ;; enable system tray which is displayed in the message area all the way to the right
+         (require 'exwm-systemtray)
+         (exwm-systemtray-enable)
 
-       (add-hook 'exwm-init-hook
-                 (lambda () (gb/start-if-not-running "/usr/bin/pasystray")))
+         ;; somehow the switch of workspace fails if some graphic program (like eclipse or chromium) is running
+         ;; this does not fix the problem, though
 
-       (add-hook 'exwm-update-class-hook
-                 (lambda ()
-                   (exwm-workspace-rename-buffer exwm-class-name)))
+         ;; start pasystray from within emacs, starting it within xinitrc does not work
+         (add-hook 'exwm-init-hook
+                   (lambda () (gb/start-if-not-running "/usr/bin/pasystray")))
 
-       (add-hook 'exwm-manage-finish-hook
-                 (lambda ()
-                   (when (and exwm-class-name
-                              (or ;; (string= exwm-class-name "Chromium")
-                               (string= exwm-class-name "Eclipse")
-                               ))
-                     (progn
-                       ;; (setq-local exwm-input-prefix-keys '(?\C-l))
-                       (exwm-input-set-local-simulation-keys nil)))))
-       )
+         ;; make sure the buffer is named after the program that is run
+         ;; (add-hook 'exwm-update-class-hook
+         ;;           (lambda ()
+         ;;             (exwm-workspace-rename-buffer exwm-class-name)))
+
+         ;; ensure that eclipse does not use simulation keys, since i have emacs binding enabled in eclipse
+         ;; (add-hook 'exwm-manage-finish-hook
+         ;;           (lambda ()
+         ;;             (when (and exwm-class-name
+         ;;                        (or ;; (string= exwm-class-name "Chromium")
+         ;;                         (string= (downcase exwm-class-name) "eclipse")
+         ;;                         ))
+         ;;               (progn
+         ;;                 ;; (setq-local exwm-input-prefix-keys '(?\C-l))
+         ;;                 (exwm-input-set-local-simulation-keys nil)))))
+         ))
    #+END_SRC
 ** iy-goto-char
    - C-c f <char> : goto the next occurrance of <char>. <char> can then be repeatedly pressed to move on to the next after that
