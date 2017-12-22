@@ -1850,6 +1850,11 @@
       (req-package spaceline
         :require powerline
         :config
+        ;; Valid Values: alternate, arrow, arrow-fade, bar, box, brace,
+        ;; butt, chamfer, contour, curve, rounded, roundstub, wave, zigzag,
+        ;; utf-8
+        (setq powerline-default-separator 'utf-8)
+
         (require 'spaceline-config)
         (spaceline-spacemacs-theme)
         (spaceline-helm-mode)
@@ -2007,11 +2012,6 @@
                                '(spaceline-all-the-icons-file-name-highlight t)
                                )
 
-        ;; Valid Values: alternate, arrow, arrow-fade, bar, box, brace,
-        ;; butt, chamfer, contour, curve, rounded, roundstub, wave, zigzag,
-        ;; utf-8
-        (setq powerline-default-separator 'arrow-fade)
-
         (gb/do-after-display-system-init
          (progn
            (defun gb/warn-missing-font (font-name)
@@ -2038,7 +2038,7 @@
                                 ;; major-mode
                                 ((flycheck-error flycheck-warning flycheck-info)
                                   :when active)
-                                ((;; all-the-icons-mode-icon
+                                ((all-the-icons-mode-icon
                                   ;; gb/projectile-id
 
                                   ;;  all-the-icons-projectile
