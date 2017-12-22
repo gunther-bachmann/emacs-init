@@ -7534,6 +7534,12 @@
     :commands lsp-mode)
   #+END_SRC
 * currently evaluated
+** eldoc-olverlay
+   - display eldoc as inline overlay
+   - switch on per mode via `M-x eldoc-overlay-mode`
+   #+BEGIN_SRC emacs-lisp
+   (req-package eldoc-overlay)
+   #+END_SRC
 ** eterm-256color
    - see [[http://github.com/dieggsy/eterm-256color][here]]
    #+BEGIN_SRC emacs-lisp
