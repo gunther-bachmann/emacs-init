@@ -7534,6 +7534,11 @@
     :commands lsp-mode)
   #+END_SRC
 * currently evaluated
+** eshell auto suggestion
+   #+BEGIN_SRC emacs-lisp
+   (req-package esh-autosuggest
+     :require company)
+   #+END_SRC
 ** eldoc-olverlay
    - display eldoc as inline overlay
    - switch on per mode via `M-x eldoc-overlay-mode`
