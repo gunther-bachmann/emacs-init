@@ -7539,6 +7539,12 @@
    (req-package esh-autosuggest
      :require company)
    #+END_SRC
+** dimmer
+   - dim non selected buffers (slightly)
+   #+BEGIN_SRC emacs-lisp
+   (req-package dimmer
+     :config (dimmer-activate))
+   #+END_SRC
 ** eldoc-olverlay
    - display eldoc as inline overlay
    - switch on per mode via `M-x eldoc-overlay-mode`
