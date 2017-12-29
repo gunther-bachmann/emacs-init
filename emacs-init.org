@@ -7535,6 +7535,11 @@
   #+END_SRC
 * exwm (emacs window manager)
   - C-c C-q <next key>: results in next key being send to the x-application unmodified
+  - infos
+    - eclipse usage
+      - since eclipse is configured to use emacs key bindings they may collide with exwm and emacs native keybindings.  Thus it makes more
+        sense to use eclipse in key mode (TODO: automatically switch to key mode when in eclipse).  However, if in key mode, buffer
+        switching via C-x C-b is not available. To switch back to line mode use s-r (which resets exwm for this application).
   - [[https://github.com/ch11ng/exwm/wiki/Configuration-example][example configuration]]
   #+BEGIN_SRC emacs-lisp
     (when (string= "ok" (s-trim (shell-command-to-string "cat ~/.xinitrc | grep -q -e '^exec .*emacs' && echo 'ok'")))
@@ -7603,6 +7608,20 @@
            ;; search
            ([?\C-s] . ?\C-f)))
 
+        ;; You can hide the mode-line of floating X windows by uncommenting the
+        ;; following lines
+        (add-hook 'exwm-floating-setup-hook #'exwm-layout-hide-mode-line)
+        (add-hook 'exwm-floating-exit-hook #'exwm-layout-show-mode-line)
+
+        ;; You can hide the minibuffer and echo area when they're not used, by
+        ;; uncommenting the following line
+        ;; (setq exwm-workspace-minibuffer-position 'bottom)
+
+        ;; show all exwm buffers in all workspaces (no restriction)
+        (setq exwm-workspace-show-all-buffers t)
+        ;; automatic moving of x window from inactive workspace by switching buffer
+        (setq exwm-layout-show-all-buffers t)
+
         ;; enable system tray which is displayed in the message area all the way to the right
         (require 'exwm-systemtray)
         (exwm-systemtray-enable)
@@ -7628,7 +7647,7 @@
         ;;                         ))
         ;;               (progn
         ;;                 ;; (setq-local exwm-input-prefix-keys '(?\C-l))
-        ;;                 (exwm-input-set-local-simulation-keys nil)))))
+        ;;                 (setq exwm-input-set-local-simulation-keys nil)))))
         ))
   #+END_SRC
 * currently evaluated
