@@ -7658,6 +7658,11 @@
         ))
   #+END_SRC
 * currently evaluated
+** auto-sudoedit
+   - opens tramp sudo if file is readonly automatically (see [[https://github.com/ncaq/auto-sudoedit][here]])
+   #+BEGIN_SRC emacs-lisp
+   (req-package auto-sudoedit)
+   #+END_SRC
 ** eshell auto suggestion
    #+BEGIN_SRC emacs-lisp
    (req-package esh-autosuggest
@@ -8172,6 +8177,13 @@
          (setq projectile-switch-project-action 'neotree-projectile-action)))
    #+END_SRC
 * to test
+** lsp-ui
+   - emacs ui integration for lsp (like flycheck etc.)
+** ob-clojure-literate
+** org-noter
+   - keep notes in an org file that scrolls with the original
+** org-send-ebook
+   - send an ebook link to an external device (ebook reader) from org mode
 ** scp (use scp to transfer files)
 ** smart-jump (smart go to definition)
 ** eterm-256color (support for 256 colors in term modes)
@@ -8223,6 +8235,9 @@
 ** indium (java script development environment)
    - [[https://github.com/NicolasPetton/Indium][home page]]
 * look at
+** texfrag
+   - allow tex fragments preview in (almost) any buffer
+   - see [[https://github.com/TobiasZawada/texfrag][here]]
 ** counsel-tramp
 ** helm-selected
 ** use-package-ensure-system-package
