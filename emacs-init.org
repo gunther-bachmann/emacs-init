@@ -7545,7 +7545,7 @@
     (when (string= "ok" (s-trim (shell-command-to-string "cat ~/.xinitrc | grep -q -e '^exec .*emacs' && echo 'ok'")))
       (req-package exwm)
       (req-package exwm-config
-        :require exwm
+        :require exwm helm-external
         :config
         (exwm-config-default)
 
@@ -7583,6 +7583,18 @@
         ;; The example shorten 'C-c q' to 'C-q'.
         (push ?\C-q exwm-input-prefix-keys)
         (define-key exwm-mode-map [?\C-q] #'exwm-input-send-next-key)
+
+        (exwm-input-set-key (kbd "s-&")
+                            (lambda (program)
+                              (interactive (list
+                                            (helm-comp-read
+                                             "RunProgram: "
+                                             (helm-external-commands-list-1 'sort)
+                                             :must-match t
+                                             :del-input nil
+                                             :name "External Commands"
+                                             :history helm-external-command-history)))
+                              (helm-run-external-command program)))
 
         (exwm-input-set-simulation-keys
          '(
@@ -7632,11 +7644,6 @@
         ;; start pasystray from within emacs, starting it within xinitrc does not work
         (add-hook 'exwm-init-hook
                   (lambda () (gb/start-if-not-running "/usr/bin/pasystray")))
-
-        ;; make sure the buffer is named after the program that is run
-        ;; (add-hook 'exwm-update-class-hook
-        ;;           (lambda ()
-        ;;             (exwm-workspace-rename-buffer exwm-class-name)))
 
         ;; ensure that eclipse does not use simulation keys, since i have emacs binding enabled in eclipse
         ;; (add-hook 'exwm-manage-finish-hook
