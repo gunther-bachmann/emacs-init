@@ -332,6 +332,11 @@
       (message (concat "Preinstall/require " (symbol-name package)))
       (require-package package)))
 
+  ;; TODO: recheck no and then. error is present in req-package version 1.2
+  ;; initialize unbound req-package variable (otherwise an error happens during startup)
+  (if (not (boundp 'req-package-paths))
+      (setq req-package-paths (ht)))
+
   ;; incomplete implementation of layers
   (setq active-layers '(core clojure navigation completion positioning editing))
 
