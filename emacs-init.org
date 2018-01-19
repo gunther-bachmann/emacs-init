@@ -710,7 +710,7 @@
            (ps-print-buffer "~/temp.ps"))
          (cond
           ((is-macos-p) (shell-command "open /Applications/Preview.app ~/temp.ps"))
-          ((file-executable-p "evince") (shell-command "evince ~/temp.ps"))
+          ((executable-find "evince") (start-process "evince" nil "evince" (file-truename "~/temp.ps")))
           (t (message "No viewer for postscript files known to display ~/temp.ps")))
          (gb/enable-ligatures)))
    #+END_SRC
