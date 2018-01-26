@@ -3152,7 +3152,7 @@
       (add-hook 'after-init-hook 'global-company-mode))
     :config
     (progn
-      (setq company-show-numbers t)
+      (setq company-show-numbers nil)
       ;; use numbers 0-9 to select company completion candidates
       (let ((map company-active-map))
         (mapc (lambda (x) (define-key map (format "%d" x)
@@ -3189,7 +3189,7 @@
        '(company-tooltip ((t (:background "gold2" :foreground "black"))))
        '(company-tooltip-selection ((t (:background "gray23" :foreground "white"))))
        '(company-tooltip-common ((t (:foreground "firebrick4"))))
-       '(company-tooltip-annotation ((t (:foreground "gray40")))))
+       '(company-tooltip-annotation ((t (:foreground "black")))))
 
 
       ))
@@ -3206,7 +3206,9 @@
     (progn
       (company-quickhelp-mode 1)
       (setq company-quickhelp-use-propertized-text t)
-      (setq company-quickhelp-max-lines 60)
+      (setq company-quickhelp-max-lines 30)
+      (setq company-quickhelp-color-background "black")
+      (setq company-quickhelp-color-foreground "gray80")
       ))
 #+END_SRC
 ** company flx
