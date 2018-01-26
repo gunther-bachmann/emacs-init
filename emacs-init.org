@@ -7705,6 +7705,15 @@
      :require flycheck
      :config (flycheck-gradle-setup))
    #+END_SRC
+** atomic chrome - allow text edit are within browser to be edited with emacs
+   - M-x atomic-chrome-start-server must be started within emacs
+   - atomic-chrome extension must be installed within chrome
+   - when within a text area of the browser, press the atomic-chrome button in the button bar, evoila, you are no in an emacs buffer editing
+     the text area with life update!
+   #+BEGIN_SRC emacs-lisp
+     (req-package atomic-chrome
+       :config (atomic-chrome-start-server))
+   #+END_SRC
 ** cakecrumbs (show hierarchy in header for css and html)
    #+BEGIN_SRC emacs-lisp
      (req-package cakecrumbs
