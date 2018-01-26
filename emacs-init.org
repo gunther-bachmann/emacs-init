@@ -7699,6 +7699,12 @@
         ))
   #+END_SRC
 * currently evaluated
+** flycheck gradle
+   #+BEGIN_SRC emacs-lisp
+   (req-package flycheck-gradle
+     :require flycheck
+     :config (flycheck-gradle-setup))
+   #+END_SRC
 ** cakecrumbs (show hierarchy in header for css and html)
    #+BEGIN_SRC emacs-lisp
      (req-package cakecrumbs
