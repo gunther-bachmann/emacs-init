@@ -8320,6 +8320,8 @@
 ** indium (java script development environment)
    - [[https://github.com/NicolasPetton/Indium][home page]]
 * look at
+** git-msg-prefix, provide prefix for commit messages based on previous commit messages and the like
+** org-wild-notifier, customizable notifier for org agenda entries (global or per entry)
 ** texfrag
    - allow tex fragments preview in (almost) any buffer
    - see [[https://github.com/TobiasZawada/texfrag][here]]
