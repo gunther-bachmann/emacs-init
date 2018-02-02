@@ -7753,9 +7753,9 @@
    (req-package esh-autosuggest
      :require company)
    #+END_SRC
-** dimmer
+** dimmer (disabled, mode line was dimmed, recheck 08.2018)
    - dim non selected buffers (slightly)
-   #+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp :tangle no
    (req-package dimmer
      :config (dimmer-activate))
    #+END_SRC
