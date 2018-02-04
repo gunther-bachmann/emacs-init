@@ -4874,10 +4874,13 @@
    #+END_SRC
 ** xterm color
    #+BEGIN_SRC emacs-lisp
-        (req-package xterm-color
-          :init (add-hook 'comint-preoutput-filter-functions 'xterm-color-filter)
-          :config
-          (progn (setq comint-output-filter-functions (remove 'ansi-color-process-output comint-output-filter-functions))))
+     (req-package xterm-color
+       :init (add-hook 'comint-preoutput-filter-functions 'xterm-color-filter)
+       :config
+       ;; eterm-color-256 expects existence of this function
+       ;; detected in: eterm-color-256: 0.3.12, xterm-color 1.7
+       (defalias 'xterm-color--256 'xterm-color-256)
+       (progn (setq comint-output-filter-functions (remove 'ansi-color-process-output comint-output-filter-functions))))
    #+END_SRC
 ** friendly iteractive shell
    #+BEGIN_SRC emacs-lisp
@@ -7831,6 +7834,7 @@
    - see [[http://github.com/dieggsy/eterm-256color][here]]
    #+BEGIN_SRC emacs-lisp
    (req-package eterm-256color
+     :require xterm-color
      :init (add-hook 'term-mode-hook #'eterm-256color-mode))
    #+END_SRC
 ** pcre2el (replace regular expression syntax with more readable one)
@@ -8333,7 +8337,6 @@
    - send an ebook link to an external device (ebook reader) from org mode
 ** scp (use scp to transfer files)
 ** smart-jump (smart go to definition)
-** eterm-256color (support for 256 colors in term modes)
 ** network-watch (allows hooks to run when network is goiing down/up)
 ** latexdiff (diff between two latex files)
 ** easy-jekyll (tool to manage jekyll blogs)
