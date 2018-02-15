@@ -7691,7 +7691,11 @@
         (push ?\C-q exwm-input-prefix-keys)
         (define-key exwm-mode-map [?\C-q] #'exwm-input-send-next-key)
 
-        (exwm-input-set-key (kbd "s-&")
+        ;; switch buffers
+        (exwm-input-set-key (kbd "s-b") #'helm-mini)
+
+        ;; start programs
+        (exwm-input-set-key (kbd "s-SPC")
                             (lambda (program)
                               (interactive (list
                                             (helm-comp-read
@@ -7752,16 +7756,19 @@
         (add-hook 'exwm-init-hook
                   (lambda () (gb/start-if-not-running "/usr/bin/pasystray")))
 
-        ;; ensure that eclipse does not use simulation keys, since i have emacs binding enabled in eclipse
-        ;; (add-hook 'exwm-manage-finish-hook
-        ;;           (lambda ()
-        ;;             (when (and exwm-class-name
-        ;;                        (or ;; (string= exwm-class-name "Chromium")
-        ;;                         (string= (downcase exwm-class-name) "eclipse")
-        ;;                         ))
-        ;;               (progn
-        ;;                 ;; (setq-local exwm-input-prefix-keys '(?\C-l))
-        ;;                 (setq exwm-input-set-local-simulation-keys nil)))))
+        ;; ensure that eclipse switches to char line mode
+        ;; and does not use simulation keys, since i have emacs binding enabled in eclipse
+        (add-hook 'exwm-manage-finish-hook
+                  (lambda ()
+                    (when (and exwm-class-name
+                               (or ;; (string= exwm-class-name "Chromium")
+                                (string= (downcase exwm-class-name) "eclipse")
+                                ))
+                      (progn
+                        ;; (setq-local exwm-input-prefix-keys '(?\C-l))
+                        (message "switch to eclipse mode")
+                        (exwm-input-release-keyboard (exwm--buffer->id (window-buffer)))
+                        (setq exwm-input-set-local-simulation-keys nil)))))
         ))
   #+END_SRC
 * currently evaluated
