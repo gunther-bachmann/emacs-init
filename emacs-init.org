@@ -7772,6 +7772,11 @@
         ))
   #+END_SRC
 * currently evaluated
+** info colors
+   #+BEGIN_SRC emacs-lisp
+   (req-package info-colors
+     :init (add-hook 'Info-selection-hook 'info-colors-fontify-node))
+   #+END_SRC
 ** flycheck gradle
    #+BEGIN_SRC emacs-lisp
    (req-package flycheck-gradle
