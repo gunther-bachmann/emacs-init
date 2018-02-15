@@ -7853,10 +7853,18 @@
      :config (pcre-mode 1))
    #+END_SRC
 ** helm-exwm (allow for helm based change of exwm buffers)
-   - see [[https://github.com/emacs-helm/helm-exwm][here]]
-   #+BEGIN_SRC emacs-lisp :tangle no
+   - see [[https://github.com/emacs-helm/helm-exwm][here]], problems documented [[https://github.com/emacs-helm/helm/issues/1889][here]]
+   #+BEGIN_SRC emacs-lisp
    (req-package helm-exwm
-     :require exwm)
+     :require exwm helm
+     :config
+     (progn
+       (setq helm-exwm-emacs-buffers-source (helm-exwm-build-emacs-buffers-source))
+       (setq helm-exwm-source (helm-exwm-build-source))
+       (setq helm-mini-default-sources `(helm-exwm-emacs-buffers-source
+                                         helm-exwm-source
+                                         helm-source-recentf))
+     ))
    #+END_SRC
 ** indent-info (deactivated)
    - allows for display of current indent settings in the mode line
