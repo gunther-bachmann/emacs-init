@@ -6941,7 +6941,7 @@
            ("C-x C-f" . helm-find-files)
            ("s-f" . helm-for-files)
            ("C-x s-f" . helm-for-files)
-           ("C-x C-b" . helm-buffers-list)
+           ("C-x C-b" . helm-mini) ;;helm-buffers-list
            ("C-s-i" . helm-semantic-or-imenu)
            ;; resume previous helm session whatever it was, with the selection that was active then
            ;; helm-resume
