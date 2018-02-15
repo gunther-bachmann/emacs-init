@@ -5932,11 +5932,11 @@
             "
               org mode
               ^-^------------------------------------------------
-              _ci_: clock in             _cti_: toggle item
-              _co_: clock out
-              _cq_: clock cancel/quit
-              _cj_: jump to clock
-              _cd_: display clock times
+              _ci_: clock in             _cti_: toggle item     _cr_: org reveal    Movement:
+              _co_: clock out                                                   C-c p previous bulletin
+              _cq_: clock cancel/quit                                           C-c u up bulletin level
+              _cj_: jump to clock                                               M-<ret>
+              _cd_: display clock times                                         C-<ret>
 
               %s(hydra-combine-functions-w-key-bindings
                 '((\"  [ci]  clock in            \" . org-clock-in)
@@ -5945,6 +5945,7 @@
                   (\"  [cj]  jump to clock       \" . org-clock-goto)
                   (\"  [cd]  display clock times \" . org-clock-display)
                   (\"  [cti] toggle item         \" . org-toggle-item)
+                  (\"  [cr]  org reveal          \" . org-reveal)
                   ))
             "
             ("ci" org-clock-in :exit t)
@@ -5952,7 +5953,8 @@
             ("cq" org-clock-cancel :exit t)
             ("cj" org-clock-goto :exit t)
             ("cd" org-clock-display :exit t)
-            ("cti" org-toggle-item :exit t))
+            ("cti" org-toggle-item :exit t)
+            ("cr" org-reveal :exit t))
 
 
           ;; Resume clocking tasks when emacs is restarted
