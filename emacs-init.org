@@ -2686,8 +2686,8 @@
   ;; Highlight current line
   (global-hl-line-mode 1)
   (custom-set-faces
-   '(hl-line ((t (:background "gray22"))))
-   '(highlight ((t (:background "gray22")))))
+   '(hl-line ((t (:background "gray15"))))
+   '(highlight ((t (:background "gray15")))))
 
   ;; Don't use hard tabs
   (setq-default indent-tabs-mode nil)
