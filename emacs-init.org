@@ -3452,12 +3452,14 @@
    (req-package pos-tip)
    #+END_SRC
 ** help at point
+   - show help in modeline to text that is propertized as button... (e.g. in customize-.... modes)
+   - the timer will make the help appear after x seconds (can be a float)
    #+BEGIN_SRC emacs-lisp
    (req-package help-at-pt
      :config
      (progn
-       (setq help-at-pt-display-when-idle t)
-       (setq help-at-pt-timer-delay 0.1)
+       (custom-set-variables '(help-at-pt-display-when-idle (quote (kbd-help button local-map keymap)) nil (help-at-pt)))
+       (setq help-at-pt-timer-delay 1)
        (help-at-pt-set-timer)))
    #+END_SRC
 * navigation
@@ -3595,7 +3597,7 @@
              (visible-mark-mode -1)
            (visible-mark-mode t)))
        :config
-       ;; (global-visible-mark-mode 1)
+       (global-visible-mark-mode -1) ;; disable visible mark mode globally (until explicitly toggled for a mode)
        ;; or add (visible-mark-mode) to specific hooks
        )
    #+END_SRC
