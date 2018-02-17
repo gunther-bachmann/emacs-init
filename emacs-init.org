@@ -7694,7 +7694,7 @@
     (when (string= "ok" (s-trim (shell-command-to-string "cat ~/.xinitrc | grep -q -e '^exec .*emacs' && echo 'ok'")))
       (req-package exwm)
       (req-package exwm-config
-        :require exwm helm-external
+        :require exwm helm-external helm-mode
         :config
         (exwm-config-default)
 
@@ -7750,6 +7750,7 @@
                                              :del-input nil
                                              :name "External Commands"
                                              :history helm-external-command-history)))
+                              (exwm-reset) ;; make sure that keyboard is no longer captured
                               (helm-run-external-command program)))
 
         (exwm-input-set-simulation-keys
@@ -7811,10 +7812,23 @@
                                 ))
                       (progn
                         ;; (setq-local exwm-input-prefix-keys '(?\C-l))
-                        (message "switch to eclipse mode")
                         (exwm-input-release-keyboard (exwm--buffer->id (window-buffer)))
                         (setq exwm-input-set-local-simulation-keys nil)))))
+
+        (defadvice switch-to-buffer (after switch-to-buffer-check-exwm-buffer activate)
+          "switch to char mode if target buffer is eclipse (or any other buffer that should be in char mode)"
+          (when (and exwm-class-name
+                   (or ;; (string= exwm-class-name "Chromium")
+                    (string= (downcase exwm-class-name) "eclipse")
+                    ))
+            (progn
+              (exwm-input-release-keyboard (exwm--buffer->id (window-buffer)))
+              (setq exwm-input-set-local-simulation-keys nil)))
+          )
+
         ))
+
+
   #+END_SRC
 * currently evaluated
 ** info colors
