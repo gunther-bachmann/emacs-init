@@ -1009,6 +1009,13 @@
 * check installation status of programs (*nix)
   - make sure this is done, after path is properly setup (mac os problem)
   #+BEGIN_SRC emacs-lisp
+    (setq gb/use-exwm (string= "ok" (s-trim (shell-command-to-string "cat ~/.xinitrc | grep -q -e '^exec .*emacs' && echo 'ok'"))))
+    (setq gb/dual-monitor-setup (string= "2" (s-trim (shell-command-to-string "xrandr --listmonitors | grep \"Monitors\" | awk '{ print $2; }'"))))
+
+    (setq gb/use-smart-mode-line (and gb/use-exwm gb/dual-monitor-setup))
+    (setq gb/use-space-line (not gb/use-smart-mode-line))
+
+
     (when (is-_nix-p)
         (progn
 
@@ -1911,7 +1918,8 @@
     (req-package spinner)
     #+END_SRC
 *** spaceline (mode line of spacemacs)
-    #+BEGIN_SRC emacs-lisp :tangle no
+    #+BEGIN_SRC emacs-lisp
+    (when gb/use-space-line
       (req-package spaceline
         :require powerline
         :config
@@ -2045,12 +2053,13 @@
              ""
              (indent-info-mode-line)))
 
-         ))
+         )))
     #+END_SRC
 *** spaceline all the icons
     - important: install fonts located [[https://github.com/domtronn/all-the-icons.el/tree/master/fonts][here]]
-    #+begin_SRC emacs-lisp :tangle no
+    #+begin_SRC emacs-lisp
       ;; (req-package font-lock+)
+    (when gb/use-space-line
       (req-package all-the-icons
         :require memoize ;; font-lock+
         :config
@@ -2153,10 +2162,11 @@
            ))
 
         ;; (spaceline-all-the-icons--setup-paradox)
-        )
+        ))
     #+END_SRC
 *** rich minority mode (hide minor modes from smart mode line) (disabled, smart mode line not in use anymore)
     #+BEGIN_SRC emacs-lisp
+    (when gb/use-smart-mode-line
       (req-package rich-minority
         :config
         (progn
@@ -2200,10 +2210,11 @@
                   ;; " wb" ;; white space butler mode (removes trailing whitespaces on lines edited)
                   " wr" ;; wrap-region-mode, wraps a region with tags (e.g. '*' in org mode wraps marked region in ** )
                   " yas" ;; yasnippets
-                  ))))
+                  )))))
     #+END_SRC
 *** smart mode line
     #+BEGIN_SRC emacs-lisp
+    (when gb/use-smart-mode-line
 
       ;; make sure the install question is not interactively placed!
              ;; (setq sml/no-confirm-load-theme t)
@@ -2273,7 +2284,7 @@
 
                  ;; (add-to-list 'sml/replacer-regexp-list '("^~/git/iMan3-Projects/" ":iP:"))
                  ;; (add-to-list 'sml/replacer-regexp-list '("^~/git/iMan3-Utilities/" ":iU:"))
-                 (add-to-list 'sml/replacer-regexp-list '("^~/Documents/clojure/workspace" ":clj:"))))
+                 (add-to-list 'sml/replacer-regexp-list '("^~/Documents/clojure/workspace" ":clj:")))))
 
     #+END_SRC
 *** fancy battery (for modeline)
@@ -7691,7 +7702,7 @@
         switching via C-x C-b is not available. To switch back to line mode use s-r (which resets exwm for this application).
   - [[https://github.com/ch11ng/exwm/wiki/Configuration-example][example configuration]]
   #+BEGIN_SRC emacs-lisp
-    (when (string= "ok" (s-trim (shell-command-to-string "cat ~/.xinitrc | grep -q -e '^exec .*emacs' && echo 'ok'")))
+    (when gb/use-exwm
       (req-package exwm)
       (req-package exwm-config
         :require exwm helm-external helm-mode
@@ -7715,7 +7726,7 @@
 
         ;; make sure multi monitor support is active
         ;; TODO run xrandr to check whether multiple monitors are active
-        (when (string= "2" (s-trim (shell-command-to-string "xrandr --listmonitors | grep \"Monitors\" | awk '{ print $2; }'")))
+        (when gb/dual-monitor-setup
           (progn
             (message "Starting multimonitor support for exwm.")
             (require 'exwm-randr)
