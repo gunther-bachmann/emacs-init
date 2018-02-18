@@ -3287,6 +3287,7 @@
       (progn
       (global-set-key (kbd "M-TAB") #'company-try-hard)
       (global-set-key (kbd "<C-tab>") #'company-try-hard)
+      (global-set-key (kbd "M-/") #'company-try-hard)
       (define-key company-active-map (kbd "M-TAB") #'company-try-hard)
       ))
   ;; enable company mode anywhere
@@ -3295,6 +3296,7 @@
       (add-hook 'after-init-hook 'global-company-mode))
     :config
     (progn
+      (setq company-idle-delay nil)
       (setq company-show-numbers nil)
       ;; use numbers 0-9 to select company completion candidates
       (let ((map company-active-map))
