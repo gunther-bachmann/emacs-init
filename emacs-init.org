@@ -4352,6 +4352,10 @@
    ;;    '(coffee-tab-width 4)))
  #+END_SRC
 ** java
+*** other
+    #+BEGIN_SRC emacs-lisp
+    (add-to-list 'auto-mode-alist '("\\.xtend\\'" . java-mode))
+    #+END_SRC
 *** jde (disabled)
    #+BEGIN_SRC emacs-lisp :tangle no
      ;; Add java development extension to loadpath
