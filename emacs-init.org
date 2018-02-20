@@ -1654,7 +1654,7 @@
        ;;   (gb/setup-ligatures))
 
      #+END_SRC
-** sublimity
+** sublimity (smooth scrolling)
    #+BEGIN_SRC emacs-lisp :tangle no
      (req-package sublimity
        :config
@@ -2776,7 +2776,7 @@
    - http://www.emacswiki.org/emacs/SavePlace
    #+BEGIN_SRC emacs-lisp
      (if (not (version< emacs-version "25.0"))
-        ;; for later emacs versions, save place is no separate packate, but built in
+        ;; for later emacs versions, save place is no separate package, but built in
         (progn (save-place-mode +1)
                (setq save-place-file (concat user-emacs-directory "places")))
      (req-package saveplace
@@ -8426,6 +8426,9 @@
          (setq projectile-switch-project-action 'neotree-projectile-action)))
    #+END_SRC
 * to test
+** gif-screencast
+   - allow screencast recording single gif for each action, combining them into animated gifs thereafter
+   - https://github.com/Ambrevar/emacs-gif-screencast
 ** lsp-ui
    - emacs ui integration for lsp (like flycheck etc.)
 ** ob-clojure-literate
@@ -8483,6 +8486,8 @@
 ** indium (java script development environment)
    - [[https://github.com/NicolasPetton/Indium][home page]]
 * look at
+** pickle - Major mode for editing cucumber gherkin files.
+** attrap - Attrap! provides a command to attempt to fix the flycheck error at point.(haskel and elisp currently)
 ** git-msg-prefix, provide prefix for commit messages based on previous commit messages and the like
 ** org-wild-notifier, customizable notifier for org agenda entries (global or per entry)
 ** texfrag
