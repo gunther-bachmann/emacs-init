@@ -7756,6 +7756,9 @@
         ;; open files
         (exwm-input-set-key (kbd "s-f") #'helm-for-files)
 
+        ;; select window via ace
+        (exwm-input-set-key (kbd "s-o") #'ace-select-window)
+
         ;; start programs
         (exwm-input-set-key (kbd "s-SPC")
                             (lambda (program)
@@ -7784,11 +7787,17 @@
            ([?\M-v] . prior)
            ([?\C-v] . next)
            ([?\C-d] . delete)
+           ([?\M-d] . (S-C-right delete))
+           ([\M-backspace] . (S-C-left delete))
            ([?\C-k] . (S-end delete))
+           ([?\M->] . (C-end))
+           ([?\M-<] . (C-home))
            ;; cut/paste.
            ([?\C-w] . ?\C-x)
            ([?\M-w] . ?\C-c)
            ([?\C-y] . ?\C-v)
+           ;; marking
+           ([?\C-x ?h] . ?\C-a) ;; will work in emacs 27 first time
            ;; other
            ([?\C-g] . escape)
            ;; search
