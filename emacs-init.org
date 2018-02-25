@@ -7801,6 +7801,7 @@
 
         (exwm-input-set-simulation-keys
          '(
+           ;; see http://ergoemacs.org/emacs/keystroke_rep.html for syntax of key definition
            ;; movement
            ([?\C-b] . left)
            ([?\M-b] . C-left)
@@ -7823,7 +7824,7 @@
            ([?\M-w] . ?\C-c)
            ([?\C-y] . ?\C-v)
            ;; marking
-           ([?\C-x ?h] . ?\C-a) ;; will work in emacs 27 first time
+           ;; ([?\C-x ?h] . ?\C-a) ;; will work in emacs 27 first time
            ;; other
            ([?\C-g] . escape)
            ;; search
