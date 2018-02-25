@@ -8147,23 +8147,22 @@
    #+END_SRC
 ** cider stuff
    #+BEGIN_SRC emacs-lisp
-   ;; C-c C-t (hydra for test in cider)
-   ;; C-c M-r (hydra for repl)
-   ;; C-c M-t (test)
-   ;; C-c C-d (hydra for documentation)
-   (req-package cider-hydra ;; adds hydras
-     :require hydra cider)
-   (req-package cider-decompile ;; decompilation extension for cider [https://github.com/clojure-emacs/cider-decompile]
-     :defer 5
-     :require cider javap-mode)
-   (req-package cider-profile ;; CIDER profiling support [https://github.com/thunknyc/nrepl-profile]
-     :defer 10
-     :require cider
-     :init
-     (progn
-       (add-hook 'cider-mode-hook 'cider-profile-mode)
-       (add-hook 'cider-repl-mode-hook 'cider-profile-mode)))
-   ;; adds bookmarking functionality (that is used by dired+, too)
+     ;; C-c C-t (hydra for test in cider)
+     ;; C-c M-r (hydra for repl)
+     ;; C-c M-t (test)
+     ;; C-c C-d (hydra for documentation)
+     (req-package cider-hydra ;; adds hydras
+       :require hydra cider)
+     (req-package cider-decompile ;; decompilation extension for cider [https://github.com/clojure-emacs/cider-decompile]
+       :defer 5
+       :require cider javap-mode)
+     ;; (req-package cider-profile ;; CIDER profiling support [https://github.com/thunknyc/nrepl-profile]
+     ;;   :defer 10
+     ;;   :require cider
+     ;;   :init
+     ;;   (progn
+     ;;     (add-hook 'cider-mode-hook 'cider-profile-mode)
+     ;;     (add-hook 'cider-repl-mode-hook 'cider-profile-mode)))
    #+END_SRC
 ** window / frame tiling
    #+BEGIN_SRC emacs-lisp
