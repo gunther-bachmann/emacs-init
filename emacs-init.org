@@ -7799,7 +7799,7 @@
                               (exwm-reset) ;; make sure that keyboard is no longer captured
                               (helm-run-external-command program)))
 
-        (exwm-input-set-simulation-keys
+        (setq exwm-input-simulation-keys
          '(
            ;; see http://ergoemacs.org/emacs/keystroke_rep.html for syntax of key definition
            ;; movement
@@ -7824,7 +7824,7 @@
            ([?\M-w] . ?\C-c)
            ([?\C-y] . ?\C-v)
            ;; marking
-           ;; ([?\C-x ?h] . ?\C-a) ;; will work in emacs 27 first time
+           ([?\C-x ?h] . ?\C-a) ;; will work in emacs 27 first time
            ;; other
            ([?\C-g] . escape)
            ;; search
