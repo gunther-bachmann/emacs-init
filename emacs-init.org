@@ -4231,12 +4231,38 @@
 
    #+END_SRC
 ** haskell
-   - installed via 'brew cask install haskell-platform'
-   - uninstalled old version via 'uninstall-hs only 7.8.3'
-   #+BEGIN_SRC emacs-lisp  :tangle no
-   (req-package haskell-mode)
+   #+BEGIN_SRC emacs-lisp
+     (req-package haskell-mode
+       :bind (:map haskell-mode-map
+         ("C-c C-l" . haskell-process-load-file)
+         ("C-c C-n C-t" . haskell-process-do-type)
+         ("C-c C-n C-i" . haskell-process-do-info)
+         ("C-c h" . haskell-hoogle))
+       :init
+       (add-hook 'haskell-mode-hook 'turn-on-haskell-doc-mode)
+       (add-hook 'haskell-mode-hook 'turn-on-haskell-indentation)
+       (add-to-list 'exec-path "~/.local/bin"))
    #+END_SRC
-*** flycheck
+*** company-ghci
+    #+BEGIN_SRC emacs-lisp
+      (req-package company-ghci
+        :require company haskell-mode
+        :init
+        (push 'company-ghci company-backends)
+        (add-hook 'haskell-mode-hook 'company-mode)
+        (add-hook 'haskell-interactive-mode-hook 'company-mode))
+    #+END_SRC
+*** intero (complete development environment for haskell)
+    - see [[https://commercialhaskell.github.io/intero/][here]]
+    #+BEGIN_SRC emacs-lisp
+      (req-package intero
+        :require haskell-mode company flycheck
+        :init
+        (add-hook 'haskell-mode-hook 'intero-mode)
+        (when (fboundp 'easy-escape-minor-mode) ;; make sure to disable easy escaping here (if present)
+          (add-hook 'inter-mode (lambda() (easy-escape-minor-mode -1)))))
+    #+END_SRC
+*** flycheck-haskell (currently disabled)
     #+BEGIN_SRC emacs-lisp :tangle no
     (req-package flycheck-haskell
       :require haskell-mode flycheck)
