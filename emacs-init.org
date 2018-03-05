@@ -4262,9 +4262,18 @@
         (add-hook 'haskell-mode-hook 'company-mode)
         (add-hook 'haskell-interactive-mode-hook 'company-mode))
     #+END_SRC
+*** dante (intero fork, complete development environment for haskell)
+    #+BEGIN_SRC emacs-lisp
+      (req-package dante
+        :require haskell-mode company flycheck s f dash
+        :commands 'dante-mode
+        :init
+        (add-hook 'haskell-mode-hook 'dante-mode)
+        (add-hook 'haskell-mode-hook 'flycheck-mode))
+    #+END_SRC
 *** intero (complete development environment for haskell)
     - see [[https://commercialhaskell.github.io/intero/][here]]
-    #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp :tangle no
       (req-package intero
         :require haskell-mode company flycheck
         :init
