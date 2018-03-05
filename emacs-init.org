@@ -2307,8 +2307,18 @@
        (add-hook 'prog-mode-hook 'rainbow-identifiers-mode))
    #+END_SRC
 ** cursor blinking / beacon
+   - see https://github.com/Malabarba/beacon
    #+BEGIN_SRC emacs-lisp
      ;; mark cursor when switching buffers/windows/frames
+     (req-package beacon
+       :config
+       (setq beacon-blink-when-window-scrolls nil)
+       (setq beacon-blink-when-window-changes t)
+       (setq beacon-blink-when-point-moves nil)
+       (beacon-mode 1)
+       )
+   #+END_SRC
+   #+BEGIN_SRC emacs-lisp :tangle no
      (req-package crosshairs
        :require ace-window ;; optional, install cursor blink after ace window switch
                 helm       ;; optional, install cursor blink after helm buffer switch
