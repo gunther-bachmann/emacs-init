@@ -404,6 +404,12 @@
             (report-elapsed ":config-exit paradox")
             )
    #+END_SRC
+* workarounds for broken packages
+  #+BEGIN_SRC emacs-lisp
+    ;; since perspective is using make-variable-frame-local and this function/macro is removed in emacs 26.x
+    (when (not (fboundp 'make-variable-frame-local))
+      (defun make-variable-frame-local (variable) variable))
+  #+END_SRC
 * splash and initial buffer config
 #+BEGIN_SRC emacs-lisp
   ;; set scratch window content
@@ -1182,8 +1188,10 @@
 ** epa (see 'check-installation-status *nix)
 ** configure pinentry
    #+BEGIN_SRC emacs-lisp
-     ;; (setq epa-pinentry-mode 'loopback)
-     ;; (global-visible-mark-mode -1)
+     (req-package epa
+     :config
+       (setq epa-pinentry-mode 'loopback))
+       ;; (global-visible-mark-mode -1)
    #+END_SRC
 ** pinentry (currently not functional, disabled)
    - see ~/.gnupg/gpg-agent.conf
@@ -6777,7 +6785,7 @@
           (plantuml . t)
           ;; (prolog . t)
           (python . t)
-          (scala . t)
+          ;; (scala . t)
           (scheme . t)
           (sed . t)
           (shell . t)
