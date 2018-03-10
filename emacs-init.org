@@ -1871,56 +1871,311 @@
 
        (bind-key "C-h C-m" 'discover-my-major)))
    #+END_SRC
-** sytem stats (for minibuffer)
+** symon sytem stats (for minibuffer)
    #+BEGIN_SRC emacs-lisp
-     (req-package symon
-       :commands symon-mode
-       :config
-       (progn
-         ;; make sure to load it
-         (require 'symon)
-         ;; redefine to display right aligned
-         (defun symon--display-update ()
-           "update symon display"
-           (unless (or cursor-in-echo-area (active-minibuffer-window))
-             (let ((message-log-max nil)  ; do not insert to *Messages* buffer
-                   (display-string nil)
-                   (page 0))
-               (dolist (lst symon--display-fns)
-                 (if (= page symon--active-page)
-                 (let* ((fheight (ht-get (gb/get-font-heights (x-display-pixel-width) window-system) 'default-height))
-                        (spaces (floor (- (/ (frame-pixel-width) 10) (- (* 1.5 fheight) 100)))))
-                     (message (concat (make-string  spaces ? ) "%s") (apply 'concat (mapcar 'funcall lst))))
-                   (mapc 'funcall lst))
-                 (setq page (1+ page))))
-             (setq symon--display-active t)))
-         ;; then redefine with alternate cpu benchmark (dividing cpu mark by 8 cores)
-         (defun symon-darwin--maybe-start-process ()
-           (symon--maybe-start-process (format "
-     while true; do
-         echo \"----\"
+               (req-package symon
+                 ;; :commands symon-mode
+                 :config
+                 (progn
+                   ;; make sure to load it
+                   (require 'symon)
 
-         interface=`route get 0.0.0.0 | grep interface | awk '{print $2}'`
-         s=`netstat -bi -I $interface | tail -1`;
-         echo $s | awk '{print \"rx:\"$7}'
-         echo $s | awk '{print \"tx:\"$8}'
+                   (setq symon-sparkline-width 15)
+                   (setq symon-history-size 10)
+                   (setq symon-sparkline-use-xpm t)
 
-         s=`ps -e -o %%cpu | awk '{x+=$1} END {print x/8}' | sed 's/,.*//'`           ### cpu number is 8 => /8
-         echo \"cpu:$s\"
+     (defmacro define-symon-monitor (name &rest plist)
+       "define a new symon monitor NAME. following keywords are
+     supoprted in PLIST:
 
-         m1=`sysctl hw.memsize | sed 's/.*:\s*//'`
-         m_active=`vm_stat | grep 'Pages active' | sed 's/.*: *//'`
-         m_wired=`vm_stat | grep 'Pages wired' | sed 's/.*: *//'`
+     :setup (default: nil)
 
-         s=`echo \"scale=2; (($m_active+$m_wired)*4096*100 / $m1)\"| bc -l`
-         echo \"mem:$s\"
+         an expression evaluated when activating symon-mode, and
+         expected to do some preparation.
 
-         sleep %d
-     done" symon-refresh-rate)))
+     :cleanup (default: nil)
 
-         (setq symon-sparkline-type 'boxed)
-         ;; (symon-mode 1)
-         ))
+         an expression evaluated when deactivating symon-mode, and
+         expected to do some cleanup.
+
+     :fetch (default: nil)
+
+         an expression that evaluates to the latest status value. the
+         value must be a number (otherwise `N/A' is displayed as the
+         value).
+
+     :interval (default: symon-refresh-rate)
+
+         fetch interval in seconds.
+
+     :index (default: \"\")
+
+         string prepended to the status value (\"MEM:\" for memory
+         monitor, for example).
+
+     :unit (default: \"\")
+
+         string appended to the status value (\"%\" for memory
+         monitor, for example).
+
+     :annotation (default: nil)
+
+         an expression that evaluates to the annotation string for the
+         metrics (\"xxxKB Swapped\" for memory monitor, for
+         example). if this expression returns a non-nil value, it is
+         surrounded with parentheses and appended to the status value.
+
+     :display (default: nil)
+
+         an expression evaluated before updating symon display. when
+         this expression evaluates to a non-nil value, it will be
+         displayed instead of standard symon display format.
+
+     :sparkline (default: nil)
+
+         when non-nil, sparklines are rendered.
+
+     :lower-bound (default: 100.0)
+
+         upper bound of sparkline.
+
+     :upper-bound (default: 0.0)
+
+         lower bound of sparkline."
+       (let* ((cell (make-vector 2 nil))
+              (sparkline (plist-get plist :sparkline))
+              (interval (or (plist-get plist :interval) 'symon-refresh-rate))
+              (display (plist-get plist :display))
+              (update-fn
+               `(lambda ()
+                  (ring-insert (aref ,cell 0) ,(plist-get plist :fetch))))
+              (setup-fn
+               `(lambda ()
+                  (aset ,cell 0 (symon--make-history-ring))
+                  (aset ,cell 1 (run-with-timer 0 ,interval ,update-fn))
+                  ,(plist-get plist :setup)
+                  (funcall ,update-fn)))
+              (cleanup-fn
+               `(lambda ()
+                  (cancel-timer (aref ,cell 1))
+                  ,(plist-get plist :cleanup)))
+              (display-fn
+               (if display `(lambda () (concat ,display " "))
+                 `(lambda ()
+                    (let* ((lst (ring-elements (aref ,cell 0)))
+                           (val (car lst)))
+                      (concat ,(plist-get plist :index)
+                               ;; (if (not (numberp val)) "N/A "
+                               ;;   (concat (format "%d%s " val ,(or (plist-get plist :unit) ""))
+                               ;;           (let ((annot ,(plist-get plist :annotation)))
+                               ;;             (when annot (concat "(" annot ") ")))))
+                              ,(when sparkline
+                                 `(when (window-system)
+                                    (let ((sparkline (symon--make-sparkline
+                                                      lst
+                                                      ,(plist-get plist :lower-bound)
+                                                      ,(plist-get plist :upper-bound))))
+                                      (when symon-sparkline-use-xpm
+                                        (setq sparkline
+                                              (symon--convert-sparkline-to-xpm sparkline)))
+                                      (concat (propertize " " 'display sparkline) " "))))))))))
+         `(put ',name 'symon-monitor (vector ,setup-fn ,cleanup-fn ,display-fn))))
+     (define-symon-monitor symon-linux-cpu-monitor
+       :index "C" :unit "%" :sparkline t
+       :setup (setq symon-linux--last-cpu-ticks nil)
+       :fetch (cl-destructuring-bind (cpu)
+                  (symon-linux--read-lines
+                   "/proc/stat" (lambda (str) (mapcar 'read (split-string str nil t))) '("cpu"))
+                (let ((total (apply '+ cpu)) (idle (nth 3 cpu)))
+                  (prog1 (when symon-linux--last-cpu-ticks
+                           (let ((total-diff (- total (car symon-linux--last-cpu-ticks)))
+                                 (idle-diff (- idle (cdr symon-linux--last-cpu-ticks))))
+                             (unless (zerop total-diff)
+                               (/ (* (- total-diff idle-diff) 100) total-diff))))
+                    (setq symon-linux--last-cpu-ticks (cons total idle))))))
+
+     (define-symon-monitor symon-linux-memory-monitor
+       :index "M" :unit "%" :sparkline t
+       :fetch (cl-destructuring-bind (memtotal memavailable memfree buffers cached)
+                  (symon-linux--read-lines
+                   "/proc/meminfo" (lambda (str) (and str (read str)))
+                   '("MemTotal:" "MemAvailable:" "MemFree:" "Buffers:" "Cached:"))
+                (if memavailable
+                    (/ (* (- memtotal memavailable) 100) memtotal)
+                  (/ (* (- memtotal (+ memfree buffers cached)) 100) memtotal)))
+       :annotation (cl-destructuring-bind (swaptotal swapfree)
+                       (symon-linux--read-lines
+                        "/proc/meminfo" 'read '("SwapTotal:" "SwapFree:"))
+                     (let ((swapped (/ (- swaptotal swapfree) 1000)))
+                       (unless (zerop swapped) (format "%dMB Swapped" swapped)))))
+
+     (define-symon-monitor symon-linux-battery-monitor
+       :index "BAT:" :unit "%" :sparkline t
+       :fetch (when battery-status-function
+                (read (cdr (assoc ?p (funcall battery-status-function))))))
+
+     (define-symon-monitor symon-linux-network-rx-monitor
+       :index "R" :unit "KB/s" :sparkline t
+       :upper-bound symon-network-rx-upper-bound
+       :lower-bound symon-network-rx-lower-bound
+       :setup (setq symon-linux--last-network-rx nil)
+       :fetch (with-temp-buffer
+                (insert-file-contents "/proc/net/dev")
+                (goto-char 1)
+                (let ((rx 0))
+                  (while (search-forward-regexp "^[\s\t]*\\(.*\\):" nil t)
+                    (unless (string= (match-string 1) "lo")
+                      (setq rx (+ rx (read (current-buffer))))))
+                  (prog1 (when symon-linux--last-network-rx
+                           (/ (- rx symon-linux--last-network-rx) symon-refresh-rate 1000))
+                    (setq symon-linux--last-network-rx rx)))))
+
+     (define-symon-monitor symon-linux-network-tx-monitor
+       :index "T" :unit "KB/s" :sparkline t
+       :upper-bound symon-network-tx-upper-bound
+       :lower-bound symon-network-tx-lower-bound
+       :setup (setq symon-linux--last-network-tx nil)
+       :fetch (with-temp-buffer
+                (insert-file-contents "/proc/net/dev")
+                (goto-char 1)
+                (let ((tx 0))
+                  (while (search-forward-regexp "^[\s\t]*\\(.*\\):" nil t)
+                    (unless (string= (match-string 1) "lo")
+                      (forward-word 8)
+                      (setq tx (+ tx (read (current-buffer))))))
+                  (prog1 (when symon-linux--last-network-tx
+                           (/ (- tx symon-linux--last-network-tx) symon-refresh-rate 1000))
+                    (setq symon-linux--last-network-tx tx)))))
+
+          (defun symon--make-sparkline (list &optional minimum maximum)
+            "make sparkline image from LIST."
+            (let ((num-samples (length list)))
+              (unless (zerop num-samples)
+                (let* ((image-data (symon--get-sparkline-base))
+                       (maximum (if maximum (float maximum) 100.0))
+                       (minimum (if minimum (float minimum) 0.0))
+                       (topmargin (1- symon-sparkline-thickness))
+                       (height (- symon-sparkline-height topmargin))
+                       (height-per-point (/ height (1+ (- maximum minimum))))
+                       (width-per-sample (/ symon-sparkline-width (float num-samples)))
+                       (samples (apply 'vector list))
+                       sample y ix)
+                  (dotimes (x symon-sparkline-width)
+                    (setq sample (aref samples (floor (/ x width-per-sample))))
+                    (when (numberp sample)
+                      (setq y (floor (* (- sample minimum) height-per-point)))
+                      (when (and (<= 0 y) (< y height))
+                        (dotimes (dy symon-sparkline-thickness)
+                          (aset image-data
+                                (+ (* (- symon-sparkline-height (+ y dy) 1) symon-sparkline-width) x)
+                                t)))))
+                  `(image :type xbm :data ,image-data :ascent ,symon-sparkline-ascent
+                          :height ,symon-sparkline-height :width ,symon-sparkline-width :foreground "#ff8c00")))))
+
+          (defun symon--convert-sparkline-to-xpm (sparkline)
+            "convert sparkline to an xpm image."
+            (let ((data (plist-get (cdr sparkline) :data)))
+              (with-temp-buffer
+                (insert (format "/* XPM */
+          static char * sparkline_xpm[] = { \"%d %d 2 1\", \"@ c %s\", \". c none\""
+                                symon-sparkline-width symon-sparkline-height
+                                "#ff8c00"))
+                (let ((ix 0))
+                  (dotimes (x symon-sparkline-height)
+                    (insert ",\n\"")
+                    (dotimes (y symon-sparkline-width)
+                      (insert (if (aref data ix) ?@ ?.))
+                      (setq ix (1+ ix)))
+                    (insert "\"")))
+                (insert "};")
+                `(image :type xpm :data ,(buffer-string) :ascent ,symon-sparkline-ascent
+                        :height ,symon-sparkline-height :width ,symon-sparkline-width))))
+
+
+
+
+     ;; (defun symon--initialize ()
+     ;;   (unless symon-monitors
+     ;;     (message "Warning: `symon-monitors' is empty."))
+     ;;   (let* ((symon-monitors                ; for backward-compatibility
+     ;;           (if (symbolp (car symon-monitors))
+     ;;               (list symon-monitors)
+     ;;             symon-monitors))
+     ;;          (monitors
+     ;;           (mapcar (lambda (lst)
+     ;;                     (mapcar (lambda (s) (get s 'symon-monitor)) lst))
+     ;;                   symon-monitors))
+     ;;          (monitors-flattened
+     ;;           (symon--flatten monitors)))
+     ;;     (mapc (lambda (m) (funcall (aref m 0))) monitors-flattened) ; setup-fns
+     ;;     (setq symon--cleanup-fns    (mapcar (lambda (m) (aref m 1)) monitors-flattened)
+     ;;           symon--display-fns    (mapcar (lambda (l) (mapcar (lambda (m) (aref m 2)) l)) monitors)
+     ;;           symon--display-active nil
+     ;;           symon--total-page-num (length symon-monitors)
+     ;;           symon--timer-objects
+     ;;           (list (run-with-timer 0 symon-refresh-rate 'symon--redisplay)
+     ;;                 (run-with-idle-timer symon-delay t 'symon-display)))))
+
+     ;; (defun symon-display ()
+     ;;   "activate symon display."
+     ;;   (interactive)
+     ;;   (setq symon--active-page 0)
+     ;;   (force-mode-line-update t))
+
+     ;; (defun symon--redisplay ()
+     ;;   "update symon display."
+     ;;   (when symon--display-active
+     ;;     (setq symon--active-page (% (1+ symon--active-page) symon--total-page-num))
+     ;;     (force-mode-line-update t)))
+
+
+     ;; (defun symon--cleanup ()
+     ;;   (mapc 'cancel-timer symon--timer-objects)
+     ;;   (mapc 'funcall symon--cleanup-fns))
+
+
+                   ;; redefine to display right aligned
+                   (defun symon--display-update ()
+                     "update symon display"
+                     (unless (or cursor-in-echo-area (active-minibuffer-window))
+                       (let ((message-log-max nil)  ; do not insert to *Messages* buffer
+                             (display-string nil)
+                             (page 0))
+                         (dolist (lst symon--display-fns)
+                           (if (= page symon--active-page)
+                           (let* ((fheight (ht-get (gb/get-font-heights (x-display-pixel-width) window-system) 'default-height))
+                                  (spaces (floor (- (/ (frame-pixel-width) 10) (- fheight 110)))))
+                               (message (concat (make-string  spaces ? ) "%s") (apply 'concat (mapcar 'funcall lst))))
+                             (mapc 'funcall lst))
+                           (setq page (1+ page))))
+                       (setq symon--display-active t)))
+                   ;; then redefine with alternate cpu benchmark (dividing cpu mark by 8 cores)
+                   (defun symon-darwin--maybe-start-process ()
+                     (symon--maybe-start-process (format "
+               while true; do
+                   echo \"----\"
+
+                   interface=`route get 0.0.0.0 | grep interface | awk '{print $2}'`
+                   s=`netstat -bi -I $interface | tail -1`;
+                   echo $s | awk '{print \"rx:\"$7}'
+                   echo $s | awk '{print \"tx:\"$8}'
+
+                   s=`ps -e -o %%cpu | awk '{x+=$1} END {print x/8}' | sed 's/,.*//'`           ### cpu number is 8 => /8
+                   echo \"cpu:$s\"
+
+                   m1=`sysctl hw.memsize | sed 's/.*:\s*//'`
+                   m_active=`vm_stat | grep 'Pages active' | sed 's/.*: *//'`
+                   m_wired=`vm_stat | grep 'Pages wired' | sed 's/.*: *//'`
+
+                   s=`echo \"scale=2; (($m_active+$m_wired)*4096*100 / $m1)\"| bc -l`
+                   echo \"mem:$s\"
+
+                   sleep %d
+               done" symon-refresh-rate)))
+
+                   (setq symon-sparkline-type 'boxed)
+                   ;; (symon-mode 1)
+                   ))
    #+END_SRC
 ** modeline
 *** spinner (busy indicator for modeline)
@@ -1933,250 +2188,273 @@
     #+END_SRC
 *** spaceline (mode line of spacemacs)
     #+BEGIN_SRC emacs-lisp
-    (when gb/use-space-line
-      (req-package spaceline
-        :require powerline
-        :config
-        ;; Valid Values: alternate, arrow, arrow-fade, bar, box, brace,
-        ;; butt, chamfer, contour, curve, rounded, roundstub, wave, zigzag,
-        ;; utf-8
-        (setq powerline-default-separator 'utf-8)
+          (when gb/use-space-line
+            (req-package spaceline
+              :require powerline ;; symon
+              :config
+              ;; Valid Values: alternate, arrow, arrow-fade, bar, box, brace,
+              ;; butt, chamfer, contour, curve, rounded, roundstub, wave, zigzag,
+              ;; utf-8
+              (setq powerline-default-separator nil) ;;'utf-8
 
-        (require 'spaceline-config)
-        (spaceline-spacemacs-theme)
-        (spaceline-helm-mode)
-        (custom-set-faces
-         '(spaceline-highlight-face ((t (:background "DarkGoldenrod3" :foreground "#000000" :inherit (quote mode-line))))))
+              (require 'spaceline-config)
+              (spaceline-spacemacs-theme)
+              (spaceline-helm-mode)
+              (custom-set-faces
+               '(spaceline-highlight-face ((t (:background "DarkGoldenrod3" :foreground "#000000" :inherit (quote mode-line))))))
 
-        (gb/do-after-display-system-init
+              (gb/do-after-display-system-init
 
-         (setq gb/mode-line-buffer-read-only-symbol (if fira-code-symbol-installed "\ue0a2" "o"))  ;; ""
-         (setq gb/mode-line-buffer-modified-ro-symbol (if fira-code-symbol-installed "\ue16b" "x"))  ;; ""
-         (setq gb/mode-line-buffer-modified-symbol (if fira-code-symbol-installed "\ue16f" "*"))  ;; ""
-         (setq gb/mode-line-branch-up-to-date-symbol "\u2713")  ;; "✓"
-         (setq gb/mode-line-branch-edited-symbol (if fira-code-symbol-installed "\ue16f" "*"))  ;; ""
-         (setq gb/mode-line-cutted-path-prefix-symbol "\u2025") ;; "…"
+               (setq gb/mode-line-buffer-read-only-symbol (if fira-code-symbol-installed "\ue0a2" "o"))  ;; ""
+               (setq gb/mode-line-buffer-modified-ro-symbol (if fira-code-symbol-installed "\ue16b" "x"))  ;; ""
+               (setq gb/mode-line-buffer-modified-symbol (if fira-code-symbol-installed "\ue16f" "*"))  ;; ""
+               (setq gb/mode-line-branch-up-to-date-symbol "\u2713")  ;; "✓"
+               (setq gb/mode-line-branch-edited-symbol (if fira-code-symbol-installed "\ue16f" "*"))  ;; ""
+               (setq gb/mode-line-cutted-path-prefix-symbol "\u2025") ;; "…"
 
-         (spaceline-define-segment gb/buffer-status
-           "Buffer status (read-only, modified), with color"
-           (cond ((and buffer-read-only (buffer-modified-p)) gb/mode-line-buffer-modified-ro-symbol)
-                 (buffer-read-only gb/mode-line-buffer-read-only-symbol)
-                 ((buffer-modified-p) gb/mode-line-buffer-modified-symbol)
-                 (t " ")))
+      (defun gb/symon-display-str ()
+        "update symon display"
+           (let ((message-log-max nil)  ; do not insert to *Messages* buffer
+                (display-string nil)
+                (page 0)
+                (displaystr ""))
+            (dolist (lst symon--display-fns)
+              (if (= page symon--active-page)
+                  (setq displaystr (apply 'concat (mapcar 'funcall lst)))
+                (mapc 'funcall lst))
+              (setq page (1+ page)))
+              displaystr)
+              )
 
-         (spaceline-define-segment gb/date-and-cw
-           "display date and calendar week of window is broad enough"
-           (if (> (window-width) 150)
-               (propertize (format-time-string "%m-%d/%V")
-                           'help-echo "month-day/calendarweek")
-             ""))
+               (spaceline-define-segment gb/symon
+                 ""
+                "" ;;(gb/symon-display-str)
+                )
 
-         (spaceline-define-segment gb/buffer-id
-           (propertize (buffer-name) 'help-echo (format "%s, size: %s" (buffer-name) (number-to-string (buffer-size)))))
+               (spaceline-define-segment gb/buffer-status
+                 "Buffer status (read-only, modified), with color"
+                 (cond ((and buffer-read-only (buffer-modified-p)) gb/mode-line-buffer-modified-ro-symbol)
+                       (buffer-read-only gb/mode-line-buffer-read-only-symbol)
+                       ((buffer-modified-p) gb/mode-line-buffer-modified-symbol)
+                       (t " ")))
 
-         (spaceline-define-segment gb/buffer-file-name
-           "provide fullpath to buffer file name, shortened to 35 characters if too long"
-           ;; limit path length to a certain number of characters (currently 35)
-           ;; TODO: allow replacing certain paths with some shorthands (e.g. :doc: for ~/Documents/)
-           (let* ((path (replace-regexp-in-string (concat "^" (regexp-quote (expand-file-name "~"))) "~" (or (file-name-directory (or buffer-file-name "")) "")))
-                  (maxlen (max 0 (- (window-width) 57 (length (buffer-name)))))
-                  (spath (cond ((>= 0 maxlen) "")
-                               ((> (length path) maxlen)
-                                (concat gb/mode-line-cutted-path-prefix-symbol (substring path (- maxlen) nil)))
-                               (t path))))
-             (propertize spath 'help-echo path))
-           -       ;;     (or spath "")
-           :tight t)
+               (spaceline-define-segment gb/date-and-cw
+                 "display date and calendar week of window is broad enough"
+                 (if (> (window-width) 150)
+                     (propertize (format-time-string "%m-%d/%V")
+                                 'help-echo "month-day/calendarweek")
+                   ""))
 
-         (defun gb/in-git-dir-p ()
-           (not (string-match "^fatal" (shell-command-to-string "git rev-parse --git-dir"))))
+               (spaceline-define-segment gb/buffer-id
+                 (propertize (buffer-name) 'help-echo (format "%s, size: %s" (buffer-name) (number-to-string (buffer-size)))))
 
-         (defun gb/vc-status ()
-           (if vc-mode
-               vc-mode
-             (concat "\ue0a0 " (car (split-string (shell-command-to-string "git rev-parse --abbrev-ref HEAD"))))))
+               (spaceline-define-segment gb/buffer-file-name
+                 "provide fullpath to buffer file name, shortened to 35 characters if too long"
+                 ;; limit path length to a certain number of characters (currently 35)
+                 ;; TODO: allow replacing certain paths with some shorthands (e.g. :doc: for ~/Documents/)
+                 (let* ((path (replace-regexp-in-string (concat "^" (regexp-quote (expand-file-name "~"))) "~" (or (file-name-directory (or buffer-file-name "")) "")))
+                        (maxlen (max 0 (- (window-width) 57 (length (buffer-name)))))
+                        (spath (cond ((>= 0 maxlen) "")
+                                     ((> (length path) maxlen)
+                                      (concat gb/mode-line-cutted-path-prefix-symbol (substring path (- maxlen) nil)))
+                                     (t path))))
+                   (propertize spath 'help-echo path))
+                    ;;     (or spath "")
+                 )
 
-         (setq gb/vc-status-cache-delay "10 sec")
-         (setq gb/vc-status-cache-buffer-id nil)
-         (setq gb/vc-status-cache nil)
-         (setq gb/vc-status-cache-timer nil)
+               (defun gb/in-git-dir-p ()
+                 (not (string-match "^fatal" (shell-command-to-string "git rev-parse --git-dir"))))
 
-         (defun gb/get-cached-git-state ()
-           "if cache filled and within same buffer (name) refresh in five seconds and return cached value, else refresh cache and return new values"
-           (if (and gb/vc-status-cache (string= (buffer-name) gb/vc-status-cache-buffer-id))
-               ;; only if no timer is running!
-               (unless gb/vc-status-cache-timer
-                 (setq gb/vc-status-cache-timer (run-at-time gb/vc-status-cache-delay nil 'gb/refresh-vc-status-cache)))
-             (gb/refresh-vc-status-cache))
-           gb/vc-status-cache)
+               (defun gb/vc-status ()
+                 (if vc-mode
+                     vc-mode
+                   (concat "\ue0a0 " (car (split-string (shell-command-to-string "git rev-parse --abbrev-ref HEAD"))))))
 
-         (defun gb/refresh-vc-status-cache ()
-           "refresh values with actual git call and clear timer (maybe cancel?)"
-           (setq gb/vc-status-cache-buffer-id (buffer-name))
-           (setq gb/vc-status-cache (gb/git-state))
-           (setq gb/vc-status-cache-timer nil))
+               (setq gb/vc-status-cache-delay "10 sec")
+               (setq gb/vc-status-cache-buffer-id nil)
+               (setq gb/vc-status-cache nil)
+               (setq gb/vc-status-cache-timer nil)
 
-         (defun gb/git-state ()
-           "query git status for the currently active buffer, refresh on buffer switches"
-           (let* ((git-output (shell-command-to-string "git status -s")))
-             ;; (message (concat  "git querried " (current-time-string))) ;; just for debugging, please remove when done
-             (if (string-empty-p git-output)
-                 'up-to-date
-               'dirty)))
+               (defun gb/get-cached-git-state ()
+                 "if cache filled and within same buffer (name) refresh in five seconds and return cached value, else refresh cache and return new values"
+                 (if (and gb/vc-status-cache (string= (buffer-name) gb/vc-status-cache-buffer-id))
+                     ;; only if no timer is running!
+                     (unless gb/vc-status-cache-timer
+                       (setq gb/vc-status-cache-timer (run-at-time gb/vc-status-cache-delay nil 'gb/refresh-vc-status-cache)))
+                   (gb/refresh-vc-status-cache))
+                 gb/vc-status-cache)
 
-         (defun gb/vc-state ()
-           (if (buffer-file-name)
-               (vc-state (buffer-file-name))
-             (gb/get-cached-git-state)))
+               (defun gb/refresh-vc-status-cache ()
+                 "refresh values with actual git call and clear timer (maybe cancel?)"
+                 (setq gb/vc-status-cache-buffer-id (buffer-name))
+                 (setq gb/vc-status-cache (gb/git-state))
+                 (setq gb/vc-status-cache-timer nil))
 
-         (defun gb/buffer-on-remote ()
-           "return whether current buffer is on remote (via tramp)"
-           (file-remote-p (or default-directory buffer-file-name dired-directory "")))
+               (defun gb/git-state ()
+                 "query git status for the currently active buffer, refresh on buffer switches"
+                 (let* ((git-output (shell-command-to-string "git status -s")))
+                   ;; (message (concat  "git querried " (current-time-string))) ;; just for debugging, please remove when done
+                   (if (string-empty-p git-output)
+                       'up-to-date
+                     'dirty)))
 
-         (spaceline-define-segment gb/projectile-id
-           (cond ((gb/buffer-on-remote) "×")
-                 ((and (fboundp 'projectile-project-p) (projectile-project-p))
-                  (projectile-project-name))
-                 (t "×")))
+               (defun gb/vc-state ()
+                 (if (buffer-file-name)
+                     (vc-state (buffer-file-name))
+                   (gb/get-cached-git-state)))
 
-         (spaceline-define-segment gb/version-control
-           "Version control information."
-           (when (and (not (gb/buffer-on-remote)) (gb/in-git-dir-p))
-             (powerline-raw
-              (s-trim (concat (replace-regexp-in-string "^ *Git[:-]" "\ue0a0 " (gb/vc-status)) ;; "  "
-                              (pcase (gb/vc-state)
-                                (`up-to-date (concat " " gb/mode-line-branch-up-to-date-symbol))
-                                (`edited (concat " " gb/mode-line-branch-edited-symbol))
-                                (`added " +")
-                                (`unregistered " ?")
-                                (`removed " -")
-                                (`needs-merge " m")
-                                (`needs-update " u")
-                                (`ignored " i")
-                                (_ " x")))))))
+               (defun gb/buffer-on-remote ()
+                 "return whether current buffer is on remote (via tramp)"
+                 (file-remote-p (or default-directory buffer-file-name dired-directory "")))
 
-         (spaceline-define-segment gb/time
-           "A segment to to display the time"
-           (propertize (format-time-string "%H:%M")
-                       'face `(:height ,(spaceline-all-the-icons--height 0.9) :inherit)
-                       'display '(raise 0.1)
-                       'help-echo (format-time-string "%A, %Y.%m.%d %H:%M")))
+               (spaceline-define-segment gb/projectile-id
+                 (cond ((gb/buffer-on-remote) "×")
+                       ((and (fboundp 'projectile-project-p) (projectile-project-p))
+                        (projectile-project-name))
+                       (t "×")))
 
-         (when (package-installed-p 'indent-info)
-           (spaceline-define-segment gb/indent-info-mode-line
-             ""
-             (indent-info-mode-line)))
+               (spaceline-define-segment gb/version-control
+                 "Version control information."
+                 (when (and (not (gb/buffer-on-remote)) (gb/in-git-dir-p))
+                   (powerline-raw
+                    (s-trim (concat (replace-regexp-in-string "^ *Git[:-]" "\ue0a0 " (gb/vc-status)) ;; "  "
+                                    (pcase (gb/vc-state)
+                                      (`up-to-date (concat " " gb/mode-line-branch-up-to-date-symbol))
+                                      (`edited (concat " " gb/mode-line-branch-edited-symbol))
+                                      (`added " +")
+                                      (`unregistered " ?")
+                                      (`removed " -")
+                                      (`needs-merge " m")
+                                      (`needs-update " u")
+                                      (`ignored " i")
+                                      (_ " x")))))))
 
-         )))
+               (spaceline-define-segment gb/time
+                 "A segment to to display the time"
+                 (propertize (format-time-string "%H:%M")
+                             'face `(:height ,(spaceline-all-the-icons--height 0.9) :inherit)
+                             'display '(raise 0.1)
+                             'help-echo (format-time-string "%A, %Y.%m.%d %H:%M")))
+
+               (when (package-installed-p 'indent-info)
+                 (spaceline-define-segment gb/indent-info-mode-line
+                   ""
+                   (indent-info-mode-line)))
+
+               )))
     #+END_SRC
 *** spaceline all the icons
     - important: install fonts located [[https://github.com/domtronn/all-the-icons.el/tree/master/fonts][here]]
     #+begin_SRC emacs-lisp
-      ;; (req-package font-lock+)
-    (when gb/use-space-line
-      (req-package all-the-icons
-        :require memoize ;; font-lock+
-        :config
-        ;; extend list of all-the-icons-mode-icon-alist
-        ;; by
-        ;; (typescript-mode all-the-icons-fileicon "typescript" :v-adjust -0.1 :face all-the-icons-yellow)
-        ;; (tide-mode all-the-icons-fileicon "typescript" :v-adjust -0.1 :face all-the-icons-yellow)
-        (with-eval-after-load 'all-the-icons
-          (progn
-            (add-to-list 'all-the-icons-mode-icon-alist '(typescript-mode all-the-icons-fileicon "typescript" :v-adjust -0.1 :face all-the-icons-yellow) t)
-            (add-to-list 'all-the-icons-mode-icon-alist '(tide-mode all-the-icons-fileicon "typescript" :v-adjust -0.1 :face all-the-icons-yellow) t)
-            )))
+        ;; (req-package font-lock+)
+      (when gb/use-space-line
+        (req-package all-the-icons
+          :require memoize ;; font-lock+
+          :config
+          ;; extend list of all-the-icons-mode-icon-alist
+          ;; by
+          ;; (typescript-mode all-the-icons-fileicon "typescript" :v-adjust -0.1 :face all-the-icons-yellow)
+          ;; (tide-mode all-the-icons-fileicon "typescript" :v-adjust -0.1 :face all-the-icons-yellow)
+          (with-eval-after-load 'all-the-icons
+            (progn
+              (add-to-list 'all-the-icons-mode-icon-alist '(typescript-mode all-the-icons-fileicon "typescript" :v-adjust -0.1 :face all-the-icons-yellow) t)
+              (add-to-list 'all-the-icons-mode-icon-alist '(tide-mode all-the-icons-fileicon "typescript" :v-adjust -0.1 :face all-the-icons-yellow) t)
+              )))
 
-      (req-package memoize)
+        (req-package memoize)
 
-      (req-package spaceline-all-the-icons
-        :require spaceline all-the-icons memoize ;; indent-info
-        ;; :defer 1
-        :config
-        ;; (spaceline-all-the-icons-theme)
-        (custom-set-variables  '(spaceline-all-the-icons-highlight-file-name t)
-                               '(spaceline-all-the-icons-separator-type (quote slant)) ;; cup, slant, wave, arrow
-                               '(spaceline-all-the-icons-slim-render nil)
-                               '(spaceline-all-the-icons-file-name-highlight t)
-                               )
+        (req-package spaceline-all-the-icons
+          :require spaceline all-the-icons memoize ;; indent-info
+          ;; :defer 1
+          :config
+          ;; (spaceline-all-the-icons-theme)
+          (custom-set-variables  '(spaceline-all-the-icons-highlight-file-name t)
+                                 '(spaceline-all-the-icons-separator-type (quote slant)) ;; cup, slant, wave, arrow
+                                 '(spaceline-all-the-icons-slim-render nil)
+                                 '(spaceline-all-the-icons-file-name-highlight t)
+                                 )
 
-        (gb/do-after-display-system-init
-         (progn
-           (defun gb/warn-missing-font (font-name)
-             "warn of font missing, if not found"
-             (if (member font-name (font-family-list))
-                 (message (concat "OK: font '" font-name "' is installed."))
-               (message (concat "WARNING: make sure font '" font-name  "' is installed."))))
+          (gb/do-after-display-system-init
+           (progn
+             (defun gb/warn-missing-font (font-name)
+               "warn of font missing, if not found"
+               (if (member font-name (font-family-list))
+                   (message (concat "OK: font '" font-name "' is installed."))
+                 (message (concat "WARNING: make sure font '" font-name  "' is installed."))))
 
-           (gb/warn-missing-font "all-the-icons")
-           (gb/warn-missing-font "file-icons")
-           (gb/warn-missing-font "FontAwesome")
-           (gb/warn-missing-font "Material Icons")
-           (gb/warn-missing-font "github-octicons")
-           (gb/warn-missing-font "Weather Icons")
+             (gb/warn-missing-font "all-the-icons")
+             (gb/warn-missing-font "file-icons")
+             (gb/warn-missing-font "FontAwesome")
+             (gb/warn-missing-font "Material Icons")
+             (gb/warn-missing-font "github-octicons")
+             (gb/warn-missing-font "Weather Icons")
 
-           (spaceline-install '((gb/buffer-status :face highlight-face)
-                                ;; auto-compile
-                                ;; buffer-size
-                                gb/buffer-file-name
-                                (gb/buffer-id :face highlight-face) ;; popup-menu-selection-face
-                                ;; remote-host
-                                (paradox-menu :when active)
-                                ;; persp-name
-                                ;; major-mode
-                                ((flycheck-error flycheck-warning flycheck-info)
-                                  :when active)
-                                ((all-the-icons-mode-icon
-                                  ;; gb/projectile-id
+             (spaceline-install '((gb/buffer-status :face highlight-face)
+                                  ;; auto-compile
+                                  ;; buffer-size
+                                  gb/buffer-file-name
+                                  (gb/buffer-id :face highlight-face) ;; popup-menu-selection-face
+                                  ;; remote-host
+                                  (paradox-menu :when active)
+                                  ;; persp-name
+                                  ;; major-mode
+                                  ((flycheck-error flycheck-warning flycheck-info)
+                                    :when active)
+                                  ((major-mode
+                                    ;; all-the-icons-mode-icon
+                                    ;; gb/projectile-id
 
-                                  ;;  all-the-icons-projectile
-                                  ;; (minor-modes :when active)
-                                  (gb/version-control :when (string= major-mode "shell-mode"))
-                                  ;; all-the-icons-vc-icon
-                                  ;; (all-the-icons-vc-status
-                                  ;;  all-the-icons-git-ahead
-                                  ;;   all-the-icons-git-status
-                                  ;; :when (buffer-file-name))
-                                  ;; all-the-icons-flycheck-status
-                                  ;; all-the-icons-flycheck-status-info
-                                  ;; all-the-icons-package-updates
-                                  ))
+                                    ;;  all-the-icons-projectile
+                                    ;; (minor-modes :when active)
+                                    (gb/version-control :when (string= major-mode "shell-mode"))
+                                    ;; all-the-icons-vc-icon
+                                    ;; (all-the-icons-vc-status
+                                    ;;  all-the-icons-git-ahead
+                                    ;;   all-the-icons-git-status
+                                    ;; :when (buffer-file-name))
+                                    ;; all-the-icons-flycheck-status
+                                    ;; all-the-icons-flycheck-status-info
+                                    ;; all-the-icons-package-updates
+                                    ))
 
-                                ;; (erc-track :when active)
-                                (process :when active)
-                                (org-pomodoro :when active)
-                                (org-clock :when active)
-                                )
+                                  ;; (erc-track :when active)
+                                  (process :when active)
+                                  (org-pomodoro :when active)
+                                  (org-clock :when active)
+                                  )
 
-             '(;; which-function
-               ;; (python-pyvenv :fallback python-pyenv)
-               ;; purpose
+               '(;; which-function
+                 ;; (python-pyvenv :fallback python-pyenv)
+                 ;; purpose
 
-               selection-info
-               ;; gb/indent-info-mode-line
-               ;; input-method
-               ((buffer-encoding-abbrev
-                 point-position
-                 line-column)
-                :separator " ")
-               ;;(global :when active)
-               ((buffer-position
-                 hud))
-               (gb/date-and-cw :tight t :when active :face default-face)
-               ((all-the-icons-battery-status :tight t)
-                ;; (all-the-icons-time :when active :tight t)
-                (gb/time :when active :tight t)
 
-                ;; :separator (spaceline-all-the-icons--separator "|" " ") :face default-face
-                )
-               ))
 
-           (setq-default mode-line-format '("%e" (:eval (spaceline-ml-main))))
-           (spaceline-all-the-icons--setup-anzu)
-           ))
+                 selection-info
+                 ;; gb/indent-info-mode-line
+                 ;; input-method
+                 ((buffer-encoding-abbrev
+                   point-position
+                   line-column)
+                  :separator " ")
+                 ;;(global :when active)
+                 ((buffer-position
+                   hud))
+                 (gb/date-and-cw :tight t :when active :face default-face)
+                 ((all-the-icons-battery-status :tight t)
+                  ;; (all-the-icons-time :when active :tight t)
+                  (gb/time :when active :tight t)
+                  ;; (gb/symon :when active :tight t)
+                  ;; :separator (spaceline-all-the-icons--separator "|" " ") :face default-face
+                  )
+                 ))
 
-        ;; (spaceline-all-the-icons--setup-paradox)
-        ))
+             (setq-default mode-line-format '("%e" (:eval (spaceline-ml-main))))
+             (spaceline-all-the-icons--setup-anzu)
+             ;; (symon--initialize)
+             ))
+
+          ;; (spaceline-all-the-icons--setup-paradox)
+          ))
     #+END_SRC
 *** rich minority mode (hide minor modes from smart mode line) (disabled, smart mode line not in use anymore)
     #+BEGIN_SRC emacs-lisp
