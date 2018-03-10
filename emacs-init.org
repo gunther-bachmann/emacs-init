@@ -2329,6 +2329,7 @@
        (setq beacon-blink-when-window-scrolls nil)
        (setq beacon-blink-when-window-changes t)
        (setq beacon-blink-when-point-moves nil)
+       (setq beacon-push-mark nil)
        (beacon-mode 1)
        )
    #+END_SRC
