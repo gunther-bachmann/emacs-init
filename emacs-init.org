@@ -1810,8 +1810,15 @@
    #+BEGIN_SRC emacs-lisp
      ;; set global keys for window management
      (req-package bind-key
+       :require ibuffer windmove
        :config
        (progn
+
+       ;; select window (left,right,up or down) relative to current window
+       (bind-key "s-<left>" 'windmove-left)
+       (bind-key "s-<right>" 'windmove-right)
+       (bind-key "s-<up>" 'windmove-up)
+       (bind-key "s-<down>" 'windmove-down)
        ;; shrink selected window horizontally
        (bind-key "C-s-<left>" 'shrink-window-horizontally-effect)
        ;; enlarge selected window horizontally
@@ -1857,6 +1864,9 @@
        (bind-key "C-;" 'toggle-comment-on-line)
 
        (bind-key "C-x b" 'ibuffer-list-buffers-and-switch)
+
+       ;; make sure that C-g behaves just as helm-buffer, aborting the buffer switch
+       (bind-key "C-g" 'quit-window ibuffer-mode-map)
 
        (bind-key "<s-up>" 'scroll-up-line)
        (bind-key "<s-down>" 'scroll-down-line)
@@ -8088,6 +8098,13 @@
         (push ?\C-q exwm-input-prefix-keys)
         (define-key exwm-mode-map [?\C-q] #'exwm-input-send-next-key)
 
+
+        (exwm-input-set-key (kbd "s-<left>") #'windmove-left)
+        (exwm-input-set-key (kbd "s-<right>") #'windmove-right)
+        (exwm-input-set-key (kbd "s-<up>") #'windmove-up)
+        (exwm-input-set-key (kbd "s-<down>") #'windmove-down)
+
+
         ;; switch buffers
         (exwm-input-set-key (kbd "s-b") #'helm-mini)
 
@@ -8111,36 +8128,37 @@
                               (exwm-reset) ;; make sure that keyboard is no longer captured
                               (helm-run-external-command program)))
 
-        (setq exwm-input-simulation-keys
-         '(
-           ;; see http://ergoemacs.org/emacs/keystroke_rep.html for syntax of key definition
-           ;; movement
-           ([?\C-b] . left)
-           ([?\M-b] . C-left)
-           ([?\C-f] . right)
-           ([?\M-f] . C-right)
-           ([?\C-p] . up)
-           ([?\C-n] . down)
-           ([?\C-a] . home)
-           ([?\C-e] . end)
-           ([?\M-v] . prior)
-           ([?\C-v] . next)
-           ([?\C-d] . delete)
-           ([?\M-d] . (S-C-right delete))
-           ([\M-backspace] . (S-C-left delete))
-           ([?\C-k] . (S-end delete))
-           ([?\M->] . (C-end))
-           ([?\M-<] . (C-home))
-           ;; cut/paste.
-           ([?\C-w] . ?\C-x)
-           ([?\M-w] . ?\C-c)
-           ([?\C-y] . ?\C-v)
-           ;; marking
-           ([?\C-x ?h] . ?\C-a) ;; will work in emacs 27 first time
-           ;; other
-           ([?\C-g] . escape)
-           ;; search
-           ([?\C-s] . ?\C-f)))
+        (setq gb/simulation-keys '(
+                ;; see http://ergoemacs.org/emacs/keystroke_rep.html for syntax of key definition
+                ;; movement
+                ;; read-key-sequence-vector can be used to get key-sequences as used as first element
+                ([?\C-b] . left)
+                ([?\M-b] . C-left)
+                ([?\C-f] . right)
+                ([?\M-f] . C-right)
+                ([?\C-p] . up)
+                ([?\C-n] . down)
+                ([?\C-a] . home)
+                ([?\C-e] . end)
+                ([?\M-v] . prior)
+                ([?\C-v] . next)
+                ([?\C-d] . delete)
+                ([?\M-d] . (S-C-right delete))
+                ([\M-backspace] . (S-C-left delete))
+                ([?\C-k] . (S-end delete))
+                ([?\M->] . (C-end))
+                ([?\M-<] . (C-home))
+                ;; cut/paste.
+                ([?\C-w] . ?\C-x)
+                ([?\M-w] . ?\C-c)
+                ([?\C-y] . ?\C-v)
+                ;; marking
+                ([?\C-x ?h] . ?\C-a) ;; will work in emacs 27 first time
+                ;; other
+                ([?\C-g] . escape)
+                ;; search
+                ([?\C-s] . ?\C-f)))
+        (setq exwm-input-simulation-keys gb/simulation-keys)
 
         ;; You can hide the mode-line of floating X windows by uncommenting the
         ;; following lines
@@ -8172,20 +8190,32 @@
         (add-hook 'exwm-manage-finish-hook
                   (lambda ()
                     (when (and exwm-class-name
-                               (or ;; (string= exwm-class-name "Chromium")
-                                (string= (downcase exwm-class-name) "eclipse")
-                                ))
+                             (or ;; (string= exwm-class-name "Chromium")
+                              (string= (downcase exwm-class-name) "eclipse")
+                              ))
                       (progn
                         ;; (setq-local exwm-input-prefix-keys '(?\C-l))
                         (exwm-input-release-keyboard (exwm--buffer->id (window-buffer)))
-                        (setq exwm-input-set-local-simulation-keys nil)))))
+                        (exwm-input-set-local-simulation-keys nil)))
+                    (when (and exwm-class-name
+                             (or (string= (downcase exwm-class-name) "chromium")
+                                ))
+                      (progn
+                        (message "local-sim-keys set")
+                        (let ((sim-keys (append gb/simulation-keys '(
+                           ([33554451] . C-k) ;; search with search engine (C-S-s)
+                           ([134217747] . f6) ;; jump into adresse bar (C-M-s)
+                           ))))
+                        (exwm-input-set-local-simulation-keys
+                         sim-keys))))
+                    ))
 
         (defadvice switch-to-buffer (after switch-to-buffer-check-exwm-buffer activate)
           "switch to char mode if target buffer is eclipse (or any other buffer that should be in char mode)"
           (when (and exwm-class-name
-                   (or ;; (string= exwm-class-name "Chromium")
-                    (string= (downcase exwm-class-name) "eclipse")
-                    ))
+                     (or ;; (string= exwm-class-name "Chromium")
+                      (string= (downcase exwm-class-name) "eclipse")
+                      ))
             (progn
               (exwm-input-release-keyboard (exwm--buffer->id (window-buffer)))
               (setq exwm-input-set-local-simulation-keys nil)))
