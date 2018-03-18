@@ -7065,29 +7065,37 @@
 
        ;; enable all languages listed below within org babel
        (when (version<= "9.0.5" (org-version))
-       (org-babel-do-load-languages
-        'org-babel-load-languages
-        '((java . t)
-          (clojure . t)
-          (ditaa . t)
-          (dot . t)
-          ;; (elixir . t)
-          (emacs-lisp . t)
-          (gnuplot . t)
-          (groovy . t)
-          (latex . t) ;; needs org-edit-latex
-          ;; (max . t) ;; maxima
-          (plantuml . t)
-          ;; (prolog . t)
-          (python . t)
-          ;; (scala . t)
-          (scheme . t)
-          (sed . t)
-          (shell . t)
-          ;; (sml . t) ;; standard ml
-          (sql . t))))
+         (require 'ob-clojurescript)
+         (org-babel-do-load-languages
+          'org-babel-load-languages
+          '((java . t)
+            (clojure . t)
+            (clojurescript . t)
+            (ditaa . t)
+            (dot . t)
+            (elixir . t)
+            (emacs-lisp . t)
+            (gnuplot . t)
+            (groovy . t)
+            (latex . t) ;; needs org-edit-latex
+            ;; (max . t) ;; maxima
+            (plantuml . t)
+            ;; (prolog . t)
+            (python . t)
+            ;; (scala . t)
+            (scheme . t)
+            (sed . t)
+            (shell . t)
+            ;; (sml . t) ;; standard ml
+            (sql . t))))
 
     #+END_SRC
+**** org babel clojurescript
+     - prerequisite is availability of lumo (arch: 'yaourt -S lumo-git')
+     - lumo is expected in /usr/local/bin/lumo (crete symlink might be necessary)
+     #+BEGIN_SRC emacs-lisp
+     (req-package ob-clojurescript)
+     #+END_SRC
 **** org babel lfe
      - use e.g. '#+BEGIN_SRC lfe :session mysession'
      - see [[https://github.com/zweifisch/ob-lfe][homepage]]
