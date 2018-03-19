@@ -8011,7 +8011,7 @@
   #+BEGIN_SRC emacs-lisp
     (req-package stripe-buffer
       :init (progn
-      (add-hook 'dired-mode-hook 'turn-on-stripe-buffer-mode)
+      ;; (add-hook 'dired-mode-hook 'turn-on-stripe-buffer-mode)
       ;; (add-hook 'dired-mode-hook 'stripe-listify-buffer)
       )
       :config
@@ -8794,6 +8794,12 @@
        :config
        (popwin-mode 1)
        (setq popwin:popup-window-height 30))
+   #+END_SRC
+** ranger (file browser/previewer, using dired)
+   #+BEGIN_SRC emacs-lisp
+     (req-package ranger
+       :config
+       (setq ranger-hide-cursor nil))
    #+END_SRC
 ** neotree
    #+BEGIN_SRC emacs-lisp
