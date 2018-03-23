@@ -6757,12 +6757,19 @@
     #+END_SRC
 *** org bullets
  #+BEGIN_SRC emacs-lisp
- (req-package org-bullets
-   :require org
-   :init
-   (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
-   :config
-   (setq org-bullets-bullet-list '("●" "￮" "◉" "◦" "∙" "⚬" "❍" "◎" "○" "◌" "◎" "◯" "○" "☉" "⚪" "⊙" "⊚" "⊛" "⚫" "∘")))
+   (req-package org-bullets
+     :require org
+     :init
+     (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
+     :config
+     (setq org-bullets-bullet-list '("●" "￮" "◉" "◦" "∙" "⚬" "❍" "◎" "○" "◌" "◎" "◯" "○" "☉" "⚪" "⊙" "⊚" "⊛" "⚫" "∘"))
+     ;; override fontify buffer of org-bullets, since it forces fontifying again, which was already done => waste of time
+     (defun org-bullets--fontify-buffer ()
+       (when font-lock-mode
+         (if (and (fboundp 'font-lock-flush)
+                (fboundp 'font-lock-ensure))
+             (with-no-warnings
+               (font-lock-fontify-buffer))))))
  #+END_SRC
 *** level 3
 **** level 4
