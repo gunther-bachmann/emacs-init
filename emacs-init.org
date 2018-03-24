@@ -3617,6 +3617,8 @@
                        `(lambda () (interactive) (company-complete-number ,x))))
               (number-sequence 0 9)))
 
+      ;; this will make company be used tab completion (if no indenting needs to take place)
+      (global-set-key (kbd "TAB") #'company-indent-or-complete-common)
       (setq company-minimum-prefix-length 4)
       (setq company-tooltip-limit 15)
       (setq company-tooltip-flip-when-above t)
