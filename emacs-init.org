@@ -28,11 +28,11 @@
 
     (defun report-elapsed (msg-prefix)
       "record an message time since last call of this function"
-           (if gb/log-startup-timing
-               (progn
-                 (setq gb/elapsed-time (- (float-time) gb/time))
-                 (setq gb/time (float-time))
-                 (message (format "%s: %f seconds" msg-prefix gb/elapsed-time)))))
+      (if gb/log-startup-timing
+          (progn
+            (setq gb/elapsed-time (- (float-time) gb/time))
+            (setq gb/time (float-time))
+            (message (format "%s: %f seconds" msg-prefix gb/elapsed-time)))))
 
     (report-elapsed "preset")
   #+END_SRC
@@ -3597,7 +3597,7 @@
   (req-package company-try-hard
     :require company
     :config
-      (progn
+    (progn
       (global-set-key (kbd "M-TAB") #'company-try-hard)
       (global-set-key (kbd "<C-tab>") #'company-try-hard)
       (global-set-key (kbd "M-/") #'company-try-hard)
