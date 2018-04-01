@@ -8243,6 +8243,19 @@
 
   #+END_SRC
 * currently evaluated
+** sidebar and icons in terminal (additional icons)
+   #+BEGIN_SRC emacs-lisp
+     (when (and (file-exists-p "~/.emacs.d/additionals/font-lock+.el")
+             (file-exists-p "~/.local/share/icons-in-terminal/icons-in-terminal.el"))
+       (progn
+         (req-package icons-in-terminal
+           :require font-lock+
+           :load-path "~/.local/share/icons-in-terminal/")
+         (when (file-exists-p "~/.emacs.d/additionals/sidebar.el/sidebar.el")
+           (req-package sidebar
+             :require icons-in-terminal projectile s dash dash-functional ov
+             :load-path "~/.emacs.d/additionals/sidebar.el/"))))
+   #+END_SRC
 ** info colors
    #+BEGIN_SRC emacs-lisp
    (req-package info-colors
