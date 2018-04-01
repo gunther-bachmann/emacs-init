@@ -8386,6 +8386,13 @@
    (req-package indent-info
      :config (global-indent-info-mode 1))
    #+END_SRC
+** lsp-ui
+   - emacs ui integration for lsp (like flycheck etc.)
+   #+BEGIN_SRC emacs-lisp
+     (req-package lsp-ui
+       :init
+       (add-hook 'lsp-mode-hook 'lsp-ui-mode))
+   #+END_SRC
 ** company lsp
    #+BEGIN_SRC emacs-lisp
    (req-package company-lsp
@@ -8867,8 +8874,6 @@
 ** gif-screencast
    - allow screencast recording single gif for each action, combining them into animated gifs thereafter
    - https://github.com/Ambrevar/emacs-gif-screencast
-** lsp-ui
-   - emacs ui integration for lsp (like flycheck etc.)
 ** ob-clojure-literate
 ** org-noter
    - keep notes in an org file that scrolls with the original
