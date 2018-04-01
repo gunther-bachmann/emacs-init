@@ -8928,6 +8928,8 @@
    - see [[https://github.com/magit/magit-tbdiff][link]]
 ** indium (java script development environment)
    - [[https://github.com/NicolasPetton/Indium][home page]]
+** company suggest (propose sentence completion based on wikionary or google)
+   - company-suggest, see [[https://github.com/juergenhoetzel/company-suggest][here]]
 * look at
 ** pickle - Major mode for editing cucumber gherkin files.
 ** attrap - Attrap! provides a command to attempt to fix the flycheck error at point.(haskel and elisp currently)
