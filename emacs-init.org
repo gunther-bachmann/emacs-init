@@ -8131,8 +8131,11 @@
         ;; select window via ace
         (exwm-input-set-key (kbd "s-o") #'ace-select-window)
 
+        ;; helm-M-x
+        (exwm-input-set-key (kbd "s-SPC") #'helm-M-x)
+
         ;; start programs
-        (exwm-input-set-key (kbd "s-SPC")
+        (exwm-input-set-key (kbd "s-S-SPC")
                             (lambda (program)
                               (interactive (list
                                             (helm-comp-read
