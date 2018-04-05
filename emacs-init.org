@@ -8295,7 +8295,28 @@
          (when (file-exists-p "~/.emacs.d/additionals/sidebar.el/sidebar.el")
            (req-package sidebar
              :require icons-in-terminal projectile s dash dash-functional ov
-             :load-path "~/.emacs.d/additionals/sidebar.el/"))))
+             :bind (("s-a" . gb/sidebar-toggle)
+                    :map sidebar-mode-map
+                    ("s-a" . sidebar-close))
+             :load-path "~/.emacs.d/additionals/sidebar.el/"
+             :config
+             (defun gb/sidebar-toggle ()
+               ""
+               (interactive)
+               (if (sidebar-get-window t)
+                 (sidebar-close)
+                 (sidebar-open)))
+               (custom-set-variables
+                  ;; '(sidebar-icon-powerline "")
+                  ;; '(sidebar-icon-modeline "")
+                  ;; '(sidebar-icon-header-end "")
+                  ;; '(sidebar-select-icon-right-header "")
+                  '(sidebar-mode-line-height 1.0)
+                  '(sidebar-width 50))
+               (custom-set-faces
+                 '(sidebar-primary-color ((t (:background "dark goldenrod" :foreground "black"))))
+                 '(sidebar-select-line ((t (:background "dark goldenrod" :foreground "black" :box nil))))
+                 '(sidebar-suffix-path-header ((t (:foreground "#404040")))))))))
    #+END_SRC
 ** info colors
    #+BEGIN_SRC emacs-lisp
@@ -8874,7 +8895,6 @@
 ** neotree
    #+BEGIN_SRC emacs-lisp
      (req-package neotree
-       :bind (("s-a" . neotree-toggle))
        :config
          (progn
          (setq neo-theme (if (display-graphic-p) 'nerd 'arrow))
