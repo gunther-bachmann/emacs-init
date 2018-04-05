@@ -8134,50 +8134,63 @@
         ;; helm-M-x
         (exwm-input-set-key (kbd "s-SPC") #'helm-M-x)
 
-        ;; start programs
-        (exwm-input-set-key (kbd "s-S-SPC")
-                            (lambda (program)
-                              (interactive (list
-                                            (helm-comp-read
-                                             "RunProgram: "
-                                             (helm-external-commands-list-1 'sort)
-                                             :must-match t
-                                             :del-input nil
-                                             :name "External Commands"
-                                             :history helm-external-command-history)))
-                              (exwm-reset) ;; make sure that keyboard is no longer captured
-                              (helm-run-external-command program)))
+        (defun gb/exwm-distinct-exwm-buffer-names ()
+          "list of distinct running exwm buffers/programs"
+          (-distinct
+           (map-values-apply
+            (lambda (name) (downcase (replace-regexp-in-string "<[0-9]*>$" ""
+                                                          (buffer-name name))))
+            exwm--id-buffer-alist)))
 
-        (setq gb/simulation-keys '(
+        (defun gb/exwm-program-select (program)
+          "select a native (unix) program to execute, select the buffer named as
+           the program instead, if such a buffer exists"
+          (interactive (list
+                        (helm-comp-read
+                         "RunProgram: "
+                          (helm-external-commands-list-1 'sort)
+                         :must-match t
+                         :del-input nil
+                         :name "External Commands"
+                         :history helm-external-command-history)))
+          (if (-contains? (gb/exwm-distinct-exwm-buffer-names) program)
+              (exwm-workspace-switch-to-buffer (capitalize program))
+            (exwm-reset) ;; make sure that keyboard is no longer captured
+            (helm-run-external-command program)))
+
+        ;; start programs
+        (exwm-input-set-key (kbd "s-1") #'gb/exwm-program-select)
+
+        (setq gb/simulation-keys `(
                 ;; see http://ergoemacs.org/emacs/keystroke_rep.html for syntax of key definition
                 ;; movement
                 ;; read-key-sequence-vector can be used to get key-sequences as used as first element
-                ([?\C-b] . left)
-                ([?\M-b] . C-left)
-                ([?\C-f] . right)
-                ([?\M-f] . C-right)
-                ([?\C-p] . up)
-                ([?\C-n] . down)
-                ([?\C-a] . home)
-                ([?\C-e] . end)
-                ([?\M-v] . prior)
-                ([?\C-v] . next)
-                ([?\C-d] . delete)
-                ([?\M-d] . (S-C-right delete))
-                ([\M-backspace] . (S-C-left delete))
-                ([?\C-k] . (S-end delete))
-                ([?\M->] . (C-end))
-                ([?\M-<] . (C-home))
+                (,(kbd "C-b") . left)
+                (,(kbd "M-b") . C-left)
+                (,(kbd "C-f") . right)
+                (,(kbd "M-f") . C-right)
+                (,(kbd "C-p") . up)
+                (,(kbd "C-n") . down)
+                (,(kbd "C-a") . home)
+                (,(kbd "C-e") . end)
+                (,(kbd "M-v") . prior)
+                (,(kbd "C-v") . next)
+                (,(kbd "C-d") . delete)
+                (,(kbd "M-d") . (S-C-right delete))
+                (,(kbd "<M-backspace>") . (S-C-left delete))
+                (,(kbd "C-k") . (S-end delete))
+                (,(kbd "M->") . (C-end))
+                (,(kbd "M-<") . (C-home))
                 ;; cut/paste.
-                ([?\C-w] . ?\C-x)
-                ([?\M-w] . ?\C-c)
-                ([?\C-y] . ?\C-v)
+                (,(kbd "C-w") . ?\C-x)
+                (,(kbd "M-w") . ?\C-c)
+                (,(kbd "C-y") . ?\C-v)
                 ;; marking
-                ([?\C-x ?h] . ?\C-a) ;; will work in emacs 27 first time
+                (,(kbd "C-x h") . ?\C-a) ;; will work in emacs 27 first time [?\C-x ?h]
                 ;; other
-                ([?\C-g] . escape)
+                (,(kbd "C-g") . escape)
                 ;; search
-                ([?\C-s] . ?\C-f)))
+                (,(kbd "C-s") . ?\C-f)))
         (setq exwm-input-simulation-keys gb/simulation-keys)
 
         ;; You can hide the mode-line of floating X windows by uncommenting the
@@ -8222,9 +8235,9 @@
                                 ))
                       (progn
                         (message "local-sim-keys set")
-                        (let ((sim-keys (append gb/simulation-keys '(
-                           ([33554451] . C-k) ;; search with search engine (C-S-s)
-                           ([134217747] . f6) ;; jump into adresse bar (C-M-s)
+                        (let ((sim-keys (append gb/simulation-keys `(
+                           (,(kbd "C-S-s") . C-k) ;; search with search engine (C-S-s)
+                           (,(kbd "C-M-s") . f6) ;; jump into adresse bar (C-M-s)
                            ))))
                         (exwm-input-set-local-simulation-keys
                          sim-keys))))
