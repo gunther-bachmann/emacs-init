@@ -9128,7 +9128,8 @@
     ;; (maximize-frame)
     (gb/do-after-display-system-init
      (toggle-frame-fullscreen)
-     (ido-mode 0))
+     (ido-mode 0)
+     (midnight-mode 1))
     (setq gc-cons-threshold 80000)
     (report-elapsed "exit finish - up")
   #+END_SRC
