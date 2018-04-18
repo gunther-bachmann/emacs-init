@@ -4890,11 +4890,11 @@
  #+END_SRC
 ** git
 *** magithub
+    - disabled because ghub+ fails to load (some interface failure to git hub)
     #+BEGIN_SRC emacs-lisp :tangle no
     (if hub-installed
     (req-package magithub
       :require magit ghub+ apiwrap
-      :defer 40
       :config
       (progn (magithub-feature-autoinject t))))
     #+END_SRC
@@ -8138,8 +8138,11 @@
           "list of distinct running exwm buffers/programs"
           (-distinct
            (map-values-apply
-            (lambda (name) (downcase (replace-regexp-in-string "<[0-9]*>$" ""
-                                                          (buffer-name name))))
+            (lambda (name)
+              (->> name
+                (buffer-name)
+                (replace-regexp-in-string "<[0-9]*>$" "")
+                (downcase)))
             exwm--id-buffer-alist)))
 
         (defun gb/exwm-program-select (program)
@@ -8291,7 +8294,7 @@
    - install frame-local into additionals https://github.com/sebastiencs/frame-local
    #+BEGIN_SRC emacs-lisp
      (when (and (file-exists-p "~/.emacs.d/additionals/font-lock+.el")
-             (file-exists-p "~/.local/share/icons-in-terminal/icons-in-terminal.el"))
+                (file-exists-p "~/.local/share/icons-in-terminal/icons-in-terminal.el"))
        (progn
          (req-package icons-in-terminal
            :require font-lock+
