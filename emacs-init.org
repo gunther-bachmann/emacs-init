@@ -8311,7 +8311,7 @@
    - install font-lock+ into additionals https://raw.githubusercontent.com/emacsmirror/emacswiki.org/master/font-lock%2B.el
    - install icons-in-terminal https://github.com/sebastiencs/icons-in-terminal#installation
    - install sidebar into additionals https://github.com/sebastiencs/sidebar.el
-   - install frame-local into additionals https://github.com/sebastiencs/frame-local
+   - now on melpa: originally install frame-local into additionals https://github.com/sebastiencs/frame-local
    #+BEGIN_SRC emacs-lisp
      (when (and (file-exists-p "~/.emacs.d/additionals/font-lock+.el")
                 (file-exists-p "~/.local/share/icons-in-terminal/icons-in-terminal.el"))
@@ -8321,8 +8321,9 @@
            :load-path "~/.local/share/icons-in-terminal/")
          (when (file-exists-p "~/.emacs.d/additionals/sidebar.el/sidebar.el")
            (req-package ov)
-           (req-package frame-local
-             :load-path "~/.emacs.d/additionals/frame-local/")
+           (req-package frame-local)
+             ;; originally from here!
+             ;; :load-path "~/.emacs.d/additionals/frame-local/"
            (req-package sidebar
              :require icons-in-terminal projectile s dash dash-functional ov frame-local
              :bind (("s-a" . gb/sidebar-toggle)
