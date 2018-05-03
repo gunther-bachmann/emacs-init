@@ -2851,6 +2851,22 @@
 
    #+END_SRC
 * editing related stuff
+** make space a control key (on/off)
+   #+BEGIN_SRC emacs-lisp
+     (defun gb/restore-space ()
+       "given the appropriate xinit settings, this will restore the original space behaviour (e.g. for c64 emulation)"
+       (interactive)
+       (shell-command "xmodmap -e 'keycode 65 = space'")
+       (shell-command "killall xcape")
+       (message "switched back to regular space behaviour"))
+
+     (defun gb/space-to-control ()
+       "given the appropriate xinit settings, this will enable the usage of space as control key again, after restoring original space behaviour"
+       (interactive)
+       (shell-command "xmodmap -e 'keycode 65 = Hyper_L'")
+       (shell-command "xcape -e 'Hyper_L=space'")
+       (message "use space as ctrl alternative"))
+   #+END_SRC
 ** auto-fill-mode configuration
    - will word break / line break after column _
    #+BEGIN_SRC emacs-lisp
