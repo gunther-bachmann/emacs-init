@@ -8278,6 +8278,10 @@
 
   #+END_SRC
 * currently evaluated
+** screen cast -> gif
+   #+BEGIN_SRC emacs-lisp
+   (req-package gif-screencast) ;; one gif per user action
+   #+END_SRC
 ** async dired (execute several copy/zip etc. tasks asynchronously)
    - see [[https://vxlabs.com/2018/03/30/asynchronous-rsync-with-emacs-dired-and-tramp/][here]], [[https://truongtx.me/tmtxt-dired-async.html][here]] and [[https://truongtx.me/tmtxt-async-tasks.html][here]]
    - install elisp files
