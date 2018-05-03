@@ -8455,6 +8455,19 @@
    (req-package indent-info
      :config (global-indent-info-mode 1))
    #+END_SRC
+** lsp-javascript-typescript
+   - see [[https://github.com/emacs-lsp/lsp-javascript]]
+   - install lsp-javascript-typescript with npm: npm i -g javascript-typescript-langserver
+   - currently disabled, does not compose well with tide (check whether tide should be disabled)
+   #+BEGIN_SRC emacs-lisp :tangle no
+   (req-package lsp-javascript-typescript
+     :init
+     (add-hook 'js-mode-hook #'lsp-javascript-typescript-enable)
+     (add-hook 'typescript-mode-hook #'lsp-javascript-typescript-enable) ;; for typescript support
+     (add-hook 'js3-mode-hook #'lsp-javascript-typescript-enable) ;; for js3-mode support
+     (add-hook 'rjsx-mode #'lsp-javascript-typescript-enable) ;; for rjsx-mode support
+     )
+   #+END_SRC
 ** lsp-ui
    - emacs ui integration for lsp (like flycheck etc.)
    #+BEGIN_SRC emacs-lisp
