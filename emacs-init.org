@@ -8952,6 +8952,8 @@
          (setq projectile-switch-project-action 'neotree-projectile-action)))
    #+END_SRC
 * to test
+** karma test runner integration
+   - upbo
 ** gif-screencast
    - allow screencast recording single gif for each action, combining them into animated gifs thereafter
    - https://github.com/Ambrevar/emacs-gif-screencast
