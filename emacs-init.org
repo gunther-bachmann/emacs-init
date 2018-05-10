@@ -3953,7 +3953,7 @@
 #+BEGIN_SRC emacs-lisp
   (req-package back-button
     :defer 3
-    :require hydra smartrep
+    :require hydra
     :config
     (progn
 
@@ -6242,7 +6242,7 @@
             )
           :config
           (progn
-          (require 'ob-clojure)
+          (require 'ob-clojure) ;; not found in packages (20180510)
           (require 'org-inlinetask)
 
           (defun gb/org-smart-return (&optional ignore)
