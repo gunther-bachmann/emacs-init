@@ -66,8 +66,8 @@
            (interactive)
            (helm-org-rifle-directories (list org-brain-path)))))
    #+END_SRC
-** req-package
-*** deferred loading with arbitrary key binding (even key chords are this possible)
+** use-package
+*** deferred loading with arbitrary key binding (even key chords are this possible) UNCHECKED!!
    - this code:
    #+BEGIN_SRC emacs-lisp :tangle no
    (use-package ace-jump-mode
@@ -319,7 +319,7 @@
            key-chord
            validate
            use-package
-           req-package
+           ;; req-package
            seq
            el-get
            s))
@@ -335,75 +335,57 @@
 
   ;; TODO: recheck no and then. error is present in req-package version 1.2
   ;; initialize unbound req-package variable (otherwise an error happens during startup)
-  (if (not (boundp 'req-package-paths))
-      (setq req-package-paths (ht)))
+  ;;(if (not (boundp 'req-package-paths))
+  ;;    (setq req-package-paths (ht)))
 
-  ;; incomplete implementation of layers
-  (setq active-layers '(core clojure navigation completion positioning editing))
-
-  ;; cl--parsing-keywords does not function, since splitting is done based on certain keywords
-  ;; TODO: do splitting off :layer, extracting layer dependency, reconstruct list fo req-package macro and splice macro in
-  ;; do some custom modification to req-package
-  (defmacro gb/req-package (pkg &rest cl-keys)
-    "wrapping req-package.
-
-  Check for keyword argument ':layer' to be in active-layers list.
-  When no :layer is given or given :layer is within active-layers list,
-  the package gets /required/, else it will not be /required/."
-    (cl--parsing-keywords ((:layer nil)) nil
-      (if (or (null cl-layer)
-              (memq cl-layer active-layers))
-          `(progn
-             (message (concat "pacakge '" (symbol-name pkg) "' is required"))
-             ,(req-package pkg @cl-keys))
-        '(message (concat "package '" (symbol-name pkg) "' is not required, layer '" (symbol-name cl-layer) "' is not part of active-layers.")))))
   (report-elapsed "exit package setup")
 #+END_SRC
 ** paradox (package list alternative)
    #+BEGIN_SRC emacs-lisp 
-          (req-package paradox
-            :require hydra
-            :commands paradox-list-packages
-            :bind (:map paradox-menu-mode-map ("<f1>" . hydra-paradox-list-packages/body))
-            :init (report-elapsed ":init-enter paradox")
-            :config
-            (report-elapsed ":config-enter paradox")
+     (use-package paradox
+       :after (hydra)
+       :commands paradox-list-packages
+       :bind (:map paradox-menu-mode-map ("<f1>" . hydra-paradox-list-packages/body))
+       :init (report-elapsed ":init-enter paradox")
+       :config
+       (report-elapsed ":config-enter paradox")
 
-            ;; description is pastell sand like color
-            (custom-set-faces '(paradox-description-face ((t (:foreground "#e0d0a0")))))
-            (progn 
-              (let* ((github-token-file "~/.github-token.properties.gpg"))
-                (if (file-exists-p github-token-file)
-                    (let* ((auth-map (jde-read-properties-file "~/.github-token.properties.gpg")))
-                      (setq paradox-github-token (gethash "github-paradox-token" auth-map)))
-                  (message "WARNING: github token file not found. paradox-list-packages will have to work without github integration.")))
+       ;; description is pastell sand like color
+       (custom-set-faces '(paradox-description-face ((t (:foreground "#e0d0a0")))))
+       (progn
+         ;; TODO jde read properties is not known yet
+         ;; (let* ((github-token-file "~/.github-token.properties.gpg"))
+         ;;   (if (file-exists-p github-token-file)
+         ;;       (let* ((auth-map (jde-read-properties-file "~/.github-token.properties.gpg")))
+         ;;         (setq paradox-github-token (gethash "github-paradox-token" auth-map)))
+         ;;     (message "WARNING: github token file not found. paradox-list-packages will have to work without github integration.")))
 
-              (setq paradox-automatically-star nil)
-              (when (package-installed-p 'hydra)
-                (defhydra hydra-paradox-list-packages ()
-                  "
-               [_v_] view homepage           [_x_] execute commands
-               [_l_] show latest commits     [_i_] install 
-                ^ ^                          [_d_] delete
-                ^ ^                          [_U_] update all
-            %s(hydra-combine-functions-w-key-bindings 
-              '((\"    view homepage      \" . paradox-menu-visit-homepage)
-                (\"    show latest commit \" . paradox-menu-view-commit-list)
-                (\"    execute commands   \" . paradox-menu-execute)
-                (\"    install            \" . package-menu-mark-install)
-                (\"    delete             \" . package-menu-mark-delete)
-                (\"    mark upgrades      \" . package-menu-mark-upgrades)))
-            "
-                  ("v" paradox-menu-visit-homepage)
-                  ("l" paradox-menu-view-commit-list)
-                  ("x" paradox-menu-execute :exit t)
-                  ("i" package-menu-mark-install )
-                  ("d" package-menu-mark-delete)
-                  ("U" package-menu-mark-upgrades)
-                  ("q" (message "Abort") :exit t))
-                ))
-            (report-elapsed ":config-exit paradox")
-            )
+         (setq paradox-automatically-star nil)
+         (when (package-installed-p 'hydra)
+           (defhydra hydra-paradox-list-packages ()
+             "
+          [_v_] view homepage           [_x_] execute commands
+          [_l_] show latest commits     [_i_] install
+           ^ ^                          [_d_] delete
+           ^ ^                          [_U_] update all
+       %s(hydra-combine-functions-w-key-bindings
+         '((\"    view homepage      \" . paradox-menu-visit-homepage)
+           (\"    show latest commit \" . paradox-menu-view-commit-list)
+           (\"    execute commands   \" . paradox-menu-execute)
+           (\"    install            \" . package-menu-mark-install)
+           (\"    delete             \" . package-menu-mark-delete)
+           (\"    mark upgrades      \" . package-menu-mark-upgrades)))
+       "
+             ("v" paradox-menu-visit-homepage)
+             ("l" paradox-menu-view-commit-list)
+             ("x" paradox-menu-execute :exit t)
+             ("i" package-menu-mark-install )
+             ("d" package-menu-mark-delete)
+             ("U" package-menu-mark-upgrades)
+             ("q" (message "Abort") :exit t))
+           ))
+       (report-elapsed ":config-exit paradox")
+       )
    #+END_SRC
 * workarounds for broken packages
   #+BEGIN_SRC emacs-lisp
@@ -1195,7 +1177,7 @@
 ** epa (see 'check-installation-status *nix)
 ** configure pinentry
    #+BEGIN_SRC emacs-lisp
-     (req-package epa
+     (use-package epa
      :config
        (setq epa-pinentry-mode 'loopback))
        ;; (global-visible-mark-mode -1)
@@ -1206,7 +1188,7 @@
    - killing gpg agent by `gpgconf --kill gpg-agent`, restart is automatic, as soon as it is needed
    - see [[https://help.ubuntu.com/community/GnuPrivacyGuardHowto][here]] too
    #+BEGIN_SRC emacs-lisp
-     (req-package pinentry
+     (use-package pinentry
        :config 
        (progn 
          (pinentry-start)
@@ -1220,7 +1202,7 @@
    - %h inserts host
    - keys are saved in ~/.gnutls/known_hosts
    #+BEGIN_SRC emacs-lisp
-    (req-package tls
+    (use-package tls
       :config (when gnutls-cli-installed (add-to-list 'tls-program "gnutls-cli -p %p %h")))
    #+END_SRC
    - fetch a certificate and put it into known_hosts
@@ -1231,7 +1213,7 @@
 ** w3m
    #+BEGIN_SRC emacs-lisp
      (if w3m-installed
-         (req-package w3m
+         (use-package w3m
            :commands w3m w3m-search w3m-browse-url
            :config
            (progn
@@ -1243,14 +1225,14 @@
    - 'M-x command-log-mode' opens a buffer that logs all commands used
    - other functions use prefix 'clm/'
    #+BEGIN_SRC emacs-lisp
-     (req-package command-log-mode
+     (use-package command-log-mode
        :commands clm/toggle-command-log-buffer
        :config
        (setq command-log-mode-auto-show t))
    #+END_SRC
 ** inline docs
    #+BEGIN_SRC emacs-lisp
-     (req-package inline-docs
+     (use-package inline-docs
        :config
        (progn
          ;; corrects version inline-docs-20170522.2150
@@ -1311,7 +1293,7 @@
 ** interaction log
    - start via ilog-log-buffer-mode, creates a buffer called *Emacs log*, just open it
    #+BEGIN_SRC emacs-lisp
-   (req-package interaction-log
+   (use-package interaction-log
      :commands ilog-log-buffer-mode)
    #+END_SRC
 ** copy of window init from spacemacs
@@ -1401,7 +1383,7 @@
    #+END_SRC
 ** display symbols (pretty-mode, prettify-greek)
    #+BEGIN_SRC emacs-lisp
-     (req-package pretty-mode
+     (use-package pretty-mode
        :config 
        (progn
          (global-pretty-mode 1)
@@ -1416,7 +1398,7 @@
           '(:sub-and-superscripts :greek :arithmetic-nary))
          ))
 
-     (req-package prettify-greek) ;; prettify greek symbols 
+     (use-package prettify-greek) ;; prettify greek symbols
    #+END_SRC
 ** font related stuff
    #+BEGIN_SRC emacs-lisp
@@ -1674,7 +1656,7 @@
      #+END_SRC
 ** sublimity (smooth scrolling)
    #+BEGIN_SRC emacs-lisp :tangle no
-     (req-package sublimity
+     (use-package sublimity
        :config
        (progn
          ;; enable smooth scrolling
@@ -1792,7 +1774,7 @@
 #+END_SRC
 ** maxframe
  #+BEGIN_SRC emacs-lisp
-   (req-package maxframe
+   (use-package maxframe
      :config
      (progn
        ;; remove defined alias
@@ -1800,7 +1782,7 @@
  #+END_SRC
 ** transpose frame
 #+BEGIN_SRC emacs-lisp
-  (req-package transpose-frame
+  (use-package transpose-frame
     :bind (
     ("C-s-+" . flip-frame) ;; exchange top with bottom windows (german layout)
     ("C-s-]" . flip-frame) ;; us layout
@@ -1813,8 +1795,8 @@
 ** bind-key
    #+BEGIN_SRC emacs-lisp
      ;; set global keys for window management
-     (req-package bind-key
-       :require ibuffer windmove
+     (use-package bind-key
+       :after ( ibuffer windmove)
        :config
        (progn
 
@@ -1870,7 +1852,8 @@
        (bind-key "C-x b" 'ibuffer-list-buffers-and-switch)
 
        ;; make sure that C-g behaves just as helm-buffer, aborting the buffer switch
-       (bind-key "C-g" 'quit-window ibuffer-mode-map)
+       ;; TODO ibuffer mode map not known yet
+       ;; (bind-key "C-g" 'quit-window ibuffer-mode-map)
 
        (bind-key "<s-up>" 'scroll-up-line)
        (bind-key "<s-down>" 'scroll-down-line)
@@ -1887,7 +1870,7 @@
    #+END_SRC
 ** symon sytem stats (for minibuffer)
    #+BEGIN_SRC emacs-lisp
-               (req-package symon
+               (use-package symon
                  ;; :commands symon-mode
                  :config
                  (progn
@@ -2198,13 +2181,13 @@
     - (spinner-start 'moon)
     - (spinner-start 'triangle)
     #+BEGIN_SRC emacs-lisp
-    (req-package spinner)
+    (use-package spinner)
     #+END_SRC
 *** spaceline (mode line of spacemacs)
     #+BEGIN_SRC emacs-lisp
           (when gb/use-space-line
-            (req-package spaceline
-              :require powerline ;; symon
+            (use-package spaceline
+              :after ( powerline) ;; symon
               :config
               ;; Valid Values: alternate, arrow, arrow-fade, bar, box, brace,
               ;; butt, chamfer, contour, curve, rounded, roundstub, wave, zigzag,
@@ -2360,10 +2343,10 @@
 *** spaceline all the icons
     - important: install fonts located [[https://github.com/domtronn/all-the-icons.el/tree/master/fonts][here]]
     #+begin_SRC emacs-lisp
-        ;; (req-package font-lock+)
+        ;; (use-package font-lock+)
       (when gb/use-space-line
-        (req-package all-the-icons
-          :require memoize ;; font-lock+
+        (use-package all-the-icons
+          :after ( memoize) ;; font-lock+
           :config
           ;; extend list of all-the-icons-mode-icon-alist
           ;; by
@@ -2375,10 +2358,10 @@
               (add-to-list 'all-the-icons-mode-icon-alist '(tide-mode all-the-icons-fileicon "typescript" :v-adjust -0.1 :face all-the-icons-yellow) t)
               )))
 
-        (req-package memoize)
+        (use-package memoize)
 
-        (req-package spaceline-all-the-icons
-          :require spaceline all-the-icons memoize ;; indent-info
+        (use-package spaceline-all-the-icons
+          :after ( spaceline all-the-icons memoize) ;; indent-info
           ;; :defer 1
           :config
           ;; (spaceline-all-the-icons-theme)
@@ -2473,7 +2456,7 @@
 *** rich minority mode (hide minor modes from smart mode line) (disabled, smart mode line not in use anymore)
     #+BEGIN_SRC emacs-lisp
     (when gb/use-smart-mode-line
-      (req-package rich-minority
+      (use-package rich-minority
         :config
         (progn
           (rich-minority-mode +1)
@@ -2529,11 +2512,11 @@
              ;; (setq sml/theme 'powerline)
              ;; (sml/setup)
 
-             (req-package powerline)
-             (req-package smart-mode-line-powerline-theme
-               :require powerline)
-             (req-package smart-mode-line
-               :require powerline smart-mode-line-powerline-theme
+             (use-package powerline)
+             (use-package smart-mode-line-powerline-theme
+               :after ( powerline))
+             (use-package smart-mode-line
+               :after (powerline smart-mode-line-powerline-theme)
                :init (progn
                (custom-set-faces
                  '(sml/read-only ((t (:inherit sml/not-modified :foreground "orange"))))
@@ -2597,18 +2580,18 @@
     Display of battery status in the emacs mode line (all the way to the left)
     See [[https://github.com/lunaryorn/fancy-battery.el][link]]
    #+BEGIN_SRC emacs-lisp
-   (req-package fancy-battery
+   (use-package fancy-battery
      :init (progn (add-hook 'after-init-hook #'fancy-battery-mode)))
    #+END_SRC
 ** rainbow mode
    #+BEGIN_SRC emacs-lisp
-   (req-package rainbow-mode
+   (use-package rainbow-mode
      :init (add-hook 'help-mode-hook #'rainbow-mode))
    #+END_SRC
 ** rainbow identifiers
    #+BEGIN_SRC emacs-lisp
      ;; can be switched off by M-x rainbow-identifiers-mode, which toggles the mode
-     (req-package rainbow-identifiers
+     (use-package rainbow-identifiers
        :init
        (add-hook 'prog-mode-hook 'rainbow-identifiers-mode))
    #+END_SRC
@@ -2616,7 +2599,7 @@
    - see https://github.com/Malabarba/beacon
    #+BEGIN_SRC emacs-lisp
      ;; mark cursor when switching buffers/windows/frames
-     (req-package beacon
+     (use-package beacon
        :config
        (setq beacon-blink-when-window-scrolls nil)
        (setq beacon-blink-when-window-changes t)
@@ -2626,8 +2609,8 @@
        )
    #+END_SRC
    #+BEGIN_SRC emacs-lisp :tangle no
-     (req-package crosshairs
-       :require ace-window ;; optional, install cursor blink after ace window switch
+     (use-package crosshairs
+       :after (ace-window) ;; optional, install cursor blink after ace window switch
                 helm       ;; optional, install cursor blink after helm buffer switch
        :config
        (progn
@@ -2693,7 +2676,7 @@
    - [[https://github.com/wasamasa/shackle][github]]
    - [[https://github.com/kaushalmodi/.emacs.d/blob/master/setup-files/setup-shackle.el][example usage]]
    #+BEGIN_SRC emacs-lisp
-          (req-package shackle
+          (use-package shackle
             :config
             (progn
             (shackle-mode 1)
@@ -2707,7 +2690,7 @@
    #+END_SRC
 ** linenumbers
    #+BEGIN_SRC emacs-lisp
-     (req-package nlinum
+     (use-package nlinum
        :bind (("M-g M-g" . goto-line-with-feedback))
        :init (progn
          (defun goto-line-with-feedback ()
@@ -2798,20 +2781,20 @@
 ** form feed
    - display ^L as h-bar
    #+BEGIN_SRC emacs-lisp
-     (req-package form-feed
+     (use-package form-feed
        :init
        (progn (add-hook 'text-mode-hook #'form-feed-mode)))
    #+END_SRC
 ** hide show org like
    - if tab does not indent, folding is done
    #+BEGIN_SRC emacs-lisp
-   (req-package hideshow-org
+   (use-package hideshow-org
      :init (add-hook 'text-mode #'hs-org/minor-mode))
    #+END_SRC
 ** highlight indent
    - Minor mode to highlight indentation
    #+BEGIN_SRC emacs-lisp
-   (req-package highlight-indent-guides
+   (use-package highlight-indent-guides
      :init (add-hook 'prog-mode-hook #'highlight-indent-guides-mode)
      :config
      (progn
@@ -2884,7 +2867,7 @@
    - will keep helm-M-x history after restart
    - will keep recent in file location even for org files
    #+begin_src emacs-lisp 
-     (req-package session
+     (use-package session
        :init (add-hook 'after-init-hook 'session-initialize)
        :config
        (progn
@@ -2896,14 +2879,14 @@
       easier to reach via C-S-> and C-S-<
    3. set mark, move right/left/up/down, call M-x smart-region will make a rectangular selection
    #+begin_src emacs-lisp 
-   (req-package smart-region
+   (use-package smart-region
      :commands smart-region
-     :require expand-region multiple-cursors)
+     :after (expand-region multiple-cursors))
    #+end_src
 ** edit-indirect
    - edit region in separate buffer (and guess mode)
    #+begin_src emacs-lisp 
-   (req-package edit-indirect
+   (use-package edit-indirect
      :commands edit-indirect-region edit-indirect-commit)
    #+end_src
 ** autosave
@@ -2914,7 +2897,7 @@
    - remove trailing whitespaces upon save (unobtrusively, that is only in lines actually changed)
    - [[https://github.com/lewang/ws-butler][home page]]
    #+BEGIN_SRC emacs-lisp
-     (req-package ws-butler
+     (use-package ws-butler
        :config
        (progn
          (ws-butler-global-mode 1)))
@@ -2932,7 +2915,7 @@
 ** easy-escaping
    - display escaping \ (which is normaly doubled) as single red backslash
    #+BEGIN_SRC emacs-lisp
-     (req-package easy-escape
+     (use-package easy-escape
        :init (add-hook 'prog-mode-hook 'easy-escape-minor-mode)
        :config
        (progn
@@ -2941,7 +2924,7 @@
    #+END_SRC
 ** schrute mode (make suggestions) disabled
    #+begin_src emacs-lisp :tangle no
-     (req-package schrute
+     (use-package schrute
        :disabled t
        :config
        (progn
@@ -2982,7 +2965,7 @@
 ** hungry delete (disabled, testing smart hungry delete)
    - delete all spaces before/after when using backspace/delete
    #+BEGIN_SRC emacs-lisp :tangle no
-     (req-package hungry-delete
+     (use-package hungry-delete
        :bind (( "C-S-d" . hungry-delete-forward)
               ( "S-<backspace>" . hungry-delete-backward)))
    #+END_SRC
@@ -3047,7 +3030,7 @@
   (setq auto-save-default nil)
 
 
-  (req-package rainbow-delimiters
+  (use-package rainbow-delimiters
     :init
     (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
 
@@ -3098,7 +3081,7 @@
 ** browse kill ring
    - allow to browse kill ring via M-y and insert from arbitrary positions
    #+BEGIN_SRC emacs-lisp
-     (req-package browse-kill-ring
+     (use-package browse-kill-ring
        ;; bind M-y to interactively browsing the kill ring buffer
        :config
        (browse-kill-ring-default-keybindings))
@@ -3112,7 +3095,7 @@
         ;; for later emacs versions, save place is no separate package, but built in
         (progn (save-place-mode +1)
                (setq save-place-file (concat user-emacs-directory "places")))
-     (req-package saveplace
+     (use-package saveplace
        :config
        (progn
          (save-place-mode +1)
@@ -3129,7 +3112,7 @@
 ** undo tree
    - C-x u opens the undo tree and lets you move through the tree of undo/redo
    #+BEGIN_SRC emacs-lisp 
-     (req-package undo-tree
+     (use-package undo-tree
        :config
        (progn
          ;; (setq undo-tree-auto-save-history t) ;; it seems that this feature regularly causes emacs to crash, if this history file cannot be read properly
@@ -3139,7 +3122,7 @@
 ** very large files
    - edit very large files in chunks (see [[https://github.com/m00natic/vlfi][here]])
    #+BEGIN_SRC emacs-lisp
-     (req-package vlf
+     (use-package vlf
        :defer 7
        :config (require 'vlf-setup))
    #+END_SRC
@@ -3147,7 +3130,7 @@
    - highlight blocks associated with buffer commands until any key is pressed
      (e.g. highlight pasted text)
    #+BEGIN_SRC emacs-lisp
-     (req-package volatile-highlights
+     (use-package volatile-highlights
        :config
        (volatile-highlights-mode t))
    #+END_SRC
@@ -3157,7 +3140,7 @@
     - simple mark a region and hit the key '(' e.g. to wrap marked region with parenthesis
     #+BEGIN_SRC emacs-lisp
       ;; wrap-region
-      (req-package wrap-region
+      (use-package wrap-region
         :config
         (progn
           (wrap-region-global-mode 1)
@@ -3182,13 +3165,13 @@
     - embrace symbol/word ... with ", ', ( { [ ...
     - key binding is Press C-, a w ' to add '' to the current word:
     #+BEGIN_SRC emacs-lisp
-    (req-package embrace
-      :require expand-region)
+    (use-package embrace
+      :after ( expand-region))
     #+END_SRC
 *** change-inner
     #+BEGIN_SRC emacs-lisp
-      (req-package change-inner
-        :require expand-region
+      (use-package change-inner
+        :after ( expand-region)
         :bind (("M-i" . change-inner)
                ("M-o" . change-outer)))
     #+END_SRC
@@ -3213,14 +3196,14 @@
       - C-g abort
       - ? help
     #+BEGIN_SRC emacs-lisp
-    (req-package easy-kill
+    (use-package easy-kill
       :init (global-set-key [remap kill-ring-save] 'easy-kill))
     #+END_SRC
 *** expand region
     expand / shrink region smartly
     #+BEGIN_SRC emacs-lisp
-      (req-package expand-region
-        :require key-chord ;; optional, install key chords that do region expansion/shrink
+      (use-package expand-region
+        :after (key-chord) ;; optional, install key chords that do region expansion/shrink
         ;; :defer t ;; valid since init script registeres keys
         :init
         (autoload 'expand-region "er/expand-region" nil t)
@@ -3233,13 +3216,13 @@
     #+END_SRC
 ** subword (internal programming minor mode)
    #+BEGIN_SRC emacs-lisp
-   (req-package subword
+   (use-package subword
      )
    #+END_SRC
 ** multicursor
    #+BEGIN_SRC emacs-lisp
-       (req-package multiple-cursors
-         :require hydra
+       (use-package multiple-cursors
+         :after ( hydra)
          ;; bind currently does not work since some other project loads multiple cursors without req-package actually loading this!
           :bind (
                  ;; When you have an active region that spans multiple lines, the following will
@@ -3303,14 +3286,14 @@
    - mark multiple cursors using avy to jump to the places that should be multicursored!
      - available functions are: ace-mc-add-multiple-cursors
    #+BEGIN_SRC emacs-lisp
-     (req-package ace-mc
+     (use-package ace-mc
        :commands ace-mc-add-multiple-cursors ace-mc-add-single-cursor
        :bind (("C-|" . ace-mc-add-multiple-cursors))
-       :require avy multiple-cursors ace-jump-mode)
+       :after (avy multiple-cursors ace-jump-mode))
    #+END_SRC
 ** key-chord
    #+BEGIN_SRC emacs-lisp
-     (req-package key-chord
+     (use-package key-chord
        :config
        (progn
          (setq key-chord-two-keys-delay 0.10)
@@ -3331,9 +3314,9 @@
      ;; last time I had to install this via M-x el-get-list-packages before it actually started working
      ;; when using space as an alternative to control this will not work right
      (el-get-bundle space-chord)
-     (req-package space-chord
+     (use-package space-chord
        :loader :el-get
-       :require key-chord
+       :after ( key-chord)
        :config
        (progn
          (setq space-chord-delay 0.08)
@@ -3343,8 +3326,8 @@
    #+END_SRC
 ** highlight thing
    #+BEGIN_SRC emacs-lisp
-     (req-package highlight-thing
-       :require key-chord ;; optional, install key chord to highlight thing
+     (use-package highlight-thing
+       :after ( key-chord) ;; optional, install key chord to highlight thing
        :init (progn
          ;; make sure that during marking words, the highlighting is switched (temporarily) off
          (add-hook 'activate-mark-hook 'highlight-thing-mode-temporary-off)
@@ -3386,7 +3369,7 @@
    #+END_SRC
 ** highlight symbol
    #+BEGIN_SRC emacs-lisp
-     (req-package highlight-symbol
+     (use-package highlight-symbol
        :bind (("C-c h" . highlight-symbol))
        :config 
        (progn 
@@ -3394,7 +3377,7 @@
    #+END_SRC
 ** bookmarking (needs hydra)
    #+BEGIN_SRC emacs-lisp
-     (req-package bm
+     (use-package bm
        :bind
        ( "C-c b t" . bm-toggle)
        ( "C-c b n" . bm-next)
@@ -3419,7 +3402,7 @@
 ** aggressive indent mode (also used by parinfer) 
    automatically indents all while typing 
    #+BEGIN_SRC emacs-lisp
-   (req-package aggressive-indent
+   (use-package aggressive-indent
      :config
      (progn ;; (global-aggressive-indent-mode 1) ;; enable mode for all programming modes
             (add-to-list 'aggressive-indent-excluded-modes 'html-mode)
@@ -3429,13 +3412,13 @@
    #+END_SRC
 ** with editor
    #+BEGIN_SRC emacs-lisp
-   (req-package with-editor
-     :require async)
+   (use-package with-editor
+     :after ( async))
    #+END_SRC
 ** selected (provide special keybindings if selections are active)
    - https://github.com/Kungsgeten/selected.el
    #+BEGIN_SRC emacs-lisp 
-     (req-package selected
+     (use-package selected
        :init (progn
          (add-hook 'org-mode-hook 'selected-minor-mode)
          (add-hook 'prog-mode-hook 'selected-minor-mode))
@@ -3462,8 +3445,8 @@
      adjustments to (langtool--process-filter) will have to be made, in order to parse json results
    #+BEGIN_SRC emacs-lisp
      (when languagetool-installed
-       (req-package langtool
-         :require s
+       (use-package langtool
+         :after ( s)
          :commands (langtool-check
                     langtool-check-buffer
                     langtool-check-done
@@ -3514,8 +3497,8 @@
      - TODO: make gb/switch-dictionary use a variable for hooks that are all called when registration took place! langtool then only registers
        an additional hook. the hook should use well defined languages as parameters to let each hook what exactly to set
    #+BEGIN_SRC emacs-lisp
-     (req-package flyspell
-       :require org
+     (use-package flyspell
+       :after ( org)
        :init (progn
        (defun gb/activate-ispell-in-org-mode ()
          "activate ispell and try to select to right language (e.g. `#+language: de')
@@ -3576,7 +3559,7 @@
    - use dictionary in startdict format from ~/.stardict/dic
    #+BEGIN_SRC emacs-lisp
      (if (file-exists-p "~/.emacs.d/additionals/sdcv-mode.el")
-         (req-package sdcv-mode
+         (use-package sdcv-mode
            :commands sdcv-search
            :load-path "~/.emacs.d/additionals"))
    #+END_SRC
@@ -3584,14 +3567,14 @@
    - 'H-d' (it's fn-d on mac) will lookup (english) definition of the word at point
    - 'H-D' will query for the word to find the definition for
    #+BEGIN_SRC emacs-lisp
-     (req-package define-word
+     (use-package define-word
        :bind (("H-d" . define-word-at-point)
               ("H-D" . define-word)))
    #+END_SRC
 * auto complete, help, man etc.
 ** which key
 #+BEGIN_SRC emacs-lisp
-  (req-package which-key
+  (use-package which-key
     :config
     (progn
     (bind-key "C-h y" #'which-key-show-top-level)
@@ -3604,7 +3587,7 @@
 #+END_SRC
 ** keyfreq
    #+BEGIN_SRC emacs-lisp
-     (req-package keyfreq
+     (use-package keyfreq
        :config
        (progn
        (keyfreq-mode 1)
@@ -3614,8 +3597,8 @@
    #+END_SRC
 ** company
 #+BEGIN_SRC emacs-lisp
-  (req-package company-try-hard
-    :require company
+  (use-package company-try-hard
+    :after (company)
     :config
     (progn
       (global-set-key (kbd "M-TAB") #'company-try-hard)
@@ -3624,7 +3607,7 @@
       (define-key company-active-map (kbd "M-TAB") #'company-try-hard)
       ))
   ;; enable company mode anywhere
-  (req-package company
+  (use-package company
     :init (progn
       (add-hook 'after-init-hook 'global-company-mode))
     :config
@@ -3674,14 +3657,14 @@
 
       ))
 
-  (req-package company-statistics
-    :require company
+  (use-package company-statistics
+    :after (company)
     :init
     (progn
       (add-hook 'after-init-hook 'company-statistics-mode)))
 
-  (req-package company-quickhelp
-    :require company
+  (use-package company-quickhelp
+    :after (company)
     :config
     (progn
       (company-quickhelp-mode 1)
@@ -3693,22 +3676,22 @@
 #+END_SRC
 ** company flx
    #+BEGIN_SRC emacs-lisp
-     (req-package company-flx
-       :require company
+     (use-package company-flx
+       :after (company)
        :config
        (with-eval-after-load 'company (add-hook 'company-mode-hook (lambda () (add-to-list 'company-backends 'company-capf))) (company-flx-mode +1)))
    #+END_SRC
 ** IMPLEMENT company-shell 
    - provide company help for fish (or other shell) completions within modes like (fish-mode, shell-mode)
    #+BEGIN_SRC emacs-lisp
-     (req-package company-shell
-       :require company
+     (use-package company-shell
+       :after (company)
        :config (add-to-list 'company-backends 'company-shell))
    #+END_SRC
 ** helm-company
    #+BEGIN_SRC emacs-lisp
-     (req-package helm-company
-       :require helm company
+     (use-package helm-company
+       :after ( helm company)
        :bind (:map company-mode-map
               ("C-:" . helm-company)
               :map company-active-map
@@ -3717,17 +3700,17 @@
 ** helm-descbind
    - describe current keybindings with helm interface
    #+BEGIN_SRC emacs-lisp
-     (req-package helm-descbinds
-       :require helm company
+     (use-package helm-descbinds
+       :after (helm company)
        :bind (("\C-h b" . helm-descbinds)))
    #+END_SRC
 ** helm-dash
    - add new sources for helm dash via helm-dash-install-docset
    - browse doc set via helm-dash
    #+BEGIN_SRC emacs-lisp
-     (req-package helm-dash
+     (use-package helm-dash
        :bind (("\C-z SPC d" . helm-dash-at-point))
-       :require helm
+       :after ( helm)
        :init (progn
                (defun clojure-dash-doc ()
                  (interactive)
@@ -3784,26 +3767,26 @@
     as explained here.
 ** dash at point
    #+BEGIN_SRC emacs-lisp
-     (req-package dash-at-point
+     (use-package dash-at-point
        :bind (("C-z SPC h d" . dash-at-point-with-docset)
               ("C-z SPC h D" . dash-at-point)))
    #+END_SRC
 ** helm-swoop
    #+BEGIN_SRC emacs-lisp
-     (req-package helm-swoop
+     (use-package helm-swoop
        :bind (("C-S-s" . helm-swoop)
               ("C-M-S-s" . helm-multi-swoop-all))
-       :require helm)
+       :after (helm))
    #+END_SRC
 ** pos tip
    #+BEGIN_SRC emacs-lisp
-   (req-package pos-tip)
+   (use-package pos-tip)
    #+END_SRC
 ** help at point
    - show help in modeline to text that is propertized as button... (e.g. in customize-.... modes)
    - the timer will make the help appear after x seconds (can be a float)
    #+BEGIN_SRC emacs-lisp
-   (req-package help-at-pt
+   (use-package help-at-pt
      :config
      (progn
        (custom-set-variables '(help-at-pt-display-when-idle (quote (kbd-help button local-map keymap)) nil (help-at-pt)))
@@ -3814,15 +3797,15 @@
 ** iy-go-to-char
    - prompts for a character and the jumps forward/backward to the next occurrance of that char
 #+BEGIN_SRC emacs-lisp
-(req-package iy-go-to-char
+(use-package iy-go-to-char
   :bind (
   ("C-c f" . iy-go-to-char)
   ("C-c F" . iy-go-to-char-backward)))
 #+END_SRC
 ** ace and avy
 #+BEGIN_SRC emacs-lisp
-  (req-package ace-link
-    :require gnus
+  (use-package ace-link
+    :after (gnus)
     :bind (
       ;; bind within org mode
       :map org-mode-map
@@ -3837,8 +3820,8 @@
       ;; bind "o" within info, help, woman, eww compilation and custom mode
       (ace-link-setup-default)))
 
-  (req-package ace-window  ;; select open window with one key
-    :require key-chord ;; optional, key binding
+  (use-package ace-window  ;; select open window with one key
+    :after ( key-chord) ;; optional, key binding
     :defer t
     :init
     (progn
@@ -3846,16 +3829,16 @@
     (when (package-installed-p 'key-chord)
       (key-chord-define-global "o0"   'ace-window))))
 
-  (req-package ace-flyspell
-    :require flyspell avy)
+  (use-package ace-flyspell
+    :after ( flyspell avy))
     ;; available commands 'M-x ace-flyspell-jump-word', jump to incorrect spelling via ace
     ;; 'M-x ace-flyspell-dwim', autocorrect word
     ;; 'M-x ace-flyspell-correct-word', no jump but autocorrect
 
 #+END_SRC
 #+BEGIN_SRC emacs-lisp :tangle no
-  (req-package ace-isearch
-    :require avy helm-swoop ace-jump-mode
+  (use-package ace-isearch
+    :after ( avy helm-swoop ace-jump-mode)
     :disabled t
     :config
     (progn
@@ -3879,7 +3862,7 @@
 
 #+END_SRC
 #+BEGIN_SRC emacs-lisp
-  (req-package avy
+  (use-package avy
     :bind (("C-S-SPC" . avy-goto-char-timer)
            ("C-c SPC" . avy-goto-char-timer)
            ("C-c C-SPC" . avy-goto-char-timer)
@@ -3897,8 +3880,8 @@
 
 
 
-  (req-package avy-zap
-    :require avy
+  (use-package avy-zap
+    :after ( avy)
     :bind
       (("M-Z" . avy-zap-to-char-dwim)
        ("M-z" . avy-zap-up-to-char)))
@@ -3908,9 +3891,9 @@
 ** ace popup menu
    - display regular popup windows (like the one upon C-c $ to correct mispelled words) as a text window (in separate emacs window)
    #+BEGIN_SRC emacs-lisp
-   (req-package avy-menu)
-   (req-package ace-popup-menu
-     :require avy avy-menu
+   (use-package avy-menu)
+   (use-package ace-popup-menu
+     :after ( avy avy-menu)
      :config (ace-popup-menu-mode 1))
    #+END_SRC
 ** search cursor left
@@ -3932,7 +3915,7 @@
    - back-button allows navigation throught the mark buffer positions
    - STATUS: produces errors on post command hooks (default is disabled)
    #+BEGIN_SRC emacs-lisp
-     (req-package visible-mark
+     (use-package visible-mark
        :init
        (defface visible-mark-active ;; put this before (require 'visible-mark)
          '((((type tty) (class mono)))
@@ -3951,9 +3934,9 @@
    #+END_SRC
 ** back-button
 #+BEGIN_SRC emacs-lisp
-  (req-package back-button
+  (use-package back-button
     :defer 3
-    :require hydra
+    :after ( hydra)
     :config
     (progn
 
@@ -3982,7 +3965,7 @@
 #+END_SRC
 ** jumplist
 #+BEGIN_SRC emacs-lisp
-  (req-package jumplist
+  (use-package jumplist
     :bind (
     ("C-," . jumplist-previous)
     ("C-." . jumplist-next))
@@ -4002,20 +3985,20 @@
 ** region-state
    - Show the number of chars/lines or rows/columns in the region
 #+BEGIN_SRC emacs-lisp
-  (req-package region-state
+  (use-package region-state
     :config
     (region-state-mode 1))
 #+END_SRC
 ** goto last change
 #+BEGIN_SRC emacs-lisp
-(req-package goto-chg
+(use-package goto-chg
   :bind (
   ("C-c b ," . goto-last-change)
   ("C-c b ." . goto-last-change-reverse)))
 #+END_SRC
 ** smart scan (jump to next/prev of symbol)
 #+BEGIN_SRC emacs-lisp
-  (req-package smartscan
+  (use-package smartscan
     :config
     (progn
     (global-smartscan-mode +1)
@@ -4027,7 +4010,7 @@
 ** anzu (searching regexp with hit count)
    #+BEGIN_SRC emacs-lisp
      ;; display # of matches in modeline when searching
-     (req-package anzu
+     (use-package anzu
        :config
        (global-anzu-mode +1))
    #+END_SRC
@@ -4043,13 +4026,13 @@
   ;; The forward naming method includes part of the file's directory
   ;; name at the beginning of the buffer name
   ;; https://www.gnu.org/software/emacs/manual/html_node/emacs/Uniquify.html
-  (req-package uniquify
+  (use-package uniquify
     :config
     (setq uniquify-buffer-name-style 'forward))
 
   ;; Turn on recent file mode so that you can more easily switch to
   ;; recently edited files when you first start emacs
-  (req-package recentf
+  (use-package recentf
     :ensure t
     :config
     (progn
@@ -4060,14 +4043,14 @@
 #+END_SRC
 ** swiper
    #+BEGIN_SRC emacs-lisp
-   (req-package ivy)
-   (req-package swiper
-     :require ivy)
+   (use-package ivy)
+   (use-package swiper
+     :after ( ivy))
    #+END_SRC
 ** counsel
    #+BEGIN_SRC emacs-lisp
-     (req-package counsel
-       :require swiper
+     (use-package counsel
+       :after ( swiper)
        ;; :bind (("M-y" . counsel-yank-pop)
        ;;        :map ivy-minibuffer-map
        ;;        ("M-y" . ivy-next-line))
@@ -4079,7 +4062,7 @@
    #+END_SRC
 ** highlight-thing
    #+BEGIN_SRC emacs-lisp
-     (req-package highlight-thing
+     (use-package highlight-thing
        :init
        (progn
          (defun gb/toogle-highlight-what-thing ()
@@ -4098,7 +4081,7 @@
    #+END_SRC
 ** minimap
    #+BEGIN_SRC emacs-lisp
-   (req-package minimap
+   (use-package minimap
      :bind (("s-m" . minimap-mode))
      :config
      (progn
@@ -4114,7 +4097,7 @@
     - use indent to actually infer parenthesis
     - CAREFUL, THIS IS DESTRUCTIVE TO NOT CORRECTLY INDENTED LISP CODE!
     #+BEGIN_SRC emacs-lisp :tangle no
-      (req-package parinfer
+      (use-package parinfer
         :disabled t
         :init
         (progn
@@ -4129,7 +4112,7 @@
 *** eros (display result of eval as overlay)
     - shows eval-last-sexp as overlay behind the expression evaluated (instead of only minibuffer)
     #+BEGIN_SRC emacs-lisp 
-      (req-package eros
+      (use-package eros
         :config 
         (progn 
           (eros-mode 1)))
@@ -4160,15 +4143,15 @@
     - does this all the time, after some delay.
     - this may become anoying
     #+BEGIN_SRC emacs-lisp
-      (req-package eldoc-overlay
-        :require inline-docs
+      (use-package eldoc-overlay
+        :after( inline-docs)
         :commands eldoc-overlay-mode)
     #+END_SRC
 *** paredit
  #+BEGIN_SRC emacs-lisp
    ;; Automatically load paredit when editing a lisp file
    ;; More at http://www.emacswiki.org/emacs/ParEdit
-   (req-package paredit
+   (use-package paredit
      :init
      (progn
        (add-hook 'emacs-lisp-mode-hook       #'enable-paredit-mode)
@@ -4185,7 +4168,7 @@
 *** elisp slime nav
     #+BEGIN_SRC emacs-lisp
       ;; allows navigation M-. and M-, to jump to definition and return back
-      (req-package elisp-slime-nav
+      (use-package elisp-slime-nav
         :init
         (dolist (hook '(emacs-lisp-mode-hook ielm-mode-hook))
           (add-hook hook 'elisp-slime-nav-mode))
@@ -4208,9 +4191,9 @@
 ***** >      barf in
 ***** <      barf out
   #+BEGIN_SRC emacs-lisp
-    (req-package lispy
+    (use-package lispy
      :bind (("C-1" . lispy-describe-inline)) ;; make C-1 available even without lispy mode!
-     :require hydra
+     :after ( hydra)
      :config
      (custom-set-faces
        '(lispy-face-hint ((t (:background "gray20" :foreground "#fff3bc")))))
@@ -4225,17 +4208,17 @@
 
 
    ;; A little more syntax highlighting
-   (req-package clojure-mode-extra-font-locking
+   (use-package clojure-mode-extra-font-locking
      :defer 3
-     :require clojure-mode)
+     :after ( clojure-mode))
 
-   (req-package clojure-mode
-     :require subword ;; optional, when active, clojure switches to this minor mode too
+   (use-package clojure-mode
+     :after ( subword ;; optional, when active, clojure switches to this minor mode too
      flycheck ;; optional, when active, clojure switches to this minor mode too
      paredit ;; optional, when active, clojure switches to this minor mode too
      hideshow ;; for folding namespaces (see below)
      key-chord ;; for defining folding with hide show
-     hydra 
+     hydra )
      :interpreter "clojure"
      :mode "\\.clj\\'"
      :init (progn
@@ -4305,28 +4288,27 @@
  #+END_SRC
 *** flycheck-clojure
     #+BEGIN_SRC emacs-lisp
-      (req-package flycheck-clojure
-        :require flycheck clojure-mode)
+      (use-package flycheck-clojure
+        :after (flycheck clojure-mode))
     #+END_SRC
 *** cider
  #+BEGIN_SRC emacs-lisp
    ;;;;
    ;; Cider
    ;;;;
-   (req-package cider
+   (use-package cider
      :commands cider-jack-in
-     :require clojure-mode
+     :after ( clojure-mode
      company ;; optional for completion
      flycheck-clojure ;; optional for checking on the fly
      rainbow-delimiters ;; optional minor mode to switch on
      paredit ;; optional paredit minor mode to switch to
-     spinner
+     spinner)
      :bind (:map clojure-mode-map
          ("C-c C-v" . cider-start-http-server)
          ("C-M-r" . cider-refresh)
          ("C-c u" . cider-user-ns)
          :map cider-mode-map
-         ("C-c C--" . cider-eval-expression-at-point-in-repl)
          ("C-c u" . cider-user-ns))
      :init (progn
        ;; provides minibuffer documentation for the code you're typing into the repl
@@ -4396,21 +4378,19 @@
          (interactive)
          (cider-repl-set-ns "user"))
 
-
-       (defun cider-eval-expression-at-point-in-repl ()
-         (interactive)
-         (let ((form (cider-defun-at-point)))
-           ;; Strip excess whitespace
-           (while (string-match "\\`\s+\\|\n+\\'" form)
-             (setq form (replace-match "" t t form)))
-           (set-buffer (cider-get-repl-buffer))
-           (goto-char (point-max))
-           (insert form)
-           (cider-repl-return)))
-
        )
      :config
      (progn
+
+       ;; try to display some context information additionally to regular eldoc
+       (setq cider-eldoc-display-context-dependent-info t)
+
+       ;; don't autoinject, because refactor-nrepl is injected, too, which fails to load
+       ;; for (java 1.8, clojure 1.9, cider 0.17.0, lein 2.8.1)
+       (setq cider-inject-dependencies-at-jack-in nil)
+
+       ;; use 1.9.0 if autoinjecting during cider startup
+       (setq cider-jack-in-auto-inject-clojure "1.9.0")
 
        ;; make sure that nrepl does not automatically scroll down!
        (setq cider-repl-scroll-on-output nil)
@@ -4431,20 +4411,15 @@
        ;; Wrap when navigating history.
        (setq cider-repl-wrap-history t)
 
-       ;; Version of clojure to auto-inject into REPL.
-       (setq cider-jack-in-auto-inject-clojure (quote latest))
-
-
        ;; do flycheck setup for clojure
        (when (package-installed-p 'flycheck-clojure)  (flycheck-clojure-setup))
-
 
        ))
  #+END_SRC
 *** helm-cider
     #+BEGIN_SRC emacs-lisp
-      (req-package helm-cider
-        :require helm cider
+      (use-package helm-cider
+        :after ( helm cider)
         :config
         (helm-cider-mode 1))
     #+END_SRC
@@ -4452,8 +4427,8 @@
  #+BEGIN_SRC emacs-lisp
      ;; To start this up, simply enable the litable minor mode in the buffer by calling 
      ;; M-x litable-mode.
-     (req-package litable
-       :require clojure-mode)
+     (use-package litable
+       :after ( clojure-mode))
 
      ;; Litable keeps a list of pure functions as a safeguard for unwanted evaluations. 
      ;; A function must first be accepted into this list (using M-x litable-accept-as-pure)
@@ -4465,27 +4440,27 @@
 *** clojars
     - search clojars for libraries (M-x clojars)
  #+BEGIN_SRC emacs-lisp
- (req-package clojars
-   :require clojure-mode)
+ (use-package clojars
+   :after ( clojure-mode))
  #+END_SRC
 *** expectations
  #+BEGIN_SRC emacs-lisp :tangle no
    ;;================================================== clojure
    ;; clojure expectations mode
-;;   (req-package expectations-mode
-;;     :require clojure-mode
+;;   (use-package expectations-mode
+;;     :after ( clojure-mode)
 ;;     :config
 ;;     (setenv "EXPECTATIONS_COLORIZE" "false"))
  #+END_SRC
 *** clj-refactor
  #+BEGIN_SRC emacs-lisp
-   (req-package inflections)
-   (req-package peg)
-   (req-package edn
-     :require peg)
-   (req-package clj-refactor
+   (use-package inflections)
+   (use-package peg)
+   (use-package edn
+     :after ( peg))
+   (use-package clj-refactor
      :defer t ;; this defer is valid, since via init the loading is ensured 
-     :require hydra s seq yasnippet paredit multiple-cursors clojure-mode cider edn inflections
+     :after ( hydra s seq yasnippet paredit multiple-cursors clojure-mode cider edn inflections)
      :init
      (defun gb/clojure-mode-hook ()
        (clj-refactor-mode 1)
@@ -4496,8 +4471,8 @@
  #+END_SRC
 *** typed clojure
  #+BEGIN_SRC emacs-lisp
-   (req-package typed-clojure-mode
-     :require clojure-mode subword
+   (use-package typed-clojure-mode
+     :after ( clojure-mode subword)
      :defer t ;; this defer is valid, since via init the loading is ensured 
      :init
      (add-hook 'clojure-mode-hook 'typed-clojure-mode))
@@ -4508,12 +4483,12 @@
     #+END_SRC
 ** cypher mode (neo4j)
  #+BEGIN_SRC emacs-lisp
- (req-package cypher-mode
+ (use-package cypher-mode
    :defer 5)
  #+END_SRC
 ** eclim eclipse emacs integration (disabled)
  #+BEGIN_SRC emacs-lisp :tangle no
-   (req-package eclim
+   (use-package eclim
      :disabled t
      :config
      (global-eclim-mode)
@@ -4521,41 +4496,41 @@
        '(eclim-eclipse-dirs '("/Applications/Eclipse.app/Contents/Eclipse"))
        '(eclim-executable "/Applications/Eclipse.app/Contents/Eclipse/plugins/org.eclim_2.5.0/bin/eclim")))
 
-   (req-package company-emacs-eclim
-     :require eclim company
+   (use-package company-emacs-eclim
+     :after ( eclim company)
      :disabled t
      :config
      (company-emacs-eclim-setup)
      (global-company-mode t))
 
-   (req-package eclimd
-     :require eclim
+   (use-package eclimd
+     :after ( eclim)
      :disabled t)
  #+END_SRC
 ** elixir
    #+BEGIN_SRC emacs-lisp
-   (req-package elixir-mode
+   (use-package elixir-mode
      :defer 5)
    #+END_SRC
 ** elm
    #+BEGIN_SRC emacs-lisp
-   (req-package elm-mode
+   (use-package elm-mode
      :defer 5)
    #+END_SRC
 ** erlang
    #+BEGIN_SRC emacs-lisp :tangle no
-   (req-package erlang)
+   (use-package erlang)
    #+END_SRC
 **** erlang company
      #+BEGIN_SRC emacs-lisp :tangle no
-     (req-package ivy-erlang-complete
+     (use-package ivy-erlang-complete
        :requre ivy counsel erlang async)
-     (req-package company-erlang
-       :require erlang ivy-erlang-complete company)
+     (use-package company-erlang
+       :after ( erlang ivy-erlang-complete company))
      #+END_SRC
 ** groovy
    #+BEGIN_SRC emacs-lisp
-     (req-package groovy-mode
+     (use-package groovy-mode
        :commands groovy-mode
        :init
        (progn
@@ -4567,7 +4542,7 @@
    #+END_SRC
 ** haskell
    #+BEGIN_SRC emacs-lisp
-     (req-package haskell-mode
+     (use-package haskell-mode
        :bind (:map haskell-mode-map
          ("C-c C-l" . haskell-process-load-file)
          ("C-c C-n C-t" . haskell-process-do-type)
@@ -4580,8 +4555,8 @@
    #+END_SRC
 *** company-ghci
     #+BEGIN_SRC emacs-lisp
-      (req-package company-ghci
-        :require company haskell-mode
+      (use-package company-ghci
+        :after ( company haskell-mode)
         :init
         (push 'company-ghci company-backends)
         (add-hook 'haskell-mode-hook 'company-mode)
@@ -4589,8 +4564,8 @@
     #+END_SRC
 *** dante (intero fork, complete development environment for haskell)
     #+BEGIN_SRC emacs-lisp
-      (req-package dante
-        :require haskell-mode company flycheck s f dash
+      (use-package dante
+        :after ( haskell-mode company flycheck s f dash)
         :commands 'dante-mode
         :init
         (add-hook 'haskell-mode-hook 'dante-mode)
@@ -4599,8 +4574,8 @@
 *** intero (complete development environment for haskell)
     - see [[https://commercialhaskell.github.io/intero/][here]]
     #+BEGIN_SRC emacs-lisp :tangle no
-      (req-package intero
-        :require haskell-mode company flycheck
+      (use-package intero
+        :after ( haskell-mode company flycheck)
         :init
         (add-hook 'haskell-mode-hook 'intero-mode)
         (when (fboundp 'easy-escape-minor-mode) ;; make sure to disable easy escaping here (if present)
@@ -4608,12 +4583,12 @@
     #+END_SRC
 *** flycheck-haskell (currently disabled)
     #+BEGIN_SRC emacs-lisp :tangle no
-    (req-package flycheck-haskell
-      :require haskell-mode flycheck)
+    (use-package flycheck-haskell
+      :after ( haskell-mode flycheck))
     #+END_SRC
 ** web-mode
    #+BEGIN_SRC emacs-lisp
-   (req-package web-mode
+   (use-package web-mode
      :mode (("\\.phtml\\'" . web-mode)
             ("\\.tpl\\.php\\'" . web-mode)
             ("\\.[agj]sp\\'" . web-mode)
@@ -4632,8 +4607,8 @@
    #+BEGIN_SRC emacs-lisp
      ;; run ts repl in typescript-mode, allowing to send expressions to the interpreter
      ;; M-x run-ts ;; starts a comint buffer with repl
-     (req-package ts-comint
-       :require typescript-mode
+     (use-package ts-comint
+       :after ( typescript-mode)
        :init
          (add-hook 'typescript-mode-hook
             (lambda ()
@@ -4643,11 +4618,11 @@
               (local-set-key (kbd "C-c C-b") 'ts-send-buffer-and-go)
               (local-set-key (kbd "C-c l") 'ts-load-file-and-go))))
 
-     (req-package typescript-mode
+     (use-package typescript-mode
        :mode (("\\.ts\\'" . typescript-mode)))
 
-     (req-package tide
-       :require typescript-mode
+     (use-package tide
+       :after ( typescript-mode)
        :init (progn
          (add-hook 'typescript-mode-hook #'gb/setup-tide-mode)
          (add-hook 'js2-mode-hook #'gb/setup-tide-mode)
@@ -4686,13 +4661,13 @@
    #+END_SRC
 ** java script
  #+BEGIN_SRC emacs-lisp
-   ;; (req-package tagedit)
-   (req-package js2-mode
+   ;; (use-package tagedit)
+   (use-package js2-mode
      :mode (("\\.js\\'" . js2-mode)
             ("\\.jsx?\\'" . js2-jsx-mode))
      :config (setq js-indent-level 2))
-   ;; (req-package js
-   ;;   :require flycheck tagedit
+   ;; (use-package js
+   ;;   :after ( flycheck tagedit)
    ;;   :defer 5
    ;;   :config
    ;;   (add-to-list 'auto-mode-alist '("\\.js$" . js-mode))
@@ -4733,7 +4708,7 @@
      ;;  (load "jde")
 
      ;; (add-to-list 'load-path "~/.emacs.d/jdee-2.4.1/lisp/")
-     ;; (req-package jde 
+     ;; (use-package jde
      ;;   :disabled t
      ;;   :loader :path
      ;;   :config
@@ -4761,8 +4736,8 @@
 *** java decompiler
     #+BEGIN_SRC emacs-lisp :tangle no
       ;; (add-to-list 'load-path "~/.emacs.d/java/")
-      ;; (req-package javad
-      ;;   :require javap-mode
+      ;; (use-package javad
+      ;;   :after ( javap-mode)
       ;;   :loader :path
       ;;   :defer 5
       ;;   :config
@@ -4787,12 +4762,12 @@
     #+END_SRC
 *** java programming mode
     #+BEGIN_SRC emacs-lisp
-     (req-package javap-mode
+     (use-package javap-mode
        :defer 5)   
     #+END_SRC
 ** php 
  #+BEGIN_SRC emacs-lisp :tangle no
-   (req-package php-mode
+   (use-package php-mode
      
      :init
      ;; make sure that indentation of arrays is more readable
@@ -4812,11 +4787,11 @@
  #+END_SRC
 ** python
  #+BEGIN_SRC emacs-lisp
-   (req-package python)
-   (req-package find-file-in-project
-     :require ivy)
-   (req-package elpy
-     :require org flycheck find-file-in-project python
+   (use-package python)
+   (use-package find-file-in-project
+     :after ( ivy))
+   (use-package elpy
+     :after ( org flycheck find-file-in-project python)
      :mode (("\\.py\\'" . python-mode))
      :init
      (add-hook 'python-mode-hook #'elpy-enable)
@@ -4824,46 +4799,46 @@
  #+END_SRC
 ** scala ensime (enhanced scala mode for emacs, currntely disabled)
  #+BEGIN_SRC emacs-lisp :tangle no
- (req-package ensime
-   :require sbt-mode
+ (use-package ensime
+   :after ( sbt-mode)
    :commands ensime
    :init
    (add-hook 'scala-mode-hook 'ensime-mode))
  #+END_SRC
 ** xml
    #+BEGIN_SRC emacs-lisp :tangle no
-     (req-package nxml-mode
+     (use-package nxml-mode
        :mode (("\\.xslt\\'" . nxml-mode)
               ("\\.xml\\'" . nxml-mode)))
    #+END_SRC
    #+BEGIN_SRC emacs-lisp
-     (req-package xml+
-       :require dash)
+     (use-package xml+
+       :after ( dash))
    #+END_SRC
 * programming related
 ** editorconfig
    #+BEGIN_SRC emacs-lisp
-      (req-package editorconfig
+      (use-package editorconfig
        :config (editorconfig-mode 1))
    #+END_SRC
 ** flymake
    #+BEGIN_SRC emacs-lisp
-   (req-package flymake)
-   (req-package flymake-easy
-     :require flymake)
-   (req-package flymake-yaml
-     :require flymake-easy
+   (use-package flymake)
+   (use-package flymake-easy
+     :after ( flymake))
+   (use-package flymake-yaml
+     :after ( flymake-easy)
      :init (add-hook 'yaml-mode-hook 'flymake-yaml-load))
-   (req-package flymake-shell
-     :require flymake-easy
+   (use-package flymake-shell
+     :after ( flymake-easy)
      :init (add-hook 'sh-set-shell-hook 'flymake-shell-load))
-   (req-package flymake-json
-     :require flymake-easy
+   (use-package flymake-json
+     :after ( flymake-easy)
      :init (add-hook 'js-mode-hook 'flymake-json-maybe-load))
    #+END_SRC
 ** flycheck
    #+BEGIN_SRC emacs-lisp
-     (req-package flycheck
+     (use-package flycheck
        :config
        (progn
          (define-key flycheck-mode-map flycheck-keymap-prefix nil)
@@ -4872,10 +4847,10 @@
            flycheck-command-map)
          ;; (add-hook 'after-init-hook 'global-flycheck-mode)
          ))
-     (req-package flycheck-tip
-       :require flycheck)
-     (req-package flycheck-pos-tip
-       :require flycheck
+     (use-package flycheck-tip
+       :after ( flycheck))
+     (use-package flycheck-pos-tip
+       :after ( flycheck)
        :config
        ;; (setq flycheck-display-errors-function #'flycheck-pos-tip-error-messages)
        (flycheck-pos-tip-mode)
@@ -4884,7 +4859,7 @@
 ** projects
 *** perspective
  #+BEGIN_SRC emacs-lisp
-   (req-package perspective
+   (use-package perspective
      ;; switch perspective mode on, always
      :config
      (progn
@@ -4895,7 +4870,7 @@
 *** projectile
     - see [[http://batsov.com/projectile/][here]]
  #+BEGIN_SRC emacs-lisp
- (req-package projectile
+ (use-package projectile
     :config
    ;; projectile everywhere!
    ;; (projectile-global-mode)
@@ -4903,8 +4878,8 @@
  #+END_SRC
 *** persp-projectile
  #+BEGIN_SRC emacs-lisp
-   (req-package persp-projectile
-     :require projectile perspective helm
+   (use-package persp-projectile
+     :after ( projectile perspective helm)
      :bind (
        ;; switch project on super-s
        :map  projectile-mode-map
@@ -4915,14 +4890,14 @@
     - disabled because ghub+ fails to load (some interface failure to git hub)
     #+BEGIN_SRC emacs-lisp :tangle no
     (if hub-installed
-    (req-package magithub
-      :require magit ghub+ apiwrap
+    (use-package magithub
+      :after ( magit ghub+ apiwrap)
       :config
       (progn (magithub-feature-autoinject t))))
     #+END_SRC
 *** magit (and more)
  #+BEGIN_SRC emacs-lisp
-   (req-package ediff
+   (use-package ediff
      :config
      ;; make sure that ediff session does not open control window in separate frame, which mixes up exwm
      (setq ediff-window-setup-function (quote ediff-setup-windows-plain)))
@@ -4939,10 +4914,10 @@
             (delete-other-windows window))
           window))
 
-      (req-package magit-popup
-        :require async)
-      (req-package magit
-        :require counsel helm async dash with-editor git-commit magit-popup
+      (use-package magit-popup
+        :after ( async))
+      (use-package magit
+        :after ( counsel helm async dash with-editor git-commit magit-popup)
         :commands magit-status
         :bind (
           ("C-c v s" . magit-status)
@@ -4973,25 +4948,25 @@
 
       ;; show git relevant change info in the fringe of the frame
       ;; git-gutter-fringe works with nlinum-mode !
-      (req-package git-gutter
+      (use-package git-gutter
         :config
         (progn
           (custom-set-faces
            '(git-gutter:unchanged ((t (:background "orange4")))))))
 
-      (req-package git-gutter-fringe
-        :require git-gutter
+      (use-package git-gutter-fringe
+        :after ( git-gutter)
         :config (global-git-gutter-mode +1))
 
-      (req-package magit-gh-pulls
-        :require magit
+      (use-package magit-gh-pulls
+        :after ( magit)
         :disabled t
         :defer 40
         :init
         (add-hook 'magit-mode-hook 'turn-on-magit-gh-pulls))
 
-      (req-package magit-filenotify
-        :require magit
+      (use-package magit-filenotify
+        :after ( magit)
         :disabled t
         :defer 40
         :init
@@ -5004,17 +4979,17 @@
       ;; Activate the mode inside the magit-status buffer by calling M-x magit-filenotify-mode [RET]. Repeat the same step to deactivate it again.
       ;; To always enable the mode when opening the magit-status buffer add magit-filenotify-mode to the magit-status-mode-hook.
 
-      (req-package magit-gitflow
-        :require magit
+      (use-package magit-gitflow
+        :after ( magit)
         :defer 40
         :init
         (add-hook 'magit-mode-hook 'turn-on-magit-gitflow))
       ;; C-f in magit status buffer will invoke gitflow action selector.
 
-      (req-package git-blamed
+      (use-package git-blamed
         ) ;; enter git-blamed-mode colors background of lines according to commit (and should echo some info depending on cursor)
 
-      (req-package git-timemachine
+      (use-package git-timemachine
         :commands git-timemachine
         :config
         (defun gb/git-timemachine-show-selected-revision ()
@@ -5048,33 +5023,33 @@
     - for more information look [[https://github.com/mhagger/git-imerge][here]]
     #+BEGIN_SRC emacs-lisp
       (if git-imerge-installed
-      (req-package magit-imerge
-        :require magit))
+      (use-package magit-imerge
+        :after ( magit)))
     #+END_SRC
 *** magit lfs
     #+BEGIN_SRC emacs-lisp
     (when git-lfs-installed 
-      (req-package magit-lfs
+      (use-package magit-lfs
         :defer 40
-        :require magit))
+        :after ( magit)))
     #+END_SRC
 ** gitignore (creation with helm)
    simply call helm-gitignore and select language for which to create this gitignore
  #+BEGIN_SRC emacs-lisp
-   (req-package helm-gitignore
+   (use-package helm-gitignore
      :commands helm-gitignore
-     :require helm)
+     :after ( helm))
  #+END_SRC
 ** IMPLEMENT code library
    - [ ] add code mappings (java, clojure)
    - [ ] eval usefulness
  #+BEGIN_SRC emacs-lisp
-   (req-package code-library)
+   (use-package code-library)
  #+END_SRC
 ** speedbar (currently disabled, see sidebar)
  #+BEGIN_SRC emacs-lisp :tangle no
-   (req-package sr-speedbar
-     :require bind-key
+   (use-package sr-speedbar
+     :after ( bind-key)
      :config
      ;;================================================== sr-speedbar
      (setq sr-speedbar-right-side nil) ;; put on left side
@@ -5106,7 +5081,7 @@
 ** markdown
    - see usage documentation on [[http://jblevins.org/projects/markdown-mode/][homepage]]
    #+BEGIN_SRC emacs-lisp
-   (req-package markdown-mode
+   (use-package markdown-mode
      :commands (markdown-mode gfm-mode)
      :mode (("\\.text\\'" . markdown-mode)
             ("\\.markdown\\'" . markdown-mode)
@@ -5118,9 +5093,9 @@
 ** markdown code block edit
    - allows C-' in a markdown code block to edit code in a separate buffer (like org mode does)
    #+BEGIN_SRC emacs-lisp
-     (req-package edit-indirect)
-     (req-package markdown-edit-indirect
-       :require markdown-mode edit-indirect
+     (use-package edit-indirect)
+     (use-package markdown-edit-indirect
+       :after ( markdown-mode edit-indirect)
        :config
        (progn
          (eval-after-load 'markdown-mode
@@ -5132,8 +5107,8 @@
        (custom-set-variables
         '(org-plantuml-jar-path (concat user-emacs-directory "plantuml.jar"))
         '(plantuml-jar-path (concat user-emacs-directory "plantuml.jar")))
-     (req-package plantuml-mode
-       :require org
+     (use-package plantuml-mode
+       :after ( org)
        :mode ("\\.\\(puml\\|plantuml\\)\\'" . plantuml-mode)
        :config
        ;; (autoload 'plantuml-mode "plantuml-mode" nil t)
@@ -5141,8 +5116,8 @@
        ;; (add-to-list 'auto-mode-alist '("\\.puml$" . plantuml-mode))
        ;;(add-to-list 'auto-mode-alist '("\\.plantuml$" . plantuml-mode))
        )
-     (req-package flycheck-plantuml
-        :require flycheck plantuml-mode
+     (use-package flycheck-plantuml
+        :after ( flycheck plantuml-mode)
         :defer t
         :init
         (flycheck-plantuml-setup)
@@ -5154,7 +5129,7 @@
     - C-M p    jump back
     - C-M q    like jump but shows tooltip
     #+BEGIN_SRC emacs-lisp
-    (req-package dumb-jump
+    (use-package dumb-jump
       :config
       (dumb-jump-mode))
     #+END_SRC
@@ -5163,24 +5138,24 @@
    see [[https://github.com/ecukes/ecukes][here]]
    example project [[file:~/devel/emacs/Cask][here]]
    #+BEGIN_SRC emacs-lisp
-   (req-package feature-mode
+   (use-package feature-mode
      :defer 7)
-   (req-package ecukes
+   (use-package ecukes
      :defer 7)
-   (req-package espuds
+   (use-package espuds
      :defer 7)
    #+END_SRC
 * shell
 ** eshell
    #+begin_src emacs-lisp 
      ;; provide eldoc within eshell (and some more help)
-     (req-package esh-help
-       :require eshell
+     (use-package esh-help
+       :after ( eshell)
        :config (setup-esh-help-eldoc))
      ;; provide z command in eshell  
-     (req-package eshell-z
-       :require eshell)
-     (req-package eshell
+     (use-package eshell-z
+       :after ( eshell))
+     (use-package eshell
        :config
        (progn
          (setq eshell-cmpl-autolist t)
@@ -5276,7 +5251,7 @@
    - enables interaction with tmux sessions
    - see https://github.com/syohex/emacs-emamux
    #+BEGIN_SRC emacs-lisp :tangle no
-     (req-package emamux
+     (use-package emamux
        :config
        ;; (global-set-key (kbd "C-z") emamux:keymap)
        (custom-set-variables
@@ -5285,13 +5260,13 @@
 ** shell here
    #+BEGIN_SRC emacs-lisp
      ;; open a shell at the current directory
-     (req-package shell-here
+     (use-package shell-here
        :bind (("C-c s !" . shell-here)))
      ;;      (define-key (current-global-map) "\C-c!" 'shell-here) ;
    #+END_SRC
 ** shell ansi colors configuration (disabled)
    #+BEGIN_SRC emacs-lisp :tangle no
-     (req-package ansi-color
+     (use-package ansi-color
        :init (add-hook 'shell-mode-hook 'ansi-color-for-comint-mode-on)
        :config
        (setq ansi-color-names-vector
@@ -5303,7 +5278,7 @@
    #+END_SRC
 ** xterm color
    #+BEGIN_SRC emacs-lisp
-     (req-package xterm-color
+     (use-package xterm-color
        :init (add-hook 'comint-preoutput-filter-functions 'xterm-color-filter)
        :config
        ;; eterm-color-256 expects existence of this function
@@ -5321,8 +5296,8 @@
 ** shell (bash) checking
    - built in shell editing mode, explicitly initialized here to enable flycheck-mode
    #+BEGIN_SRC emacs-lisp
-     (req-package sh-script
-       :require flycheck
+     (use-package sh-script
+       :after ( flycheck)
        :init
        (add-hook 'sh-mode-hook 'flycheck-mode))
    #+END_SRC
@@ -5335,8 +5310,8 @@
    #+END_SRC
 * ebooks
   #+BEGIN_SRC emacs-lisp
-    (req-package ereader
-      :require xml+ dash
+    (use-package ereader
+      :after ( xml+ dash)
       :mode ("\\.epub\\'" . ereader-mode))
   #+END_SRC
 * pdf-tooling
@@ -5345,7 +5320,7 @@
     ;; allow in emacs pdf view/annotate etc.
     ;; if not functional do the following: remove package and restart emacs, then allow rebuild of pdf tooling, restart again
     (if (and make-installed poppler-installed imagemagick-installed)
-        (req-package pdf-tools
+        (use-package pdf-tools
           :mode ("\\.pdf$" . pdf-view-mode)
           :init (progn
                   ;; (add-hook 'after-init-hook 'pdf-tools-install)
@@ -5528,7 +5503,7 @@
     ;; (clomacs-defun get-property System/getProperty)
     ;; (message (get-property "java.version"))
 
-    ;; (req-package kanban)
+    ;; (use-package kanban)
 
     ;; (add-to-list 'load-path "~/git/local/hoclgen/src/elisp")
     ;; (require 'hoclgen)
@@ -5560,7 +5535,7 @@
 #+END_SRC
 * yasnippet
 #+BEGIN_SRC emacs-lisp
-  (req-package yasnippet
+  (use-package yasnippet
     :config
     (setq yas-snippet-dirs
           `(,(concat user-emacs-directory "snippets"))) ;; my snippets library
@@ -5616,7 +5591,7 @@
    - use functions yankpad-map, yankpad-expand
    - see [[https://github.com/Kungsgeten/yankpad][homepage]]
    #+BEGIN_SRC emacs-lisp
-     (req-package yankpad
+     (use-package yankpad
        :init
        (when (package-installed-p 'company)
          ;; If you want to complete snippets using company-mode
@@ -5628,7 +5603,7 @@
 * organizational (org, mail, news)
 ** elfeed
  #+BEGIN_SRC emacs-lisp
-   (req-package elfeed
+   (use-package elfeed
      :commands elfeed
      :bind (:map elfeed-search-mode-map
             ("l" . recenter-top-bottom))
@@ -5644,28 +5619,29 @@
        ))
 
    ;; Load elfeed-org
-   (req-package elfeed-org
-     :require elfeed org dash
+   (use-package elfeed-org
+     :after ( elfeed org dash)
      :init (progn
+       ;; TOOD fix function that is not known here
        ;; only programming related books
-       (add-hook 'elfeed-new-entry-hook
-                 (elfeed-make-tagger :feed-url "pdfbooksplanet"
-                                     :entry-link '(not "programming")
-                                     :add 'junk
-                                     :remove 'unread))
+       ;; (add-hook 'elfeed-new-entry-hook
+       ;;           (elfeed-make-tagger :feed-url "pdfbooksplanet"
+       ;;                               :entry-link '(not "programming")
+       ;;                               :add 'junk
+       ;;                              :remove 'unread))
 
        ;; only programming related books
-       (add-hook 'elfeed-new-entry-hook
-                 (elfeed-make-tagger :feed-url "BookDL"
-                                     :entry-link '(not "programming")
-                                     :add 'junk
-                                     :remove 'unread))
+       ;; (add-hook 'elfeed-new-entry-hook
+       ;;          (elfeed-make-tagger :feed-url "BookDL"
+       ;;                              :entry-link '(not "programming")
+       ;;                             :add 'junk
+       ;;                              :remove 'unread))
 
-       (add-hook 'elfeed-new-entry-hook
-                 (elfeed-make-tagger :feed-url "lobste\\.rs"
-                                     :entry-link '(not "emacs")
-                                     :add 'junk
-                                     :remove 'unread))
+       ;; (add-hook 'elfeed-new-entry-hook
+       ;;          (elfeed-make-tagger :feed-url "lobste\\.rs"
+       ;;                              :entry-link '(not "emacs")
+       ;;                              :add 'junk
+       ;;                              :remove 'unread))
 
        )
      :config
@@ -5691,10 +5667,10 @@
        ;; (setq elfeed-search-filter "@6-months-old +unread")
        ))
 
-   (req-package noflet)
+   (use-package noflet)
 
-   (req-package elfeed-goodies
-     :require elfeed popwin noflet ace-jump-mode ;; powerline
+   (use-package elfeed-goodies
+     :after ( elfeed popwin noflet ace-jump-mode) ;; powerline
      :config
      (progn
        (setq elfeed-goodies/entry-pane-size 0.5)
@@ -5707,12 +5683,12 @@
  #+BEGIN_SRC emacs-lisp
      ;; add support to send from different smtp accounts
      ;; do this before custom variables are set, otherwise send-mail-function won't be set correctly!
-     (req-package smtpmail-multi)
+     (use-package smtpmail-multi)
 
      ;; closed by gnu-lastentry!
-     (req-package gnus
+     (use-package gnus
       :commands gnus
-      :require smtpmail-multi mm-decode hydra bbdb
+      :after ( smtpmail-multi mm-decode hydra bbdb)
       :bind (
         :map gnus-group-mode-map
         ("<f1>" . hydra-gnus-group/body)
@@ -6066,22 +6042,22 @@
 **** construct hydra 
   #+BEGIN_SRC emacs-lisp
     ;; make imap searchable
-    ;;(req-package nnir
-    ;;  :require gnus)
+    ;;(use-package nnir
+    ;;  :after ( gnus))
   #+END_SRC
 *** accounts (user specific stuff)
     #+BEGIN_SRC emacs-lisp
       (when mail-accounts-exists
-            (req-package mail-accounts
+            (use-package mail-accounts
               :load-path "~/.emacs.d/accounts/"
-              :require gnus))
+              :after (gnus)))
     #+END_SRC
 ** bbdb
 *** bbdb itself
  #+BEGIN_SRC emacs-lisp
      ;; make sure that email addresses are stored in the bbdb (database)
 
-   (req-package bbdb
+   (use-package bbdb
      :init (progn
      ;; use ; on a message to invoke bbdb interactively
      (add-hook 'gnus-summary-mode-hook
@@ -6141,33 +6117,33 @@
       q ... Finish with doing nothing
       RET ... Finish with the update of To/Cc/Bcc header (if necessary, open the mail buffer)
   #+BEGIN_SRC emacs-lisp
-    (req-package bbdb-
-      :require bbdb
+    (use-package bbdb-
+      :after ( bbdb)
       :config
       (bbdb-:setup))
   #+END_SRC
 *** csv export/import
  #+BEGIN_SRC emacs-lisp
-   (req-package bbdb-csv-import
-     :require bbdb)
+   (use-package bbdb-csv-import
+     :after ( bbdb))
  #+END_SRC
 *** extensive regex search in bbdb
  #+BEGIN_SRC emacs-lisp
-   (req-package bbdb-ext
-     :require bbdb)
+   (use-package bbdb-ext
+     :after ( bbdb))
  #+END_SRC
 *** DONE popup window for email selection in mail client (seems to be alternative to bbdb-) (deactivated)
     - seems no longer available
  #+BEGIN_SRC emacs-lisp :tangle no
-   (req-package bbdb-handy
-     :require bbdb
+   (use-package bbdb-handy
+     :after ( bbdb)
      :config
      (bbdb-handy-enable))
  #+END_SRC
 *** export entry as vcard
  #+BEGIN_SRC emacs-lisp
-;;   (req-package bbdb-vcard
-;;     :require bbdb)
+;;   (use-package bbdb-vcard
+;;     :after ( bbdb))
  #+END_SRC
 ** calendar
  #+BEGIN_SRC emacs-lisp
@@ -6204,8 +6180,8 @@
 ** IMPLEMENT org
 *** org
   #+BEGIN_SRC emacs-lisp
-        (req-package org
-          :require hydra helm
+        (use-package org
+          :after ( hydra helm)
           :bind (
             :map  org-mode-map
             ("<f1>" . hydra-org-mode/body)
@@ -6454,9 +6430,9 @@
       synced via Dropwizard
     - could be tamed to not use all agenda files!
     #+BEGIN_SRC emacs-lisp
-      (req-package org-mobile
+      (use-package org-mobile
         :commands org-mobile-pull org-mobile-push
-        :require org
+        :after ( org)
         :config
         (progn
         ;; Set to the location of your Org files on your local system
@@ -6480,8 +6456,8 @@
     - for capture templates see [[http://orgmode.org/manual/Template-elements.html#Template-elements]]
     - intro for capture templates see http://cestlaz.github.io/posts/using-emacs-23-capture-1/
   #+BEGIN_SRC emacs-lisp
-    (req-package org-capture
-      :require org
+    (use-package org-capture
+      :after ( org)
       :bind ("C-c c" . org-capture)
       :init (progn
         ;;
@@ -6518,8 +6494,8 @@
   #+END_SRC
 *** org agenda
   #+BEGIN_SRC emacs-lisp
-    (req-package org-agenda
-      :require org helm ;; agenda-accounts are option
+    (use-package org-agenda
+      :after ( org helm) ;; agenda-accounts are option
       :config
       (progn
 
@@ -6595,8 +6571,8 @@
 *** org agenda user specific stuff
     #+BEGIN_SRC emacs-lisp
       (when agenda-accounts-exists
-        (req-package agenda-accounts
-          :require org org-agenda
+        (use-package agenda-accounts
+          :after ( org org-agenda)
           :load-path "~/.emacs.d/accounts/"
           :config
           (progn
@@ -6615,10 +6591,10 @@
     allow to accept invitations and record these into the org-capture-file
     #+BEGIN_SRC emacs-lisp
       ;; (add-to-list 'load-path "~/.emacs.d/ical-event-master/")
-      ;; (req-package gnus-calendar
+      ;; (use-package gnus-calendar
 
       ;;   :loader :path
-      ;;   :require org
+      ;;   :after ( org)
       ;;   :config
       ;;   (gnus-calendar-setup)
       ;;   ;; to enable optional iCalendar->Org sync functionality
@@ -6640,8 +6616,8 @@
     - org-gcal-referesh-token: refresh oauth token (expires in 1h)
     #+BEGIN_SRC emacs-lisp
     (when calendar-accounts-exists
-      (req-package org-gcal
-        :require calendar-accounts org
+      (use-package org-gcal
+        :after ( calendar-accounts org)
         :commands org-gcal-sync org-gcal-fetch org-gcal-post-at-point org-gcal-refresh-token
         :config
         (progn 
@@ -6651,8 +6627,8 @@
 *** caldav sync
     #+BEGIN_SRC emacs-lisp
     (when calendar-accounts-exists
-      (req-package org-caldav
-        :require org calendar-accounts oauth2
+      (use-package org-caldav
+        :after ( org calendar-accounts oauth2)
         :commands org-caldav-sync
         :config
         (setq org-icalendar-timezone "Europe/Berlin")
@@ -6759,14 +6735,14 @@
 *** accounts for calendar sync
     #+BEGIN_SRC emacs-lisp
       (when calendar-accounts-exists
-          (req-package calendar-accounts
-            :require org
+          (use-package calendar-accounts
+            :after ( org)
             :load-path "~/.emacs.d/accounts/"))
     #+END_SRC
 *** german holidays into calendar
     #+BEGIN_SRC emacs-lisp
-      (req-package german-holidays
-        :require org
+      (use-package german-holidays
+        :after ( org)
         :config
         ;; (setq holiday-other-holidays holiday-german-holidays)
         ;; make sure that the right holidays are used (and no others)
@@ -6778,8 +6754,8 @@
     #+END_SRC
 *** org bullets
  #+BEGIN_SRC emacs-lisp
-   (req-package org-bullets
-     :require org
+   (use-package org-bullets
+     :after ( org)
      :init
      (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
      :config
@@ -6806,13 +6782,13 @@
 ************** level 14
 *** password manager
  #+BEGIN_SRC emacs-lisp
-   (req-package org-password-manager
+   (use-package org-password-manager
      :bind (:map org-mode-map
                  ("C-c s b" . gb/browse-to-link-property)
                  ("C-c s u" . org-password-manager-get-username)
                  ("C-c s p" . org-password-manager-get-password)
                  ("C-c s g" . org-password-manager-generate-password))
-     :require org
+     :after ( org)
      :config
      (defun gb/browse-to-link-property ()
        "get the property ':LINK:' from the entry at point and browse to url given as value"
@@ -6824,9 +6800,9 @@
     - hides passwords in password manager (any entry with ':PASSWORD:')
     #+BEGIN_SRC emacs-lisp
       (if (file-exists-p "~/.emacs.d/additionals/hidepw.el")
-          (req-package hidepw
+          (use-package hidepw
             :load-path "~/.emacs.d/additionals/"
-            :require org
+            :after ( org)
             :init (progn
               (add-hook 'org-mode-hook  'hidepw-mode)
               )
@@ -6839,8 +6815,8 @@
 *** export modules (e.g. ox-confluence)
  #+BEGIN_SRC emacs-lisp
    ;;      (add-to-list 'load-path "~/.emacs.d/org-mode-exports/")
-   ;;      (req-package ox-confluence
-   ;;        :require org
+   ;;      (use-package ox-confluence
+   ;;        :after ( org)
    ;;        :commands org-confluence-export-as-confluence
    ;; ;;       :load-path "~/.emacs.d/org-mode-exports/"
    ;;        :loader :path)
@@ -6851,21 +6827,21 @@
     - documentation [[http://juanreyero.com/open/org-jekyll/index.html][here]]
  #+BEGIN_SRC emacs-lisp
    (if (file-exists-p "~/Documents/blog/org-jekyll.el")
-       (req-package org-jekyll
-         :require org
+       (use-package org-jekyll
+         :after ( org)
          :defer 3
          :load-path "~/Documents/blog"))
  #+END_SRC
 *** make org export use better highlighting with htmlize
  #+BEGIN_SRC emacs-lisp
-    (req-package htmlize
+    (use-package htmlize
       :defer 30)
  #+END_SRC
 *** IMPLEMENT helm org rifle
 **** find keybindings
   #+BEGIN_SRC emacs-lisp
-    (req-package helm-org-rifle
-       :require helm org
+    (use-package helm-org-rifle
+       :after ( helm org)
        :commands helm-org-rifle helm-org-rifle-directories helm-org-rifle-files)
   #+END_SRC
 **** available functions
@@ -6879,8 +6855,8 @@
       Shows results from selected files.
 *** org appt (notification of agenda items)
     #+BEGIN_SRC emacs-lisp
-      (req-package appt
-        :require org
+      (use-package appt
+        :after ( org)
         :defer 20
         :init (add-hook 'org-finalize-agenda-hook 'org-agenda-to-appt) ;; update appt list on agenda view
         :config
@@ -6913,27 +6889,27 @@
     #+END_SRC
 *** org review
     #+BEGIN_SRC emacs-lisp
-      (req-package org-review
+      (use-package org-review
         :commands org-review-insert-next-review org-review-insert-last-review
-        :require org)
+        :after ( org))
     #+END_SRC
 *** org ref
     - see https://github.com/jkitchin/org-ref
     #+BEGIN_SRC emacs-lisp
-      (req-package org-ref
+      (use-package org-ref
         :commands org-ref-insert-link
                   org-ref-helm-insert-ref-link
                   org-ref-list-of-tables
                   org-ref-list-of-figures
                   org-ref-helm-insert-label-link
-        :require org helm-bibtex pdf-tools ivy hydra helm)
+        :after ( org helm-bibtex pdf-tools ivy hydra helm))
     #+END_SRC
 *** org clip
     - ox-clip-formatted-copy copies selected region of org mode file as rtf into clipboard for insertion into e.g. open office
     #+BEGIN_SRC emacs-lisp
-    (req-package ox-clip
+    (use-package ox-clip
       :commands ox-clip-formatted-copy
-      :require org htmlize)
+      :after ( org htmlize))
     #+END_SRC
 *** org babel
     #+BEGIN_SRC emacs-lisp
@@ -7121,15 +7097,15 @@
      - prerequisite is availability of lumo (arch: 'yaourt -S lumo-git')
      - lumo is expected in /usr/local/bin/lumo (crete symlink might be necessary)
      #+BEGIN_SRC emacs-lisp
-     (req-package ob-clojurescript)
+     (use-package ob-clojurescript)
      #+END_SRC
 **** org babel lfe
      - use e.g. '#+BEGIN_SRC lfe :session mysession'
      - see [[https://github.com/zweifisch/ob-lfe][homepage]]
      #+BEGIN_SRC emacs-lisp
-     (req-package ob-lfe
+     (use-package ob-lfe
        :defer 10
-       :require org)
+       :after ( org))
      #+END_SRC
 **** org babel mongo
      - use with following parameters for begin_src block
@@ -7141,77 +7117,77 @@
        :mongoexec Mongo executable
      - see [[https://github.com/krisajenkins/ob-mongo][homepage]]
      #+BEGIN_SRC emacs-lisp
-     (req-package ob-mongo
+     (use-package ob-mongo
        :defer 10
-       :require org)
+       :after ( org))
      #+END_SRC
 **** org babel redis
      - use e.g. '#+BEGIN_SRC redis db: 127.0.0.1:6379'
      - see [[https://github.com/stardiviner/ob-redis][homepage]]
      #+BEGIN_SRC emacs-lisp
-     (req-package ob-redis
+     (use-package ob-redis
        :defer 10
-       :require org)
+       :after ( org))
      #+END_SRC
 **** org babel translate
      - translate a babel source code e.g. '#+BEGIN_SRC translate :src de :dest it'
      - src can be omitted (is then auto)
      - see [[https://github.com/krisajenkins/ob-translate][homepage]]
      #+BEGIN_SRC emacs-lisp
-     (req-package ob-translate
+     (use-package ob-translate
        :defer 10
-       :require org)
+       :after ( org))
      #+END_SRC
 **** org babel typescript
      #+BEGIN_SRC emacs-lisp
-     (req-package ob-typescript
+     (use-package ob-typescript
        :defer 10
-       :require org)
+       :after ( org))
      #+END_SRC
 **** org babel kotlin
      #+BEGIN_SRC emacs-lisp
-     (req-package ob-kotlin
+     (use-package ob-kotlin
        :defer 10
-       :require org)
+       :after ( org))
      #+END_SRC
 **** org babel elixir
      #+BEGIN_SRC emacs-lisp
-     (req-package ob-elixir
+     (use-package ob-elixir
        :defer 10
-       :require org)
+       :after ( org))
      #+END_SRC
 **** org babel browser
      #+BEGIN_SRC emacs-lisp
-     (req-package ob-browser
+     (use-package ob-browser
        :defer 10
-       :require org)
+       :after ( org))
      #+END_SRC
 *** ob async
     - add ':async t' to #begin_src header, execution of block (C-c C-c within babel block) executes asynchronously)
     - see [[https://github.com/astahlman/ob-async][here]]
     #+BEGIN_SRC emacs-lisp
-    (req-package ob-async
-       :require org async)
+    (use-package ob-async
+       :after ( org async))
     #+END_SRC
 *** adaptive warp
     #+BEGIN_SRC emacs-lisp
-      (req-package adaptive-wrap)
+      (use-package adaptive-wrap)
     #+END_SRC
 *** insertion of web images
     - allow insertion of images via url, which automatically downloads
       into a local folder and creates a link within the org file
       [[https://github.com/tashrifsanil/org-easy-img-insert]]
     #+BEGIN_SRC emacs-lisp
-      (req-package org-easy-img-insert
-        :require org
+      (use-package org-easy-img-insert
+        :after ( org)
         :bind ("C-c i" . org-easy-img-insert)
         :config (progn))
     #+END_SRC
 *** org reveal (presentation)
     #+BEGIN_SRC emacs-lisp
-    (req-package ox-reveal
+    (use-package ox-reveal
       :defer 10
-      :require org htmlize
+      :after ( org htmlize)
       :config
       (progn
         (setq org-reveal-root "./reveal.js"))) ;; look into local folder
@@ -7220,9 +7196,9 @@
     - see [[https://github.com/cute-jumper/org-table-sticky-header][home page]]
     - headers of org tables stay in the header line while scrolling them out of view
     #+BEGIN_SRC emacs-lisp
-      (req-package org-table-sticky-header
+      (use-package org-table-sticky-header
         :defer 10
-        :require org
+        :after ( org)
         :init
         (progn (add-hook 'org-mode-hook 'org-table-sticky-header-mode)))
     #+END_SRC
@@ -7240,19 +7216,19 @@
         (when (fboundp 'pdf-view-mode)
           (add-hook 'pdf-view-mode-hook #'ensure-org-pdfview)))
 
-      (req-package org-pdfview
-        :require org pdf-tools)
+      (use-package org-pdfview
+        :after ( org pdf-tools))
     #+END_SRC
 *** org magit
     #+BEGIN_SRC emacs-lisp
-    (req-package orgit
-      :require org magit
+    (use-package orgit
+      :after ( org magit)
       :defer 40)
     #+END_SRC
 ** slack (disabled)
  #+BEGIN_SRC emacs-lisp :tangle no
 
-   (req-package slack
+   (use-package slack
      :ensure t
      :disabled t
      :init           
@@ -7282,7 +7258,7 @@
 * ido (disabled, now using helm)
 ** ido itself (disabled)
 #+BEGIN_SRC emacs-lisp :tangle no
-    (req-package ido
+    (use-package ido
       :disabled t
       :config
       ;; ido-mode allows you to more easily navigate choices. For example,
@@ -7319,8 +7295,8 @@
 #+END_SRC
 ** ido grid (disabled)
 #+BEGIN_SRC emacs-lisp :tangle no
-  (req-package ido-grid-mode
-    :require ido
+  (use-package ido-grid-mode
+    :after ( ido)
     :disabled t
     :config
     ;; ido-grid-mode-max-columns 2
@@ -7337,17 +7313,17 @@
 #+END_SRC
 ** ido vertical (currently disabled)
 #+BEGIN_SRC emacs-lisp :tangle no
-  (req-package ido-vertical-mode
+  (use-package ido-vertical-mode
     :disabled t
-    :require ido
+    :after ( ido)
     :config
     (ido-vertical-mode 1)
     (setq ido-vertical-define-keys 'C-n-and-C-p-only))
 #+END_SRC
 ** ido ubiquitous (disabled)
    #+BEGIN_SRC emacs-lisp :tangle no
-     (req-package ido-ubiquitous
-       :require ido
+     (use-package ido-ubiquitous
+       :after ( ido)
        :disabled t
        :config 
        ;; This enables ido in all contexts where it could be useful, not just
@@ -7356,8 +7332,8 @@
    #+END_SRC
 ** flex ido (disabled)
    #+BEGIN_SRC emacs-lisp :tangle no
-    (req-package flx-ido
-      :require ido org
+    (use-package flx-ido
+      :after ( ido org)
       :disabled t
       :config
     (flx-ido-mode 1)
@@ -7371,14 +7347,12 @@
 * helm
 ** helm
 #+BEGIN_SRC emacs-lisp
-  (req-package async) ;; TODO: add all async requirements, otherwise this will not work
-  (req-package popup)
-  ;;(req-package helm-core
-  ;;  :require async)
-  (req-package helm
-    :require
-    async
-    popup
+  (use-package async) ;; TODO: add all async requirements, otherwise this will not work
+  (use-package popup)
+  ;;(use-package helm-core
+  ;;  :after ( async))
+  (use-package helm
+    :after ( async popup)
     :bind (("M-x" . helm-M-x)
            ("C-x C-f" . helm-find-files)
            ("s-f" . helm-for-files)
@@ -7436,7 +7410,7 @@
 #+END_SRC
 ** helm cmd t
    #+begin_src emacs-lisp
-     (req-package helm-cmd-t
+     (use-package helm-cmd-t
        :bind (("s-r" . helm-cmd-t)
               ("s-t" . helm-cmd-t-repos))
        :config
@@ -7444,14 +7418,14 @@
    #+end_src
 ** helm git grep
    #+begin_src emacs-lisp 
-     (req-package helm-ls-git
-       :require helm
+     (use-package helm-ls-git
+       :after ( helm)
        :bind (:map magit-mode-map
                    ("s-f" . helm-ls-git-ls)))
    #+end_src
    #+BEGIN_SRC emacs-lisp
-     (req-package helm-git-grep 
-       :require helm
+     (use-package helm-git-grep
+       :after ( helm)
        :bind (("C-c g" . helm-git-grep)
               :map isearch-mode-map
               ("C-c g" . helm-git-grep-from-isearch)
@@ -7467,16 +7441,16 @@
    #+END_SRC
 ** helm projectile
 #+BEGIN_SRC emacs-lisp
-  (req-package helm-projectile
-    :require helm projectile
+  (use-package helm-projectile
+    :after ( helm projectile)
     :config
     (helm-projectile-on)) ;; enable helm projectile key bindings, helm-projectile-off restores old keybindings
 #+END_SRC
 ** sort helm with flex
    - helm candidates are sorted using flx (more fuzzy sorting)
  #+BEGIN_SRC emacs-lisp
-   (req-package helm-flx
-     :require helm
+   (use-package helm-flx
+     :after ( helm)
      :config
      (progn
        (helm-flx-mode +1)
@@ -7503,8 +7477,8 @@
  #+END_SRC
 ** helm extensions
    #+BEGIN_SRC emacs-lisp :tangle no
-   (req-package helm-ext
-     :require helm
+   (use-package helm-ext
+     :after ( helm)
      :config
      (progn
        (helm-ext-ff-enable-skipping-dots nil) ;; skip . and .. directory entries in non-empty directories :: nil because renaming from dired to other open dir would not work
@@ -7517,7 +7491,7 @@
 * vagrant docker ansible
 ** docker
 #+BEGIN_SRC emacs-lisp
-  (req-package docker
+  (use-package docker
     :commands docker-machines docker-volumes docker-images docker-containers
     :config
     (progn
@@ -7525,43 +7499,43 @@
       (setenv "DOCKER_HOST" "tcp://192.168.99.100:2376")
       (setenv "DOCKER_CERT_PATH" "~/.docker/machine/machines/docker-host-4gb-2cpu")
       (setenv "DOCKER_MACHINE_NAME" "docker-host-4gb-2cpu")))
-  (req-package docker-tramp
-    :require docker)
+  (use-package docker-tramp
+    :after ( docker))
 #+END_SRC
 ** vagrant
 #+BEGIN_SRC emacs-lisp
-  (req-package vagrant
+  (use-package vagrant
     :commands vagrant-up vagrant-edit vagrant-status)
-  (req-package vagrant-tramp
+  (use-package vagrant-tramp
     :defer 20
-    :require vagrant
+    :after ( vagrant)
     :commands vagrant-tramp-term)
 #+END_SRC
 ** ansible
 *** ansible (disabled)
     #+BEGIN_SRC emacs-lisp :tangle no
-      (req-package ansible
+      (use-package ansible
         :defer 30
         :commands ansible)
     #+END_SRC
 *** ansible-doc (disabled)
     #+BEGIN_SRC emacs-lisp :tangle no
-    (req-package ansible-doc
+    (use-package ansible-doc
       :defer 30
       :commands ansible-doc ansible-doc-mode)
     #+END_SRC
 *** company-ansible (disabled)
     #+BEGIN_SRC emacs-lisp :tangle no
-    (req-package company-ansible
+    (use-package company-ansible
       :defer 30
-      :require company)
+      :after ( company))
     #+END_SRC
 * imenu
   - display imenu in separate buffer (through 'M-x imenu-list-minor-mode')
   - https://github.com/bmag/imenu-list
   #+BEGIN_SRC emacs-lisp
-    (req-package imenu-list)
-    ;; (req-package imenu+)
+    (use-package imenu-list)
+    ;; (use-package imenu+)
   #+END_SRC
 * imenu-anywhere
   show ido/helm menu for all etags of currently open buffers
@@ -7569,25 +7543,25 @@
   - imenu-anyhwere
   - helm-imenu-anywhere
   #+BEGIN_SRC emacs-lisp
-    (req-package imenu-anywhere
+    (use-package imenu-anywhere
       :bind (("s-i" . helm-imenu-anywhere)
              ("s-I" . helm-imenu-anywhere)))
   #+END_SRC
 * crux (disabled)
   - look at https://github.com/bbatsov/crux for additional functions that might be of interest
 #+BEGIN_SRC emacs-lisp :tangle no
-(req-package crux
+(use-package crux
    :disabled t
    :bind (("C-u s-f" . crux-recentf-ido-find-file)) ;; recent file selection with ido
 )
 #+END_SRC
 * flycheck-tip
 #+BEGIN_SRC emacs-lisp
-  (req-package flycheck-tip)
+  (use-package flycheck-tip)
 #+END_SRC
 * hydra
 #+BEGIN_SRC emacs-lisp
-  (req-package hydra
+  (use-package hydra
     :bind (
            ( "<f1>" . hydra-allhydras/body) ;; globally defined, can be locally redefined
            ( "<M-f1>" . hydra-allhydras/body) ;; always jump to the global hydra
@@ -7772,7 +7746,7 @@
 #+END_SRC
 * TEST clear-text (mode that makes you use only the 1000 most common english words)
 #+BEGIN_SRC emacs-lisp
-  (req-package clear-text
+  (use-package clear-text
     :commands clear-text-mode)
 #+END_SRC
 * guide keys (disabled)
@@ -7781,19 +7755,19 @@
 *** can be tuned to highlight displayed shortcuts based on regular expressions
 *** [[https://github.com/kai2nenobu/guide-key]]
 #+BEGIN_SRC emacs-lisp :tangle no
-(req-package guide-key
+(use-package guide-key
   :disabled t
   :init
   (setq guide-key/guide-key-sequence '("C-c C-x"))
   (guide-key-mode 1))
-(req-package guide-key-tip
+(use-package guide-key-tip
   :disabled t
-  :require guide-key)
+  :after ( guide-key))
 #+END_SRC
 * gnuplot
 ** major mode to edit .gp files and drive gnuplot directly from there
 #+BEGIN_SRC emacs-lisp
-  (req-package gnuplot
+  (use-package gnuplot
     :mode ( "\\.gp\\'" . gnuplot-mode)
     :commands gnuplot-mode
     :config
@@ -7802,12 +7776,12 @@
 #+END_SRC
 ** alternative (disabled)
 #+BEGIN_SRC emacs-lisp :tangle no
-  (req-package gnuplot-mode
+  (use-package gnuplot-mode
     :disabled t)
 #+END_SRC
 * graphviz dot
 #+BEGIN_SRC emacs-lisp
-  (req-package graphviz-dot-mode
+  (use-package graphviz-dot-mode
     :commands graphviz-dot-mode
     
     :config
@@ -7829,7 +7803,7 @@
   with M-x helm-backup while within the open file, old
   versions can be ediffed with the current
 #+BEGIN_SRC emacs-lisp
-  (req-package helm-backup
+  (use-package helm-backup
     :defer 10
     :init
     (add-hook 'after-save-hook 'helm-backup-versioning))
@@ -7837,8 +7811,8 @@
 * latex (auctex)
 ** auctex
    #+BEGIN_SRC emacs-lisp
-     (req-package tex-mode
-       :require flymake
+     (use-package tex-mode
+       :after ( flymake)
        :init (progn
          ;; latex, activate flyspell
          (add-hook 'TeX-mode-hook (lambda () (progn (flyspell-mode 1))))
@@ -7864,14 +7838,14 @@
    - see [[https://github.com/alexeyr/company-auctex/][here]]
    - adds company backend for latex proposals
    #+BEGIN_SRC emacs-lisp
-     (req-package company-auctex
-       :require tex-mode company yasnippet
+     (use-package company-auctex
+       :after ( tex-mode company yasnippet)
        :config (company-auctex-init))
    #+END_SRC
    #+BEGIN_SRC emacs-lisp
-     (req-package company-math
+     (use-package company-math
        
-       :require company tex-mode
+       :after ( company tex-mode)
        :init (add-hook 'TeX-mode-hook 'gb/latex-mode-setup)
        :config
        ;; local configuration for TeX modes
@@ -7885,14 +7859,14 @@
 ** bibtex
    - check https://nickhigham.wordpress.com/2016/01/06/managing-bibtex-files-with-emacs/
    #+BEGIN_SRC emacs-lisp
-     (req-package parsebib)
-     (req-package let-alist)
-     (req-package biblio-core
-       :require let-alist seq dash)
-     (req-package biblio
-       :require biblio-core)
-     (req-package helm-bibtex
-       :require helm parsebib dash biblio)
+     (use-package parsebib)
+     (use-package let-alist)
+     (use-package biblio-core
+       :after ( let-alist seq dash))
+     (use-package biblio
+       :after ( biblio-core))
+     (use-package helm-bibtex
+       :after ( helm parsebib dash biblio))
    #+END_SRC
 ** latex extra
    - see [[https://github.com/Malabarba/latex-extra][here]]
@@ -7900,16 +7874,16 @@
    - content folding (tab)
    - white space handling (C-c C-q : fill paragraph similar to M-q)
   #+BEGIN_SRC emacs-lisp
-    (req-package latex-extra
-      :require tex-mode
+    (use-package latex-extra
+      :after ( tex-mode)
       :init (add-hook 'LaTeX-mode-hook #'latex-extra-mode))
   #+END_SRC
 ** do previewing with "M-x latex-preview-pane-mode"
    updates preview on every save
    disable by calling the same command again
   #+BEGIN_SRC emacs-lisp
-    (req-package latex-preview-pane
-      :require tex-mode
+    (use-package latex-preview-pane
+      :after ( tex-mode)
       :commands latex-preview-pane-mode
       :config
       (progn
@@ -7947,12 +7921,12 @@
 * bookmark+
    #+BEGIN_SRC emacs-lisp
      ;; adds lots of functions all starting with bmkp
-     (req-package bookmark+)
+     (use-package bookmark+)
    #+END_SRC
 * dired
 ** configuration
    #+BEGIN_SRC emacs-lisp
-     (req-package dired
+     (use-package dired
        :commands dired
        :bind (("C-x d" . dired)
               :map dired-mode-map
@@ -7993,7 +7967,7 @@
      ;; useful in environments where ls is not a native program (e.g. windows)
      ;; allows usage of dired and ls switches
      (unless gnu-ls-installed
-       (req-package ls-lisp
+       (use-package ls-lisp
          :config
          (progn
            (setq ls-lisp-use-insert-directory-program nil)
@@ -8002,34 +7976,34 @@
 ** dired quick sort
    #+BEGIN_SRC emacs-lisp
    (when gnu-ls-installed
-     (req-package dired-quick-sort
-       :require dired hydra
+     (use-package dired-quick-sort
+       :after ( dired hydra)
        :config
        (dired-quick-sort-setup)))
    #+END_SRC
 ** dired sort
    #+BEGIN_SRC emacs-lisp
      ;; popup dialog from dired buffer to set (sort) switches of ls command
-     (req-package dired-sort-menu
-       :require dired ls-lisp
+     (use-package dired-sort-menu
+       :after ( dired ls-lisp)
        :commands dired-sort-dialog)
    #+END_SRC
 ** dired+
    - adds nice coloring to expanded view of dired (coloring date part etc.)
    #+BEGIN_SRC emacs-lisp
    ;; adds lots of functions all starting with diredp-
-   (req-package dired+
+   (use-package dired+
      :load-path "~/.emacs.d/additionals/")
    #+END_SRC
 ** dired rainbow
    #+BEGIN_SRC emacs-lisp
-     (req-package dired-rainbow
-       :require dired) ;; Extended file highlighting according to its type 
+     (use-package dired-rainbow
+       :after ( dired)) ;; Extended file highlighting according to its type
    #+END_SRC
 ** dired subtree
    #+BEGIN_SRC emacs-lisp
-     (req-package dired-subtree
-       :require dired
+     (use-package dired-subtree
+       :after ( dired)
        :bind (:map dired-mode-map
               ("TAB" . dired-subtree-toggle)
               ("[" . dired-subtree-up))
@@ -8038,7 +8012,7 @@
 * stripe-buffer
   add stripes to background of dired (or any other mode)
   #+BEGIN_SRC emacs-lisp
-    (req-package stripe-buffer
+    (use-package stripe-buffer
       :init (progn
       ;; (add-hook 'dired-mode-hook 'turn-on-stripe-buffer-mode)
       ;; (add-hook 'dired-mode-hook 'stripe-listify-buffer)
@@ -8052,7 +8026,7 @@
   - 'M-x figlet' to enter a text that is transformed into asci art
   - C-u will allow the selection of the font additionally
   #+BEGIN_SRC emacs-lisp
-  (req-package figlet
+  (use-package figlet
     :commands figlet)
   #+END_SRC
 * suggest
@@ -8060,14 +8034,14 @@
   define input, expected output and it will provide an emacs-lisp function that does exactly that
   (e.g. input = "Hello", output = "hello", result = (downcase "Hello") ;=> "hello")
   #+BEGIN_SRC emacs-lisp
-    (req-package suggest
+    (use-package suggest
       :commands suggest)
   #+END_SRC
 * visual regexp
   #+BEGIN_SRC emacs-lisp
-    (req-package visual-regexp)
-    (req-package visual-regexp-steroids
-      :require visual-regexp
+    (use-package visual-regexp)
+    (use-package visual-regexp-steroids
+      :after ( visual-regexp)
       :config
       (progn 
         ;; bind key is used within config section, since vr/... are functions of visual-regexp which
@@ -8081,7 +8055,7 @@
   #+END_SRC
 * language server protocol mode
   #+BEGIN_SRC emacs-lisp
-  (req-package lsp-mode
+  (use-package lsp-mode
     :commands lsp-mode)
   #+END_SRC
 * exwm (emacs window manager)
@@ -8094,9 +8068,9 @@
   - [[https://github.com/ch11ng/exwm/wiki/Configuration-example][example configuration]]
   #+BEGIN_SRC emacs-lisp
     (when gb/use-exwm
-      (req-package exwm)
-      (req-package exwm-config
-        :require exwm helm-external helm-mode
+      (use-package exwm)
+      (use-package exwm-config
+        :after ( exwm helm-external helm-mode)
         :config
         (exwm-config-default)
 
@@ -8285,14 +8259,14 @@
 ** ace helm line
    - display ace jump characters on each line (C-') when in helm mode
    #+BEGIN_SRC emacs-lisp
-   (req-package ace-jump-helm-line
-     :require helm
+   (use-package ace-jump-helm-line
+     :after ( helm)
      :bind (:map helm-map
             ( "C-'" . ace-jump-helm-line)))
    #+END_SRC
 ** screen cast -> gif
    #+BEGIN_SRC emacs-lisp
-   (req-package gif-screencast) ;; one gif per user action
+   (use-package gif-screencast) ;; one gif per user action
    #+END_SRC
 ** async dired (execute several copy/zip etc. tasks asynchronously)
    - see [[https://vxlabs.com/2018/03/30/asynchronous-rsync-with-emacs-dired-and-tramp/][here]], [[https://truongtx.me/tmtxt-dired-async.html][here]] and [[https://truongtx.me/tmtxt-async-tasks.html][here]]
@@ -8303,10 +8277,10 @@
    (when (and (file-exists-p "~/.emacs.d/additionals/tmtxt-async-tasks/tmtxt-async-tasks.el")
            (file-exists-p "~/.emacs.d/additionals/tmtxt-dired-async/tmtxt-dired-async.el"))
      (progn
-       (req-package tmtxt-async-tasks
+       (use-package tmtxt-async-tasks
          :load-path "~/.emacs.d/additionals/tmtxt-async-tasks/")
-       (req-package tmtxt-dired-async
-         :require tmtxt-async-tasks dired
+       (use-package tmtxt-dired-async
+         :after ( tmtxt-async-tasks dired)
          :load-path "~/.emacs.d/additionals/tmtxt-dired-async/"
          :bind (:map dired-mode-map
               ("C-c C-r" . tda/rsync)
@@ -8328,16 +8302,16 @@
      (when (and (file-exists-p "~/.emacs.d/additionals/font-lock+.el")
                 (file-exists-p "~/.local/share/icons-in-terminal/icons-in-terminal.el"))
        (progn
-         (req-package icons-in-terminal
-           :require font-lock+
+         (use-package icons-in-terminal
+           :after ( font-lock+)
            :load-path "~/.local/share/icons-in-terminal/")
          (when (file-exists-p "~/.emacs.d/additionals/sidebar.el/sidebar.el")
-           (req-package ov)
-           (req-package frame-local)
+           (use-package ov)
+           (use-package frame-local)
              ;; originally from here!
              ;; :load-path "~/.emacs.d/additionals/frame-local/"
-           (req-package sidebar
-             :require icons-in-terminal projectile s dash dash-functional ov frame-local
+           (use-package sidebar
+             :after ( icons-in-terminal projectile s dash dash-functional ov frame-local)
              :bind (("s-a" . gb/sidebar-toggle)
                     :map sidebar-mode-map
                     ("s-a" . sidebar-close))
@@ -8364,13 +8338,13 @@
    #+END_SRC
 ** info colors
    #+BEGIN_SRC emacs-lisp
-   (req-package info-colors
+   (use-package info-colors
      :init (add-hook 'Info-selection-hook 'info-colors-fontify-node))
    #+END_SRC
 ** flycheck gradle
    #+BEGIN_SRC emacs-lisp
-   (req-package flycheck-gradle
-     :require flycheck
+   (use-package flycheck-gradle
+     :after ( flycheck)
      :config (flycheck-gradle-setup))
    #+END_SRC
 ** atomic chrome - allow text edit are within browser to be edited with emacs
@@ -8379,12 +8353,12 @@
    - when within a text area of the browser, press the atomic-chrome button in the button bar, evoila, you are no in an emacs buffer editing
      the text area with life update!
    #+BEGIN_SRC emacs-lisp
-     (req-package atomic-chrome
+     (use-package atomic-chrome
        :config (atomic-chrome-start-server))
    #+END_SRC
 ** cakecrumbs (show hierarchy in header for css and html)
    #+BEGIN_SRC emacs-lisp
-     (req-package cakecrumbs
+     (use-package cakecrumbs
        :config
        ;; Specify all major-mode (`cakecrumbs' decide how to deal with
        ;; cursor's context by variable `major-mode'.)
@@ -8414,37 +8388,37 @@
 ** auto-sudoedit
    - opens tramp sudo if file is readonly automatically (see [[https://github.com/ncaq/auto-sudoedit][here]])
    #+BEGIN_SRC emacs-lisp
-   (req-package auto-sudoedit)
+   (use-package auto-sudoedit)
    #+END_SRC
 ** eshell auto suggestion
    #+BEGIN_SRC emacs-lisp
-   (req-package esh-autosuggest
-     :require company)
+   (use-package esh-autosuggest
+     :after ( company))
    #+END_SRC
 ** dimmer (disabled, mode line was dimmed, recheck 08.2018)
    - dim non selected buffers (slightly)
    #+BEGIN_SRC emacs-lisp :tangle no
-   (req-package dimmer
+   (use-package dimmer
      :config (dimmer-activate))
    #+END_SRC
 ** eterm-256color
    - see [[http://github.com/dieggsy/eterm-256color][here]]
    #+BEGIN_SRC emacs-lisp
-   (req-package eterm-256color
-     :require xterm-color
+   (use-package eterm-256color
+     :after ( xterm-color)
      :init (add-hook 'term-mode-hook #'eterm-256color-mode))
    #+END_SRC
 ** pcre2el (replace regular expression syntax with more readable one)
    - see here
    #+BEGIN_SRC emacs-lisp
-   (req-package pcre2el
+   (use-package pcre2el
      :config (pcre-mode 1))
    #+END_SRC
 ** helm-exwm (allow for helm based change of exwm buffers)
    - see [[https://github.com/emacs-helm/helm-exwm][here]], problems documented [[https://github.com/emacs-helm/helm/issues/1889][here]]
    #+BEGIN_SRC emacs-lisp
-   (req-package helm-exwm
-     :require exwm helm
+   (use-package helm-exwm
+     :after ( exwm helm)
      :config
      (progn
        (setq helm-exwm-emacs-buffers-source (helm-exwm-build-emacs-buffers-source))
@@ -8457,7 +8431,7 @@
 ** indent-info (deactivated)
    - allows for display of current indent settings in the mode line
    #+BEGIN_SRC emacs-lisp :tangle no
-   (req-package indent-info
+   (use-package indent-info
      :config (global-indent-info-mode 1))
    #+END_SRC
 ** lsp-javascript-typescript (deactivated, for now, collision with tide)
@@ -8465,7 +8439,7 @@
    - install lsp-javascript-typescript with npm: npm i -g javascript-typescript-langserver
    - currently disabled, does not compose well with tide (check whether tide should be disabled)
    #+BEGIN_SRC emacs-lisp :tangle no
-   (req-package lsp-javascript-typescript
+   (use-package lsp-javascript-typescript
      :init
      (add-hook 'js-mode-hook #'lsp-javascript-typescript-enable)
      (add-hook 'typescript-mode-hook #'lsp-javascript-typescript-enable) ;; for typescript support
@@ -8476,20 +8450,20 @@
 ** lsp-ui
    - emacs ui integration for lsp (like flycheck etc.)
    #+BEGIN_SRC emacs-lisp
-     (req-package lsp-ui
+     (use-package lsp-ui
        :init
        (add-hook 'lsp-mode-hook 'lsp-ui-mode))
    #+END_SRC
 ** company lsp
    #+BEGIN_SRC emacs-lisp
-   (req-package company-lsp
-     :require company lsp-mode
+   (use-package company-lsp
+     :after ( company lsp-mode)
      :config (push 'company-lsp company-backends))
    #+END_SRC
 ** iy-goto-char
    - C-c f <char> : goto the next occurrance of <char>. <char> can then be repeatedly pressed to move on to the next after that
      #+BEGIN_SRC emacs-lisp
-       (req-package iy-go-to-char
+       (use-package iy-go-to-char
          :bind (("C-c f" . iy-go-to-char)
                 ("C-c F" . iy-go-to-char-backward))
          )
@@ -8497,19 +8471,19 @@
 ** helpful
    - allow for additional help information for functions
    #+BEGIN_SRC emacs-lisp
-     (req-package helpful
+     (use-package helpful
        :commands (helpful-macro helpful-function helpful-command helpful-variable helpful-at-point)
        :bind ("s-h" . helpful-at-point))
    #+END_SRC
 ** edit-at-point
    - edit(copy,cut..) current things(word,symbol..) under cursor
    #+BEGIN_SRC emacs-lisp
-   (req-package edit-at-point)
+   (use-package edit-at-point)
    #+END_SRC
 ** eno, ace like copy, cut, past and move
    #+BEGIN_SRC emacs-lisp
-     (req-package eno
-       :require dash edit-at-point
+     (use-package eno
+       :after ( dash edit-at-point)
        :bind
          (("M-s-w j" . eno-word-goto) ;; Meta super w as leader key
           ("M-s-w c" . eno-word-copy)
@@ -8536,8 +8510,8 @@
    - display flycheck error messages inline (not as popup)
    - check whether this clashes with other flycheck packages (like flycheck-tip and flycheck-pos-tip)
    #+BEGIN_SRC emacs-lisp
-     (req-package flycheck-inline
-       :require flycheck inline-docs
+     (use-package flycheck-inline
+       :after ( flycheck inline-docs)
        :init (progn
        (add-hook 'text-mode-hook #'flycheck-inline-enable)
        (add-hook 'prog-mode-hook #'flycheck-inline-enable)
@@ -8551,7 +8525,7 @@
      saving the buffer does automatically update the browser view of it!
    #+BEGIN_SRC emacs-lisp
      (if chromium-installed
-         (req-package flymd
+         (use-package flymd
            :commands flymd-flyit
            :config
            ((progn )
@@ -8568,9 +8542,9 @@
          (message "WARNING: pixel-scroll.el does not exist, it will not be installed")
        (progn
          (message "OK: pixel-scroll.el locally found, will be installed")
-         (req-package pixel-scroll
+         (use-package pixel-scroll
            :load-path "~/.emacs.d/additionals/"
-           :require sublimity-scroll
+           :after ( sublimity-scroll)
            :config
            (progn
              (require 'sublimity-scroll)
@@ -8613,28 +8587,28 @@
    #+END_SRC
 ** helm google
    #+BEGIN_SRC emacs-lisp
-   (req-package helm-google
+   (use-package helm-google
      :commands helm-google helm-google-suggest
-     :require helm) ;; quick google searches, really ?
+     :after ( helm)) ;; quick google searches, really ?
    #+END_SRC
 ** ivy swiper hydra
    #+BEGIN_SRC emacs-lisp
-   (req-package ivy-hydra
-     :require hydra ivy) ;; adds an hydra for ivy/swiper TODO: include into own hydras
+   (use-package ivy-hydra
+     :after ( hydra ivy)) ;; adds an hydra for ivy/swiper TODO: include into own hydras
    #+END_SRC
 ** ripgrep over directory trees
    #+BEGIN_SRC emacs-lisp
-   (req-package ripgrep
+   (use-package ripgrep
      :commands ripgrep-regexp) ;; allow M-x ripgrep-regexp (search in directory + subdirectories)
    #+END_SRC
 ** elisp refs (find references to elisp functions....)
    #+BEGIN_SRC emacs-lisp
-   (req-package elisp-refs) ;; allow M-x elisp-refs-...
+   (use-package elisp-refs) ;; allow M-x elisp-refs-...
    #+END_SRC
 ** company bib tex
    #+BEGIN_SRC emacs-lisp
-   (req-package company-bibtex
-     :require company tex-mode) ;; add bibtex references using company
+   (use-package company-bibtex
+     :after ( company tex-mode)) ;; add bibtex references using company
    #+END_SRC
 ** cider stuff
    #+BEGIN_SRC emacs-lisp
@@ -8642,14 +8616,14 @@
      ;; C-c M-r (hydra for repl)
      ;; C-c M-t (test)
      ;; C-c C-d (hydra for documentation)
-     (req-package cider-hydra ;; adds hydras
-       :require hydra cider)
-     (req-package cider-decompile ;; decompilation extension for cider [https://github.com/clojure-emacs/cider-decompile]
+     (use-package cider-hydra ;; adds hydras
+       :after ( hydra cider))
+     (use-package cider-decompile ;; decompilation extension for cider [https://github.com/clojure-emacs/cider-decompile]
        :defer 5
-       :require cider javap-mode)
-     ;; (req-package cider-profile ;; CIDER profiling support [https://github.com/thunknyc/nrepl-profile]
+       :after ( cider javap-mode))
+     ;; (use-package cider-profile ;; CIDER profiling support [https://github.com/thunknyc/nrepl-profile]
      ;;   :defer 10
-     ;;   :require cider
+     ;;   :after ( cider)
      ;;   :init
      ;;   (progn
      ;;     (add-hook 'cider-mode-hook 'cider-profile-mode)
@@ -8657,12 +8631,12 @@
    #+END_SRC
 ** window / frame tiling
    #+BEGIN_SRC emacs-lisp
-   (req-package tile
+   (use-package tile
      :commands tile tile-select tile-frames-horizontal tile-frames-vertically tile-frames-top-to-bottom tile-frames-side-by-side) ;; see [https://github.com/IvanMalison/tile], tiles windows into predefined setups
    #+END_SRC
 ** bug hunter
    #+BEGIN_SRC emacs-lisp
-   (req-package bug-hunter ;; allows via commands to hunt bugs in emacs lisp files see https://github.com/Malabarba/elisp-bug-hunter
+   (use-package bug-hunter ;; allows via commands to hunt bugs in emacs lisp files see https://github.com/Malabarba/elisp-bug-hunter
 
      :commands bug-hunter-file bug-hunter-init-file)
 
@@ -8670,8 +8644,8 @@
 ** flycheck scala (deactivated, ensime provides all functionality needed here)
    #+BEGIN_SRC emacs-lisp :tangle no
    ;; install flycheck for scala
-   (req-package flycheck-scala-sbt
-     :require ensime flycheck
+   (use-package flycheck-scala-sbt
+     :after ( ensime flycheck)
      :defer t
      :init
      (progn
@@ -8681,12 +8655,12 @@
    #+END_SRC
 ** natural language detection
    #+BEGIN_SRC emacs-lisp
-   (req-package language-detection
+   (use-package language-detection
      :commands language-detection-buffer)
    #+END_SRC
 ** butler (jenkins interface for emacs)
    #+BEGIN_SRC emacs-lisp
-     (req-package butler
+     (use-package butler
        :commands butler-status
        :config
        (progn
@@ -8708,21 +8682,21 @@
    #+END_SRC
 ** mode for unix tool pass
    #+BEGIN_SRC emacs-lisp
-   (req-package passmm
+   (use-package passmm
      :commands passmm-list-passwords)
    #+END_SRC
 ** wolfram (currently disabled)
    - check [[https://github.com/hsjunnesson/wolfram.el][link]]
    #+BEGIN_SRC emacs-lisp :tangle no
-   (req-package wolfram)
+   (use-package wolfram)
    #+END_SRC
 ** yaml
    #+BEGIN_SRC emacs-lisp
-   (req-package yaml-mode
+   (use-package yaml-mode
      :mode (("\\.yml\\'" . yaml-mode)
             ("\\.yaml\\'" . yaml-mode)))
-   (req-package yaml-tomato
-     :require yaml-mode
+   (use-package yaml-tomato
+     :after ( yaml-mode)
      :commands (yaml-tomato-show-current-path yaml-tomato-copy))
    #+END_SRC
 ** agda (deactivated)
@@ -8734,14 +8708,14 @@
    #+END_SRC
 ** historian
    #+BEGIN_SRC emacs-lisp
-   (req-package historian)
+   (use-package historian)
    #+END_SRC
 ** org-brain
    organize org files within org-brain-path into somthing like a mindmap / wiki that can be browsed
    check the [[https://github.com/Kungsgeten/org-brain][home page]]
    #+BEGIN_SRC emacs-lisp
-     (req-package org-brain
-       :require org dash helm-org-rifle
+     (use-package org-brain
+       :after ( org dash helm-org-rifle)
        :commands org-brain-open org-brain-visualize org-brain-insert-link
        :config
        (progn
@@ -8756,14 +8730,14 @@
 ** org edit latex (edit latex code in separate buffer)
    - see [[https://github.com/et2010/org-edit-latex][here]]
    #+BEGIN_SRC emacs-lisp
-   (req-package org-edit-latex
-     :require org tex-mode
+   (use-package org-edit-latex
+     :after ( org tex-mode)
      :defer 60)
    #+END_SRC
 ** helm books
    - allows searching for book titles using the google book api with helm
    #+BEGIN_SRC emacs-lisp
-   (req-package helm-books
+   (use-package helm-books
      :commands helm-books)
    #+END_SRC
 ** symbol-overlay
@@ -8771,22 +8745,22 @@
    - add some keylinks
    - allow highlighting of symbols
    #+BEGIN_SRC emacs-lisp
-   (req-package symbol-overlay
+   (use-package symbol-overlay
      :config (setq symbol-overlay-colors '("dodger blue" "spring green" "orchid" "salmon")))
    #+END_SRC
 ** smart hungry delete
    - possible replacement for hungry-delete
    - do smart delete of spaces
    #+BEGIN_SRC emacs-lisp
-     (req-package smart-hungry-delete
+     (use-package smart-hungry-delete
        :bind (("S-<backspace>" . smart-hungry-delete-backward-char)
    		      ("C-S-d" . smart-hungry-delete-forward-char)))
    #+END_SRC
 ** org recent headings
    - keep a list of lru org headings to choose from
    #+BEGIN_SRC emacs-lisp
-     (req-package org-recent-headings
-       :require org
+     (use-package org-recent-headings
+       :after ( org)
        :bind (("M-s-^" . org-recent-headings-helm)) ;; equivalent to M-s-i
        :config
        (progn
@@ -8796,27 +8770,27 @@
    - keep last header of org in head line displayed if other wise scrolling out of view
    - problematic, sometimes org-sticky-header is empty
    #+BEGIN_SRC emacs-lisp :tangle no
-   (req-package org-sticky-header
-     :require org)
+   (use-package org-sticky-header
+     :after ( org))
    #+END_SRC
 ** lsp with source-graph language servers
    #+BEGIN_SRC emacs-lisp
-   ;; (req-package lsp-go :require lsp-mode)
-   ;; (req-package lsp-haskell :require lsp-mode)
-   (req-package lsp-java
+   ;; (use-package lsp-go :after ( lsp-mode))
+   ;; (use-package lsp-haskell :after ( lsp-mode))
+   (use-package lsp-java
      :defer 10
-     :require lsp-mode)
-   ;; (req-package lsp-python :require lsp-mode)
-   ;; (req-package lsp-rust :require lsp-mode)
+     :after ( lsp-mode))
+   ;; (use-package lsp-python :after ( lsp-mode))
+   ;; (use-package lsp-rust :after ( lsp-mode))
    #+END_SRC
 ** ledger (accounting manager)
    #+BEGIN_SRC emacs-lisp
      (when ledger-installed
-       (req-package ledger-mode
+       (use-package ledger-mode
          :defer 60)
-       (req-package flycheck-ledger
+       (use-package flycheck-ledger
          :defer 60
-         :require ledger-mode flycheck))
+         :after ( ledger-mode flycheck)))
    #+END_SRC
 ** move frames around
    #+BEGIN_SRC emacs-lisp
@@ -8835,18 +8809,18 @@
    #+END_SRC
 ** json-navigator
    #+BEGIN_SRC emacs-lisp
-   (req-package json-navigator)
+   (use-package json-navigator)
    #+END_SRC
 ** dired-collapse
    - collapse empty directories (like src/main/java... is done by github)
    #+BEGIN_SRC emacs-lisp
-   (req-package dired-collapse
+   (use-package dired-collapse
      :commands dired-collapse-mode)
    #+END_SRC
 ** org-pomodoro (time management technique)
    #+BEGIN_SRC emacs-lisp
-     (req-package org-pomodoro
-       :require appt
+     (use-package org-pomodoro
+       :after ( appt)
        :commands org-pomodoro-clock-in
        :init (add-hook 'org-pomodoro-finished-hook 'gb/pomodoro-finished-notification)
        :config
@@ -8877,7 +8851,7 @@
      - Yank any line to the prompt by arrowing up to it and pressing C-<enter>
      - Check the time a command was run by mousing over its prompt
    #+BEGIN_SRC emacs-lisp
-   (req-package shx
+   (use-package shx
      :init (progn
         ;; add hook for shell
         (add-hook 'shell-mode-hook #'shx-mode)
@@ -8888,63 +8862,63 @@
    #+END_SRC
 ** ob-rust
    #+BEGIN_SRC emacs-lisp
-   (req-package ob-rust
-     :require org)
+   (use-package ob-rust
+     :after( org))
    #+END_SRC
 ** underline with char
    - call with prefix command let's you select with which char to underline
    - underlines previous line up to its end with '-'
    #+BEGIN_SRC emacs-lisp
-     (req-package underline-with-char
+     (use-package underline-with-char
        :commands underline-with-char)
    #+END_SRC
 ** yarn mode
    - open yarn lock files in a read only mode
    #+BEGIN_SRC emacs-lisp
-   (req-package yarn-mode
+   (use-package yarn-mode
      :mode (("\\yarn.lock\\'" . yarn-mode)))
    #+END_SRC
 ** all the icons dired
    #+BEGIN_SRC emacs-lisp
-     (req-package all-the-icons-dired
-       :require all-the-icons dired)
+     (use-package all-the-icons-dired
+       :after ( all-the-icons dired))
    #+END_SRC
 ** all the icons gnus
    - on hold, icons disturb custom ui settings of gnu
    - [ ] test this package with gnus ui customizations off
    #+BEGIN_SRC emacs-lisp :tangle no
-   (req-package all-the-icons-gnus
-     :require gnus all-the-icons dash
+   (use-package all-the-icons-gnus
+     :after ( gnus all-the-icons dash)
      :config (all-the-icons-gnus-setup))
    #+END_SRC
 ** docker compose mode
    #+BEGIN_SRC emacs-lisp
-   (req-package docker-compose-mode
+   (use-package docker-compose-mode
      )
    #+END_SRC
 ** comint (bifocal)
    - will automatically split a comint buffer, if scrolling into the history (by bifocal-up, down, next, prev)
      this will enable you to view current comint output (or just keep the input line) while looking at the history of the buffer
    #+BEGIN_SRC emacs-lisp
-   (req-package bifocal
+   (use-package bifocal
      :commands bifocal-mode)
    #+END_SRC
 ** popwin (make windows like help, completion show in a popupwindow that can be closed via C-g
    #+BEGIN_SRC emacs-lisp
-     (req-package popwin
+     (use-package popwin
        :config
        (popwin-mode 1)
        (setq popwin:popup-window-height 30))
    #+END_SRC
 ** ranger (file browser/previewer, using dired)
    #+BEGIN_SRC emacs-lisp
-     (req-package ranger
+     (use-package ranger
        :config
        (setq ranger-hide-cursor nil))
    #+END_SRC
 ** neotree
    #+BEGIN_SRC emacs-lisp
-     (req-package neotree
+     (use-package neotree
        :config
          (progn
          (setq neo-theme (if (display-graphic-p) 'nerd 'arrow))
@@ -8999,8 +8973,8 @@
 ** org-category-capture
    - This package aims to provide an easy interface to creating per project org-mode TODO headings.
      #+BEGIN_SRC emacs-lisp
-     (req-package org-category-capture
-       :require org)
+     (use-package org-category-capture
+       :after ( org))
      #+END_SRC
 ** treemacs (tre
 ** projectile-codesearch (use codesearch to query projects)
@@ -9041,7 +9015,7 @@
 ** diminish (hide minor modes from spaceline mode line) (obsolete now)
    - its still a dependency of use-package, so its still loaded
    #+BEGIN_SRC emacs-lisp :tangle no
-     (req-package diminish) ;; actual diminishing of modes is executed after init is completely run (see end of file)
+     (use-package diminish) ;; actual diminishing of modes is executed after init is completely run (see end of file)
    #+END_SRC
 ** use line if no region (deactive, currently evaluating easy-kill)
    uses a line as region if no active region is selected and a
@@ -9049,14 +9023,14 @@
    (not: M-% replace)
    (yes: C-w)
    #+BEGIN_SRC emacs-lisp :tangle no
-     (req-package whole-line-or-region
+     (use-package whole-line-or-region
      :config
      (whole-line-or-region-mode 1))
    #+END_SRC
 ** mode icons (disabled)
    - no longer used, since spaceline brings its own set of mode icons
  #+BEGIN_SRC emacs-lisp :tangle no
-   (req-package mode-icons
+   (use-package mode-icons
      :disabled t
      :config
      (mode-icons-mode)
@@ -9125,9 +9099,9 @@
 ** major mode icons
    - does not work with spaceline (nor powerline)
    #+BEGIN_SRC emacs-lisp :tangle no
-     (req-package xpm)
-     (req-package major-mode-icons
-       :require xpm
+     (use-package xpm)
+     (use-package major-mode-icons
+       :after ( xpm)
        :config
        (progn
          (setq mode-line-end-spaces
@@ -9138,11 +9112,11 @@
    - does not work together with current org-mode and hide-pw
      (opening password file does not start folded, passwords are shown)
    #+BEGIN_SRC emacs-lisp :tangle no
-   (req-package outshine)
-   (req-package navi-mode)
-   (req-package outorg)
-   (req-package helm-navi
-     :require outshine navi-mode
+   (use-package outshine)
+   (use-package navi-mode)
+   (use-package outorg)
+   (use-package helm-navi
+     :after ( outshine navi-mode)
      :commands helm-navi helm-navi-headings)
    #+END_SRC
 ** smex
@@ -9151,7 +9125,7 @@
      ;; Enhances M-x to allow easier execution of commands. Provides
      ;; a filterable list of possible commands in the minibuffer
      ;; http://www.emacswiki.org/emacs/Smex
-     (req-package smex
+     (use-package smex
        :ensure t
        :disabled t
        :bind (("M-x" . smex))
@@ -9163,7 +9137,6 @@
 * finish - up
   #+BEGIN_SRC emacs-lisp
     (report-elapsed "enter finish - up")
-    (req-package-finish);; this command must be at the end !ALWAYS!
 
     (require 'server)
     ;; start a server to allow reuse of this server when opening other files from within the os
