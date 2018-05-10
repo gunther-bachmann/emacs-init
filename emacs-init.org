@@ -1200,13 +1200,16 @@
        (setq epa-pinentry-mode 'loopback))
        ;; (global-visible-mark-mode -1)
    #+END_SRC
-** pinentry (currently not functional, disabled)
+** pinentry
    - see ~/.gnupg/gpg-agent.conf
-   #+BEGIN_SRC emacs-lisp :tangle no
+   - need to add the line `allow-emacs-pinentry` to gpg-agent.conf
+   - killing gpg agent by `gpgconf --kill gpg-agent`, restart is automatic, as soon as it is needed
+   - see [[https://help.ubuntu.com/community/GnuPrivacyGuardHowto][here]] too
+   #+BEGIN_SRC emacs-lisp
      (req-package pinentry
        :config 
        (progn 
-         ;; (pinentry-start)
+         (pinentry-start)
          ))
    #+END_SRC
 * networking
