@@ -4831,10 +4831,12 @@
    (add-hook 'scala-mode-hook 'ensime-mode))
  #+END_SRC
 ** xml
-   #+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp :tangle no
      (req-package nxml-mode
        :mode (("\\.xslt\\'" . nxml-mode)
               ("\\.xml\\'" . nxml-mode)))
+   #+END_SRC
+   #+BEGIN_SRC emacs-lisp
      (req-package xml+
        :require dash)
    #+END_SRC
