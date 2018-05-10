@@ -1698,7 +1698,7 @@
 ** other
 #+BEGIN_SRC emacs-lisp
   ;; Changes all yes/no questions to y/n type
-  (fset 'yes-or-no-p 'y-or-n-p)
+  (defalias 'yes-or-no-p 'y-or-n-p)
 
   (setq-default line-spacing 1)
 
