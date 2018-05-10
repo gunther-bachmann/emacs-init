@@ -8282,6 +8282,14 @@
 
   #+END_SRC
 * currently evaluated
+** ace helm line
+   - display ace jump characters on each line (C-') when in helm mode
+   #+BEGIN_SRC emacs-lisp
+   (req-package ace-jump-helm-line
+     :require helm
+     :bind (:map helm-map
+            ( "C-'" . ace-jump-helm-line)))
+   #+END_SRC
 ** screen cast -> gif
    #+BEGIN_SRC emacs-lisp
    (req-package gif-screencast) ;; one gif per user action
