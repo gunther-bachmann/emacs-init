@@ -2854,6 +2854,32 @@
        (shell-command "xcape -e 'Hyper_L=space'")
        (message "use space as ctrl alternative"))
    #+END_SRC
+** selfinsertion on readonly modes
+   #+BEGIN_SRC emacs-lisp
+     ;; TODO: refactor macro to a normal function
+     (setq selfinsert-modification-mode-ignore-list '(".*magit.*" ".*Magit.*"))
+
+     (defmacro selfinsertOrFunction (func)
+       "execute selfinserting if buffer is r/w, else execute function passed"
+       `(if (and buffer-read-only
+                 (not (-first (lambda (reg) (string-match reg mode-name)) selfinsert-modification-mode-ignore-list)))
+            (,func)
+          (self-insert-command 1)))
+
+     (defun gb/selfInsertOrNextLine ()
+       "insert n if in a buffer that allows changes, else move down"
+       (interactive)
+       (selfinsertOrFunction next-line))
+
+     (defun gb/selfInsertOrPreviousLine ()
+       "insert n if in a buffer that allows changes, else move down"
+       (interactive)
+       (selfinsertOrFunction previous-line))
+
+     (bind-key "p" 'gb/selfInsertOrPreviousLine text-mode-map)
+     (bind-key "n" 'gb/selfInsertOrNextLine text-mode-map)
+
+   #+END_SRC
 ** auto-fill-mode configuration
    - will word break / line break after column _
    #+BEGIN_SRC emacs-lisp
