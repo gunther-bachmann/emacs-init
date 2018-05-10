@@ -375,57 +375,57 @@
 #+END_SRC
 ** paradox (package list alternative)
    #+BEGIN_SRC emacs-lisp 
-     (use-package paradox
-       :after (hydra)
-       :commands gb/paradox-list-packages
-       :bind (:map paradox-menu-mode-map ("<f1>" . hydra-paradox-list-packages/body))
-       :init
-         (progn
-           (report-elapsed ":init-enter paradox")
-           ;; TODO jde read properties is not known yet
-           (defun gb/paradox-list-packages (nofetch)
-             "make sure to load github token when using paradox list packages"
-             (interactive "P")
-             (if (not paradox-github-token)
-                 (let* ((github-token-file "~/.github-token.properties.gpg"))
-                   (if (file-exists-p github-token-file)
-                       (let* ((auth-map (jde-read-properties-file "~/.github-token.properties.gpg")))
-                         (setq paradox-github-token (gethash "github-paradox-token" auth-map)))
-                     (message "WARNING: github token file not found. paradox-list-packages will have to work without github integration."))))
-             (paradox-list-packages nofetch)
-             ))
-       :config
-       (report-elapsed ":config-enter paradox")
+          (use-package paradox
+            :after (hydra)
+            :commands gb/paradox-list-packages
+            :bind (:map paradox-menu-mode-map ("<f1>" . hydra-paradox-list-packages/body))
+            :init
+              (progn
+                (report-elapsed ":init-enter paradox")
+                ;; TODO jde read properties is not known yet
+                (defun gb/ensure-github-token ()
+                  "make sure to load github token if it is empty"
+                  (if (not paradox-github-token)
+                      (let* ((github-token-file "~/.github-token.properties.gpg"))
+                        (if (file-exists-p github-token-file)
+                            (let* ((auth-map (jde-read-properties-file "~/.github-token.properties.gpg")))
+                              (setq paradox-github-token (gethash "github-paradox-token" auth-map)))
+                          (message "WARNING: github token file not found. paradox-list-packages will have to work without github integration.")))))
+                (advice-add 'paradox-list-packages :before #'(lambda (orig-func &rest args) (gb/ensure-github-token)))
+                )
 
-       ;; description is pastell sand like color
-       (custom-set-faces '(paradox-description-face ((t (:foreground "#e0d0a0")))))
-       (progn
-         (setq paradox-automatically-star nil)
-         (when (package-installed-p 'hydra)
-           (defhydra hydra-paradox-list-packages ()
-             "
-          [_v_] view homepage           [_x_] execute commands
-          [_l_] show latest commits     [_i_] install
-           ^ ^                          [_d_] delete
-           ^ ^                          [_U_] update all
-       %s(hydra-combine-functions-w-key-bindings
-         '((\"    view homepage      \" . paradox-menu-visit-homepage)
-           (\"    show latest commit \" . paradox-menu-view-commit-list)
-           (\"    execute commands   \" . paradox-menu-execute)
-           (\"    install            \" . package-menu-mark-install)
-           (\"    delete             \" . package-menu-mark-delete)
-           (\"    mark upgrades      \" . package-menu-mark-upgrades)))
-       "
-             ("v" paradox-menu-visit-homepage)
-             ("l" paradox-menu-view-commit-list)
-             ("x" paradox-menu-execute :exit t)
-             ("i" package-menu-mark-install )
-             ("d" package-menu-mark-delete)
-             ("U" package-menu-mark-upgrades)
-             ("q" (message "Abort") :exit t))
-           ))
-       (report-elapsed ":config-exit paradox")
-       )
+            :config
+            (report-elapsed ":config-enter paradox")
+
+            ;; description is pastell sand like color
+            (custom-set-faces '(paradox-description-face ((t (:foreground "#e0d0a0")))))
+            (progn
+              (setq paradox-automatically-star nil)
+              (when (package-installed-p 'hydra)
+                (defhydra hydra-paradox-list-packages ()
+                  "
+               [_v_] view homepage           [_x_] execute commands
+               [_l_] show latest commits     [_i_] install
+                ^ ^                          [_d_] delete
+                ^ ^                          [_U_] update all
+            %s(hydra-combine-functions-w-key-bindings
+              '((\"    view homepage      \" . paradox-menu-visit-homepage)
+                (\"    show latest commit \" . paradox-menu-view-commit-list)
+                (\"    execute commands   \" . paradox-menu-execute)
+                (\"    install            \" . package-menu-mark-install)
+                (\"    delete             \" . package-menu-mark-delete)
+                (\"    mark upgrades      \" . package-menu-mark-upgrades)))
+            "
+                  ("v" paradox-menu-visit-homepage)
+                  ("l" paradox-menu-view-commit-list)
+                  ("x" paradox-menu-execute :exit t)
+                  ("i" package-menu-mark-install )
+                  ("d" package-menu-mark-delete)
+                  ("U" package-menu-mark-upgrades)
+                  ("q" (message "Abort") :exit t))
+                ))
+            (report-elapsed ":config-exit paradox")
+            )
    #+END_SRC
 * workarounds for broken packages
   #+BEGIN_SRC emacs-lisp
@@ -6563,6 +6563,19 @@
       (use-package org-mobile
         :commands org-mobile-pull org-mobile-push
         :after ( org)
+        :init
+          (progn
+            (defun gb/ensure-org-mobile-secret ()
+              "ensure that the org mobile sync secret is set"
+                ;; used for encryption of org mode files // should be executed after above commands only!
+              (if (string-empty-p org-mobile-encryption-password)
+                  (let ((auth-map (jde-read-properties-file "~/.org-mobile.auth.gpg")))
+                    (setq org-mobile-encryption-password (gethash "org-mobile-encryption-secret" auth-map)))))
+
+            (advice-add 'org-mobile-pull :before #'(lambda () (gb/ensure-org-mobile-secret)))
+            (advice-add 'org-mobile-push :before #'(lambda () (gb/ensure-org-mobile-secret)))
+
+            )
         :config
         (progn
         ;; Set to the location of your Org files on your local system
@@ -6575,9 +6588,6 @@
         (setq org-mobile-files (quote ("~/notes.synced.org")))
         ;; (setq org-mobile-agendas nil)
 
-        ;; used for encryption of org mode files // should be executed after above commands only!
-        (let ((auth-map (jde-read-properties-file "~/.org-mobile.auth.gpg")))
-          (setq org-mobile-encryption-password (gethash "org-mobile-encryption-secret" auth-map)))
         ;; make sure encryption is used
         (setq org-mobile-use-encryption t)
         ))
