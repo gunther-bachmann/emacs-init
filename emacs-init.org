@@ -8019,9 +8019,11 @@
        :commands dired-sort-dialog)
    #+END_SRC
 ** dired+
+   - adds nice coloring to expanded view of dired (coloring date part etc.)
    #+BEGIN_SRC emacs-lisp
-  ;; adds lots of functions all starting with diredp-
-  (req-package dired+)
+   ;; adds lots of functions all starting with diredp-
+   (req-package dired+
+     :load-path "~/.emacs.d/additionals/")
    #+END_SRC
 ** dired rainbow
    #+BEGIN_SRC emacs-lisp
