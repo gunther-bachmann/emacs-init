@@ -5071,7 +5071,7 @@
  #+BEGIN_SRC emacs-lisp
    (req-package code-library)
  #+END_SRC
-** speedbar (currently disabled, see neotree)
+** speedbar (currently disabled, see sidebar)
  #+BEGIN_SRC emacs-lisp :tangle no
    (req-package sr-speedbar
      :require bind-key
@@ -8452,7 +8452,7 @@
    (req-package indent-info
      :config (global-indent-info-mode 1))
    #+END_SRC
-** lsp-javascript-typescript
+** lsp-javascript-typescript (deactivated, for now, collision with tide)
    - see [[https://github.com/emacs-lsp/lsp-javascript]]
    - install lsp-javascript-typescript with npm: npm i -g javascript-typescript-langserver
    - currently disabled, does not compose well with tide (check whether tide should be disabled)
@@ -8547,11 +8547,11 @@
            :commands flymd-flyit
            :config
            ((progn )
-            ;; make (setq  )ure firefox is opened, since flymd-flyit does not work with chrome!
+            ;; make sure firefox is opened, since flymd-flyit does not work with chrome!
             (defun gb/flymd-browser-function (url)
               (let ((browse-url-browser-function 'browse-url-firefox))
                 (browse-url url)))
-            (setq flymd-browser-(or  )pen-function 'gb/flymd-browser-function))))
+            (setq flymd-browser-open-function 'gb/flymd-browser-function))))
    #+END_SRC
 ** pixel-scroll (pixel wise scrolling) currently disabled
    #+BEGIN_SRC emacs-lisp :tangle no
