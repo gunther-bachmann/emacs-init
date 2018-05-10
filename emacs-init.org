@@ -6073,7 +6073,6 @@
     #+BEGIN_SRC emacs-lisp
       (when mail-accounts-exists
             (req-package mail-accounts
-              :loader :path
               :load-path "~/.emacs.d/accounts/"
               :require gnus))
     #+END_SRC
@@ -6598,7 +6597,6 @@
       (when agenda-accounts-exists
         (req-package agenda-accounts
           :require org org-agenda
-          :loader :path
           :load-path "~/.emacs.d/accounts/"
           :config
           (progn
@@ -6763,7 +6761,6 @@
       (when calendar-accounts-exists
           (req-package calendar-accounts
             :require org
-            :loader :path
             :load-path "~/.emacs.d/accounts/"))
     #+END_SRC
 *** german holidays into calendar
@@ -6828,7 +6825,6 @@
     #+BEGIN_SRC emacs-lisp
       (if (file-exists-p "~/.emacs.d/additionals/hidepw.el")
           (req-package hidepw
-            :loader :path
             :load-path "~/.emacs.d/additionals/"
             :require org
             :init (progn
