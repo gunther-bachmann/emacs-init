@@ -16,6 +16,12 @@
 #   - entries with 'preinstall' mark packages that are installed up front
 #   - entries with 'ok: ... installed' mark checks for external programs that are needed for some packages to work
 #
+* use-package
+  - enable this for precompilation (still needs work on this init file though)
+  #+BEGIN_SRC emacs-lisp
+  ;; (eval-when-compile
+  ;;   (require 'use-package))
+  #+END_SRC
 * preset
   - things to setup before anything else happens
   #+BEGIN_SRC emacs-lisp
@@ -235,6 +241,33 @@
   #+END_SRC
 * initial function setup
   #+BEGIN_SRC emacs-lisp
+     (defun slurp (file-name)
+       "Return file content."
+       (with-temp-buffer
+         (insert-file-contents file-name)
+         (buffer-string)))
+
+     (defun jde-read-properties-file (file-name)
+       "read a java properties file and provide a map with key value pairs.
+      property files are transformed such that multiline properties are heeded,
+      double colon is heeded and spaces after the key and before the value are
+      discarded."
+       (let* ((file-string (slurp file-name))
+              (file-string-nomultiline (replace-regexp-in-string "[^\\\\]\\(\\\\\n *\\)" "" file-string nil nil 1)) ;; incomplete! 1
+              (file-string-nobackslash-escaping (replace-regexp-in-string "\\\\\\\\" "\\\\" file-string-nomultiline))
+              (file-string-nodoublecolon-and-spaces (replace-regexp-in-string " *\\(:\\|=\\) *" "=" file-string-nobackslash-escaping))
+              (prop-matches (re-seq "^[^#!=:][^=:]*\\(=\\|:\\)[^=:\n]+$" file-string-nodoublecolon-and-spaces))
+              (hash-map (make-hash-table :test 'equal)))
+         (--map
+          (let* ((splitted-prop (split-string it "="))
+                 (key (nth 0 splitted-prop))
+                 (value (nth 1 splitted-prop)))
+            (puthash key value hash-map))
+          prop-matches)
+         hash-map))
+     ;; 1 what should be tested if an unbalanced backslash is present at the end of the line.
+     ;;   currently the test checks whether there is a single backslash at the end of the line!
+
     (defun is-ms-windows-p ()
       "check whether this system is microsoft windows"
       (if (string-match "windows" (symbol-name system-type))
@@ -344,22 +377,29 @@
    #+BEGIN_SRC emacs-lisp 
      (use-package paradox
        :after (hydra)
-       :commands paradox-list-packages
+       :commands gb/paradox-list-packages
        :bind (:map paradox-menu-mode-map ("<f1>" . hydra-paradox-list-packages/body))
-       :init (report-elapsed ":init-enter paradox")
+       :init
+         (progn
+           (report-elapsed ":init-enter paradox")
+           ;; TODO jde read properties is not known yet
+           (defun gb/paradox-list-packages (nofetch)
+             "make sure to load github token when using paradox list packages"
+             (interactive "P")
+             (if (not paradox-github-token)
+                 (let* ((github-token-file "~/.github-token.properties.gpg"))
+                   (if (file-exists-p github-token-file)
+                       (let* ((auth-map (jde-read-properties-file "~/.github-token.properties.gpg")))
+                         (setq paradox-github-token (gethash "github-paradox-token" auth-map)))
+                     (message "WARNING: github token file not found. paradox-list-packages will have to work without github integration."))))
+             (paradox-list-packages nofetch)
+             ))
        :config
        (report-elapsed ":config-enter paradox")
 
        ;; description is pastell sand like color
        (custom-set-faces '(paradox-description-face ((t (:foreground "#e0d0a0")))))
        (progn
-         ;; TODO jde read properties is not known yet
-         ;; (let* ((github-token-file "~/.github-token.properties.gpg"))
-         ;;   (if (file-exists-p github-token-file)
-         ;;       (let* ((auth-map (jde-read-properties-file "~/.github-token.properties.gpg")))
-         ;;         (setq paradox-github-token (gethash "github-paradox-token" auth-map)))
-         ;;     (message "WARNING: github token file not found. paradox-list-packages will have to work without github integration.")))
-
          (setq paradox-automatically-star nil)
          (when (package-installed-p 'hydra)
            (defhydra hydra-paradox-list-packages ()
@@ -477,32 +517,6 @@
          (insert contents)
          (write-file file-name)))
 
-     (defun slurp (file-name)
-       "Return file content."
-       (with-temp-buffer
-         (insert-file-contents file-name)
-         (buffer-string)))
-
-     (defun jde-read-properties-file (file-name)
-       "read a java properties file and provide a map with key value pairs.
-      property files are transformed such that multiline properties are heeded, 
-      double colon is heeded and spaces after the key and before the value are 
-      discarded."
-       (let* ((file-string (slurp file-name))
-              (file-string-nomultiline (replace-regexp-in-string "[^\\\\]\\(\\\\\n *\\)" "" file-string nil nil 1)) ;; incomplete! 1)
-              (file-string-nobackslash-escaping (replace-regexp-in-string "\\\\\\\\" "\\\\" file-string-nomultiline))
-              (file-string-nodoublecolon-and-spaces (replace-regexp-in-string " *\\(:\\|=\\) *" "=" file-string-nobackslash-escaping))
-              (prop-matches (re-seq "^[^#!=:][^=:]*\\(=\\|:\\)[^=:\n]+$" file-string-nodoublecolon-and-spaces))
-              (hash-map (make-hash-table :test 'equal)))
-         (--map 
-          (let* ((splitted-prop (split-string it "="))
-                 (key (nth 0 splitted-prop))
-                 (value (nth 1 splitted-prop)))
-            (puthash key value hash-map))
-          prop-matches)
-         hash-map))
-     ;; 1) what should be tested if an unbalanced backslash is present at the end of the line.
-     ;;    currently the test checks whether there is a single backslash at the end of the line!
 
    #+END_SRC
 ** transparency
@@ -3404,6 +3418,7 @@
 ** bookmarking (needs hydra)
    #+BEGIN_SRC emacs-lisp
      (use-package bm
+       :ensure bm
        :bind
        ( "C-c b t" . bm-toggle)
        ( "C-c b n" . bm-next)
@@ -3598,9 +3613,18 @@
               ("H-D" . define-word)))
    #+END_SRC
 * auto complete, help, man etc.
+** helpful
+   - allow for additional help information for functions
+   #+BEGIN_SRC emacs-lisp
+     (use-package helpful
+       :ensure helpful
+       :commands (helpful-macro helpful-function helpful-command helpful-variable helpful-at-point)
+       :bind ("s-h" . helpful-at-point))
+   #+END_SRC
 ** which key
 #+BEGIN_SRC emacs-lisp
   (use-package which-key
+    :ensure which-key
     :config
     (progn
     (bind-key "C-h y" #'which-key-show-top-level)
@@ -3624,6 +3648,7 @@
 ** company
 #+BEGIN_SRC emacs-lisp
   (use-package company-try-hard
+    :ensure company-try-hard
     :after (company)
     :config
     (progn
@@ -3634,6 +3659,7 @@
       ))
   ;; enable company mode anywhere
   (use-package company
+    :ensure company
     :init (progn
       (add-hook 'after-init-hook 'global-company-mode))
     :config
@@ -3684,12 +3710,14 @@
       ))
 
   (use-package company-statistics
+    :ensure company-statistics
     :after (company)
     :init
     (progn
       (add-hook 'after-init-hook 'company-statistics-mode)))
 
   (use-package company-quickhelp
+    :ensure company-quickhelp
     :after (company)
     :config
     (progn
@@ -3703,6 +3731,7 @@
 ** company flx
    #+BEGIN_SRC emacs-lisp
      (use-package company-flx
+       :ensure company-flx
        :after (company)
        :config
        (with-eval-after-load 'company (add-hook 'company-mode-hook (lambda () (add-to-list 'company-backends 'company-capf))) (company-flx-mode +1)))
@@ -3717,6 +3746,7 @@
 ** helm-company
    #+BEGIN_SRC emacs-lisp
      (use-package helm-company
+       :ensure helm-company
        :after ( helm company)
        :bind (:map company-mode-map
               ("C-:" . helm-company)
@@ -3727,6 +3757,7 @@
    - describe current keybindings with helm interface
    #+BEGIN_SRC emacs-lisp
      (use-package helm-descbinds
+       :ensure helm-descbinds
        :after (helm company)
        :bind (("\C-h b" . helm-descbinds)))
    #+END_SRC
@@ -3800,19 +3831,22 @@
 ** helm-swoop
    #+BEGIN_SRC emacs-lisp
      (use-package helm-swoop
+       :ensure helm-swoop
        :bind (("C-S-s" . helm-swoop)
               ("C-M-S-s" . helm-multi-swoop-all))
        :after (helm))
    #+END_SRC
 ** pos tip
    #+BEGIN_SRC emacs-lisp
-   (use-package pos-tip)
+   (use-package pos-tip
+     :ensure pos-tip)
    #+END_SRC
 ** help at point
    - show help in modeline to text that is propertized as button... (e.g. in customize-.... modes)
    - the timer will make the help appear after x seconds (can be a float)
    #+BEGIN_SRC emacs-lisp
    (use-package help-at-pt
+     :ensure help-at-pt
      :config
      (progn
        (custom-set-variables '(help-at-pt-display-when-idle (quote (kbd-help button local-map keymap)) nil (help-at-pt)))
@@ -3831,6 +3865,7 @@
 ** ace and avy
 #+BEGIN_SRC emacs-lisp
   (use-package ace-link
+    :ensure ace-link
     :after (gnus)
     :bind (
       ;; bind within org mode
@@ -3848,7 +3883,7 @@
 
   (use-package ace-window  ;; select open window with one key
     :after ( key-chord) ;; optional, key binding
-    :defer t
+    :ensure ace-window
     :init
     (progn
     (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
@@ -3856,6 +3891,7 @@
       (key-chord-define-global "o0"   'ace-window))))
 
   (use-package ace-flyspell
+    :ensure ace-flyspell
     :after ( flyspell avy))
     ;; available commands 'M-x ace-flyspell-jump-word', jump to incorrect spelling via ace
     ;; 'M-x ace-flyspell-dwim', autocorrect word
@@ -3864,6 +3900,7 @@
 #+END_SRC
 #+BEGIN_SRC emacs-lisp :tangle no
   (use-package ace-isearch
+    :ensure ace-isearch
     :after ( avy helm-swoop ace-jump-mode)
     :disabled t
     :config
@@ -3889,6 +3926,7 @@
 #+END_SRC
 #+BEGIN_SRC emacs-lisp
   (use-package avy
+    :ensure avy
     :bind (("C-S-SPC" . avy-goto-char-timer)
            ("C-c SPC" . avy-goto-char-timer)
            ("C-c C-SPC" . avy-goto-char-timer)
@@ -3907,6 +3945,7 @@
 
 
   (use-package avy-zap
+    :ensure avy-zap
     :after ( avy)
     :bind
       (("M-Z" . avy-zap-to-char-dwim)
@@ -3961,7 +4000,7 @@
 ** back-button
 #+BEGIN_SRC emacs-lisp
   (use-package back-button
-    :defer 3
+    ;; :ensure back-button ;; has currently problems compiling
     :after ( hydra)
     :config
     (progn
@@ -3992,6 +4031,7 @@
 ** jumplist
 #+BEGIN_SRC emacs-lisp
   (use-package jumplist
+    :ensure jumplist
     :bind (
     ("C-," . jumplist-previous)
     ("C-." . jumplist-next))
@@ -4018,6 +4058,7 @@
 ** goto last change
 #+BEGIN_SRC emacs-lisp
 (use-package goto-chg
+  :ensure goto-chg
   :bind (
   ("C-c b ," . goto-last-change)
   ("C-c b ." . goto-last-change-reverse)))
@@ -4025,6 +4066,7 @@
 ** smart scan (jump to next/prev of symbol)
 #+BEGIN_SRC emacs-lisp
   (use-package smartscan
+    :ensure smartscan
     :config
     (progn
     (global-smartscan-mode +1)
@@ -4037,6 +4079,7 @@
    #+BEGIN_SRC emacs-lisp
      ;; display # of matches in modeline when searching
      (use-package anzu
+       :ensure anzu
        :config
        (global-anzu-mode +1))
    #+END_SRC
@@ -4059,7 +4102,7 @@
   ;; Turn on recent file mode so that you can more easily switch to
   ;; recently edited files when you first start emacs
   (use-package recentf
-    :ensure t
+    :ensure recentf
     :config
     (progn
     (setq recentf-save-file (concat user-emacs-directory ".recentf"))
@@ -4069,13 +4112,16 @@
 #+END_SRC
 ** swiper
    #+BEGIN_SRC emacs-lisp
-   (use-package ivy)
+   (use-package ivy
+      :ensure ivy)
    (use-package swiper
+     :ensure swiper
      :after ( ivy))
    #+END_SRC
 ** counsel
    #+BEGIN_SRC emacs-lisp
      (use-package counsel
+       :ensure counsel
        :after ( swiper)
        ;; :bind (("M-y" . counsel-yank-pop)
        ;;        :map ivy-minibuffer-map
@@ -4089,6 +4135,7 @@
 ** highlight-thing
    #+BEGIN_SRC emacs-lisp
      (use-package highlight-thing
+       :ensure highlight-thing
        :init
        (progn
          (defun gb/toogle-highlight-what-thing ()
@@ -4108,6 +4155,7 @@
 ** minimap
    #+BEGIN_SRC emacs-lisp
    (use-package minimap
+     :ensure minimap
      :bind (("s-m" . minimap-mode))
      :config
      (progn
@@ -4139,6 +4187,7 @@
     - shows eval-last-sexp as overlay behind the expression evaluated (instead of only minibuffer)
     #+BEGIN_SRC emacs-lisp 
       (use-package eros
+        :ensure eros
         :config 
         (progn 
           (eros-mode 1)))
@@ -4170,6 +4219,7 @@
     - this may become anoying
     #+BEGIN_SRC emacs-lisp
       (use-package eldoc-overlay
+        :ensure eldoc-overlay
         :after( inline-docs)
         :commands eldoc-overlay-mode)
     #+END_SRC
@@ -4178,6 +4228,7 @@
    ;; Automatically load paredit when editing a lisp file
    ;; More at http://www.emacswiki.org/emacs/ParEdit
    (use-package paredit
+     :ensure paredit
      :init
      (progn
        (add-hook 'emacs-lisp-mode-hook       #'enable-paredit-mode)
@@ -4195,6 +4246,7 @@
     #+BEGIN_SRC emacs-lisp
       ;; allows navigation M-. and M-, to jump to definition and return back
       (use-package elisp-slime-nav
+        :ensure elisp-slime-nav
         :init
         (dolist (hook '(emacs-lisp-mode-hook ielm-mode-hook))
           (add-hook hook 'elisp-slime-nav-mode))
@@ -4218,6 +4270,7 @@
 ***** <      barf out
   #+BEGIN_SRC emacs-lisp
     (use-package lispy
+      :ensure lispy
      :bind (("C-1" . lispy-describe-inline)) ;; make C-1 available even without lispy mode!
      :after ( hydra)
      :config
@@ -4235,10 +4288,11 @@
 
    ;; A little more syntax highlighting
    (use-package clojure-mode-extra-font-locking
-     :defer 3
+     :ensure clojure-mode-extra-font-locking
      :after ( clojure-mode))
 
    (use-package clojure-mode
+     :ensure clojure-mode
      :after ( subword ;; optional, when active, clojure switches to this minor mode too
      flycheck ;; optional, when active, clojure switches to this minor mode too
      paredit ;; optional, when active, clojure switches to this minor mode too
@@ -4315,6 +4369,7 @@
 *** flycheck-clojure
     #+BEGIN_SRC emacs-lisp
       (use-package flycheck-clojure
+        :ensure flycheck-clojure
         :after (flycheck clojure-mode))
     #+END_SRC
 *** cider
@@ -4323,6 +4378,7 @@
    ;; Cider
    ;;;;
    (use-package cider
+     :ensure cider
      :commands cider-jack-in
      :after ( clojure-mode
      company ;; optional for completion
@@ -4445,6 +4501,7 @@
 *** helm-cider
     #+BEGIN_SRC emacs-lisp
       (use-package helm-cider
+        :ensure helm-cider
         :after ( helm cider)
         :config
         (helm-cider-mode 1))
@@ -4480,12 +4537,15 @@
  #+END_SRC
 *** clj-refactor
  #+BEGIN_SRC emacs-lisp
-   (use-package inflections)
-   (use-package peg)
+   (use-package inflections
+     :ensure inflections)
+   (use-package peg
+     :ensure peg)
    (use-package edn
+     :ensure edn
      :after ( peg))
    (use-package clj-refactor
-     :defer t ;; this defer is valid, since via init the loading is ensured 
+     :ensure clj-refactor
      :after ( hydra s seq yasnippet paredit multiple-cursors clojure-mode cider edn inflections)
      :init
      (defun gb/clojure-mode-hook ()
@@ -4499,7 +4559,7 @@
  #+BEGIN_SRC emacs-lisp
    (use-package typed-clojure-mode
      :after ( clojure-mode subword)
-     :defer t ;; this defer is valid, since via init the loading is ensured 
+     :ensure typed-clojure-mode
      :init
      (add-hook 'clojure-mode-hook 'typed-clojure-mode))
  #+END_SRC
@@ -4536,28 +4596,32 @@
 ** elixir
    #+BEGIN_SRC emacs-lisp
    (use-package elixir-mode
-     :defer 5)
+     :ensure elixir-mode)
    #+END_SRC
 ** elm
    #+BEGIN_SRC emacs-lisp
    (use-package elm-mode
-     :defer 5)
+     :ensure elm-mode)
    #+END_SRC
 ** erlang
    #+BEGIN_SRC emacs-lisp :tangle no
-   (use-package erlang)
+   (use-package erlang
+     :ensure erlang)
    #+END_SRC
 **** erlang company
      #+BEGIN_SRC emacs-lisp :tangle no
      (use-package ivy-erlang-complete
-       :requre ivy counsel erlang async)
+       :ensure ivy-erlang-complete
+       :after (ivy counsel erlang async))
      (use-package company-erlang
+       :ensure company-erlang
        :after ( erlang ivy-erlang-complete company))
      #+END_SRC
 ** groovy
    #+BEGIN_SRC emacs-lisp
      (use-package groovy-mode
        :commands groovy-mode
+       :ensure groovy-mode
        :init
        (progn
          ;; make sure for some labeled parameters in groovy to indent with 4
@@ -4569,6 +4633,7 @@
 ** haskell
    #+BEGIN_SRC emacs-lisp
      (use-package haskell-mode
+       :ensure haskell-mode
        :bind (:map haskell-mode-map
          ("C-c C-l" . haskell-process-load-file)
          ("C-c C-n C-t" . haskell-process-do-type)
@@ -4582,6 +4647,7 @@
 *** company-ghci
     #+BEGIN_SRC emacs-lisp
       (use-package company-ghci
+        :ensure company-ghci
         :after ( company haskell-mode)
         :init
         (push 'company-ghci company-backends)
@@ -4591,6 +4657,7 @@
 *** dante (intero fork, complete development environment for haskell)
     #+BEGIN_SRC emacs-lisp
       (use-package dante
+        :ensure dante
         :after ( haskell-mode company flycheck s f dash)
         :commands 'dante-mode
         :init
@@ -4610,11 +4677,13 @@
 *** flycheck-haskell (currently disabled)
     #+BEGIN_SRC emacs-lisp :tangle no
     (use-package flycheck-haskell
+      :ensure flycheck-haskell
       :after ( haskell-mode flycheck))
     #+END_SRC
 ** web-mode
    #+BEGIN_SRC emacs-lisp
    (use-package web-mode
+     :ensure web-mode
      :mode (("\\.phtml\\'" . web-mode)
             ("\\.tpl\\.php\\'" . web-mode)
             ("\\.[agj]sp\\'" . web-mode)
@@ -4634,6 +4703,7 @@
      ;; run ts repl in typescript-mode, allowing to send expressions to the interpreter
      ;; M-x run-ts ;; starts a comint buffer with repl
      (use-package ts-comint
+       :ensure ts-comint
        :after ( typescript-mode)
        :init
          (add-hook 'typescript-mode-hook
@@ -4645,9 +4715,11 @@
               (local-set-key (kbd "C-c l") 'ts-load-file-and-go))))
 
      (use-package typescript-mode
+       :ensure typescript-mode
        :mode (("\\.ts\\'" . typescript-mode)))
 
      (use-package tide
+       :ensure tide
        :after ( typescript-mode)
        :init (progn
          (add-hook 'typescript-mode-hook #'gb/setup-tide-mode)
@@ -4689,6 +4761,7 @@
  #+BEGIN_SRC emacs-lisp
    ;; (use-package tagedit)
    (use-package js2-mode
+     :ensure js2-mode
      :mode (("\\.js\\'" . js2-mode)
             ("\\.jsx?\\'" . js2-jsx-mode))
      :config (setq js-indent-level 2))
@@ -4789,7 +4862,7 @@
 *** java programming mode
     #+BEGIN_SRC emacs-lisp
      (use-package javap-mode
-       :defer 5)   
+       :ensure javap-mode)
     #+END_SRC
 ** php 
  #+BEGIN_SRC emacs-lisp :tangle no
@@ -4826,6 +4899,7 @@
 ** scala ensime (enhanced scala mode for emacs, currntely disabled)
  #+BEGIN_SRC emacs-lisp :tangle no
  (use-package ensime
+   :ensure ensime
    :after ( sbt-mode)
    :commands ensime
    :init
@@ -4845,26 +4919,33 @@
 ** editorconfig
    #+BEGIN_SRC emacs-lisp
       (use-package editorconfig
+        :ensure editorconfig
        :config (editorconfig-mode 1))
    #+END_SRC
 ** flymake
    #+BEGIN_SRC emacs-lisp
-   (use-package flymake)
+   (use-package flymake
+     :ensure flymake)
    (use-package flymake-easy
+     :ensure flymake-easy
      :after ( flymake))
    (use-package flymake-yaml
+     :ensure flymake-yaml
      :after ( flymake-easy)
      :init (add-hook 'yaml-mode-hook 'flymake-yaml-load))
    (use-package flymake-shell
+     :ensure flymake-shell
      :after ( flymake-easy)
      :init (add-hook 'sh-set-shell-hook 'flymake-shell-load))
    (use-package flymake-json
+     :ensure flymake-json
      :after ( flymake-easy)
      :init (add-hook 'js-mode-hook 'flymake-json-maybe-load))
    #+END_SRC
 ** flycheck
    #+BEGIN_SRC emacs-lisp
      (use-package flycheck
+       :ensure flycheck
        :config
        (progn
          (define-key flycheck-mode-map flycheck-keymap-prefix nil)
@@ -4874,8 +4955,10 @@
          ;; (add-hook 'after-init-hook 'global-flycheck-mode)
          ))
      (use-package flycheck-tip
+       :ensure flycheck-tip
        :after ( flycheck))
      (use-package flycheck-pos-tip
+       :ensure flycheck-pos-tip
        :after ( flycheck)
        :config
        ;; (setq flycheck-display-errors-function #'flycheck-pos-tip-error-messages)
@@ -4886,6 +4969,7 @@
 *** perspective
  #+BEGIN_SRC emacs-lisp
    (use-package perspective
+     :ensure perspective
      ;; switch perspective mode on, always
      :config
      (progn
@@ -4897,6 +4981,7 @@
     - see [[http://batsov.com/projectile/][here]]
  #+BEGIN_SRC emacs-lisp
  (use-package projectile
+    :ensure projectile
     :config
    ;; projectile everywhere!
    ;; (projectile-global-mode)
@@ -4905,6 +4990,7 @@
 *** persp-projectile
  #+BEGIN_SRC emacs-lisp
    (use-package persp-projectile
+     :ensure persp-projectile
      :after ( projectile perspective helm)
      :bind (
        ;; switch project on super-s
@@ -4924,6 +5010,7 @@
 *** magit (and more)
  #+BEGIN_SRC emacs-lisp
    (use-package ediff
+     :ensure ediff
      :config
      ;; make sure that ediff session does not open control window in separate frame, which mixes up exwm
      (setq ediff-window-setup-function (quote ediff-setup-windows-plain)))
@@ -4941,8 +5028,10 @@
           window))
 
       (use-package magit-popup
+        :ensure magit-popup
         :after ( async))
       (use-package magit
+        :ensure magit
         :after ( counsel helm async dash with-editor git-commit magit-popup)
         :commands magit-status
         :bind (
@@ -4975,12 +5064,14 @@
       ;; show git relevant change info in the fringe of the frame
       ;; git-gutter-fringe works with nlinum-mode !
       (use-package git-gutter
+        :ensure git-gutter
         :config
         (progn
           (custom-set-faces
            '(git-gutter:unchanged ((t (:background "orange4")))))))
 
       (use-package git-gutter-fringe
+        :ensure git-gutter-fringe
         :after ( git-gutter)
         :config (global-git-gutter-mode +1))
 
@@ -5013,9 +5104,11 @@
       ;; C-f in magit status buffer will invoke gitflow action selector.
 
       (use-package git-blamed
+        :ensure git-blamed
         ) ;; enter git-blamed-mode colors background of lines according to commit (and should echo some info depending on cursor)
 
       (use-package git-timemachine
+        :ensure git-timemachine
         :commands git-timemachine
         :config
         (defun gb/git-timemachine-show-selected-revision ()
@@ -5108,6 +5201,7 @@
    - see usage documentation on [[http://jblevins.org/projects/markdown-mode/][homepage]]
    #+BEGIN_SRC emacs-lisp
    (use-package markdown-mode
+     :ensure markdown-mode
      :commands (markdown-mode gfm-mode)
      :mode (("\\.text\\'" . markdown-mode)
             ("\\.markdown\\'" . markdown-mode)
@@ -5134,6 +5228,7 @@
         '(org-plantuml-jar-path (concat user-emacs-directory "plantuml.jar"))
         '(plantuml-jar-path (concat user-emacs-directory "plantuml.jar")))
      (use-package plantuml-mode
+       :ensure plantuml-mode
        :after ( org)
        :mode ("\\.\\(puml\\|plantuml\\)\\'" . plantuml-mode)
        :config
@@ -5143,6 +5238,7 @@
        ;;(add-to-list 'auto-mode-alist '("\\.plantuml$" . plantuml-mode))
        )
      (use-package flycheck-plantuml
+       :ensure flycheck-plantuml
         :after ( flycheck plantuml-mode)
         :defer t
         :init
@@ -5155,9 +5251,10 @@
     - C-M p    jump back
     - C-M q    like jump but shows tooltip
     #+BEGIN_SRC emacs-lisp
-    (use-package dumb-jump
-      :config
-      (dumb-jump-mode))
+      (use-package dumb-jump
+        :ensure dumb-jump
+        :config
+        (dumb-jump-mode))
     #+END_SRC
 ** cucumber tests for emacs
    mode for editing cucumber tests (*.feature)
@@ -5347,6 +5444,7 @@
     ;; if not functional do the following: remove package and restart emacs, then allow rebuild of pdf tooling, restart again
     (if (and make-installed poppler-installed imagemagick-installed)
         (use-package pdf-tools
+          :ensure pdf-tools
           :mode ("\\.pdf$" . pdf-view-mode)
           :init (progn
                   ;; (add-hook 'after-init-hook 'pdf-tools-install)
@@ -5630,6 +5728,7 @@
 ** elfeed
  #+BEGIN_SRC emacs-lisp
    (use-package elfeed
+     :ensure elfeed
      :commands elfeed
      :bind (:map elfeed-search-mode-map
             ("l" . recenter-top-bottom))
@@ -5646,6 +5745,7 @@
 
    ;; Load elfeed-org
    (use-package elfeed-org
+     :ensure elfeed-org
      :after ( elfeed org dash)
      :init (progn
        ;; TOOD fix function that is not known here
@@ -5696,6 +5796,7 @@
    (use-package noflet)
 
    (use-package elfeed-goodies
+     :ensure elfeed-goodies
      :after ( elfeed popwin noflet ace-jump-mode) ;; powerline
      :config
      (progn
@@ -6144,6 +6245,7 @@
       RET ... Finish with the update of To/Cc/Bcc header (if necessary, open the mail buffer)
   #+BEGIN_SRC emacs-lisp
     (use-package bbdb-
+      :ensure bbdb-
       :after ( bbdb)
       :config
       (bbdb-:setup))
@@ -6156,6 +6258,7 @@
 *** extensive regex search in bbdb
  #+BEGIN_SRC emacs-lisp
    (use-package bbdb-ext
+     :ensure bbdb-ext
      :after ( bbdb))
  #+END_SRC
 *** DONE popup window for email selection in mail client (seems to be alternative to bbdb-) (deactivated)
@@ -6242,7 +6345,7 @@
 
 
             )
-          :config
+          :init
           (progn
           (require 'ob-clojure) ;; not found in packages (20180510)
           (require 'org-inlinetask)
@@ -6344,6 +6447,7 @@
                 (if (string= readOnly "yes")
                     (setq buffer-read-only t)))))
 
+          :config
           ;; set org babel backgrounds for several languages
           (setq org-src-block-faces
                 '(("emacs-lisp" (:background "#1b1010"))
@@ -6471,7 +6575,7 @@
         (setq org-mobile-files (quote ("~/notes.synced.org")))
         ;; (setq org-mobile-agendas nil)
 
-        ;; used for encryption of org mode files
+        ;; used for encryption of org mode files // should be executed after above commands only!
         (let ((auth-map (jde-read-properties-file "~/.org-mobile.auth.gpg")))
           (setq org-mobile-encryption-password (gethash "org-mobile-encryption-secret" auth-map)))
         ;; make sure encryption is used
@@ -6781,6 +6885,7 @@
 *** org bullets
  #+BEGIN_SRC emacs-lisp
    (use-package org-bullets
+     :ensure org-bullets
      :after ( org)
      :init
      (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
@@ -6809,6 +6914,7 @@
 *** password manager
  #+BEGIN_SRC emacs-lisp
    (use-package org-password-manager
+     :ensure org-password-manager
      :bind (:map org-mode-map
                  ("C-c s b" . gb/browse-to-link-property)
                  ("C-c s u" . org-password-manager-get-username)
@@ -7123,7 +7229,8 @@
      - prerequisite is availability of lumo (arch: 'yaourt -S lumo-git')
      - lumo is expected in /usr/local/bin/lumo (crete symlink might be necessary)
      #+BEGIN_SRC emacs-lisp
-     (use-package ob-clojurescript)
+     (use-package ob-clojurescript
+       :ensure ob-clojurescript)
      #+END_SRC
 **** org babel lfe
      - use e.g. '#+BEGIN_SRC lfe :session mysession'
@@ -7167,7 +7274,7 @@
 **** org babel typescript
      #+BEGIN_SRC emacs-lisp
      (use-package ob-typescript
-       :defer 10
+       :ensure ob-typescript
        :after ( org))
      #+END_SRC
 **** org babel kotlin
@@ -7179,7 +7286,7 @@
 **** org babel elixir
      #+BEGIN_SRC emacs-lisp
      (use-package ob-elixir
-       :defer 10
+       :ensure ob-elixir
        :after ( org))
      #+END_SRC
 **** org babel browser
@@ -7193,6 +7300,7 @@
     - see [[https://github.com/astahlman/ob-async][here]]
     #+BEGIN_SRC emacs-lisp
     (use-package ob-async
+      :ensure ob-async
        :after ( org async))
     #+END_SRC
 *** adaptive warp
@@ -7212,7 +7320,7 @@
 *** org reveal (presentation)
     #+BEGIN_SRC emacs-lisp
     (use-package ox-reveal
-      :defer 10
+      :ensure ox-reveal
       :after ( org htmlize)
       :config
       (progn
@@ -7373,11 +7481,14 @@
 * helm
 ** helm
 #+BEGIN_SRC emacs-lisp
-  (use-package async) ;; TODO: add all async requirements, otherwise this will not work
-  (use-package popup)
+  (use-package async
+    :ensure async) ;; TODO: add all async requirements, otherwise this will not work
+  (use-package popup
+    :ensure popup)
   ;;(use-package helm-core
   ;;  :after ( async))
   (use-package helm
+    :ensure helm
     :after ( async popup)
     :bind (("M-x" . helm-M-x)
            ("C-x C-f" . helm-find-files)
@@ -7445,12 +7556,14 @@
 ** helm git grep
    #+begin_src emacs-lisp 
      (use-package helm-ls-git
+       :ensure helm-ls-git
        :after ( helm)
        :bind (:map magit-mode-map
                    ("s-f" . helm-ls-git-ls)))
    #+end_src
    #+BEGIN_SRC emacs-lisp
      (use-package helm-git-grep
+       :ensure helm-git-grep
        :after ( helm)
        :bind (("C-c g" . helm-git-grep)
               :map isearch-mode-map
@@ -7476,6 +7589,7 @@
    - helm candidates are sorted using flx (more fuzzy sorting)
  #+BEGIN_SRC emacs-lisp
    (use-package helm-flx
+     :ensure helm-flx
      :after ( helm)
      :config
      (progn
@@ -7504,6 +7618,7 @@
 ** helm extensions
    #+BEGIN_SRC emacs-lisp :tangle no
    (use-package helm-ext
+     :ensure helm-ext
      :after ( helm)
      :config
      (progn
@@ -7560,7 +7675,8 @@
   - display imenu in separate buffer (through 'M-x imenu-list-minor-mode')
   - https://github.com/bmag/imenu-list
   #+BEGIN_SRC emacs-lisp
-    (use-package imenu-list)
+    (use-package imenu-list
+      :ensure imenu-list)
     ;; (use-package imenu+)
   #+END_SRC
 * imenu-anywhere
@@ -7570,6 +7686,7 @@
   - helm-imenu-anywhere
   #+BEGIN_SRC emacs-lisp
     (use-package imenu-anywhere
+      :ensure imenu-anywhere
       :bind (("s-i" . helm-imenu-anywhere)
              ("s-I" . helm-imenu-anywhere)))
   #+END_SRC
@@ -7588,6 +7705,7 @@
 * hydra
 #+BEGIN_SRC emacs-lisp
   (use-package hydra
+    :ensure hydra
     :bind (
            ( "<f1>" . hydra-allhydras/body) ;; globally defined, can be locally redefined
            ( "<M-f1>" . hydra-allhydras/body) ;; always jump to the global hydra
@@ -7838,6 +7956,7 @@
 ** auctex
    #+BEGIN_SRC emacs-lisp
      (use-package tex-mode
+       :ensure auctex
        :after ( flymake)
        :init (progn
          ;; latex, activate flyspell
@@ -7865,12 +7984,13 @@
    - adds company backend for latex proposals
    #+BEGIN_SRC emacs-lisp
      (use-package company-auctex
+       :ensure company-auctex
        :after ( tex-mode company yasnippet)
        :config (company-auctex-init))
    #+END_SRC
    #+BEGIN_SRC emacs-lisp
      (use-package company-math
-       
+       :ensure company-math
        :after ( company tex-mode)
        :init (add-hook 'TeX-mode-hook 'gb/latex-mode-setup)
        :config
@@ -8024,11 +8144,13 @@
 ** dired rainbow
    #+BEGIN_SRC emacs-lisp
      (use-package dired-rainbow
+       :ensure dired-rainbow
        :after ( dired)) ;; Extended file highlighting according to its type
    #+END_SRC
 ** dired subtree
    #+BEGIN_SRC emacs-lisp
      (use-package dired-subtree
+       :ensure dired-subtree
        :after ( dired)
        :bind (:map dired-mode-map
               ("TAB" . dired-subtree-toggle)
@@ -8065,8 +8187,10 @@
   #+END_SRC
 * visual regexp
   #+BEGIN_SRC emacs-lisp
-    (use-package visual-regexp)
+    (use-package visual-regexp
+      :ensure visual-regexp)
     (use-package visual-regexp-steroids
+      :ensure visual-regexp-steroids
       :after ( visual-regexp)
       :config
       (progn 
@@ -8094,7 +8218,8 @@
   - [[https://github.com/ch11ng/exwm/wiki/Configuration-example][example configuration]]
   #+BEGIN_SRC emacs-lisp
     (when gb/use-exwm
-      (use-package exwm)
+      (use-package exwm
+        :ensure exwm)
       (use-package exwm-config
         :after ( exwm helm-external helm-mode)
         :config
@@ -8165,6 +8290,7 @@
                 (downcase)))
             exwm--id-buffer-alist)))
 
+        (require 'helm-external)
         (defun gb/exwm-program-select (program)
           "select a native (unix) program to execute, select the buffer named as
            the program instead, if such a buffer exists"
@@ -8380,6 +8506,7 @@
      the text area with life update!
    #+BEGIN_SRC emacs-lisp
      (use-package atomic-chrome
+       :ensure atomic-chrome
        :config (atomic-chrome-start-server))
    #+END_SRC
 ** cakecrumbs (show hierarchy in header for css and html)
@@ -8444,6 +8571,7 @@
    - see [[https://github.com/emacs-helm/helm-exwm][here]], problems documented [[https://github.com/emacs-helm/helm/issues/1889][here]]
    #+BEGIN_SRC emacs-lisp
    (use-package helm-exwm
+     :ensure helm-exwm
      :after ( exwm helm)
      :config
      (progn
@@ -8494,13 +8622,6 @@
                 ("C-c F" . iy-go-to-char-backward))
          )
      #+END_SRC
-** helpful
-   - allow for additional help information for functions
-   #+BEGIN_SRC emacs-lisp
-     (use-package helpful
-       :commands (helpful-macro helpful-function helpful-command helpful-variable helpful-at-point)
-       :bind ("s-h" . helpful-at-point))
-   #+END_SRC
 ** edit-at-point
    - edit(copy,cut..) current things(word,symbol..) under cursor
    #+BEGIN_SRC emacs-lisp
@@ -8537,6 +8658,7 @@
    - check whether this clashes with other flycheck packages (like flycheck-tip and flycheck-pos-tip)
    #+BEGIN_SRC emacs-lisp
      (use-package flycheck-inline
+       :ensure flycheck-inline
        :after ( flycheck inline-docs)
        :init (progn
        (add-hook 'text-mode-hook #'flycheck-inline-enable)
@@ -8643,9 +8765,10 @@
      ;; C-c M-t (test)
      ;; C-c C-d (hydra for documentation)
      (use-package cider-hydra ;; adds hydras
+       :ensure cider-hydra
        :after ( hydra cider))
      (use-package cider-decompile ;; decompilation extension for cider [https://github.com/clojure-emacs/cider-decompile]
-       :defer 5
+       :ensure cider-decompile
        :after ( cider javap-mode))
      ;; (use-package cider-profile ;; CIDER profiling support [https://github.com/thunknyc/nrepl-profile]
      ;;   :defer 10
@@ -8719,9 +8842,11 @@
 ** yaml
    #+BEGIN_SRC emacs-lisp
    (use-package yaml-mode
+     :ensure yaml-mode
      :mode (("\\.yml\\'" . yaml-mode)
             ("\\.yaml\\'" . yaml-mode)))
    (use-package yaml-tomato
+     :ensure yaml-tomato
      :after ( yaml-mode)
      :commands (yaml-tomato-show-current-path yaml-tomato-copy))
    #+END_SRC
@@ -8772,6 +8897,7 @@
    - allow highlighting of symbols
    #+BEGIN_SRC emacs-lisp
    (use-package symbol-overlay
+     :ensure symbol-overlay
      :config (setq symbol-overlay-colors '("dodger blue" "spring green" "orchid" "salmon")))
    #+END_SRC
 ** smart hungry delete
@@ -8779,6 +8905,7 @@
    - do smart delete of spaces
    #+BEGIN_SRC emacs-lisp
      (use-package smart-hungry-delete
+       :ensure smart-hungry-delete
        :bind (("S-<backspace>" . smart-hungry-delete-backward-char)
    		      ("C-S-d" . smart-hungry-delete-forward-char)))
    #+END_SRC
@@ -8878,6 +9005,7 @@
      - Check the time a command was run by mousing over its prompt
    #+BEGIN_SRC emacs-lisp
    (use-package shx
+     :ensure shx
      :init (progn
         ;; add hook for shell
         (add-hook 'shell-mode-hook #'shx-mode)
@@ -8902,6 +9030,7 @@
    - open yarn lock files in a read only mode
    #+BEGIN_SRC emacs-lisp
    (use-package yarn-mode
+     :ensure yarn-mode
      :mode (("\\yarn.lock\\'" . yarn-mode)))
    #+END_SRC
 ** all the icons dired
@@ -8932,6 +9061,7 @@
 ** popwin (make windows like help, completion show in a popupwindow that can be closed via C-g
    #+BEGIN_SRC emacs-lisp
      (use-package popwin
+       :ensure popwin
        :config
        (popwin-mode 1)
        (setq popwin:popup-window-height 30))
@@ -8939,6 +9069,7 @@
 ** ranger (file browser/previewer, using dired)
    #+BEGIN_SRC emacs-lisp
      (use-package ranger
+       :ensure ranger
        :config
        (setq ranger-hide-cursor nil))
    #+END_SRC
