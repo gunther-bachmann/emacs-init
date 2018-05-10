@@ -321,7 +321,8 @@
            use-package
            req-package
            seq
-           el-get))
+           el-get
+           s))
 
   ;; add mac specific packages
   (when (is-macos-p)
