@@ -8375,7 +8375,10 @@
 
         ;; start pasystray from within emacs, starting it within xinitrc does not work
         (add-hook 'exwm-init-hook
-                  (lambda () (gb/start-if-not-running "/usr/bin/pasystray")))
+                  (lambda ()
+                    (gb/start-if-not-running "/usr/bin/pasystray")
+                    ;; (start-process "yabar" nil  "/usr/bin/yabar") ;; see here: https://github.com/geommer/yabar
+                    ))
 
         ;; ensure that eclipse switches to char line mode
         ;; and does not use simulation keys, since i have emacs binding enabled in eclipse
