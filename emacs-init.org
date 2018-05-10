@@ -7561,7 +7561,7 @@
   - https://github.com/bmag/imenu-list
   #+BEGIN_SRC emacs-lisp
     (req-package imenu-list)
-    (req-package imenu+)
+    ;; (req-package imenu+)
   #+END_SRC
 * imenu-anywhere
   show ido/helm menu for all etags of currently open buffers
