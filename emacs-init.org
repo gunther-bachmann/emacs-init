@@ -4160,7 +4160,7 @@
     - does this all the time, after some delay.
     - this may become anoying
     #+BEGIN_SRC emacs-lisp
-      (req-package eldoc-overlay-mode
+      (req-package eldoc-overlay
         :require inline-docs
         :commands eldoc-overlay-mode)
     #+END_SRC
@@ -8418,13 +8418,6 @@
    #+BEGIN_SRC emacs-lisp :tangle no
    (req-package dimmer
      :config (dimmer-activate))
-   #+END_SRC
-** eldoc-olverlay
-   - display eldoc as inline overlay
-   - switch on per mode via `M-x eldoc-overlay-mode`
-   #+BEGIN_SRC emacs-lisp
-   (req-package eldoc-overlay
-     :require inline-docs)
    #+END_SRC
 ** eterm-256color
    - see [[http://github.com/dieggsy/eterm-256color][here]]
