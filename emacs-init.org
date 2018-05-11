@@ -490,12 +490,6 @@
                  (and (member "31" result)
                       (= 1 (length result))))))
 
-     (defun string/starts-with (string prefix)
-       "Return t if string starts with prefix."
-       (and (string-match (rx-to-string `(: bos ,prefix) t)
-                          string)
-            t))
-
      (defun file-name-from-current-dir (file-name)
        "get given file in the directory of the file currently active"
        (concat (file-name-directory (file-truename (or (concat  "./" file-name) (buffer-file-name (current-buffer))))) file-name))
@@ -3437,7 +3431,7 @@
        (interactive)
        (erase-buffer)
        (yank)
-       (if (string/starts-with (buffer-substring 1 6) "<?xml")
+       (if (string-prefix-p (buffer-substring 1 6) "<?xml")
            (nxml-pretty-format))))
    #+END_SRC
 ** aggressive indent mode (also used by parinfer) 
