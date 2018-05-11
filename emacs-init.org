@@ -3043,6 +3043,11 @@
 
   ;; Highlights matching parenthesis
   (show-paren-mode 1)
+  (custom-set-faces '(show-paren-match
+        ((t (:background "black"
+              :foreground "yellow"
+              :weight ultra-bold
+              :width ultraexpanded)))))
 
   ;; Highlight current line
   (global-hl-line-mode 1)
