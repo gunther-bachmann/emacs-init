@@ -1061,6 +1061,8 @@
 
           (check-_nix-program-status firefox-installed "firefox" "firefox" "firefox not found")
 
+          (check-_nix-program-status icecat-installed "icecat" "icecat" "icecat not found")
+
           (check-_nix-program-status git-imerge-installed "git-imerge" "git-imerge" "git-imerge not found")
 
           (check-_nix-program-status languagetool-installed "languagetool" "languagetool" "languagetool not found")
@@ -1076,6 +1078,12 @@
             (progn
               (setq browse-url-browser-function 'browse-url-chromium)
               (setq browse-url-chromium-program (s-trim (shell-command-to-string "which chromium")))))
+
+          ;; icecat takes precedence (over firefox)
+          (if icecat-installed
+            (progn
+              (setq browse-url-browser-function 'browse-url-default-browser)
+              (setq browse-url-chromium-program (s-trim (shell-command-to-string "which icecat")))))
 
           (setq gnu-ls-installed (not (is-ms-windows-p)))
               (if gnu-ls-installed
