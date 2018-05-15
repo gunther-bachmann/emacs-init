@@ -9108,6 +9108,8 @@
          (setq projectile-switch-project-action 'neotree-projectile-action)))
    #+END_SRC
 * to test
+** ccls (c++ language server for lsp ui)
+   - see here https://github.com/MaskRay/emacs-ccls
 ** karma test runner integration
    - upbo
 ** gif-screencast
@@ -9170,6 +9172,7 @@
 ** company suggest (propose sentence completion based on wikionary or google)
    - company-suggest, see [[https://github.com/juergenhoetzel/company-suggest][here]]
 * look at
+** eglot - lsp client (for multiple languages)
 ** pickle - Major mode for editing cucumber gherkin files.
 ** attrap - Attrap! provides a command to attempt to fix the flycheck error at point.(haskel and elisp currently)
 ** git-msg-prefix, provide prefix for commit messages based on previous commit messages and the like
