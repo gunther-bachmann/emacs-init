@@ -9105,6 +9105,11 @@
          (setq projectile-switch-project-action 'neotree-projectile-action)))
    #+END_SRC
 * to test
+** organize imports java
+   - needs configuration, see here https://github.com/jcs090218/organize-imports-java
+   #+BEGIN_SRC emacs-lisp :tangle no
+   (use-package organize-imports-java)
+   #+END_SRC
 ** ccls (c++ language server for lsp ui)
    - see here https://github.com/MaskRay/emacs-ccls
 ** karma test runner integration
@@ -9169,6 +9174,7 @@
 ** company suggest (propose sentence completion based on wikionary or google)
    - company-suggest, see [[https://github.com/juergenhoetzel/company-suggest][here]]
 * look at
+** powerthesaurus - interface to powerthesaurus.org
 ** eglot - lsp client (for multiple languages)
 ** pickle - Major mode for editing cucumber gherkin files.
 ** attrap - Attrap! provides a command to attempt to fix the flycheck error at point.(haskel and elisp currently)
