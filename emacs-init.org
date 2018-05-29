@@ -7643,13 +7643,18 @@
 #+BEGIN_SRC emacs-lisp
   (use-package docker
     :commands docker-machines docker-volumes docker-images docker-containers
+    :ensure docker
     :config
     (progn
-      (setenv "DOCKER_TLS_VERIFY" "1")
-      (setenv "DOCKER_HOST" "tcp://192.168.99.100:2376")
-      (setenv "DOCKER_CERT_PATH" "~/.docker/machine/machines/docker-host-4gb-2cpu")
-      (setenv "DOCKER_MACHINE_NAME" "docker-host-4gb-2cpu")))
+      (if (is-macos-p)
+          (progn
+            (setenv "DOCKER_TLS_VERIFY" "1")
+            (setenv "DOCKER_HOST" "tcp://192.168.99.100:2376")
+            (setenv "DOCKER_CERT_PATH" "~/.docker/machine/machines/docker-host-4gb-2cpu")
+            (setenv "DOCKER_MACHINE_NAME" "docker-host-4gb-2cpu")))
+      ))
   (use-package docker-tramp
+    :ensure docker-tramp
     :after ( docker))
 #+END_SRC
 ** vagrant
