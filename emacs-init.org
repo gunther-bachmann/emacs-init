@@ -1192,23 +1192,15 @@
 * encryption
 ** epa (see 'check-installation-status *nix)
 ** configure pinentry
-   #+BEGIN_SRC emacs-lisp
-     (use-package epa
-     :config
-       (setq epa-pinentry-mode 'loopback))
-       ;; (global-visible-mark-mode -1)
-   #+END_SRC
-** pinentry
    - see ~/.gnupg/gpg-agent.conf
    - need to add the line `allow-emacs-pinentry` to gpg-agent.conf
    - killing gpg agent by `gpgconf --kill gpg-agent`, restart is automatic, as soon as it is needed
    - see [[https://help.ubuntu.com/community/GnuPrivacyGuardHowto][here]] too
    #+BEGIN_SRC emacs-lisp
-     (use-package pinentry
-       :config 
-       (progn 
-         (pinentry-start)
-         ))
+     (use-package epa
+     :config
+       (setq epa-pinentry-mode 'loopback))
+       ;; (global-visible-mark-mode -1)
    #+END_SRC
 * networking
 ** tls
@@ -9187,6 +9179,14 @@
    - if provided with installation script might even execute the appropriate installation
    - see [[https://github.com/waymondo/use-package-ensure-system-package][here]]
 * discarded
+** pinentry (obsolete as of emacs 26)
+   #+BEGIN_SRC emacs-lisp :tangle no
+     (use-package pinentry
+       :config
+       (progn
+         (pinentry-start)
+         ))
+   #+END_SRC
 ** exwm-surf
    - allows to control surf within exwm
    - surf is a webkit based browser that works as embedded x application and can thus be embedded into emacs directly
