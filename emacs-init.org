@@ -3656,7 +3656,18 @@
       (global-set-key (kbd "M-/") #'company-try-hard)
       (define-key company-active-map (kbd "M-TAB") #'company-try-hard)
       ))
-  ;; enable company mode anywhere
+
+  (use-package company-box
+    :ensure company-box
+    :after (company)
+    :init
+    (add-hook 'company-mode-hook 'company-box-mode)
+    :config
+    (progn
+      (setq company-box-enable-icon nil)
+      (custom-set-faces
+         '(company-box-candidate ((t (:foreground "gray85")))))))
+
   (use-package company
     :ensure company
     :init (progn
@@ -3697,13 +3708,13 @@
               )))
 
       (custom-set-faces
-       '(company-echo-common ((t (:inherit company-echo :foreground "black"))))
-       '(company-preview ((t (:foreground "black"))))
+       '(company-echo-common ((t (:inherit company-echo :foreground "gray15"))))
+       '(company-preview ((t (:foreground "gray15"))))
        '(company-preview-common ((t (:foreground "tomato2"))))
-       '(company-tooltip ((t (:background "gold2" :foreground "black"))))
+       '(company-tooltip ((t (:background "gray15" :foreground "gray85"))))
        '(company-tooltip-selection ((t (:background "gray23" :foreground "white"))))
        '(company-tooltip-common ((t (:foreground "firebrick4"))))
-       '(company-tooltip-annotation ((t (:foreground "black")))))
+       '(company-tooltip-annotation ((t (:foreground "gray15")))))
 
 
       ))
@@ -3715,17 +3726,6 @@
     (progn
       (add-hook 'after-init-hook 'company-statistics-mode)))
 
-  (use-package company-quickhelp
-    :ensure company-quickhelp
-    :after (company)
-    :config
-    (progn
-      (company-quickhelp-mode 1)
-      (setq company-quickhelp-use-propertized-text t)
-      (setq company-quickhelp-max-lines 30)
-      (setq company-quickhelp-color-background "black")
-      (setq company-quickhelp-color-foreground "gray80")
-      ))
 #+END_SRC
 ** company flx
    #+BEGIN_SRC emacs-lisp
@@ -9186,6 +9186,20 @@
        (progn
          (pinentry-start)
          ))
+   #+END_SRC
+** company quickhelp - produces help popups for company candidates (replaced by company-box)
+   #+BEGIN_SRC emacs-lisp :tangle no
+       (use-package company-quickhelp
+         ;; :ensure company-quickhelp
+         :after (company-box)
+         :config
+         (progn
+           ;; (company-quickhelp-mode 1)
+           (setq company-quickhelp-use-propertized-text t)
+           (setq company-quickhelp-max-lines 30)
+           ;; (setq company-quickhelp-color-background "gray80")
+           ;; (setq company-quickhelp-color-foreground "black")
+           ))
    #+END_SRC
 ** exwm-surf
    - allows to control surf within exwm
