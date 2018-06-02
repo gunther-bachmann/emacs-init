@@ -2267,8 +2267,21 @@
                     ;;     (or spath "")
                  )
 
+               (defun parent-dir-of (directory)
+                 "parrent directory of the given"
+                  (s-join "/" (-drop-last 1 (s-split "/" directory))))
+
+               (defun file-exists-up-the-tree (directory filename)
+                 "does the given file exist in this directory or anywhere up to the root?"
+                 (or (file-exists-p (concat directory "/" filename))
+                    (and (not (or (string= "/" directory)
+                             (string-empty-p directory)))
+                          (file-exists-up-the-tree (parent-dir-of directory) filename))))
+
                (defun gb/in-git-dir-p ()
-                 (not (string-match "^fatal" (shell-command-to-string "git rev-parse --git-dir"))))
+                 (or
+                  (and (buffer-file-name) (file-exists-up-the-tree (file-name-directory (buffer-file-name)) ".git"))
+                  (not (string-match "^fatal" (shell-command-to-string "git rev-parse --git-dir")))))
 
                (defun gb/vc-status ()
                  (if vc-mode
@@ -2411,7 +2424,7 @@
 
                                     ;;  all-the-icons-projectile
                                     ;; (minor-modes :when active)
-                                    (gb/version-control :when (string= major-mode "shell-mode"))
+                                    (gb/version-control :when (not (string-match "magit.*" (symbol-name major-mode))))
                                     ;; all-the-icons-vc-icon
                                     ;; (all-the-icons-vc-status
                                     ;;  all-the-icons-git-ahead
