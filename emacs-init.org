@@ -1080,10 +1080,10 @@
               (setq browse-url-chromium-program (s-trim (shell-command-to-string "which chromium")))))
 
           ;; icecat takes precedence (over firefox)
-          (if icecat-installed
-            (progn
-              (setq browse-url-browser-function 'browse-url-default-browser)
-              (setq browse-url-chromium-program (s-trim (shell-command-to-string "which icecat")))))
+          ;; (if icecat-installed
+          ;;   (progn
+          ;;     (setq browse-url-browser-function 'browse-url-default-browser)
+          ;;     (setq browse-url-chromium-program (s-trim (shell-command-to-string "which icecat")))))
 
           (setq gnu-ls-installed (not (is-ms-windows-p)))
               (if gnu-ls-installed
@@ -9118,6 +9118,8 @@
          (setq projectile-switch-project-action 'neotree-projectile-action)))
    #+END_SRC
 * to test
+** rustic (major mode for rust)
+** company-prescient (ordering and filtering of candidates)
 ** organize imports java
    - needs configuration, see here https://github.com/jcs090218/organize-imports-java
    #+BEGIN_SRC emacs-lisp :tangle no
