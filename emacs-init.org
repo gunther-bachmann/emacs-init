@@ -352,10 +352,19 @@
            key-chord
            validate
            use-package
-           ;; req-package
            seq
            el-get
            s))
+
+  ;; see here https://github.com/jabranham/system-packages
+  ;; allows for system manager actions (detecting the system manager)
+  (use-package system-packages
+    :ensure t)
+
+  ;; see here  https://github.com/jwiegley/use-package
+  ;; makes sure that a system program is installed
+  (use-package use-package-ensure-system-package
+    :ensure t)
 
   ;; add mac specific packages
   (when (is-macos-p)
