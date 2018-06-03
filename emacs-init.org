@@ -8690,12 +8690,8 @@
      (use-package flycheck-inline
        :ensure flycheck-inline
        :after ( flycheck inline-docs)
-       :init (progn
-       (add-hook 'text-mode-hook #'flycheck-inline-enable)
-       (add-hook 'prog-mode-hook #'flycheck-inline-enable)
-       )
        :config
-       ;; (flycheck-inline-mode 1) ;; see readme
+       (flycheck-inline-mode 1) ;; see readme
        )
    #+END_SRC
 ** flymd
