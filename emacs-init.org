@@ -4727,6 +4727,15 @@
        :ensure ts-comint
        :after ( typescript-mode)
        :init
+         (setenv "NODE_NO_READLINE" "1")
+         (defun run-tsun ()
+           (interactive)
+           (let ((buf (get-buffer "*Typescript*")))
+             (if buf
+                 (switch-to-buffer buf)
+               (progn
+                 (ansi-term "/bin/zsh" "Typescript")
+                 (comint-send-string "*Typescript*" "tsun\n")))))
          (add-hook 'typescript-mode-hook
             (lambda ()
               (local-set-key (kbd "C-x C-e") 'ts-send-last-sexp)
