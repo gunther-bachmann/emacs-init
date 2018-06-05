@@ -8984,9 +8984,9 @@
    #+BEGIN_SRC emacs-lisp
      (when ledger-installed
        (use-package ledger-mode
-         :defer 60)
+         :ensure ledger-mode)
        (use-package flycheck-ledger
-         :defer 60
+         :ensure flycheck-ledger
          :after ( ledger-mode flycheck)))
    #+END_SRC
 ** move frames around
