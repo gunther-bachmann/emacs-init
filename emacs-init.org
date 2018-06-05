@@ -8456,6 +8456,12 @@
 
   #+END_SRC
 * currently evaluated
+** flycheck-package (elisp packages)
+   #+BEGIN_SRC emacs-lisp
+   (use-package flycheck-package
+     :ensure flycheck-package
+     :after (flycheck))
+   #+END_SRC
 ** ace helm line
    - display ace jump characters on each line (C-') when in helm mode
    #+BEGIN_SRC emacs-lisp
