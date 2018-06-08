@@ -475,6 +475,21 @@
 * own utility functions
 ** misc
    #+BEGIN_SRC emacs-lisp
+     (setq async-shell-command-display-buffer nil) ;; make sure that the async command does not open a result buffer
+     (defun available-keys ()
+       "return a list of ids for which the private key is known"
+       (remove-if 'string-empty-p (s-split "\n" (shell-command-to-string "gpg -Kq 2> /dev/null | grep -e \"^uid\" | awk '{ print $5; }'"))))
+
+     (defun gb/cache-gpg (prompt)
+       "cache gpg password for the standard key or the selected key if the universal argument was provided"
+       (interactive "P")
+       (require 'ivy)
+       (if prompt
+           (progn
+             (let ((keyId (ivy-read "email: " (--map (string-trim it "<" ">") (available-keys)))))
+               (async-shell-command (concat "echo \"ok\" | gpg -s -u \"" keyId "\" &> /dev/null" nil nil))))
+         (async-shell-command "echo \"ok\" | gpg -s &> /dev/null" nil nil)))
+
      (defun re-seq (regexp string &optional matchpos)
        "Get a list of all regexp matches in a string, use matchpos as group index if groups are used!"
        (save-match-data
