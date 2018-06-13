@@ -353,18 +353,13 @@
            validate
            use-package
            seq
-           el-get
+           ;; see here https://github.com/jabranham/system-packages
+           ;; allows for system manager actions (detecting the system manager)
+	   system-packages
+           ;; see here  https://github.com/jwiegley/use-package
+           ;; makes sure that a system program is installed
+	   use-package-ensure-system-package
            s))
-
-  ;; see here https://github.com/jabranham/system-packages
-  ;; allows for system manager actions (detecting the system manager)
-  (use-package system-packages
-    :ensure t)
-
-  ;; see here  https://github.com/jwiegley/use-package
-  ;; makes sure that a system program is installed
-  (use-package use-package-ensure-system-package
-    :ensure t)
 
   ;; add mac specific packages
   (when (is-macos-p)
@@ -384,63 +379,64 @@
 #+END_SRC
 ** paradox (package list alternative)
    #+BEGIN_SRC emacs-lisp 
-          (use-package paradox
-            :after (hydra)
-            :commands gb/paradox-list-packages
-            :bind (:map paradox-menu-mode-map ("<f1>" . hydra-paradox-list-packages/body))
-            :init
-              (progn
-                (report-elapsed ":init-enter paradox")
-                ;; TODO jde read properties is not known yet
-                (defun gb/ensure-github-token ()
-                  "make sure to load github token if it is empty"
-                  (if (not paradox-github-token)
-                      (let* ((github-token-file "~/.github-token.properties.gpg"))
-                        (if (file-exists-p github-token-file)
-                            (let* ((auth-map (jde-read-properties-file "~/.github-token.properties.gpg")))
-                              (setq paradox-github-token (gethash "github-paradox-token" auth-map)))
-                          (message "WARNING: github token file not found. paradox-list-packages will have to work without github integration.")))))
-                (advice-add 'paradox-list-packages :before #'(lambda (orig-func &rest args) (gb/ensure-github-token)))
-                )
+     (use-package paradox
+       :after (hydra)
+       :commands gb/paradox-list-packages
+       :bind (:map paradox-menu-mode-map ("<f1>" . hydra-paradox-list-packages/body))
+       :init
+         (progn
+           (report-elapsed ":init-enter paradox")
+           ;; (defun gb/ensure-github-token ()
+           ;;   "make sure to load github token if it is empty"
+           ;;   (if (not paradox-github-token)
+           ;;       (let* ((github-token-file "~/.github-token.properties.gpg"))
+           ;;         (if (file-exists-p github-token-file)
+           ;;             (let* ((auth-map (jde-read-properties-file "~/.github-token.properties.gpg")))
+           ;;               (setq paradox-github-token (gethash "github-paradox-token" auth-map)))
+           ;;           (message "WARNING: github token file not found. paradox-list-packages will have to work without github integration.")))))
+           ;; (advice-add 'paradox-list-packages :before #'(lambda (orig-func &rest args) (gb/ensure-github-token)))
+           )
 
-            :config
-            (report-elapsed ":config-enter paradox")
+       :config
+       (report-elapsed ":config-enter paradox")
 
-            ;; description is pastell sand like color
-            (custom-set-faces '(paradox-description-face ((t (:foreground "#e0d0a0")))))
-            (progn
-              (setq paradox-automatically-star nil)
-              (when (package-installed-p 'hydra)
-                (defhydra hydra-paradox-list-packages ()
-                  "
-               [_v_] view homepage           [_x_] execute commands
-               [_l_] show latest commits     [_i_] install
-                ^ ^                          [_d_] delete
-                ^ ^                          [_U_] update all
-            %s(hydra-combine-functions-w-key-bindings
-              '((\"    view homepage      \" . paradox-menu-visit-homepage)
-                (\"    show latest commit \" . paradox-menu-view-commit-list)
-                (\"    execute commands   \" . paradox-menu-execute)
-                (\"    install            \" . package-menu-mark-install)
-                (\"    delete             \" . package-menu-mark-delete)
-                (\"    mark upgrades      \" . package-menu-mark-upgrades)))
-            "
-                  ("v" paradox-menu-visit-homepage)
-                  ("l" paradox-menu-view-commit-list)
-                  ("x" paradox-menu-execute :exit t)
-                  ("i" package-menu-mark-install )
-                  ("d" package-menu-mark-delete)
-                  ("U" package-menu-mark-upgrades)
-                  ("q" (message "Abort") :exit t))
-                ))
-            (report-elapsed ":config-exit paradox")
-            )
+       ;; description is pastell sand like color
+       (custom-set-faces '(paradox-description-face ((t (:foreground "#e0d0a0")))))
+       (progn
+         (setq paradox-automatically-star nil)
+         (setq paradox-column-width-package 30)
+         (setq paradox-column-width-version 17)
+         (when (package-installed-p 'hydra)
+           (defhydra hydra-paradox-list-packages ()
+             "
+          [_v_] view homepage           [_x_] execute commands
+          [_l_] show latest commits     [_i_] install
+           ^ ^                          [_d_] delete
+           ^ ^                          [_U_] update all
+       %s(hydra-combine-functions-w-key-bindings
+         '((\"    view homepage      \" . paradox-menu-visit-homepage)
+           (\"    show latest commit \" . paradox-menu-view-commit-list)
+           (\"    execute commands   \" . paradox-menu-execute)
+           (\"    install            \" . package-menu-mark-install)
+           (\"    delete             \" . package-menu-mark-delete)
+           (\"    mark upgrades      \" . package-menu-mark-upgrades)))
+       "
+             ("v" paradox-menu-visit-homepage)
+             ("l" paradox-menu-view-commit-list)
+             ("x" paradox-menu-execute :exit t)
+             ("i" package-menu-mark-install )
+             ("d" package-menu-mark-delete)
+             ("U" package-menu-mark-upgrades)
+             ("q" (message "Abort") :exit t))
+           ))
+       (report-elapsed ":config-exit paradox")
+       )
    #+END_SRC
 * workarounds for broken packages
   #+BEGIN_SRC emacs-lisp
     ;; since perspective is using make-variable-frame-local and this function/macro is removed in emacs 26.x
-    (when (not (fboundp 'make-variable-frame-local))
-      (defun make-variable-frame-local (variable) variable))
+    ;; (when (not (fboundp 'make-variable-frame-local))
+    ;;   (defun make-variable-frame-local (variable) variable))
   #+END_SRC
 * splash and initial buffer config
 #+BEGIN_SRC emacs-lisp
@@ -1401,21 +1397,20 @@
 #+END_SRC
 ** add theme
    #+BEGIN_SRC emacs-lisp
-     (if (file-exists-p (concat user-emacs-directory "themes"))
-        (progn
-          (add-to-list 'custom-theme-load-path (concat user-emacs-directory "themes"))
-          (add-to-list 'load-path (concat user-emacs-directory "themes"))
-          (if (file-exists-p (concat user-emacs-directory "themes/sanityinc-tomorrow-night-theme.el"))
-              (progn
-                (load-theme 'sanityinc-tomorrow-night t)
-                (custom-set-faces '(link-face ((t (:foreground "#81a2be" :underline (:style line :color "#41526e"))))))
-                (custom-set-faces '(link ((t (:foreground "#81a2be" :underline (:style line :color "#41526e")))))))
-            (message (concat "WARNING: theme folder '" user-emacs-directory "themes' does not contain 'sanityinc-tomorrow-night"))))
-      (message (concat "WARNING: theme folder '" user-emacs-directory "themes' not found. Themes will not be loaded")))
+     (use-package color-theme-sanityinc-tomorrow
+       :ensure color-theme-sanityinc-tomorrow
+       :config
+       (progn
+         (load-theme 'sanityinc-tomorrow-night t)
+         (custom-set-faces '(link-face ((t (:foreground "#81a2be" :underline (:style line :color "#41526e"))))))
+         (custom-set-faces '(link ((t (:foreground "#81a2be" :underline (:style line :color "#41526e")))))))
+       )
+
    #+END_SRC
 ** display symbols (pretty-mode, prettify-greek)
    #+BEGIN_SRC emacs-lisp
      (use-package pretty-mode
+       :ensure pretty-mode
        :config 
        (progn
          (global-pretty-mode 1)
@@ -1430,7 +1425,8 @@
           '(:sub-and-superscripts :greek :arithmetic-nary))
          ))
 
-     (use-package prettify-greek) ;; prettify greek symbols
+     (use-package prettify-greek
+       :ensure prettify-greek) ;; prettify greek symbols
    #+END_SRC
 ** font related stuff
    #+BEGIN_SRC emacs-lisp
@@ -2219,6 +2215,7 @@
     #+BEGIN_SRC emacs-lisp
           (when gb/use-space-line
             (use-package spaceline
+              :ensure spaceline
               :after ( powerline) ;; symon
               :config
               ;; Valid Values: alternate, arrow, arrow-fade, bar, box, brace,
@@ -2391,6 +2388,7 @@
         ;; (use-package font-lock+)
       (when gb/use-space-line
         (use-package all-the-icons
+          :ensure all-the-icons
           :after ( memoize) ;; font-lock+
           :config
           ;; extend list of all-the-icons-mode-icon-alist
@@ -2403,9 +2401,11 @@
               (add-to-list 'all-the-icons-mode-icon-alist '(tide-mode all-the-icons-fileicon "typescript" :v-adjust -0.1 :face all-the-icons-yellow) t)
               )))
 
-        (use-package memoize)
+        (use-package memoize
+          :ensure memoize)
 
         (use-package spaceline-all-the-icons
+          :ensure spaceline-all-the-icons
           :after ( spaceline all-the-icons memoize) ;; indent-info
           ;; :defer 1
           :config
@@ -2557,8 +2557,10 @@
              ;; (setq sml/theme 'powerline)
              ;; (sml/setup)
 
-             (use-package powerline)
+             (use-package powerline
+               :ensure powerline)
              (use-package smart-mode-line-powerline-theme
+               :ensure smart-mode-line-powerline-theme
                :after ( powerline))
              (use-package smart-mode-line
                :after (powerline smart-mode-line-powerline-theme)
@@ -2626,17 +2628,20 @@
     See [[https://github.com/lunaryorn/fancy-battery.el][link]]
    #+BEGIN_SRC emacs-lisp
    (use-package fancy-battery
+   :ensure fancy-battery
      :init (progn (add-hook 'after-init-hook #'fancy-battery-mode)))
    #+END_SRC
 ** rainbow mode
    #+BEGIN_SRC emacs-lisp
    (use-package rainbow-mode
+     :ensure rainbow-mode
      :init (add-hook 'help-mode-hook #'rainbow-mode))
    #+END_SRC
 ** rainbow identifiers
    #+BEGIN_SRC emacs-lisp
      ;; can be switched off by M-x rainbow-identifiers-mode, which toggles the mode
      (use-package rainbow-identifiers
+       :ensure rainbow-identifiers
        :init
        (add-hook 'prog-mode-hook 'rainbow-identifiers-mode))
    #+END_SRC
@@ -2655,8 +2660,8 @@
    #+END_SRC
    #+BEGIN_SRC emacs-lisp :tangle no
      (use-package crosshairs
-       :after (ace-window) ;; optional, install cursor blink after ace window switch
-                helm       ;; optional, install cursor blink after helm buffer switch
+       :after (ace-window   ;; optional, install cursor blink after ace window switch
+                helm)       ;; optional, install cursor blink after helm buffer switch
        :config
        (progn
        (defun blink-cursor-mode-off ()
@@ -2827,6 +2832,7 @@
    - display ^L as h-bar
    #+BEGIN_SRC emacs-lisp
      (use-package form-feed
+       :ensure form-feed
        :init
        (progn (add-hook 'text-mode-hook #'form-feed-mode)))
    #+END_SRC
@@ -2840,6 +2846,7 @@
    - Minor mode to highlight indentation
    #+BEGIN_SRC emacs-lisp
    (use-package highlight-indent-guides
+     :ensure highlight-indent-guides
      :init (add-hook 'prog-mode-hook #'highlight-indent-guides-mode)
      :config
      (progn
@@ -2850,6 +2857,8 @@
    #+END_SRC
 ** COMMENT own ui stuff
    #+BEGIN_SRC emacs-lisp
+       (when (and (package-installed-p 'ace-window) (package-installed-p 'helm))
+
      (require 'ace-window)
      (require 'helm-buffers)
 
@@ -2879,7 +2888,7 @@
        (interactive)
        (split-window-below-and-select-scratch)
        (helm-mini))
-     (bind-key "C-x C-2" 'split-window-below-and-select)
+     (bind-key "C-x C-2" 'split-window-below-and-select))
 
    #+END_SRC
 * editing related stuff
@@ -2940,6 +2949,7 @@
    #+begin_src emacs-lisp 
      (use-package session
        :init (add-hook 'after-init-hook 'session-initialize)
+       :ensure t
        :config
        (progn
          (setq session-name-disable-regexp "\\(\\`/tmp\\|COMMIT_EDITMSG\\)")))
@@ -2969,6 +2979,7 @@
    - [[https://github.com/lewang/ws-butler][home page]]
    #+BEGIN_SRC emacs-lisp
      (use-package ws-butler
+       :ensure ws-butler
        :config
        (progn
          (ws-butler-global-mode 1)))
@@ -2987,6 +2998,7 @@
    - display escaping \ (which is normaly doubled) as single red backslash
    #+BEGIN_SRC emacs-lisp
      (use-package easy-escape
+       :ensure easy-escape
        :init (add-hook 'prog-mode-hook 'easy-escape-minor-mode)
        :config
        (progn
@@ -3107,6 +3119,7 @@
 
 
   (use-package rainbow-delimiters
+    :ensure rainbow-delimiters
     :init
     (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
 
@@ -3189,6 +3202,7 @@
    - C-x u opens the undo tree and lets you move through the tree of undo/redo
    #+BEGIN_SRC emacs-lisp 
      (use-package undo-tree
+       :ensure undo-tree
        :config
        (progn
          ;; (setq undo-tree-auto-save-history t) ;; it seems that this feature regularly causes emacs to crash, if this history file cannot be read properly
@@ -3217,6 +3231,7 @@
     #+BEGIN_SRC emacs-lisp
       ;; wrap-region
       (use-package wrap-region
+        :ensure wrap-region
         :config
         (progn
           (wrap-region-global-mode 1)
@@ -3273,12 +3288,14 @@
       - ? help
     #+BEGIN_SRC emacs-lisp
     (use-package easy-kill
+      :ensure easy-kill
       :init (global-set-key [remap kill-ring-save] 'easy-kill))
     #+END_SRC
 *** expand region
     expand / shrink region smartly
     #+BEGIN_SRC emacs-lisp
       (use-package expand-region
+        :ensure expand-region
         :after (key-chord) ;; optional, install key chords that do region expansion/shrink
         ;; :defer t ;; valid since init script registeres keys
         :init
@@ -3298,7 +3315,7 @@
 ** multicursor
    #+BEGIN_SRC emacs-lisp
        (use-package multiple-cursors
-         :after ( hydra)
+         :after ( hydra highlight-indent-guides)
          ;; bind currently does not work since some other project loads multiple cursors without req-package actually loading this!
           :bind (
                  ;; When you have an active region that spans multiple lines, the following will
@@ -3496,6 +3513,7 @@
    - https://github.com/Kungsgeten/selected.el
    #+BEGIN_SRC emacs-lisp 
      (use-package selected
+       :ensure selected
        :init (progn
          (add-hook 'org-mode-hook 'selected-minor-mode)
          (add-hook 'prog-mode-hook 'selected-minor-mode))
@@ -3706,6 +3724,7 @@
          '(company-box-candidate ((t (:foreground "gray85")))))))
 
   (use-package company
+    :after (selected)
     :ensure company
     :init (progn
       (add-hook 'after-init-hook 'global-company-mode))
@@ -3776,6 +3795,7 @@
    - provide company help for fish (or other shell) completions within modes like (fish-mode, shell-mode)
    #+BEGIN_SRC emacs-lisp
      (use-package company-shell
+       :ensure company-shell
        :after (company)
        :config (add-to-list 'company-backends 'company-shell))
    #+END_SRC
@@ -4067,6 +4087,7 @@
 ** jumplist
 #+BEGIN_SRC emacs-lisp
   (use-package jumplist
+    :after (helm helm-swoop)
     :ensure jumplist
     :bind (
     ("C-," . jumplist-previous)
@@ -4149,6 +4170,7 @@
 ** swiper
    #+BEGIN_SRC emacs-lisp
    (use-package ivy
+      :after (easy-escape)
       :ensure ivy)
    (use-package swiper
      :ensure swiper
@@ -4305,10 +4327,12 @@
 ***** >      barf in
 ***** <      barf out
   #+BEGIN_SRC emacs-lisp
+    (use-package iedit
+      :after (rainbow-identifiers))
     (use-package lispy
       :ensure lispy
      :bind (("C-1" . lispy-describe-inline)) ;; make C-1 available even without lispy mode!
-     :after ( hydra)
+     :after ( hydra iedit)
      :config
      (custom-set-faces
        '(lispy-face-hint ((t (:background "gray20" :foreground "#fff3bc")))))
@@ -5011,14 +5035,12 @@
        (setq flycheck-tip-avoid-show-func nil))
    #+END_SRC
 ** projects
-*** perspective
- #+BEGIN_SRC emacs-lisp
+*** perspective (disabled - collision with company-box)
+ #+BEGIN_SRC emacs-lisp :tangle no
    (use-package perspective
-     :ensure perspective
-     ;; switch perspective mode on, always
      :config
      (progn
-       (persp-mode 1)
+       ;; (persp-mode 1)
        (custom-set-faces
         '(persp-selected-face ((t (:foreground "Grey70")))))))
  #+END_SRC
@@ -5032,10 +5054,9 @@
    ;; (projectile-global-mode)
    )
  #+END_SRC
-*** persp-projectile
- #+BEGIN_SRC emacs-lisp
+*** persp-projectile (disabled - collision with company-box)
+ #+BEGIN_SRC emacs-lisp :tangle no
    (use-package persp-projectile
-     :ensure persp-projectile
      :after ( projectile perspective helm)
      :bind (
        ;; switch project on super-s
@@ -5142,8 +5163,8 @@
       ;; To always enable the mode when opening the magit-status buffer add magit-filenotify-mode to the magit-status-mode-hook.
 
       (use-package magit-gitflow
+        :ensure magit-gitflow
         :after ( magit)
-        :defer 40
         :init
         (add-hook 'magit-mode-hook 'turn-on-magit-gitflow))
       ;; C-f in magit status buffer will invoke gitflow action selector.
@@ -6757,7 +6778,7 @@
     #+BEGIN_SRC emacs-lisp
       (when agenda-accounts-exists
         (use-package agenda-accounts
-          :after ( org org-agenda)
+          :after ( org org-agenda helm)
           :load-path "~/.emacs.d/accounts/"
           :config
           (progn
@@ -7100,184 +7121,190 @@
     #+END_SRC
 *** org babel
     #+BEGIN_SRC emacs-lisp
-       ;; set jar path for ditaa
-       ;; sh 'brew info ditaa | grep -oe "/usr/local[^ ]*"' produces path to /usr/local/Cellar/ditaa/0.10
-       ;; within this dir the file INSTALL_RECEIPT.json exists.
-       ;; within this json file, under the key source.version.stable = '0.10' the version string is accessible
-       ;; thus the org-ditaa-jar-path can be constructed (which is true for mac os brew systems)
-       (setq org-ditaa-jar-path "/usr/local/Cellar/ditaa/0.10/libexec/ditaa0_10.jar") ;; "/usr/local/bin/ditaa"
+             ;; set jar path for ditaa
+             ;; sh 'brew info ditaa | grep -oe "/usr/local[^ ]*"' produces path to /usr/local/Cellar/ditaa/0.10
+             ;; within this dir the file INSTALL_RECEIPT.json exists.
+             ;; within this json file, under the key source.version.stable = '0.10' the version string is accessible
+             ;; thus the org-ditaa-jar-path can be constructed (which is true for mac os brew systems)
+             (setq org-ditaa-jar-path "/usr/local/Cellar/ditaa/0.10/libexec/ditaa0_10.jar") ;; "/usr/local/bin/ditaa"
 
-       ;; set sed command for org babel
-       (setq org-babel-sed-command "/usr/local/opt/gnu-sed/libexec/gnubin/sed")
+             (custom-set-faces
+              `(org-block-begin-line ((t (:underline "#A7A6AA" :height 0.8))))
+              `(org-block-end-line ((t (
+              ;; :overline "#A7A6AA"
+              :height 0.8))))
+              )
+             ;; set sed command for org babel
+             (setq org-babel-sed-command "/usr/local/opt/gnu-sed/libexec/gnubin/sed")
 
-       (setq org-src-fontify-natively t)
+             (setq org-src-fontify-natively t)
 
-       ;; (addToList org-babel-shell-names "fish")
+             ;; (addToList org-babel-shell-names "fish")
 
-       ;; do not ask for confirmation when executing functions in org babel
-       ;; (setq org-confirm-babel-evaluate nil)
-       ;; Disable confirmation question when evaluating (C-c C-c) these languages
-       (defun gb/org-confirm-babel-evaluate (lang body)
-         (not (or (string= lang "plantuml")
-                  ;; ... add more above this line when needed ...
-                  )))
-       (setq org-confirm-babel-evaluate 'gb/org-confirm-babel-evaluate)
+             ;; do not ask for confirmation when executing functions in org babel
+             ;; (setq org-confirm-babel-evaluate nil)
+             ;; Disable confirmation question when evaluating (C-c C-c) these languages
+             (defun gb/org-confirm-babel-evaluate (lang body)
+               (not (or (string= lang "plantuml")
+                        ;; ... add more above this line when needed ...
+                        )))
+             (setq org-confirm-babel-evaluate 'gb/org-confirm-babel-evaluate)
 
-       ;; redisplay images after org babel execute
-       (add-hook 'org-babel-after-execute-hook #'org-redisplay-inline-images)
+             ;; redisplay images after org babel execute
+             (add-hook 'org-babel-after-execute-hook #'org-redisplay-inline-images)
 
 
-      ;;    - original source http://www.holgerschurig.de/en/emacs-init-tangle/
-      (defun gb/speedy-emacs-init-tangle (filename)
-        "This function will write all source blocks from FILENAME into
-      ~/.emacs.d/init.el that are ...
+            ;;    - original source http://www.holgerschurig.de/en/emacs-init-tangle/
+            (defun gb/speedy-emacs-init-tangle (filename)
+              "This function will write all source blocks from FILENAME into
+            ~/.emacs.d/init.el that are ...
 
-      - not marked as =tangle: no=
-      - doesn't have the TODO state =CANCELLED=
-      - have a source-code of =emacs-lisp="
-        (require 'org)
-        (let* ((body-list ())
-               (output-file "~/.emacs.d/init.el")
-               (org-babel-default-header-args (org-babel-merge-params org-babel-default-header-args
-                                                                      (list (cons :tangle output-file)))))
-          (message "Writing %s ..." output-file)
-          (save-restriction
-            (save-excursion
-              (org-babel-map-src-blocks filename
-                                        (let* ((info (org-babel-get-src-block-info 'light))
-                                               (tfile (cdr (assq :tangle (nth 2 info))))
-                                               (match))
-                                          (save-excursion
-                                            (catch 'exit
-                                              (org-back-to-heading t)
-                                              (when (looking-at org-outline-regexp)
-                                                (goto-char (1- (match-end 0))))
-                                              (when (looking-at (concat " +" org-todo-regexp "\\( +\\|[ \t]*$\\)"))
-                                                (setq match (match-string 1)))))
-                                          (unless (or (string= "no" tfile)
-                                                      (string= "CANCELED" match)
-                                                      (not (string= "emacs-lisp" lang)))
-                                            (add-to-list 'body-list body)))))
-            (with-temp-file output-file
-              (insert (format ";; Don't edit this file, edit '%s' instead ...\n\n" filename))
-              (insert (apply 'concat (reverse body-list)))
-              (emacs-lisp-mode)
-              (condition-case nil
-                  (check-parens)
-                ;; error case is not executed even though user-error should be signaled if an error occurs
-                (user-error (with-current-buffer (generate-new-buffer "*Generated init.el*")
-                         (insert-file output-file)
-                         (emacs-lisp-mode)
-                         (check-parens)
-                         (switch-to-buffer "*Generated init.el*")))))
-            (message "Wrote %s ..." output-file))))
+            - not marked as =tangle: no=
+            - doesn't have the TODO state =CANCELLED=
+            - have a source-code of =emacs-lisp="
+              (require 'org)
+              (let* ((body-list ())
+                     (output-file "~/.emacs.d/init.el")
+                     (org-babel-default-header-args (org-babel-merge-params org-babel-default-header-args
+                                                                            (list (cons :tangle output-file)))))
+                (message "Writing %s ..." output-file)
+                (save-restriction
+                  (save-excursion
+                    (org-babel-map-src-blocks filename
+                                              (let* ((info (org-babel-get-src-block-info 'light))
+                                                     (tfile (cdr (assq :tangle (nth 2 info))))
+                                                     (match))
+                                                (save-excursion
+                                                  (catch 'exit
+                                                    (org-back-to-heading t)
+                                                    (when (looking-at org-outline-regexp)
+                                                      (goto-char (1- (match-end 0))))
+                                                    (when (looking-at (concat " +" org-todo-regexp "\\( +\\|[ \t]*$\\)"))
+                                                      (setq match (match-string 1)))))
+                                                (unless (or (string= "no" tfile)
+                                                            (string= "CANCELED" match)
+                                                            (not (string= "emacs-lisp" lang)))
+                                                  (add-to-list 'body-list body)))))
+                  (with-temp-file output-file
+                    (insert (format ";; Don't edit this file, edit '%s' instead ...\n\n" filename))
+                    (insert (apply 'concat (reverse body-list)))
+                    (emacs-lisp-mode)
+                    (condition-case nil
+                        (check-parens)
+                      ;; error case is not executed even though user-error should be signaled if an error occurs
+                      (user-error (with-current-buffer (generate-new-buffer "*Generated init.el*")
+                               (insert-file output-file)
+                               (emacs-lisp-mode)
+                               (check-parens)
+                               (switch-to-buffer "*Generated init.el*")))))
+                  (message "Wrote %s ..." output-file))))
 
-       ;; execute org babel if current major mode is org-mode
-       ;; and the file has source code regions
-       ;; and the file defines a header-args property with value :tangle ...
-       ;; if this file writes into ~/.emacs.d/init.el then gb/speedy-emacs-init-tangle is used
-       (defun gb/tangle-on-save-org-mode-file()
-         (when (string= major-mode "org-mode")
-           (progn
-             (let ((has-source-regions (gb/buffer-contains-string "^ *#\\+BEGIN_SRC"))
-                   (should-tangle (gb/buffer-contains-string "^#\\+PROPERTY: +header-args +:tangle"))
-                   (target-is-initel (gb/buffer-contains-string (concat "^#\\+PROPERTY: +header-args +:tangle +" (regexp-quote "~/.emacs.d/init.el")))))
-               (if (and has-source-regions should-tangle)
-                   (progn
-                     (when (package-installed-p 'yankpad)
-                       (remove-hook 'after-change-major-mode-hook #'yankpad-local-category-to-major-mode))
-                     (when (package-installed-p 'pretty-mode)
-                       (global-pretty-mode -1))
-                     (when ligatures-enabled
-                       (remove-hook 'prog-mode-hook
-                                    #'add-fira-code-symbol-keywords))
+             ;; execute org babel if current major mode is org-mode
+             ;; and the file has source code regions
+             ;; and the file defines a header-args property with value :tangle ...
+             ;; if this file writes into ~/.emacs.d/init.el then gb/speedy-emacs-init-tangle is used
+             (defun gb/tangle-on-save-org-mode-file()
+               (when (string= major-mode "org-mode")
+                 (progn
+                   (let ((has-source-regions (gb/buffer-contains-string "^ *#\\+BEGIN_SRC"))
+                         (should-tangle (gb/buffer-contains-string "^#\\+PROPERTY: +header-args +:tangle"))
+                         (target-is-initel (gb/buffer-contains-string (concat "^#\\+PROPERTY: +header-args +:tangle +" (regexp-quote "~/.emacs.d/init.el")))))
+                     (if (and has-source-regions should-tangle)
+                         (progn
+                           (when (package-installed-p 'yankpad)
+                             (remove-hook 'after-change-major-mode-hook #'yankpad-local-category-to-major-mode))
+                           (when (package-installed-p 'pretty-mode)
+                             (global-pretty-mode -1))
+                           (when ligatures-enabled
+                             (remove-hook 'prog-mode-hook
+                                          #'add-fira-code-symbol-keywords))
 
-                     (message "executing org-babel-tangle ...")
-                     (if target-is-initel
-                         (gb/speedy-emacs-init-tangle (buffer-file-name))
-                       (let ((inhibit-message t))
-                         (org-babel-tangle)))
-                     (message "executing org-babel-tangle ... done.")
+                           (message "executing org-babel-tangle ...")
+                           (if target-is-initel
+                               (gb/speedy-emacs-init-tangle (buffer-file-name))
+                             (let ((inhibit-message t))
+                               (org-babel-tangle)))
+                           (message "executing org-babel-tangle ... done.")
 
-                     (when ligatures-enabled
-                       (add-hook 'prog-mode-hook
-                                 #'add-fira-code-symbol-keywords))
-                     ;; check whether readonly should be applied again
-                     ;; only if currently not in detailed edit mode
-                     (gb/activate-properties-in-org-mode)
-                     ;; the following currently takes about 3 seconds (which I don't want to spend)
-                     ;;(when (package-installed-p 'pretty-mode)
-                     ;;  (global-pretty-mode 1))
-                     (when (package-installed-p 'yankpad)
-                       (add-hook 'after-change-major-mode-hook #'yankpad-local-category-to-major-mode))))))))
+                           (when ligatures-enabled
+                             (add-hook 'prog-mode-hook
+                                       #'add-fira-code-symbol-keywords))
+                           ;; check whether readonly should be applied again
+                           ;; only if currently not in detailed edit mode
+                           (gb/activate-properties-in-org-mode)
+                           ;; the following currently takes about 3 seconds (which I don't want to spend)
+                           ;;(when (package-installed-p 'pretty-mode)
+                           ;;  (global-pretty-mode 1))
+                           (when (package-installed-p 'yankpad)
+                             (add-hook 'after-change-major-mode-hook #'yankpad-local-category-to-major-mode))))))))
 
-       ;; execute org babel on safe (if major mode is org-mode
-       (add-hook 'after-save-hook 'gb/tangle-on-save-org-mode-file)
+             ;; execute org babel on safe (if major mode is org-mode
+             (add-hook 'after-save-hook 'gb/tangle-on-save-org-mode-file)
 
-       ;; set default header args for plantuml
-       (setq org-babel-default-header-args:PlantUML
-             '((:results . "file") (:exports . "results") (:noweb . "yes") (:cmdline . "-charset UTF-8")))
+             ;; set default header args for plantuml
+             (setq org-babel-default-header-args:PlantUML
+                   '((:results . "file") (:exports . "results") (:noweb . "yes") (:cmdline . "-charset UTF-8")))
 
-       ;; use cider as backend for clojure
-       (setq org-babel-clojure-backend (quote cider))
+             ;; use cider as backend for clojure
+             (setq org-babel-clojure-backend (quote cider))
 
-       ;; function is renamed to ...x (since it should not collide with impl. in org)
-       (require 'ob-clojure) ;; load this first, then define the new function
-       (defun org-babel-execute:clojure (body params)
-         "Execute a block of Clojure code with Babel. Changes by GB"
-         (let ((expanded (org-babel-expand-body:clojure body params))
-               result)
-           (cl-case org-babel-clojure-backend
-             (cider
-              (require 'cider)
-              (let ((result-params (cdr (assq :result-params params))))
-                (setq result
-                      (nrepl-dict-get
-                       (nrepl-sync-request:eval
-                        expanded (cider-current-connection)) ;; <------------- change in cider api
-                       (if (or (member "output" result-params)
-                               (member "pp" result-params))
-                           "out"
-                         "value")))))
-             (slime
-              (require 'slime)
-              (with-temp-buffer
-                (insert expanded)
-                (setq result
-                      (slime-eval
-                       `(swank:eval-and-grab-output
-                         ,(buffer-substring-no-properties (point-min) (point-max)))
-                       (cdr (assq :package params)))))))
-           (org-babel-result-cond (cdr (assq :result-params params))
-             result
-             (condition-case nil (org-babel-script-escape result)
-               (error result)))))
+             ;; function is renamed to ...x (since it should not collide with impl. in org)
+             (require 'ob-clojure) ;; load this first, then define the new function
+             (defun org-babel-execute:clojure (body params)
+               "Execute a block of Clojure code with Babel. Changes by GB"
+               (let ((expanded (org-babel-expand-body:clojure body params))
+                     result)
+                 (cl-case org-babel-clojure-backend
+                   (cider
+                    (require 'cider)
+                    (let ((result-params (cdr (assq :result-params params))))
+                      (setq result
+                            (nrepl-dict-get
+                             (nrepl-sync-request:eval
+                              expanded (cider-current-connection)) ;; <------------- change in cider api
+                             (if (or (member "output" result-params)
+                                     (member "pp" result-params))
+                                 "out"
+                               "value")))))
+                   (slime
+                    (require 'slime)
+                    (with-temp-buffer
+                      (insert expanded)
+                      (setq result
+                            (slime-eval
+                             `(swank:eval-and-grab-output
+                               ,(buffer-substring-no-properties (point-min) (point-max)))
+                             (cdr (assq :package params)))))))
+                 (org-babel-result-cond (cdr (assq :result-params params))
+                   result
+                   (condition-case nil (org-babel-script-escape result)
+                     (error result)))))
 
-       ;; enable all languages listed below within org babel
-       (when (version<= "9.0.5" (org-version))
-         (require 'ob-clojurescript)
-         (org-babel-do-load-languages
-          'org-babel-load-languages
-          '((java . t)
-            (clojure . t)
-            (clojurescript . t)
-            (ditaa . t)
-            (dot . t)
-            (elixir . t)
-            (emacs-lisp . t)
-            (gnuplot . t)
-            (groovy . t)
-            (latex . t) ;; needs org-edit-latex
-            ;; (max . t) ;; maxima
-            (plantuml . t)
-            ;; (prolog . t)
-            (python . t)
-            ;; (scala . t)
-            (scheme . t)
-            (sed . t)
-            (shell . t)
-            ;; (sml . t) ;; standard ml
-            (sql . t))))
+             ;; enable all languages listed below within org babel
+             (when (version<= "9.0.5" (org-version))
+               ;; (require 'ob-clojurescript)
+               (org-babel-do-load-languages
+                'org-babel-load-languages
+                '((java . t)
+                  (clojure . t)
+                  ;; (clojurescript . t)
+                  (ditaa . t)
+                  (dot . t)
+                  ;; (elixir . t)
+                  (emacs-lisp . t)
+                  (gnuplot . t)
+                  (groovy . t)
+                  (latex . t) ;; needs org-edit-latex
+                  ;; (max . t) ;; maxima
+                  (plantuml . t)
+                  ;; (prolog . t)
+                  (python . t)
+                  ;; (scala . t)
+                  (scheme . t)
+                  (sed . t)
+                  (shell . t)
+                  ;; (sml . t) ;; standard ml
+                  (sql . t))))
 
     #+END_SRC
 **** org babel clojurescript
@@ -7386,7 +7413,7 @@
     - headers of org tables stay in the header line while scrolling them out of view
     #+BEGIN_SRC emacs-lisp
       (use-package org-table-sticky-header
-        :defer 10
+        :ensure org-table-sticky-header
         :after ( org)
         :init
         (progn (add-hook 'org-mode-hook 'org-table-sticky-header-mode)))
@@ -7396,6 +7423,9 @@
     - executing M-x org-store-link within pdf-view-mode, will store a link that can be inserted into org mode via C-c C-l
     - when opening this link, pdf-view-mode is opened instead of system default pdf viewer!
     #+BEGIN_SRC emacs-lisp
+      (use-package org-pdfview
+        :ensure org-pdfview
+        :after (org pdf-tools))
       (progn
         (defun ensure-org-pdfview ()
           "ensure that package org-pdfview is loaded"
@@ -7540,11 +7570,12 @@
     :ensure async) ;; TODO: add all async requirements, otherwise this will not work
   (use-package popup
     :ensure popup)
-  ;;(use-package helm-core
-  ;;  :after ( async))
+  (use-package helm-core
+    :ensure helm-core
+    :after ( async))
   (use-package helm
     :ensure helm
-    :after ( async popup)
+    :after ( async popup rainbow-delimiters)
     :bind (("M-x" . helm-M-x)
            ("C-x C-f" . helm-find-files)
            ("s-f" . helm-for-files)
@@ -8008,7 +8039,8 @@
   versions can be ediffed with the current
 #+BEGIN_SRC emacs-lisp
   (use-package helm-backup
-    :defer 10
+    :ensure helm-backup
+    :after (helm)
     :init
     (add-hook 'after-save-hook 'helm-backup-versioning))
 #+END_SRC
@@ -8281,7 +8313,7 @@
       (use-package exwm
         :ensure exwm)
       (use-package exwm-config
-        :after ( exwm helm-external helm-mode)
+        :after ( exwm helm-external helm)
         :config
         (exwm-config-default)
 
