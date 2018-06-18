@@ -5801,6 +5801,8 @@
      :ensure elfeed
      :commands elfeed
      :bind (:map elfeed-search-mode-map
+            ("l" . recenter-top-bottom)
+            :map elfeed-show-mode-map
             ("l" . recenter-top-bottom))
      :config
      (progn
@@ -5873,7 +5875,11 @@
        (setq elfeed-goodies/entry-pane-size 0.5)
        (setq elfeed-goodies/powerline-default-separator (quote bar))
        (setq elfeed-goodies/tag-column-width 30)
-       (elfeed-goodies/setup)))
+       (elfeed-goodies/setup)
+       ;; overwrite default function of elfeed goodies. elfeed maps this to M-v upon mode init
+       (defun elfeed-goodies/show-ace-link ()
+         (interactive)
+         (scroll-down-command))))
  #+END_SRC
 ** gnus (mail)
 *** gnu-firstentry
