@@ -11,6 +11,9 @@
 #     just answer the upcoming question whether to compile pdf-tools with 'yes'
 #     and wait until buffer *compile pdf-tools* reports compilation finished
 #     restart emacs: the error should not come up any more!
+#   - on autoinstall, installation may stop after xelb:
+#     execute '(kill-emacs)' and restart emacs, after that exwm should
+#     should be installed and all further installation should complete
 #
 # make sure to take a look at the message buffer
 #   - entries with 'preinstall' mark packages that are installed up front
@@ -8320,10 +8323,14 @@
   - [[https://github.com/ch11ng/exwm/wiki/Configuration-example][example configuration]]
   #+BEGIN_SRC emacs-lisp
     (when gb/use-exwm
+      (use-package xelb
+        :after (helm-external helm ace-window windmove)
+        :ensure xelb)
       (use-package exwm
+        :after (xelb)
         :ensure exwm)
       (use-package exwm-config
-        :after ( exwm helm-external helm)
+        :after ( exwm )
         :config
         (exwm-config-default)
 
@@ -8676,6 +8683,7 @@
    - see here
    #+BEGIN_SRC emacs-lisp
    (use-package pcre2el
+     :ensure pcre2el
      :config (pcre-mode 1))
    #+END_SRC
 ** helm-exwm (allow for helm based change of exwm buffers)
