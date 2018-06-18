@@ -9170,8 +9170,8 @@
        :config
        (setq ranger-hide-cursor nil))
    #+END_SRC
-** neotree
-   #+BEGIN_SRC emacs-lisp
+** neotree (deactivated)
+   #+BEGIN_SRC emacs-lisp :tangle no
      (use-package neotree
        :config
          (progn
