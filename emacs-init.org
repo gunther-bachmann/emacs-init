@@ -1433,67 +1433,73 @@
    #+END_SRC
 ** font related stuff
    #+BEGIN_SRC emacs-lisp
-     (setq gb/default-font "Source Code Pro")
-     ;; (setq gb/default-font "Fira Code")
-     ;; (setq gb/default-font "Cousine")
+   (setq font-lock-support-mode 'jit-lock-mode)
+   (setq jit-lock-stealth-time 16
+         jit-lock-defer-contextually t
+         jit-lock-stealth-nice 0.5)
+   (setq-default font-lock-multiline t)
 
-     (when (not (member gb/default-font (font-family-list)))
-       (message (concat "WARNING: expected font '" gb/default-font "' not found in available font list.")))
+   (setq gb/default-font "Source Code Pro")
+   ;; (setq gb/default-font "Fira Code")
+   ;; (setq gb/default-font "Cousine")
 
-     (require 'ht)
-     (defun gb/get-font-heights (display-width win-system)
-       "Get font heights depending on display width"
-       (if (memq win-system '(mac ns))
-           (cond ((> display-width 3400)
-                  (ht ('default-height 150) ('variable-pitch-height 160)))
-                 ((ht ('default-height 130) ('variable-pitch-height 140))))
+   (when (not (member gb/default-font (font-family-list)))
+     (message (concat "WARNING: expected font '" gb/default-font "' not found in available font list.")))
+
+   (require 'ht)
+   (defun gb/get-font-heights (display-width win-system)
+     "Get font heights depending on display width"
+     (if (memq win-system '(mac ns))
          (cond ((> display-width 3400)
-                (ht ('default-height 120) ('variable-pitch-height 130)))
-               ((ht ('default-height 100) ('variable-pitch-height 110))))))
+                (ht ('default-height 150) ('variable-pitch-height 160)))
+               ((ht ('default-height 130) ('variable-pitch-height 140))))
+       (cond ((> display-width 3400)
+              (ht ('default-height 120) ('variable-pitch-height 130)))
+             ((ht ('default-height 100) ('variable-pitch-height 110))))))
 
-     (defun gb/get-font-weights (win-system)
-       "Get font weights depending on windowing system"
-       (if (memq win-system '(mac ns))
-           (ht ('default-weight 'light) ('variable-pitch-weight 'regular))
-         (ht ('default-weight 'regular) ('variable-pitch-weight 'regular))))
+   (defun gb/get-font-weights (win-system)
+     "Get font weights depending on windowing system"
+     (if (memq win-system '(mac ns))
+         (ht ('default-weight 'light) ('variable-pitch-weight 'regular))
+       (ht ('default-weight 'regular) ('variable-pitch-weight 'regular))))
 
+   (setq gb/setup-main-fonts-needs-execution t)
+   (defun gb/setup-main-fonts (&optional frame)
+     "Set up default fonts.
+
+     Use DEFAULT-HEIGHT for default face and VARIABLE-PITCH-HEIGHT
+     for variable-pitch face."
+     (if gb/setup-main-fonts-needs-execution
+         (let* ((attr-map (ht-merge (gb/get-font-heights (x-display-pixel-width) window-system)
+                                    (gb/get-font-weights window-system))))
+           (message "setting up default fonts")
+           (message (format "display pixel width %d" (x-display-pixel-width)))
+           (set-face-attribute 'default nil
+                               :family gb/default-font
+                               :height (ht-get attr-map 'default-height)
+                               :weight (ht-get attr-map 'default-weight))
+           (set-face-attribute 'variable-pitch nil
+                               ;; :family "Fira Sans"
+                               :height (ht-get attr-map 'variable-pitch-height)
+                               :weight (ht-get attr-map 'variable-pitch-weight))
+           (setq gb/setup-main-fonts-needs-execution nil))))
+
+   (defun gb/reset-main-fonts ()
+     "reinitialize fonts e.g. if resolution changed etc."
+     (interactive)
      (setq gb/setup-main-fonts-needs-execution t)
-     (defun gb/setup-main-fonts (&optional frame)
-       "Set up default fonts.
+     (gb/setup-main-fonts))
 
-       Use DEFAULT-HEIGHT for default face and VARIABLE-PITCH-HEIGHT
-       for variable-pitch face."
-       (if gb/setup-main-fonts-needs-execution
-           (let* ((attr-map (ht-merge (gb/get-font-heights (x-display-pixel-width) window-system)
-                                      (gb/get-font-weights window-system))))
-             (message "setting up default fonts")
-             (message (format "display pixel width %d" (x-display-pixel-width)))
-             (set-face-attribute 'default nil
-                                 :family gb/default-font
-                                 :height (ht-get attr-map 'default-height)
-                                 :weight (ht-get attr-map 'default-weight))
-             (set-face-attribute 'variable-pitch nil
-                                 ;; :family "Fira Sans"
-                                 :height (ht-get attr-map 'variable-pitch-height)
-                                 :weight (ht-get attr-map 'variable-pitch-weight))
-             (setq gb/setup-main-fonts-needs-execution nil))))
+   ;; (gb/setup-main-fonts)
+   (gb/do-after-display-system-init (gb/setup-main-fonts))
+   ;;(add-hook 'after-make-frame-functions #'gb/setup-main-fonts)
+   ;;(add-hook 'focus-in-hook #'gb/setup-main-fonts)
+   ;;(when (display-graphic-p)
+   ;;  (gb/setup-main-fonts))
 
-     (defun gb/reset-main-fonts ()
-       "reinitialize fonts e.g. if resolution changed etc."
-       (interactive)
-       (setq gb/setup-main-fonts-needs-execution t)
-       (gb/setup-main-fonts))
-
-     ;; (gb/setup-main-fonts)
-     (gb/do-after-display-system-init (gb/setup-main-fonts))
-     ;;(add-hook 'after-make-frame-functions #'gb/setup-main-fonts)
-     ;;(add-hook 'focus-in-hook #'gb/setup-main-fonts)
-     ;;(when (display-graphic-p)
-     ;;  (gb/setup-main-fonts))
-
-     ;; (if after-init-time
-     ;;     (gb/setup-main-fonts)
-     ;;   (add-hook 'after-init-hook 'gb/setup-main-fonts))
+   ;; (if after-init-time
+   ;;     (gb/setup-main-fonts)
+   ;;   (add-hook 'after-init-hook 'gb/setup-main-fonts))
 
    #+END_SRC
    - install ligatures via fira code symbol (had to install [[https://github.com/tonsky/FiraCode/files/412440/FiraCode-Regular-Symbol.zip][fira code symbol]] for the following to work)
@@ -6973,20 +6979,20 @@
     #+END_SRC
 *** org bullets
  #+BEGIN_SRC emacs-lisp
-   (use-package org-bullets
-     :ensure org-bullets
-     :after ( org)
-     :init
-     (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
-     :config
-     (setq org-bullets-bullet-list '("●" "￮" "◉" "◦" "∙" "⚬" "❍" "◎" "○" "◌" "◎" "◯" "○" "☉" "⚪" "⊙" "⊚" "⊛" "⚫" "∘"))
-     ;; override fontify buffer of org-bullets, since it forces fontifying again, which was already done => waste of time
-     (defun org-bullets--fontify-buffer ()
-       (when font-lock-mode
-         (if (and (fboundp 'font-lock-flush)
-                (fboundp 'font-lock-ensure))
-             (with-no-warnings
-               (font-lock-fontify-buffer))))))
+ (use-package org-bullets
+   :ensure org-bullets
+   :after ( org)
+   :init
+   (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
+   :config
+   (setq org-bullets-bullet-list '("●" "￮" "◉" "◦" "∙" "⚬" "◯" "◎" "○" "◌" "◎" "○" "☉" "⚪" "⊙" "❍" "⊚" "⊛" "⚫" "∘"))
+   ;; override fontify buffer of org-bullets, since it forces fontifying again, which was already done => waste of time
+   (defun org-bullets--fontify-buffer ()
+     (when font-lock-mode
+       (if (and (fboundp 'font-lock-flush)
+              (fboundp 'font-lock-ensure))
+           (with-no-warnings
+             (font-lock-fontify-buffer))))))
  #+END_SRC
 *** level 3
 **** level 4
@@ -7151,6 +7157,8 @@
              (setq org-babel-sed-command "/usr/local/opt/gnu-sed/libexec/gnubin/sed")
 
              (setq org-src-fontify-natively t)
+             (setq org-src-tab-acts-natively t)
+             (setq org-edit-src-content-indentation 0)
 
              ;; (addToList org-babel-shell-names "fish")
 
