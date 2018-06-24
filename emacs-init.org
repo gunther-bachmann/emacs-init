@@ -8537,6 +8537,29 @@
 
   #+END_SRC
 * currently evaluated
+** posframe (disabled)
+   - posframe allows floating frames to be displayed at point position
+   #+BEGIN_SRC emacs-lisp
+   (use-package posframe)
+   #+END_SRC
+** flycheck-posframe
+   - display flycheck results in posframe (as floating frame at point position)
+   - enable via 'flycheck-posframe-mode' (not enabled by default)
+   #+BEGIN_SRC emacs-lisp
+   (use-package flycheck-posframe
+     :after (posframe))
+   #+END_SRC
+** helm-posframe (disabled)
+   - show helm completion in a posframe
+   - disabled because it is
+     - not displayed at point position but at the bottom of the screen
+     - it provides only a couple of lines for candidate selection
+     - it has incompatibilities with exwm when running a graphical application (cannot s-b)
+   #+BEGIN_SRC emacs-lisp :tangle no
+   (use-package helm-posframe
+     :after (helm posframe)
+     :init (helm-posframe-enable))
+   #+END_SRC
 ** flycheck-package (elisp packages)
    #+BEGIN_SRC emacs-lisp
    (use-package flycheck-package
