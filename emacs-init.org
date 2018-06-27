@@ -8386,7 +8386,10 @@
       (defun gb/wrap-in-exwm-reset (interactive-function)
         "run exwm reset right before calling the given function"
         (interactive)
-        (exwm-reset)
+        (when (and exwm-class-name
+                   (or ;; (string= exwm-class-name "Chromium")
+                    (string= (downcase exwm-class-name) "eclipse")))
+          (exwm-reset))
         (funcall interactive-function))
 
       ;; switch buffers
