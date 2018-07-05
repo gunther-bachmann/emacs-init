@@ -5219,6 +5219,14 @@
 
 
  #+END_SRC
+*** magit todo
+    - shows todos within the source code in magit overview
+     #+BEGIN_SRC emacs-lisp
+     (use-package magit-todos
+       :ensure magit-todos
+       :after (a anaphora async dash f hl-todo magit pcre2el s)
+       :config (magit-todos-mode))
+     #+END_SRC
 *** magit imerge
     - will allow for incremental merges
     - adds 'i' on the merge popup itself for starting incremental merges
