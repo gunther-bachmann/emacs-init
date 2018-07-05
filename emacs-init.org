@@ -9267,6 +9267,7 @@
          (setq projectile-switch-project-action 'neotree-projectile-action)))
    #+END_SRC
 * to test
+** company-posframe (company in separate frame, alternative to company box?)
 ** exwm-edit (allow to edit any editable field within exwm into a separate buffer just as atomic-chrome)
 ** company-nginx (allow for company completion of nginx files)
 ** rustic (major mode for rust)
