@@ -474,65 +474,71 @@
 * own utility functions
 ** misc
    #+BEGIN_SRC emacs-lisp
-     (setq async-shell-command-display-buffer nil) ;; make sure that the async command does not open a result buffer
-     (defun available-keys ()
-       "return a list of ids for which the private key is known"
-       (remove-if 'string-empty-p (s-split "\n" (shell-command-to-string "gpg -Kq 2> /dev/null | grep -e \"^uid\" | awk '{ print $5; }'"))))
+   (setq async-shell-command-display-buffer nil) ;; make sure that the async command does not open a result buffer
+   (defun available-keys ()
+     "return a list of ids for which the private key is known"
+     (remove-if 'string-empty-p (s-split "\n" (shell-command-to-string "gpg -Kq 2> /dev/null | grep -e \"^uid\" | awk '{ print $5; }'"))))
 
-     (defun gb/cache-gpg (prompt)
-       "cache gpg password for the standard key or the selected key if the universal argument was provided"
-       (interactive "P")
-       (require 'ivy)
-       (if prompt
-           (progn
-             (let ((keyId (ivy-read "email: " (--map (string-trim it "<" ">") (available-keys)))))
-               (async-shell-command (concat "echo \"ok\" | gpg -s -u \"" keyId "\" &> /dev/null" nil nil))))
-         (async-shell-command "echo \"ok\" | gpg -s &> /dev/null" nil nil)))
+   (defun gb/cache-gpg (prompt)
+     "cache gpg password for the standard key or the selected key if the universal argument was provided"
+     (interactive "P")
+     (require 'ivy)
+     (if prompt
+         (progn
+           (let ((keyId (ivy-read "email: " (--map (string-trim it "<" ">") (available-keys)))))
+             (gb/cache-gpg-key keyId)))
+       (gb/cache-gpg-key)))
 
-     (defun re-seq (regexp string &optional matchpos)
-       "Get a list of all regexp matches in a string, use matchpos as group index if groups are used!"
-       (save-match-data
-         (let ((pos-to-match (or matchpos 0))
-               (pos 0)
-               matches)
-           (while (string-match regexp string pos)
-             (push (match-string pos-to-match string) matches)
-             (setq pos (match-end 0)))
-           matches)))
-     (rx-to-string `(: bos "prefix"))
-     (ert-deftest re-seq-test ()
-       "test re-seq (only)"
-       (should (let* ((result (re-seq  "\\([0-9]+\\)" "some31and4other")))
-                 (and (member "4" result)
-                      (member "31" result)
-                      (= 2 (length result)))))
-       (should (let* ((result (re-seq  "\\([0-9]+\\)and" "some31and4aother")))
-                 (and (member "31and" result)
-                      (= 1 (length result)))))
-       (should (let* ((result (re-seq  "\\([0-9]+\\)and" "some31and4aother" 1)))
-                 (and (member "31" result)
-                      (= 1 (length result))))))
+   (defun gb/cache-gpg-key (&optional keyId)
+     ""
+     (if keyId
+         (async-shell-command (concat "echo \"ok\" | gpg -s -u \"" keyId "\" &> /dev/null" nil nil))
+       (async-shell-command "echo \"ok\" | gpg -s &> /dev/null" nil nil)))
 
-     (defun file-name-from-current-dir (file-name)
-       "get given file in the directory of the file currently active"
-       (concat (file-name-directory (file-truename (or (concat  "./" file-name) (buffer-file-name (current-buffer))))) file-name))
+   (defun re-seq (regexp string &optional matchpos)
+     "Get a list of all regexp matches in a string, use matchpos as group index if groups are used!"
+     (save-match-data
+       (let ((pos-to-match (or matchpos 0))
+             (pos 0)
+             matches)
+         (while (string-match regexp string pos)
+           (push (match-string pos-to-match string) matches)
+           (setq pos (match-end 0)))
+         matches)))
+   (rx-to-string `(: bos "prefix"))
+   (ert-deftest re-seq-test ()
+     "test re-seq (only)"
+     (should (let* ((result (re-seq  "\\([0-9]+\\)" "some31and4other")))
+               (and (member "4" result)
+                    (member "31" result)
+                    (= 2 (length result)))))
+     (should (let* ((result (re-seq  "\\([0-9]+\\)and" "some31and4aother")))
+               (and (member "31and" result)
+                    (= 1 (length result)))))
+     (should (let* ((result (re-seq  "\\([0-9]+\\)and" "some31and4aother" 1)))
+               (and (member "31" result)
+                    (= 1 (length result))))))
+
+   (defun file-name-from-current-dir (file-name)
+     "get given file in the directory of the file currently active"
+     (concat (file-name-directory (file-truename (or (concat  "./" file-name) (buffer-file-name (current-buffer))))) file-name))
 
 
-     (defun get-buffer-file-matching-extension (extension-regex)
-       "get all buffers that are associated with a file matching the given extension"
-       (--filter (string-match extension-regex (or (file-name-extension it) ""))
-                 (remove-if 'null (mapcar 'buffer-file-name (buffer-list)))))
+   (defun get-buffer-file-matching-extension (extension-regex)
+     "get all buffers that are associated with a file matching the given extension"
+     (--filter (string-match extension-regex (or (file-name-extension it) ""))
+               (remove-if 'null (mapcar 'buffer-file-name (buffer-list)))))
 
-     (defun get-visible-buffer-file-matching-extension (extension-regex)
-       "get all buffers visible that are associated with a file matching the given extension"
-       (--filter (string-match extension-regex (or (file-name-extension it) ""))
-                 (remove-if 'null  (mapcar 'buffer-file-name (mapcar 'window-buffer (window-list))))))
+   (defun get-visible-buffer-file-matching-extension (extension-regex)
+     "get all buffers visible that are associated with a file matching the given extension"
+     (--filter (string-match extension-regex (or (file-name-extension it) ""))
+               (remove-if 'null  (mapcar 'buffer-file-name (mapcar 'window-buffer (window-list))))))
 
-     (defun spit (contents file-name)
-       "Write the given contents into the given file"
-       (with-temp-buffer 
-         (insert contents)
-         (write-file file-name)))
+   (defun spit (contents file-name)
+     "Write the given contents into the given file"
+     (with-temp-buffer
+       (insert contents)
+       (write-file file-name)))
 
 
    #+END_SRC
@@ -5893,43 +5899,57 @@
 ** gnus (mail)
 *** gnu-firstentry
  #+BEGIN_SRC emacs-lisp
-     ;; add support to send from different smtp accounts
-     ;; do this before custom variables are set, otherwise send-mail-function won't be set correctly!
-     (use-package smtpmail-multi)
+ ;; add support to send from different smtp accounts
+ ;; do this before custom variables are set, otherwise send-mail-function won't be set correctly!
+ (use-package smtpmail-multi)
 
-     ;; closed by gnu-lastentry!
-     (use-package gnus
-      :commands gnus
-      :after ( smtpmail-multi mm-decode hydra bbdb)
-      :bind (
-        :map gnus-group-mode-map
-        ("<f1>" . hydra-gnus-group/body)
-        ("C-c b l" . gnus-bookmark-bmenu-list)
-        :map gnus-summary-mode-map
-        ("<f1>" . hydra-gnus-summary/body)
-        ("C-c b l" . gnus-bookmark-bmenu-list)
-        ("C-c b m" . gnus-bookmark-set)
-        ("C-c b s" . gnus-bookmark-set)
-        :map gnus-article-edit-mode-map
-        ("<f1>" . hydra-gnus-article-mime-part/body)
-        :map gnus-article-mode-map
-        ("<f1>" . hydra-gnus-article-mime-part/body)
-        ("C-c b l" . gnus-bookmark-bmenu-list)
-        :map message-mode-map
-        ("<f1>" . hydra-gnus-article-mime-part/body)
-      )
-      :init  (progn
-        ;; Sign messages by default
-        (add-hook 'message-setup-hook 'mml-secure-sign-pgpmime)
-   ;; make sure that truncate lines is off and word wrap is on when viewing articels
-   (add-hook 'gnus-article-mode-hook
-     (lambda ()
-       (setq
-         fill-column 60
-         truncate-lines nil
-         word-wrap t)))
-        )
-      :config ;; closing bracket follows way down !
+ ;; closed by gnu-lastentry!
+ (use-package gnus
+   :commands gnus
+   :after ( smtpmail-multi mm-decode hydra bbdb)
+   :bind (
+          :map gnus-group-mode-map
+          ("<f1>" . hydra-gnus-group/body)
+          ("C-c b l" . gnus-bookmark-bmenu-list)
+          :map gnus-summary-mode-map
+          ("<f1>" . hydra-gnus-summary/body)
+          ("C-c b l" . gnus-bookmark-bmenu-list)
+          ("C-c b m" . gnus-bookmark-set)
+          ("C-c b s" . gnus-bookmark-set)
+          :map gnus-article-edit-mode-map
+          ("<f1>" . hydra-gnus-article-mime-part/body)
+          :map gnus-article-mode-map
+          ("<f1>" . hydra-gnus-article-mime-part/body)
+          ("C-c b l" . gnus-bookmark-bmenu-list)
+          :map message-mode-map
+          ("<f1>" . hydra-gnus-article-mime-part/body)
+          ("TAB" . company-try-hard)
+          )
+   :init  (progn
+            ;; Sign messages by default
+            (add-hook 'message-setup-hook 'mml-secure-sign-pgpmime)
+
+            (defun gb/cache-sender-key ()
+              "cache the gpg key based on the from field of this message"
+              (interactive)
+
+              (save-excursion
+                (save-restriction
+                  (message-narrow-to-headers)
+                  (let ((from (message-fetch-field "from")))
+                    (message (concat "cache password for " from))
+                    (gb/cache-gpg-key from)))))
+
+            (add-hook 'gnus-message-setup-hook 'gb/cache-sender-key)
+
+            ;; make sure that truncate lines is off and word wrap is on when viewing articels
+            (add-hook 'gnus-article-mode-hook
+                      (lambda ()
+                        (setq
+                         fill-column 60
+                         truncate-lines nil
+                         word-wrap t))))
+   :config ;; closing bracket follows way down !
  #+END_SRC
 *** hydra
     #+BEGIN_SRC emacs-lisp
