@@ -150,9 +150,6 @@
 ** PLANNED explore org-contacts as bbdb replacement (look [[https://julien.danjou.info/projects/emacs-packages#org-contacts][here]] and [[http://kitchingroup.cheme.cmu.edu/blog/2016/12/22/context-specific-org-mode-speed-keys/?utm_source=feedburner&utm_medium=twitter&utm_campaign=feed:+thekitchinresearchgroup+(the+kitchin+research+group)][here]])
 ** PLANNED add additional modes to store linenumbers when capturing
    [[file:~/.emacs.d/init.el::org-file-lineno-store-link][file:~/.emacs.d/init.el::org-file-lineno-store-link]]
-** PLANNED install xcape into the linux installtions to allow for using space as control where possible
-   - configuring needs to be streamlined to allow space-down key-down key-up space-up to work as control
-   - all other uses (especially space-down key-down space-up key-up should function as space then key) should work as with normal space mapping
 ** PLANNED rebind C-x C-k keymacros to some other binding (since C-x C-k is used for killing buffers and windows)
 ** PLANNED define additional capture templates
    [[file:~/.emacs.d/init.el::org-capture-templates][file:~/.emacs.d/init.el::org-capture-templates]]
@@ -160,6 +157,10 @@
    - see http://mbork.pl/2015-10-31_Smart_comma_and_other_punctuation
 ** PLANNED define hydra for dired
 ** PLANNED define hydra for pdf-tools
+** DONE install xcape into the linux installtions to allow for using space as control where possible
+   - State "DONE"       from "PLANNED"    [2018-07-07 Sat 21:56]
+   - configuring needs to be streamlined to allow space-down key-down key-up space-up to work as control
+   - all other uses (especially space-down key-down space-up key-up should function as space then key) should work as with normal space mapping
 ** DONE check magit ediffing with exwm, seems to have trouble with control window!
    - State "DONE"       from "TODO"       [2017-11-16 Thu 06:52]
 ** DONE synchronise linux and mac os x init
@@ -9275,6 +9276,11 @@
          (setq projectile-switch-project-action 'neotree-projectile-action)))
    #+END_SRC
 * to test
+** deadgrep - ripgrep front end
+** helm-tail - tailing of several sources
+** lsp-html - lsp frontend for html serving
+** project-abbrev - project specific abbrev expansion
+** template-overlays - overlays for template regions
 ** company-posframe (company in separate frame, alternative to company box?)
 ** exwm-edit (allow to edit any editable field within exwm into a separate buffer just as atomic-chrome)
 ** company-nginx (allow for company completion of nginx files)
