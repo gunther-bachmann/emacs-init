@@ -7188,7 +7188,7 @@
      ;; within this dir the file INSTALL_RECEIPT.json exists.
      ;; within this json file, under the key source.version.stable = '0.10' the version string is accessible
      ;; thus the org-ditaa-jar-path can be constructed (which is true for mac os brew systems)
-     (setq org-ditaa-jar-path "/usr/local/Cellar/ditaa/0.10/libexec/ditaa0_10.jar") ;; "/usr/local/bin/ditaa"
+     (setq org-ditaa-jar-path "/usr/share/java/ditaa/ditaa-0_10.jar") ;; "/usr/local/bin/ditaa"
 
      (custom-set-faces
       `(org-block-begin-line ((t ( ;;:underline "#A7A6AA"
