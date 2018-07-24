@@ -8468,10 +8468,10 @@
                        :del-input nil
                        :name "External Commands"
                        :history helm-external-command-history)))
-        (exwm-reset)
+        ;; (exwm-reset)
         (if (-contains? (gb/exwm-distinct-exwm-buffer-names) program)
             (exwm-workspace-switch-to-buffer (capitalize program))
-          (exwm-reset) ;; make sure that keyboard is no longer captured
+          ;; (exwm-reset) ;; make sure that keyboard is no longer captured
           (helm-run-external-command program)))
 
       ;; start programs
