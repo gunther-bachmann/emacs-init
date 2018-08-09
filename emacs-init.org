@@ -242,6 +242,7 @@
   #+BEGIN_SRC emacs-lisp
     ;; must be set before loading use-package in order to work
     (setq use-package-enable-imenu-support t) ;; enable locating package loaded by use-package within init.el
+    (setq running-nixos nil)
   #+END_SRC
 * initial function setup
   #+BEGIN_SRC emacs-lisp
@@ -1036,89 +1037,91 @@
 * check installation status of programs (*nix)
   - make sure this is done, after path is properly setup (mac os problem)
   #+BEGIN_SRC emacs-lisp
-    (setq gb/use-exwm (string= "ok" (s-trim (shell-command-to-string "cat ~/.xinitrc | grep -q -e '^ *exec .*emacs' && echo 'ok'"))))
-    (if (is-linux-p)
-        (let* ((tracepathResult (shell-command-to-string "tracepath -b -m 4 github.com"))
-               (gb/behind-comp (s-contains? "compal" tracepathResult))
-               (gb/behind-kabeld (s-contains? "kabel-deutschland" tracepathResult)))
-          (setq gb/network-home (and gb/behind-comp gb/behind-kabeld)))
-      (setq gb/network-home nil))
-    (setq gb/dual-monitor-setup (string= "2" (s-trim (shell-command-to-string "xrandr --listmonitors | grep \"Monitors\" | awk '{ print $2; }'"))))
+  (setq running-nixos (getenv "NIX_PATH"))
+  (setq gb/use-exwm (or (string= "ok" (s-trim (shell-command-to-string "cat ~/.xinitrc | grep -q -e '^ *exec .*emacs' && echo 'ok'")))
+                       running-nixos))
+  (if (is-linux-p)
+      (let* ((tracepathResult (shell-command-to-string "tracepath -b -m 4 github.com"))
+             (gb/behind-comp (s-contains? "compal" tracepathResult))
+             (gb/behind-kabeld (s-contains? "kabel-deutschland" tracepathResult)))
+        (setq gb/network-home (and gb/behind-comp gb/behind-kabeld)))
+    (setq gb/network-home nil))
+  (setq gb/dual-monitor-setup (string= "2" (s-trim (shell-command-to-string "xrandr --listmonitors | grep \"Monitors\" | awk '{ print $2; }'"))))
 
-    (setq gb/use-smart-mode-line (and gb/use-exwm gb/dual-monitor-setup (not gb/network-home)))
-    (setq gb/use-space-line (not gb/use-smart-mode-line))
-
-
-    (when (is-_nix-p)
-        (progn
-
-          ;; is imagemagick installed (program for command line image manipulation)
-          ;; install via "brew install imagemagick" or "pacman -S imagemagick"
-          (check-_nix-program-status imagemagick-installed "animate" "ImageMagick" "pdf-tools not installed!")
-          (check-_nix-program-status poppler-installed "pdfinfo" "poppler" "pdf-tools not installed!")
-          (check-_nix-program-status gnutls-cli-installed "gnutls-cli" "gnutls-cli" "gnutls-cli not installed!")
-
-          (check-_nix-program-status xmllint-installed "xmllint" "xmllint" "xmllint not installed, some xml functions will not be accessible (e.g. formatting)")
+  (setq gb/use-smart-mode-line (and gb/use-exwm gb/dual-monitor-setup (not gb/network-home) (not running-nixos))) ;;
+  (setq gb/use-space-line (not gb/use-smart-mode-line))
 
 
-          ;; graphviz brings dot (and other) cl tools which are needed for plantuml to work
-          (check-_nix-program-status graphviz-installed "dot" "GraphViz" "dot is not available, thus plantuml cannot be used!")
+  (when (is-_nix-p)
+      (progn
 
-          ;; make useful for pdf tools
-          (check-_nix-program-status make-installed '("make" "automake" "autoconf" "g++" "gcc") "make-tools" "make-tools are not (completely) available, thus pdf-tools cannot be compiled!")
+        ;; is imagemagick installed (program for command line image manipulation)
+        ;; install via "brew install imagemagick" or "pacman -S imagemagick"
+        (check-_nix-program-status imagemagick-installed "animate" "ImageMagick" "pdf-tools not installed!")
+        (check-_nix-program-status poppler-installed "pdfinfo" "poppler" "pdf-tools not installed!")
+        (check-_nix-program-status gnutls-cli-installed "gnutls-cli" "gnutls-cli" "gnutls-cli not installed!")
 
-          ;; check basic tooling
-          (check-_nix-program-status locate-installed "locate" "locate" "locate is not available, thus helm find file will not work properly!")
-
-          ;; lein (for clojure)
-          (check-_nix-program-status lein-installed "lein" "leinigen" "lein is not available, thus clojure/cider will not work properly!")
-
-          ;; hub (for magithub)
-          (check-_nix-program-status hub-installed "hub" "hub" "hub command line tool not available, magithub will not be installed")
-
-          ;; gpg (for file encryption)
-          (check-_nix-program-status gpg-installed "gpg" "gpg" "gpg is necessary for file encryption.")
-          (if gpg-installed
-              (setq epg-gpg-program "gpg"))
-
-          (check-_nix-program-status w3m-installed '("w3m") "w3m" "html messages in gnus will not be displayed, helm dash browsing will not use w3m.")
-
-          (check-_nix-program-status git-lfs-installed "git-lfs" "git-lfs" "magit-lfs will not be available")
-
-          (check-_nix-program-status ledger-installed "ledger" "ledger" "ledger-mode will not be available")
-
-          (check-_nix-program-status chromium-installed "chromium" "chromium" "chromium not found, flymd will not work")
-
-          (check-_nix-program-status firefox-installed "firefox" "firefox" "firefox not found")
-
-          (check-_nix-program-status icecat-installed "icecat" "icecat" "icecat not found")
-
-          (check-_nix-program-status git-imerge-installed "git-imerge" "git-imerge" "git-imerge not found")
-
-          (check-_nix-program-status languagetool-installed "languagetool" "languagetool" "languagetool not found")
+        (check-_nix-program-status xmllint-installed "xmllint" "xmllint" "xmllint not installed, some xml functions will not be accessible (e.g. formatting)")
 
 
-          (if firefox-installed
-            (progn
-              (setq browse-url-browser-function 'browse-url-firefox)
-              (setq browse-url-firefox-program (s-trim (shell-command-to-string "which firefox")))))
+        ;; graphviz brings dot (and other) cl tools which are needed for plantuml to work
+        (check-_nix-program-status graphviz-installed "dot" "GraphViz" "dot is not available, thus plantuml cannot be used!")
 
-          ;; chromium takes precedence (over firefox)
-          (if chromium-installed
-            (progn
-              (setq browse-url-browser-function 'browse-url-chromium)
-              (setq browse-url-chromium-program (s-trim (shell-command-to-string "which chromium")))))
+        ;; make useful for pdf tools
+        (check-_nix-program-status make-installed '("make" "automake" "autoconf" "g++" "gcc") "make-tools" "make-tools are not (completely) available, thus pdf-tools cannot be compiled!")
 
-          ;; icecat takes precedence (over firefox)
-          ;; (if icecat-installed
-          ;;   (progn
-          ;;     (setq browse-url-browser-function 'browse-url-default-browser)
-          ;;     (setq browse-url-chromium-program (s-trim (shell-command-to-string "which icecat")))))
+        ;; check basic tooling
+        (check-_nix-program-status locate-installed "locate" "locate" "locate is not available, thus helm find file will not work properly!")
 
-          (setq gnu-ls-installed (not (is-ms-windows-p)))
-              (if gnu-ls-installed
-                    (setq gnu-ls-bin-path (car (split-string (shell-command-to-string "which ls")))))
-          ))
+        ;; lein (for clojure)
+        (check-_nix-program-status lein-installed "lein" "leinigen" "lein is not available, thus clojure/cider will not work properly!")
+
+        ;; hub (for magithub)
+        (check-_nix-program-status hub-installed "hub" "hub" "hub command line tool not available, magithub will not be installed")
+
+        ;; gpg (for file encryption)
+        (check-_nix-program-status gpg-installed "gpg" "gpg" "gpg is necessary for file encryption.")
+        (if gpg-installed
+            (setq epg-gpg-program "gpg"))
+
+        (check-_nix-program-status w3m-installed '("w3m") "w3m" "html messages in gnus will not be displayed, helm dash browsing will not use w3m.")
+
+        (check-_nix-program-status git-lfs-installed "git-lfs" "git-lfs" "magit-lfs will not be available")
+
+        (check-_nix-program-status ledger-installed "ledger" "ledger" "ledger-mode will not be available")
+
+        (check-_nix-program-status chromium-installed "chromium" "chromium" "chromium not found, flymd will not work")
+
+        (check-_nix-program-status firefox-installed "firefox" "firefox" "firefox not found")
+
+        (check-_nix-program-status icecat-installed "icecat" "icecat" "icecat not found")
+
+        (check-_nix-program-status git-imerge-installed "git-imerge" "git-imerge" "git-imerge not found")
+
+        (check-_nix-program-status languagetool-installed "languagetool" "languagetool" "languagetool not found")
+
+
+        (if firefox-installed
+          (progn
+            (setq browse-url-browser-function 'browse-url-firefox)
+            (setq browse-url-firefox-program (s-trim (shell-command-to-string "which firefox")))))
+
+        ;; chromium takes precedence (over firefox)
+        (if chromium-installed
+          (progn
+            (setq browse-url-browser-function 'browse-url-chromium)
+            (setq browse-url-chromium-program (s-trim (shell-command-to-string "which chromium")))))
+
+        ;; icecat takes precedence (over firefox)
+        ;; (if icecat-installed
+        ;;   (progn
+        ;;     (setq browse-url-browser-function 'browse-url-default-browser)
+        ;;     (setq browse-url-chromium-program (s-trim (shell-command-to-string "which icecat")))))
+
+        (setq gnu-ls-installed (not (is-ms-windows-p)))
+            (if gnu-ls-installed
+                  (setq gnu-ls-bin-path (car (split-string (shell-command-to-string "which ls")))))
+        ))
   #+END_SRC
 * check emacs capabilities
   #+BEGIN_SRC emacs-lisp
@@ -1250,13 +1253,14 @@
 * browser
 ** w3m
    #+BEGIN_SRC emacs-lisp
-     (if w3m-installed
-         (use-package w3m
-           :commands w3m w3m-search w3m-browse-url
-           :config
-           (progn
-             (setq w3m-default-display-inline-images t)
-             (setq w3m-toggle-inline-images t))))
+   (if w3m-installed
+       (use-package w3m
+         :commands w3m w3m-search w3m-browse-url
+         :ensure t
+         :config
+         (progn
+           (setq w3m-default-display-inline-images t)
+           (setq w3m-toggle-inline-images t))))
    #+END_SRC
 * ui related stuff
 ** command logging
@@ -1461,8 +1465,8 @@
                 (ht ('default-height 150) ('variable-pitch-height 160)))
                ((ht ('default-height 130) ('variable-pitch-height 140))))
        (cond ((> display-width 3400)
-              (ht ('default-height 120) ('variable-pitch-height 130)))
-             ((ht ('default-height 100) ('variable-pitch-height 110))))))
+              (ht ('default-height 130) ('variable-pitch-height 130)))
+             ((ht ('default-height 110) ('variable-pitch-height 110))))))
 
    (defun gb/get-font-weights (win-system)
      "Get font weights depending on windowing system"
@@ -1699,7 +1703,7 @@
 
      #+END_SRC
 ** sublimity (smooth scrolling)
-   #+BEGIN_SRC emacs-lisp :tangle no
+   #+BEGIN_SRC emacs-lisp
      (use-package sublimity
        :config
        (progn
@@ -1834,7 +1838,8 @@
     ("C-s-'" . flop-frame) ;; us layout
     ("C-s--" . transpose-frame) ;; exchange splitted vertically with splitted horizontally window
     ("C-s-/" . transpose-frame) ;; us layout
-    ))
+    )
+    :ensure t)
 #+END_SRC
 ** bind-key
    #+BEGIN_SRC emacs-lisp
@@ -4035,6 +4040,7 @@
    (use-package avy-menu)
    (use-package ace-popup-menu
      :after ( avy avy-menu)
+     :ensure t
      :config (ace-popup-menu-mode 1))
    #+END_SRC
 ** search cursor left
@@ -5548,69 +5554,72 @@
 * pdf-tooling
   - TODO check whether all that is required tools are installed for pdf tools to function, message if not, install if ok
   #+BEGIN_SRC emacs-lisp
-    ;; allow in emacs pdf view/annotate etc.
-    ;; if not functional do the following: remove package and restart emacs, then allow rebuild of pdf tooling, restart again
-    (if (and make-installed poppler-installed imagemagick-installed)
-        (use-package pdf-tools
-          :ensure pdf-tools
-          :mode ("\\.pdf$" . pdf-view-mode)
-          :init (progn
-                  ;; (add-hook 'after-init-hook 'pdf-tools-install)
-                  ;; (add-hook 'pdf-tools-mode-hook 'pdf-isearch-minor-mode)
-                  (add-hook 'pdf-view-mode-hook 'pdf-misc-minor-mode) ;; misc minor mode offset C-c C-p for printing pdf documents
+  ;; allow in emacs pdf view/annotate etc.
+  ;; if not functional do the following: remove package and restart emacs, then allow rebuild of pdf tooling, restart again
+  ;; new: use pdf-tool-install (works with nix os too, has to be a new version of pdf-tools though!)
+  ;; old: to install under linux run 'sudo nix-shell -p autoconf automake libpng zlib poppler pkgconfig gcc --run make' in the build folder
+  (if (and make-installed (or running-nixos poppler-installed) imagemagick-installed)
+      (use-package pdf-tools
+        :ensure pdf-tools
+        :mode ("\\.pdf$" . pdf-view-mode)
+        :init (progn
+                ;; (add-hook 'after-init-hook 'pdf-tools-install)
+                ;; (add-hook 'pdf-tools-mode-hook 'pdf-isearch-minor-mode)
+                (add-hook 'pdf-view-mode-hook 'pdf-misc-minor-mode) ;; misc minor mode offset C-c C-p for printing pdf documents
 
 
-                  ;; copied from http://babbagefiles.blogspot.de/2017/11/more-pdf-tools-tricks.html
-                  (add-hook 'pdf-view-mode-hook (lambda ()
-                                                  (pdf-view-midnight-minor-mode))) ; automatically turns on midnight-mode for pdfs
+                ;; copied from http://babbagefiles.blogspot.de/2017/11/more-pdf-tools-tricks.html
+                (add-hook 'pdf-view-mode-hook (lambda ()
+                                                (pdf-view-midnight-minor-mode))) ; automatically turns on midnight-mode for pdfs
 
-                  (setq pdf-view-midnight-colors '("#ff9900" . "#0a0a12" )) ; set the amber profile as default (see below)
+                (setq pdf-view-midnight-colors '("#ff9900" . "#0a0a12" )) ; set the amber profile as default (see below)
 
-                  (defun gb/pdf-no-filter ()
-                    "View pdf without colour filter."
-                    (interactive)
-                    (pdf-view-midnight-minor-mode -1)
-                    )
-
-                  ;; change midnite mode colours functions
-                  (defun gb/pdf-midnite-original ()
-                    "Set pdf-view-midnight-colors to original colours."
-                    (interactive)
-                    (setq pdf-view-midnight-colors '("#839496" . "#002b36" )) ; original values
-                    (pdf-view-midnight-minor-mode)
-                    )
-
-                  (defun gb/pdf-midnite-amber ()
-                    "Set pdf-view-midnight-colors to amber on dark slate blue."
-                    (interactive)
-                    (setq pdf-view-midnight-colors '("#ff9900" . "#0a0a12" )) ; amber
-                    (pdf-view-midnight-minor-mode)
-                    )
-
-                  (defun gb/pdf-midnite-green ()
-                    "Set pdf-view-midnight-colors to green on black."
-                    (interactive)
-                    (setq pdf-view-midnight-colors '("#00B800" . "#000000" )) ; green
-                    (pdf-view-midnight-minor-mode)
-                    )
-
-                  (defun gb/pdf-midnite-colour-schemes ()
-                    "Midnight mode colour schemes bound to keys"
-                    (local-set-key (kbd "!") (quote gb/pdf-no-filter))
-                    (local-set-key (kbd "@") (quote gb/pdf-midnite-amber))
-                    (local-set-key (kbd "#") (quote gb/pdf-midnite-green))
-                    (local-set-key (kbd "$") (quote gb/pdf-midnite-original))
-                    )
-
-                  (add-hook 'pdf-view-mode-hook 'gb/pdf-midnite-colour-schemes)
-
-
+                (defun gb/pdf-no-filter ()
+                  "View pdf without colour filter."
+                  (interactive)
+                  (pdf-view-midnight-minor-mode -1)
                   )
-          :config
-          (progn
-            (setq pdf-misc-print-programm "/usr/bin/lp")
-            (setq pdf-view-display-size (quote fit-page))
-            (setq pdf-misc-print-programm-args '("-o" "media=A4" "-o" "sides=two-sided-long-edge")))))
+
+                ;; change midnite mode colours functions
+                (defun gb/pdf-midnite-original ()
+                  "Set pdf-view-midnight-colors to original colours."
+                  (interactive)
+                  (setq pdf-view-midnight-colors '("#839496" . "#002b36" )) ; original values
+                  (pdf-view-midnight-minor-mode)
+                  )
+
+                (defun gb/pdf-midnite-amber ()
+                  "Set pdf-view-midnight-colors to amber on dark slate blue."
+                  (interactive)
+                  (setq pdf-view-midnight-colors '("#ff9900" . "#0a0a12" )) ; amber
+                  (pdf-view-midnight-minor-mode)
+                  )
+
+                (defun gb/pdf-midnite-green ()
+                  "Set pdf-view-midnight-colors to green on black."
+                  (interactive)
+                  (setq pdf-view-midnight-colors '("#00B800" . "#000000" )) ; green
+                  (pdf-view-midnight-minor-mode)
+                  )
+
+                (defun gb/pdf-midnite-colour-schemes ()
+                  "Midnight mode colour schemes bound to keys"
+                  (local-set-key (kbd "!") (quote gb/pdf-no-filter))
+                  (local-set-key (kbd "@") (quote gb/pdf-midnite-amber))
+                  (local-set-key (kbd "#") (quote gb/pdf-midnite-green))
+                  (local-set-key (kbd "$") (quote gb/pdf-midnite-original))
+                  )
+
+                (add-hook 'pdf-view-mode-hook 'gb/pdf-midnite-colour-schemes)
+
+
+                )
+        :config
+        (progn
+          (setq pdf-info-epdfinfo-program "~/.emacs.d/elpa/pdf-tools-20180428.1527/build/server/epdfinfo")
+          (setq pdf-misc-print-programm "/usr/bin/lp")
+          (setq pdf-view-display-size (quote fit-page))
+          (setq pdf-misc-print-programm-args '("-o" "media=A4" "-o" "sides=two-sided-long-edge")))))
   #+END_SRC
 * rest
 #+BEGIN_SRC emacs-lisp
@@ -8185,41 +8194,42 @@
    updates preview on every save
    disable by calling the same command again
   #+BEGIN_SRC emacs-lisp
-    (use-package latex-preview-pane
-      :after ( tex-mode)
-      :commands latex-preview-pane-mode
-      :config
-      (progn
-        ;; (require 'pdf-tools)
-        (latex-preview-pane-enable)
-        (require 'latex-preview-pane)
-        ;;    NOTES: adjustments had to be made so that preview works with pdf-tools:
-        (defun latex-preview-pane-update-p () 
-          (if (eq (lpp/invoke-pdf-latex-command) 1)
-              (progn
-                (lpp/display-backtrace)
-                (remove-overlays)
-                (lpp/line-errors-to-layovers (lpp/line-errors))
-                )
-        
-            (let ((pdf-filename (replace-regexp-in-string "\.tex$" ".pdf" (lpp/buffer-file-name)))
-                  (tex-buff (current-buffer))
-                  (pdf-buff (replace-regexp-in-string "\.tex" ".pdf" (buffer-name (get-file-buffer (lpp/buffer-file-name))))))
+  (use-package latex-preview-pane
+    :after ( tex-mode pdf-tools)
+    :commands latex-preview-pane-mode
+    :config
+    (progn
+      ;; (require 'pdf-tools)
+      (setq latex-preview-pane-use-frame (if gb/use-exwm t))
+      (latex-preview-pane-enable)
+      (require 'latex-preview-pane)
+      ;;    NOTES: adjustments had to be made so that preview works with pdf-tools:
+      (defun latex-preview-pane-update-p ()
+        (if (eq (lpp/invoke-pdf-latex-command) 1)
+            (progn
+              (lpp/display-backtrace)
               (remove-overlays)
-              ;; if the file doesn't exist, say that the file isn't available due to error messages
-              (if (file-exists-p pdf-filename)
-                  (if (eq (get-buffer pdf-buff) nil)
-                      (set-window-buffer (lpp/window-containing-preview) (find-file-noselect pdf-filename))
-                    (progn 
-                      (set-window-buffer (lpp/window-containing-preview) pdf-buff) 
-                      (switch-to-buffer-other-window pdf-buff)
-                      (doc-view-revert-buffer nil t)
-                      (revert-buffer :NOCONFIRM t) ;; gb 20161117: added such that pdf-tools work, too!
-                      (switch-to-buffer-other-window tex-buff) 
-                      ))
-            
-                ))))
-        ))
+              (lpp/line-errors-to-layovers (lpp/line-errors))
+              )
+
+          (let ((pdf-filename (replace-regexp-in-string "\.tex$" ".pdf" (lpp/buffer-file-name)))
+                (tex-buff (current-buffer))
+                (pdf-buff (replace-regexp-in-string "\.tex" ".pdf" (buffer-name (get-file-buffer (lpp/buffer-file-name))))))
+            (remove-overlays)
+            ;; if the file doesn't exist, say that the file isn't available due to error messages
+            (if (file-exists-p pdf-filename)
+                (if (eq (get-buffer pdf-buff) nil)
+                    (set-window-buffer (lpp/window-containing-preview) (find-file-noselect pdf-filename))
+                  (progn
+                    (set-window-buffer (lpp/window-containing-preview) pdf-buff)
+                    (switch-to-buffer-other-window pdf-buff)
+                    (doc-view-revert-buffer nil t)
+                    (revert-buffer :NOCONFIRM t) ;; gb 20161117: added such that pdf-tools work, too!
+                    (switch-to-buffer-other-window tex-buff)
+                    ))
+
+              ))))
+      ))
   #+END_SRC
 * bookmark+
    #+BEGIN_SRC emacs-lisp
@@ -8238,7 +8248,7 @@
          (add-hook 'dired-mode-hook 'auto-revert-mode)
        :config
      (setq dired-dwim-target t) ;; try to guess the directory to use for dired
-     (setq dired-listing-switches "-Alh") ;; default switches for ls to be used for dired listing
+     (setq dired-listing-switches "-Alh --group-directories-first") ;; default switches for ls to be used for dired listing
      (setq diredp-hide-details-propagate-flag t) ;; opening subfolders inherit details flag (shown/hidden)
      (if gnu-ls-installed
        (setq insert-directory-program gnu-ls-bin-path))
@@ -8380,6 +8390,52 @@
       :ensure xelb)
     (use-package exwm
       :after (xelb)
+      :bind (("<XF86MonBrightnessUp>" . gb/brightness-up)
+             ("<XF86MonBrightnessDown>" . gb/brightness-down)
+             ("<XF86AudioLowerVolume>" . gb/audio-lower-volume)
+             ("<XF86AudioRaiseVolume>" . gb/audio-raise-volume)
+             ("<XF86AudioMute>" . gb/audio-mute-volume))
+      :init (progn
+              (defun gb/brightness-up ()
+                ""
+                (interactive)
+                (shell-command "xbacklight -inc 10")
+                (message "brightness up"))
+              (defun gb/brightness-down ()
+                ""
+                (interactive)
+                (shell-command "xbacklight -dec 10")
+                (message "brightness down"))
+              (defun gb/audio-lower-volume ()
+                ""
+                (interactive)
+                (shell-command "pactl set-sink-volume 0 -10%")
+                (message (s-concat "volume down, now " (gb/get-volume-lr-escaped))))
+              (defun gb/get-volume-lr-escaped ()
+                ""
+                (s-replace "%" "%%" (s-trim (shell-command-to-string  "pactl list sinks | grep -A 9 \"Sink #0\" | grep \"Volume:\" | awk '{ print $5 \" / \" $12 }'"))))
+              (defun gb/audio-raise-volume ()
+                ""
+                (interactive)
+                (shell-command "pactl set-sink-volume 0 +10%")
+                (message (s-concat "volume up, now " (gb/get-volume-lr-escaped))))
+              (defun gb/lock-screen ()
+                "lock screen"
+                (interactive)
+                (shell-command "xset s activate"))
+              (defun gb/screensaver-enable ()
+                "enable screen saver"
+                (interactive)
+                (shell-command "xset s default"))
+              (defun gb/screensaver-disable ()
+                "enable screen saver"
+                (interactive)
+                (shell-command "xset s noblank"))
+              (defun gb/audio-mute-volume ()
+                ""
+                (interactive)
+                (shell-command "pactl set-sink-mute 0 toggle")
+                (message (s-concat "now muted: " (s-trim (shell-command-to-string "pactl list sinks | grep -A 9 \"Sink #0\" | grep \"Mute:\" | awk '{ print $2 }'"))))))
       :ensure exwm)
     (use-package exwm-config
       :after ( exwm )
@@ -8407,11 +8463,13 @@
         (progn
           (message "Starting multimonitor support for exwm.")
           (require 'exwm-randr)
-          (setq exwm-randr-workspace-output-plist '(0 "VGA-1" 1 "VGA-2"))
+          ;; (setq exwm-randr-workspace-output-plist '(0 "VGA-1" 1 "VGA-2"))
+          (setq exwm-randr-workspace-output-plist '(0 "DP-2" 1 "DP-4"))
           (add-hook 'exwm-randr-screen-change-hook
                     (lambda ()
-                      (start-process-shell-command
-                       "xrandr" nil "xrandr --output VGA-2 --left-of VGA-1 --auto")))
+                      (shell-command "xrandr --output DP-2 --left-of DP-4 --auto")
+                      (let* ((xrandrmode (s-trim (shell-command-to-string "xrandr -q | grep DP-4 -A 1 | tail -n 1 | awk '{ print $1; }'"))))
+                        (shell-command (s-concat "xrandr --output DP-4 --mode " xrandrmode)))))
           (exwm-randr-enable)))
 
       ;; The following example demonstrates how to set a key binding only available
@@ -8542,9 +8600,10 @@
              (exwm-input-release-keyboard (exwm--buffer->id (window-buffer)))
              (exwm-input-set-local-simulation-keys nil)))
          (when (and exwm-class-name
-                    (or (string= (downcase exwm-class-name) "chromium")))
+                    (or (string= (downcase exwm-class-name) "chromium")
+                        (string= (downcase exwm-class-name) "firefox")))
            (progn
-             (message "local-sim-keys set for chromium")
+             (message "local-sim-keys set for browser")
              (let ((sim-keys (append gb/simulation-keys
                                      `((,(kbd "C-S-s") . C-k)                   ;; search with search engine (C-S-s)
                                        (,(kbd "C-M-s") . f6)                    ;; jump into adresse bar (C-M-s)
@@ -8560,7 +8619,7 @@
       ;; start pasystray from within emacs, starting it within xinitrc does not work
       (add-hook 'exwm-init-hook
                 (lambda ()
-                  (gb/start-if-not-running "/usr/bin/pasystray")
+                  (gb/start-if-not-running (s-trim (shell-command-to-string "which pasystray")))
                   ;; (start-process "yabar" nil  "/usr/bin/yabar") ;; see here: https://github.com/geommer/yabar
                   ))
 
@@ -8582,6 +8641,11 @@
       ))
 
 
+  #+END_SRC
+* nix specifics
+  #+BEGIN_SRC emacs-lisp
+  (use-package company-nixos-options)
+  (use-package nix-mode)
   #+END_SRC
 * currently evaluated
 ** posframe (disabled)
