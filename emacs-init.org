@@ -8275,6 +8275,14 @@
                            (set-window-configuration wnd))))
            (error "no more than 2 files should be marked")))))
    #+END_SRC
+** dired-du (size calc in dired)
+   #+BEGIN_SRC emacs-lisp
+   (use-package dired-du
+     :ensure t
+     :config
+     (setq dired-du-size-format t)
+     (setq dired-du-on-find-dired-ok t))
+   #+END_SRC
 ** dired ls (lisp emulation)
    #+BEGIN_SRC emacs-lisp
      ;; useful in environments where ls is not a native program (e.g. windows)
