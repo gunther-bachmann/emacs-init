@@ -8782,43 +8782,44 @@
    - install icons-in-terminal https://github.com/sebastiencs/icons-in-terminal#installation
    - install sidebar into additionals https://github.com/sebastiencs/sidebar.el
    - now on melpa: originally install frame-local into additionals https://github.com/sebastiencs/frame-local
-   #+BEGIN_SRC emacs-lisp
-     (when (and (file-exists-p "~/.emacs.d/additionals/font-lock+.el")
-                (file-exists-p "~/.local/share/icons-in-terminal/icons-in-terminal.el"))
-       (progn
-         (use-package icons-in-terminal
-           :after ( font-lock+)
-           :load-path "~/.local/share/icons-in-terminal/")
-         (when (file-exists-p "~/.emacs.d/additionals/sidebar.el/sidebar.el")
-           (use-package ov)
-           (use-package frame-local)
-             ;; originally from here!
-             ;; :load-path "~/.emacs.d/additionals/frame-local/"
-           (use-package sidebar
-             :after ( icons-in-terminal projectile s dash dash-functional ov frame-local)
-             :bind (("s-a" . gb/sidebar-toggle)
-                    :map sidebar-mode-map
-                    ("s-a" . sidebar-close))
-             :load-path "~/.emacs.d/additionals/sidebar.el/"
-             :config
-             (defun sidebar-buffers-pre-command ()) ;; override default implementation
-             (defun gb/sidebar-toggle ()
-               ""
-               (interactive)
-               (if (sidebar-get-window t)
-                   (sidebar-close)
-                 (sidebar-open)))
-             (custom-set-variables
-              ;; '(sidebar-icon-powerline "")
-              ;; '(sidebar-icon-modeline "")
-              ;; '(sidebar-icon-header-end "")
-              ;; '(sidebar-select-icon-right-header "")
-              '(sidebar-mode-line-height 1.0)
-              '(sidebar-width 50))
-             (custom-set-faces
-              '(sidebar-primary-color ((t (:background "dark goldenrod" :foreground "black"))))
-              '(sidebar-select-line ((t (:background "dark goldenrod" :foreground "black" :box nil))))
-              '(sidebar-suffix-path-header ((t (:foreground "#404040")))))))))
+   #+BEGIN_SRC emacs-lisp :tangle no
+      (when (and (file-exists-p "~/.emacs.d/additionals/font-lock+.el")
+                 ;; (file-exists-p "~/.local/share/icons-in-terminal/icons-in-terminal.el")
+                 )
+        (progn
+          (use-package icons-in-terminal
+            :after ( font-lock+)
+            :load-path "~/.local/share/icons-in-terminal/")
+          (when (file-exists-p "~/.emacs.d/additionals/sidebar.el/sidebar.el")
+            (use-package ov)
+            (use-package frame-local)
+              ;; originally from here!
+              ;; :load-path "~/.emacs.d/additionals/frame-local/"
+            (use-package sidebar
+              :after (projectile s dash dash-functional ov frame-local icons-in-terminal)
+              :bind (("s-a" . gb/sidebar-toggle)
+                     :map sidebar-mode-map
+                     ("s-a" . sidebar-close))
+              :load-path "~/.emacs.d/additionals/sidebar.el/"
+              :config
+              (defun sidebar-buffers-pre-command ()) ;; override default implementation
+              (defun gb/sidebar-toggle ()
+                ""
+                (interactive)
+                (if (sidebar-get-window t)
+                    (sidebar-close)
+                  (sidebar-open)))
+              (custom-set-variables
+               ;; '(sidebar-icon-powerline "")
+               ;; '(sidebar-icon-modeline "")
+               ;; '(sidebar-icon-header-end "")
+               ;; '(sidebar-select-icon-right-header "")
+               '(sidebar-mode-line-height 1.0)
+               '(sidebar-width 50))
+              (custom-set-faces
+               '(sidebar-primary-color ((t (:background "dark goldenrod" :foreground "black"))))
+               '(sidebar-select-line ((t (:background "dark goldenrod" :foreground "black" :box nil))))
+               '(sidebar-suffix-path-header ((t (:foreground "#404040")))))))))
    #+END_SRC
 ** info colors
    #+BEGIN_SRC emacs-lisp
