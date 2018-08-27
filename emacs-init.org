@@ -5547,9 +5547,10 @@
    #+END_SRC
 * ebooks
   #+BEGIN_SRC emacs-lisp
-    (use-package ereader
-      :after ( xml+ dash)
-      :mode ("\\.epub\\'" . ereader-mode))
+  (use-package ereader
+    :after ( xml+ dash)
+    :ensure t
+    :mode ("\\.epub\\'" . ereader-mode))
   #+END_SRC
 * pdf-tooling
   - TODO check whether all that is required tools are installed for pdf tools to function, message if not, install if ok
