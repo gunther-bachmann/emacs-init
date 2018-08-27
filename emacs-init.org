@@ -8554,9 +8554,9 @@
          (map-values-apply
           (lambda (name)
             (->> name
-              (buffer-name)
-              (replace-regexp-in-string "<[0-9]*>$" "")
-              (downcase)))
+               (buffer-name)
+               (replace-regexp-in-string "<[0-9]*>$" "")
+               (downcase)))
           exwm--id-buffer-alist)))
 
       (require 'helm-external)
@@ -8566,7 +8566,7 @@
         (interactive (list
                       (helm-comp-read
                        "RunProgram: "
-                        (helm-external-commands-list-1 'sort)
+                       (helm-external-commands-list-1 'sort)
                        :must-match t
                        :del-input nil
                        :name "External Commands"
@@ -8581,35 +8581,35 @@
       (exwm-input-set-key (kbd "s-1") #'gb/exwm-program-select) ;; do not wrap, since it already resets exwm
 
       (setq gb/simulation-keys `(
-              ;; see http://ergoemacs.org/emacs/keystroke_rep.html for syntax of key definition
-              ;; movement
-              ;; read-key-sequence-vector can be used to get key-sequences as used as first element
-              (,(kbd "C-b") . left)
-              (,(kbd "M-b") . C-left)
-              (,(kbd "C-f") . right)
-              (,(kbd "M-f") . C-right)
-              (,(kbd "C-p") . up)
-              (,(kbd "C-n") . down)
-              (,(kbd "C-a") . home)
-              (,(kbd "C-e") . end)
-              (,(kbd "M-v") . prior)
-              (,(kbd "C-v") . next)
-              (,(kbd "C-d") . delete)
-              (,(kbd "M-d") . (S-C-right delete))
-              (,(kbd "<M-backspace>") . (S-C-left delete))
-              (,(kbd "C-k") . (S-end delete))
-              (,(kbd "M->") . (C-end))
-              (,(kbd "M-<") . (C-home))
-              ;; cut/paste.
-              (,(kbd "C-w") . ?\C-x)
-              (,(kbd "M-w") . ?\C-c)
-              (,(kbd "C-y") . ?\C-v)
-              ;; marking
-              (,(kbd "C-x h") . ?\C-a) ;; will work in emacs 27 first time [?\C-x ?h]
-              ;; other
-              (,(kbd "C-g") . escape)
-              ;; search
-              (,(kbd "C-s") . ?\C-f)))
+                                 ;; see http://ergoemacs.org/emacs/keystroke_rep.html for syntax of key definition
+                                 ;; movement
+                                 ;; read-key-sequence-vector can be used to get key-sequences as used as first element
+                                 (,(kbd "C-b") . left)
+                                 (,(kbd "M-b") . C-left)
+                                 (,(kbd "C-f") . right)
+                                 (,(kbd "M-f") . C-right)
+                                 (,(kbd "C-p") . up)
+                                 (,(kbd "C-n") . down)
+                                 (,(kbd "C-a") . home)
+                                 (,(kbd "C-e") . end)
+                                 (,(kbd "M-v") . prior)
+                                 (,(kbd "C-v") . next)
+                                 (,(kbd "C-d") . delete)
+                                 (,(kbd "M-d") . (S-C-right delete))
+                                 (,(kbd "<M-backspace>") . (S-C-left delete))
+                                 (,(kbd "C-k") . (S-end delete))
+                                 (,(kbd "M->") . (C-end))
+                                 (,(kbd "M-<") . (C-home))
+                                 ;; cut/paste.
+                                 (,(kbd "C-w") . ?\C-x)
+                                 (,(kbd "M-w") . ?\C-c)
+                                 (,(kbd "C-y") . ?\C-v)
+                                 ;; marking
+                                 (,(kbd "C-x h") . ?\C-a) ;; will work in emacs 27 first time [?\C-x ?h]
+                                 ;; other
+                                 (,(kbd "C-g") . escape)
+                                 ;; search
+                                 (,(kbd "C-s") . ?\C-f)))
       (setq exwm-input-simulation-keys gb/simulation-keys)
 
       ;; You can hide the mode-line of floating X windows by uncommenting the
@@ -8636,24 +8636,24 @@
       (defun gb/exwm-after-switch ()
         "do some adjustments due to exwm switches with char/line mode"
         (progn
-         (when (and exwm-class-name
-                    (or ;; (string= exwm-class-name "Chromium")
-                     (string= (downcase exwm-class-name) "eclipse")))
-           (progn
-             ;; (setq-local exwm-input-prefix-keys '(?\C-l))
-             (message "eclipse specific exwm settings applied.")
-             (exwm-input-release-keyboard (exwm--buffer->id (window-buffer)))
-             (exwm-input-set-local-simulation-keys nil)))
-         (when (and exwm-class-name
-                    (or (string= (downcase exwm-class-name) "chromium")
-                        (string= (downcase exwm-class-name) "firefox")))
-           (progn
-             (message "local-sim-keys set for browser")
-             (let ((sim-keys (append gb/simulation-keys
-                                     `((,(kbd "C-S-s") . C-k)                   ;; search with search engine (C-S-s)
-                                       (,(kbd "C-M-s") . f6)                    ;; jump into adresse bar (C-M-s)
-                                       ))))
-               (exwm-input-set-local-simulation-keys sim-keys))))))
+          (when (and exwm-class-name
+                   (or ;; (string= exwm-class-name "Chromium")
+                    (string= (downcase exwm-class-name) "eclipse")))
+            (progn
+              ;; (setq-local exwm-input-prefix-keys '(?\C-l))
+              (message "eclipse specific exwm settings applied.")
+              (exwm-input-release-keyboard (exwm--buffer->id (window-buffer)))
+              (exwm-input-set-local-simulation-keys nil)))
+          (when (and exwm-class-name
+                   (or (string= (downcase exwm-class-name) "chromium")
+                      (string= (downcase exwm-class-name) "firefox")))
+            (progn
+              (message "local-sim-keys set for browser")
+              (let ((sim-keys (append gb/simulation-keys
+                                      `((,(kbd "C-S-s") . C-k)                   ;; search with search engine (C-S-s)
+                                        (,(kbd "C-M-s") . f6)                    ;; jump into adresse bar (C-M-s)
+                                        ))))
+                (exwm-input-set-local-simulation-keys sim-keys))))))
 
       ;;(add-hook 'buffer-list-update-hook #'gb/exwm-after-switch)
       ;; (remove-hook 'buffer-list-update-hook #'gb/exwm-after-switch)
@@ -8675,9 +8675,9 @@
       (defadvice switch-to-buffer (after switch-to-buffer-check-exwm-buffer activate)
         "switch to char mode if target buffer is eclipse (or any other buffer that should be in char mode)"
         (when (and exwm-class-name
-                   (or ;; (string= exwm-class-name "Chromium")
-                    (string= (downcase exwm-class-name) "eclipse")
-                    ))
+                 (or ;; (string= exwm-class-name "Chromium")
+                  (string= (downcase exwm-class-name) "eclipse")
+                  ))
           (progn
             (exwm-input-release-keyboard (exwm--buffer->id (window-buffer)))
             (setq exwm-input-set-local-simulation-keys nil)))
