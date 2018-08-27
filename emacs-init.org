@@ -4168,30 +4168,37 @@
    #+END_SRC
 ** other (recentf, uniquify)
 #+BEGIN_SRC emacs-lisp
-  ;; These customizations make it easier for you to navigate files,
-  ;; switch buffers, and choose options from the minibuffer.
+;; These customizations make it easier for you to navigate files,
+;; switch buffers, and choose options from the minibuffer.
 
-  ;; "When several buffers visit identically-named files,
-  ;; Emacs must give the buffers distinct names. The usual method
-  ;; for making buffer names unique adds ‘<2>’, ‘<3>’, etc. to the end
-  ;; of the buffer names (all but one of them).
-  ;; The forward naming method includes part of the file's directory
-  ;; name at the beginning of the buffer name
-  ;; https://www.gnu.org/software/emacs/manual/html_node/emacs/Uniquify.html
-  (use-package uniquify
-    :config
-    (setq uniquify-buffer-name-style 'forward))
+;; "When several buffers visit identically-named files,
+;; Emacs must give the buffers distinct names. The usual method
+;; for making buffer names unique adds ‘<2>’, ‘<3>’, etc. to the end
+;; of the buffer names (all but one of them).
+;; The forward naming method includes part of the file's directory
+;; name at the beginning of the buffer name
+;; https://www.gnu.org/software/emacs/manual/html_node/emacs/Uniquify.html
+(use-package uniquify
+  :config
+  (setq uniquify-buffer-name-style 'forward))
 
-  ;; Turn on recent file mode so that you can more easily switch to
-  ;; recently edited files when you first start emacs
-  (use-package recentf
-    :ensure recentf
-    :config
-    (progn
+;; Turn on recent file mode so that you can more easily switch to
+;; recently edited files when you first start emacs
+(use-package recentf
+  :ensure recentf
+  :config
+  (progn
     (setq recentf-save-file (concat user-emacs-directory ".recentf"))
-    (recentf-mode 1)
+    ;; since recentf file may grow large, delete it if too large
+    (shell-command (s-concat "touch " recentf-save-file))
+    (let ((rsf-size-str (s-trim (shell-command-to-string (s-concat "ls -la " recentf-save-file " | awk '{ print $5; }'")))))
+      (if (<= 10000 (string-to-number rsf-size-str))
+          (progn
+            (message (s-concat "deleting too large recentf file '" recentf-save-file "' ( size: " rsf-size-str ")"))
+            (shell-command (s-concat "rm " recentf-save-file)))))
     (setq recentf-exclude (list "^.*/\\.emacs\\.d/.*"))
-    (setq recentf-max-menu-items 40)))
+    (setq recentf-max-menu-items 40)
+    (recentf-mode 1)))
 #+END_SRC
 ** swiper
    #+BEGIN_SRC emacs-lisp
