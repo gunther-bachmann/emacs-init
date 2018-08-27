@@ -8423,7 +8423,12 @@
              ("<XF86MonBrightnessDown>" . gb/brightness-down)
              ("<XF86AudioLowerVolume>" . gb/audio-lower-volume)
              ("<XF86AudioRaiseVolume>" . gb/audio-raise-volume)
-             ("<XF86AudioMute>" . gb/audio-mute-volume))
+             ("<XF86AudioMute>" . gb/audio-mute-volume)
+             ("<s-f6>" . gb/brightness-up)
+             ("<s-f5>" . gb/brightness-down)
+             ("<s-f2>" . gb/audio-lower-volume)
+             ("<s-f3>" . gb/audio-raise-volume)
+             ("<s-f1>" . gb/audio-mute-volume))
       :init (progn
               (defun gb/brightness-up ()
                 ""
@@ -8514,12 +8519,23 @@
       (exwm-input-set-key (kbd "s-<up>") #'windmove-up)
       (exwm-input-set-key (kbd "s-<down>") #'windmove-down)
 
+      (exwm-input-set-key (kbd "<XF86MonBrightnessUp>") #'gb/brightness-up)
+      (exwm-input-set-key (kbd "<XF86MonBrightnessDown>") #'gb/brightness-down)
+      (exwm-input-set-key (kbd "<XF86AudioLowerVolume>") #'gb/audio-lower-volume)
+      (exwm-input-set-key (kbd "<XF86AudioRaiseVolume>") #'gb/audio-raise-volume)
+      (exwm-input-set-key (kbd "<XF86AudioMute>") #'gb/audio-mute-volume)
+      (exwm-input-set-key (kbd "<s-f6>") #'gb/brightness-up)
+      (exwm-input-set-key (kbd "<s-f5>") #'gb/brightness-down)
+      (exwm-input-set-key (kbd "<s-f2>") #'gb/audio-lower-volume)
+      (exwm-input-set-key (kbd "<s-f3>") #'gb/audio-raise-volume)
+      (exwm-input-set-key (kbd "<s-f1>") #'gb/audio-mute-volume)
+
       (defun gb/wrap-in-exwm-reset (interactive-function)
         "run exwm reset right before calling the given function"
         (interactive)
         (when (and exwm-class-name
-                   (or ;; (string= exwm-class-name "Chromium")
-                    (string= (downcase exwm-class-name) "eclipse")))
+                 (or ;; (string= exwm-class-name "Chromium")
+                  (string= (downcase exwm-class-name) "eclipse")))
           (exwm-reset))
         (funcall interactive-function))
 
