@@ -8645,8 +8645,9 @@
               (exwm-input-release-keyboard (exwm--buffer->id (window-buffer)))
               (exwm-input-set-local-simulation-keys nil)))
           (when (and exwm-class-name
-                   (or (string= (downcase exwm-class-name) "chromium")
-                      (string= (downcase exwm-class-name) "firefox")))
+                   (or (string= (downcase exwm-class-name) "google-chrome")
+                      (string= (downcase exwm-class-name) "firefox")
+                      (string= (downcase exwm-class-name) "chromium-browser")))
             (progn
               (message "local-sim-keys set for browser")
               (let ((sim-keys (append gb/simulation-keys
