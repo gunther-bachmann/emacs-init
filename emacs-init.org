@@ -5625,7 +5625,7 @@
         :config
         (progn
           (setq pdf-info-epdfinfo-program "~/.emacs.d/elpa/pdf-tools-20180428.1527/build/server/epdfinfo")
-          (setq pdf-misc-print-programm "/usr/bin/lp")
+          (setq pdf-misc-print-programm (s-trim (shell-command-to-string "which lp")))
           (setq pdf-view-display-size (quote fit-page))
           (setq pdf-misc-print-programm-args '("-o" "media=A4" "-o" "sides=two-sided-long-edge")))))
   #+END_SRC
