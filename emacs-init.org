@@ -8288,11 +8288,12 @@
    (use-package dired-sidebar
      :ensure t
      :bind (( "s-a" . dired-sidebar-toggle-sidebar))
-     :after (dired dired-subtree all-the-icons)
+     :after (dired dired-subtree all-the-icons vscode-icons)
      :init
      (progn
        (setq dired-sidebar-width 55)
-       (setq dired-sidebar-theme 'icons)
+       (setq dired-sidebar-icon-scale 0.18)
+       (setq dired-sidebar-theme 'vscode)
        (setq dired-sidebar-use-term-integration t)
        (setq dired-sidebar-use-custom-font t)))
    #+END_SRC
