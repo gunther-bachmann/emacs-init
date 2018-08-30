@@ -675,25 +675,25 @@
    #+END_SRC
 ** ui
    #+BEGIN_SRC emacs-lisp
-     (defun gb/kill-a-buffer-and-delete-window (askp)
-       "kill the current buffer and remove the window"
-       (interactive "P")
-       (gb/kill-a-buffer askp)
-       ;; only called without prefix argument and not the root window of the frame
-       (if (not (or askp (frame-root-window-p (get-buffer-window))))
-           (delete-window)))
+   (defun gb/kill-a-buffer-and-delete-window (askp)
+     "kill the current buffer and remove the window"
+     (interactive "P")
+     (gb/kill-a-buffer askp)
+     ;; only called without prefix argument and not the root window of the frame
+     (if (not (or askp (frame-root-window-p (get-buffer-window))))
+         (delete-window)))
 
-     (defun gb/kill-a-buffer (askp)
-       "kill the current buffer (ask if prefix argument is given)"
-       (interactive "P")
-       (if askp
-           (kill-buffer (ivy-read "Kill buffer: " (mapcar #'buffer-name (buffer-list))))
-         (if (string= (buffer-name) "*scratch*") 
-             (message "scratch buffer must be killed explicitly (with prefix argument, then selecting the buffer)")
-           (kill-this-buffer))))
+   (defun gb/kill-a-buffer (askp)
+     "kill the current buffer (ask if prefix argument is given)"
+     (interactive "P")
+     (if askp
+         (kill-buffer (ivy-read "Kill buffer: " (mapcar #'buffer-name (buffer-list))))
+       (if (string= (buffer-name) "*scratch*")
+           (message "scratch buffer must be killed explicitly (with prefix argument, then selecting the buffer)")
+         (kill-buffer (current-buffer)))))
 
-     (global-set-key (kbd "C-x k") 'gb/kill-a-buffer)
-     (global-set-key (kbd "C-x C-k") 'gb/kill-a-buffer-and-delete-window)
+   (global-set-key (kbd "C-x k") 'gb/kill-a-buffer)
+   (global-set-key (kbd "C-x C-k") 'gb/kill-a-buffer-and-delete-window)
    #+END_SRC
 ** printer
    extensions
