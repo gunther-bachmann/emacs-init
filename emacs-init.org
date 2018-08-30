@@ -8469,7 +8469,13 @@
                 ""
                 (interactive)
                 (shell-command "pactl set-sink-mute 0 toggle")
-                (message (s-concat "now muted: " (s-trim (shell-command-to-string "pactl list sinks | grep -A 9 \"Sink #0\" | grep \"Mute:\" | awk '{ print $2 }'"))))))
+                (message (s-concat "now muted: " (s-trim (shell-command-to-string "pactl list sinks | grep -A 9 \"Sink #0\" | grep \"Mute:\" | awk '{ print $2 }'")))))
+              (defun gb/hibernate-laptop ()
+                "put laptop into hibernation (complete off, store memory onto disc)"
+                (shell-command-to-string "systemctl hibernate"))
+              (defun gb/suspend-laptop ()
+                "put laptop into suspension (soft off, still uses power to keep memory up to date)"
+                (shell-command-to-string "systemctl suspend")))
       :ensure exwm)
     (use-package exwm-config
       :after ( exwm )
@@ -9302,6 +9308,7 @@
      :commands dired-collapse-mode)
    #+END_SRC
 ** org-pomodoro (time management technique)
+   - install libnotify (e.g. nix-env -iA nixos.libnotify)
    #+BEGIN_SRC emacs-lisp
      (use-package org-pomodoro
        :after ( appt)
