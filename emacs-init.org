@@ -8285,10 +8285,26 @@
    #+END_SRC
 ** dired sidebar
    #+BEGIN_SRC emacs-lisp
+   (use-package vscode-icon
+     :ensure vscode-icon
+     :config
+     ;; override the given function
+     (defun vscode-icon-for-file (file)
+       "Return an vscode icon image given FILE.
+
+   Icon Source: https://github.com/vscode-icons/vscode-icons"
+       (let ((default-directory
+               (if (image-type-available-p 'imagemagick)
+                   (concat vscode-icon-dir "23/") ;; <- originally 128 which is a bit large
+                 (concat vscode-icon-dir
+                         (number-to-string vscode-icon-size) "/"))))
+         (if (file-directory-p file)
+             (vscode-icon-dir file)
+           (vscode-icon-file file)))))
    (use-package dired-sidebar
-     :ensure t
+     :ensure dired-sidebar
      :bind (( "s-a" . dired-sidebar-toggle-sidebar))
-     :after (dired dired-subtree all-the-icons vscode-icons)
+     :after (dired dired-subtree all-the-icons vscode-icon)
      :init
      (progn
        (setq dired-sidebar-width 55)
