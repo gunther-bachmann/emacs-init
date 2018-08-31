@@ -8719,6 +8719,14 @@
   (use-package nix-mode)
   #+END_SRC
 * currently evaluated
+** blimb (image manipulation using imagemagick)
+   - lets you interactively select magick commands to manipulate the image in the buffer
+   - it has command autocomplete, description and some parameter completion facilities
+   - see [[https://github.com/walseb/blimp][homepage]]
+   #+BEGIN_SRC emacs-lisp
+   (use-package blimp
+     :init (add-hook 'image-mode-hook 'blimp-mode))
+   #+END_SRC
 ** emms (emacs music system)
    #+BEGIN_SRC emacs-lisp
    (use-package emms
