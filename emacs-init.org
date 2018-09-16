@@ -1445,9 +1445,9 @@
 ** font related stuff
    #+BEGIN_SRC emacs-lisp
    (setq font-lock-support-mode 'jit-lock-mode)
-   (setq jit-lock-stealth-time 16
+   (setq jit-lock-stealth-time 8
          jit-lock-defer-contextually t
-         jit-lock-stealth-nice 0.5)
+         jit-lock-stealth-nice 1)
    (setq-default font-lock-multiline t)
 
    (setq gb/default-font "Source Code Pro")
