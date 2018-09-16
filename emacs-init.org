@@ -2884,7 +2884,7 @@
    #+BEGIN_SRC emacs-lisp
    (use-package highlight-indent-guides
      :ensure highlight-indent-guides
-     :init (add-hook 'prog-mode-hook #'highlight-indent-guides-mode)
+     :init ;; (add-hook 'prog-mode-hook #'highlight-indent-guides-mode)
      :config
      (progn
        (set-face-background 'highlight-indent-guides-odd-face "darkgray")
