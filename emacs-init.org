@@ -4578,7 +4578,7 @@
 
        ;; don't autoinject, because refactor-nrepl is injected, too, which fails to load
        ;; for (java 1.8, clojure 1.9, cider 0.17.0, lein 2.8.1)
-       (setq cider-inject-dependencies-at-jack-in nil)
+       (setq cider-inject-dependencies-at-jack-in t)
 
        ;; use 1.9.0 if autoinjecting during cider startup
        (setq cider-jack-in-auto-inject-clojure "1.9.0")
