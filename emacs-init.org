@@ -5197,6 +5197,10 @@
        (setq magit-log-arguments (quote ("--graph" "--color" "--decorate" "-n200")))
        (setq magit-pull-arguments (quote ("--rebase")))
        (setq magit-use-overlays nil)
+      (setq magit-diff-refine-hunk t)
+      (setq magit-diff-adjust-tab-width t)
+      (setq magit-diff-highlight-trailing t)
+      (setq magit-diff-hide-trailing-cr-characters t)
 
        ;; make sure that magit closes all other windows on the frame
        (when (fboundp 'gb/display-buffer-fullframe)
