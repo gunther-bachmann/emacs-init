@@ -1462,7 +1462,9 @@
          (cond ((> display-width 3400)
                 (ht ('default-height 150) ('variable-pitch-height 160)))
                ((ht ('default-height 130) ('variable-pitch-height 140))))
-       (cond ((> display-width 3400)
+       (cond ((> display-width 5000)
+              (ht ('default-height 300) ('variable-pitch-height 300)))
+             ((> display-width 3400)
               (ht ('default-height 130) ('variable-pitch-height 130)))
              ((ht ('default-height 110) ('variable-pitch-height 110))))))
 
