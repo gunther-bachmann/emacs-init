@@ -28,8 +28,8 @@
 * preset
   - things to setup before anything else happens
   #+BEGIN_SRC emacs-lisp
-    (setq gb/log-startup-timing nil) ;; set true for timing messages during startup
-    (setq gb/debug-req-package nil) ;; debug req package (look into message buffer)
+    (setq gb/log-startup-timing t) ;; set true for timing messages during startup
+    (setq gb/debug-package nil) ;; fails on all packages that could not be loaded but are not mandatory either
 
     (setq gb/time (float-time))
 
@@ -309,11 +309,9 @@
   (setq secure-package-access t)
 
 
-  (when gb/debug-req-package
-    (setq ;; add verbosity to req package
-          req-package-log-level 'debug
-          ;; add verbosity level to use package
-          use-package-verbose t
+  (when gb/debug-package
+    (setq ;; add verbosity level to use package
+          ;; use-package-verbose t
           ;; make sure that use-package does minimal reporting to the message buffer
           use-package-expand-minimally t))
 
@@ -5647,153 +5645,154 @@
   #+END_SRC
 * rest
 #+BEGIN_SRC emacs-lisp
-    (custom-set-variables
-     ;; '(canlock-password "0e8b34f24c62bdf6cc5585ec93c62be865aee099")
-     '(coffee-tab-width 4)
-     '(cursor-in-non-selected-windows nil)
-     '(custom-safe-themes
-       (quote
-        ("84d2f9eeb3f82d619ca4bfffe5f157282f4779732f48a5ac1484d94d5ff5b279" "4848f52f443b88525a4e2fe4f620a20c40fad90a66a953613be90556b9eb7880" "db790b6031dbc390c8b9318b077f5825302dad9d82925f4c70eaddd22825aafa" "141bdb2503f744acaa2bd8defb015f3c8e9e581ff40ec9ae4f3a27917256edaa" "516ef72a7861d71b39bdd8ae3d2c19628abb916a1456ea93a400cc222f87442a" "05b3ea2f5a8d1913eda3a209bb4bd0091c2aa15e4de64e0580f45d2534428568" "e93f05b3616b9e19a79c3ebd107252684bc88ecb77798617e72443b70aae86d5" "c74e83f8aa4c78a121b52146eadb792c9facc5b1f02c917e3dbb454fca931223" "a27c00821ccfd5a78b01e4f35dc056706dd9ede09a8b90c6955ae6a390eb1c1e" "26614652a4b3515b4bbbb9828d71e206cc249b67c9142c06239ed3418eff95e2" "3c83b3676d796422704082049fc38b6966bcad960f896669dfc21a7a37a748fa" default)))
-     '(desktop-save nil)
-     '(desktop-save-mode nil)
-     '(gnutls-verify-error nil)
-     '(iedit-toggle-key-default nil) ;; disable C-; binding of iedit that is loaded via lispy
-  ;;   '(initial-frame-alist (quote ((fullscreen . maximized))))
-     '(jde-jdk-doc-url "https://docs.oracle.com/javase/8/docs/api/")
-     '(jde-jdk-registry
-       (quote
-        (("1.8.0_40" . "/Library/Java/JavaVirtualMachines/jdk1.8.0_40.jdk/Contents/Home")
-         ("1.7.0_40" . "/Library/Java/JavaVirtualMachines/jdk1.7.0_40.jdk/Contents/Home"))))
-     '(malabar-repl-grooysh "/usr/local/bin/groovysh")
-     '(recentf-max-saved-items 80)
-     '(region ((t (:background "gray45" :inverse-video nil))))
-     '(rng-schema-locating-files
-       (quote
-        ((concat user-emacs-directory "ant-mode/ant-schemas.xml") "schemas.xml" "~/devel/xspec-read-only/editors/emacs/schemas.xml" "/Applications/Emacs.app/Contents/Resources/etc/schema/schemas.xml")))
-     '(send-mail-function (quote smtpmail-multi-send-it))
-     '(tool-bar-mode nil)
-     '(truncate-lines nil)
-     '(xslt-process-registered-stylesheets nil))
+  (custom-set-variables
+   ;; '(canlock-password "0e8b34f24c62bdf6cc5585ec93c62be865aee099")
+   '(coffee-tab-width 4)
+   '(cursor-in-non-selected-windows nil)
+   '(custom-safe-themes
+     (quote
+      ("84d2f9eeb3f82d619ca4bfffe5f157282f4779732f48a5ac1484d94d5ff5b279" "4848f52f443b88525a4e2fe4f620a20c40fad90a66a953613be90556b9eb7880" "db790b6031dbc390c8b9318b077f5825302dad9d82925f4c70eaddd22825aafa" "141bdb2503f744acaa2bd8defb015f3c8e9e581ff40ec9ae4f3a27917256edaa" "516ef72a7861d71b39bdd8ae3d2c19628abb916a1456ea93a400cc222f87442a" "05b3ea2f5a8d1913eda3a209bb4bd0091c2aa15e4de64e0580f45d2534428568" "e93f05b3616b9e19a79c3ebd107252684bc88ecb77798617e72443b70aae86d5" "c74e83f8aa4c78a121b52146eadb792c9facc5b1f02c917e3dbb454fca931223" "a27c00821ccfd5a78b01e4f35dc056706dd9ede09a8b90c6955ae6a390eb1c1e" "26614652a4b3515b4bbbb9828d71e206cc249b67c9142c06239ed3418eff95e2" "3c83b3676d796422704082049fc38b6966bcad960f896669dfc21a7a37a748fa" default)))
+   '(desktop-save nil)
+   '(desktop-save-mode nil)
+   '(gnutls-verify-error nil)
+   '(iedit-toggle-key-default nil) ;; disable C-; binding of iedit that is loaded via lispy
+   '(ido-mode nil) ;; disable ido mode
+;;   '(initial-frame-alist (quote ((fullscreen . maximized))))
+   '(jde-jdk-doc-url "https://docs.oracle.com/javase/8/docs/api/")
+   '(jde-jdk-registry
+     (quote
+      (("1.8.0_40" . "/Library/Java/JavaVirtualMachines/jdk1.8.0_40.jdk/Contents/Home")
+       ("1.7.0_40" . "/Library/Java/JavaVirtualMachines/jdk1.7.0_40.jdk/Contents/Home"))))
+   '(malabar-repl-grooysh "/usr/local/bin/groovysh")
+   '(recentf-max-saved-items 80)
+   '(region ((t (:background "gray45" :inverse-video nil))))
+   '(rng-schema-locating-files
+     (quote
+      ((concat user-emacs-directory "ant-mode/ant-schemas.xml") "schemas.xml" "~/devel/xspec-read-only/editors/emacs/schemas.xml" "/Applications/Emacs.app/Contents/Resources/etc/schema/schemas.xml")))
+   '(send-mail-function (quote smtpmail-multi-send-it))
+   '(tool-bar-mode nil)
+   '(truncate-lines nil)
+   '(xslt-process-registered-stylesheets nil))
 
-    (custom-set-faces
-     ;; custom-set-faces was added by Custom.
-     ;; If you edit it by hand, you could mess it up, so be careful.
-     ;; Your init file should contain only one such instance.
-     ;; If there is more than one, they won't work right.
-     '(col-highlight ((t (:background "gray63"))))
-     '(hi-yellow ((t (:background "gray44"))))
-     '(region ((t (:background "gray45" :inverse-video nil))))
-     '(popup-isearch-match ((t (:background "RoyalBlue2"))))
-     '(term-color-yellow ((t (:background "DarkGoldenrod4" :foreground "#f0c674")))))
+  (custom-set-faces
+   ;; custom-set-faces was added by Custom.
+   ;; If you edit it by hand, you could mess it up, so be careful.
+   ;; Your init file should contain only one such instance.
+   ;; If there is more than one, they won't work right.
+   '(col-highlight ((t (:background "gray63"))))
+   '(hi-yellow ((t (:background "gray44"))))
+   '(region ((t (:background "gray45" :inverse-video nil))))
+   '(popup-isearch-match ((t (:background "RoyalBlue2"))))
+   '(term-color-yellow ((t (:background "DarkGoldenrod4" :foreground "#f0c674")))))
 
-    ;; load the color scheme similar to lighttable
-    ;; (load-theme 'noctilux t)
+  ;; load the color scheme similar to lighttable
+  ;; (load-theme 'noctilux t)
 
-    ;; (setq cheat-sheet-locations '("Emacs_Reference_Card.pdf"
-    ;;                               "calccard.pdf"
-    ;;                               "dired-ref.pdf"
-    ;;                               "dired-refcard.gnu.pdf"
-    ;;                               "gnus-booklet.pdf"
-    ;;                               "gnus-refcard.pdf"
-    ;;                               "magitCheatsheet.pdf"
-    ;;                               "orgcard.pdf"
-    ;;                               "paredit-cheatsheet.pdf"))
+  ;; (setq cheat-sheet-locations '("Emacs_Reference_Card.pdf"
+  ;;                               "calccard.pdf"
+  ;;                               "dired-ref.pdf"
+  ;;                               "dired-refcard.gnu.pdf"
+  ;;                               "gnus-booklet.pdf"
+  ;;                               "gnus-refcard.pdf"
+  ;;                               "magitCheatsheet.pdf"
+  ;;                               "orgcard.pdf"
+  ;;                               "paredit-cheatsheet.pdf"))
 
-    ;; ;; can be either 'right or 'below,
-    ;; (setq cheat-sheet-split-mode 'below)
+  ;; ;; can be either 'right or 'below,
+  ;; (setq cheat-sheet-split-mode 'below)
 
-    ;; (defun open-cheat-sheet (file-path)
-    ;;   "split depending on customization var cheat-sheet-split-mode and load file from file-path"
-    ;;   (cond
-    ;;    ((equal cheat-sheet-split-mode 'right) (split-window-right))
-    ;;    ((equal cheat-sheet-split-mode 'left) (split-window-left))
-    ;;    ;;     ((equal cheat-sheet-split-mode 'above) (split-window-below))
-    ;;    ((equal cheat-sheet-split-mode 'below) (split-window-below)))
-    ;;   (other-window 1)
-    ;;   (find-file file-path)
-    ;;   (cond
-    ;;    ((equal cheat-sheet-split-mode 'right) (pdf-view-fit-height-to-window))
-    ;;    ((equal cheat-sheet-split-mode 'left) (pdf-view-fit-height-to-window))
-    ;;    ;;     ((equal cheat-sheet-split-mode 'above) (progn (pdf-view-fit-width-to-window)))
-    ;;    ((equal cheat-sheet-split-mode 'below) (pdf-view-fit-width-to-window)))
-    ;;   (other-window -1))
+  ;; (defun open-cheat-sheet (file-path)
+  ;;   "split depending on customization var cheat-sheet-split-mode and load file from file-path"
+  ;;   (cond
+  ;;    ((equal cheat-sheet-split-mode 'right) (split-window-right))
+  ;;    ((equal cheat-sheet-split-mode 'left) (split-window-left))
+  ;;    ;;     ((equal cheat-sheet-split-mode 'above) (split-window-below))
+  ;;    ((equal cheat-sheet-split-mode 'below) (split-window-below)))
+  ;;   (other-window 1)
+  ;;   (find-file file-path)
+  ;;   (cond
+  ;;    ((equal cheat-sheet-split-mode 'right) (pdf-view-fit-height-to-window))
+  ;;    ((equal cheat-sheet-split-mode 'left) (pdf-view-fit-height-to-window))
+  ;;    ;;     ((equal cheat-sheet-split-mode 'above) (progn (pdf-view-fit-width-to-window)))
+  ;;    ((equal cheat-sheet-split-mode 'below) (pdf-view-fit-width-to-window)))
+  ;;   (other-window -1))
 
-    ;; (defun close-cheat-sheet (file-path)
-    ;;   "close the cheat sheet that is displayed, deleting the respective window"
-    ;;   (with-selected-window
-    ;;       (get-buffer-window (get-file-buffer file-path))
-    ;;     (delete-window)))
+  ;; (defun close-cheat-sheet (file-path)
+  ;;   "close the cheat sheet that is displayed, deleting the respective window"
+  ;;   (with-selected-window
+  ;;       (get-buffer-window (get-file-buffer file-path))
+  ;;     (delete-window)))
 
-    ;; (defun cheat-sheet-toggle (file-path)
-    ;;   "open the given cheatsheet (or close it, if already open)"
-    ;;   (let ((fbuf (get-file-buffer file-path)))
-    ;;     (if (and fbuf (get-buffer-window fbuf))
-    ;;         (close-cheat-sheet file-path)
-    ;;       (open-cheat-sheet file-path))))
+  ;; (defun cheat-sheet-toggle (file-path)
+  ;;   "open the given cheatsheet (or close it, if already open)"
+  ;;   (let ((fbuf (get-file-buffer file-path)))
+  ;;     (if (and fbuf (get-buffer-window fbuf))
+  ;;         (close-cheat-sheet file-path)
+  ;;       (open-cheat-sheet file-path))))
 
-    ;; (defun cheat-sheet-clojure-toggle ()
-    ;;   "open the clojure cheatsheet"
-    ;;   (interactive)
-    ;;   (cheat-sheet-toggle (expand-file-name "~/Documents/cheat-sheet/clojure/clojure-cheatsheet-usletter-color.pdf")))
+  ;; (defun cheat-sheet-clojure-toggle ()
+  ;;   "open the clojure cheatsheet"
+  ;;   (interactive)
+  ;;   (cheat-sheet-toggle (expand-file-name "~/Documents/cheat-sheet/clojure/clojure-cheatsheet-usletter-color.pdf")))
 
-    ;; (defun cheat-sheet-org-toggle ()
-    ;;   "open the org-mode cheatsheet"
-    ;;   (interactive)
-    ;;   (cheat-sheet-toggle (expand-file-name "~/Documents/cheat-sheet/emacs/orgcard.pdf")))
+  ;; (defun cheat-sheet-org-toggle ()
+  ;;   "open the org-mode cheatsheet"
+  ;;   (interactive)
+  ;;   (cheat-sheet-toggle (expand-file-name "~/Documents/cheat-sheet/emacs/orgcard.pdf")))
 
-    ;; (defun cheat-sheet-dired-toggle ()
-    ;;   "open the dired cheatsheet"
-    ;;   (interactive)
-    ;;   (cheat-sheet-toggle (expand-file-name "~/Documents/cheat-sheet/emacs/dired-refcard.gnu.pdf")))
+  ;; (defun cheat-sheet-dired-toggle ()
+  ;;   "open the dired cheatsheet"
+  ;;   (interactive)
+  ;;   (cheat-sheet-toggle (expand-file-name "~/Documents/cheat-sheet/emacs/dired-refcard.gnu.pdf")))
 
-    ;; (defun cheat-sheet-magit-toggle ()
-    ;;   "open the magit cheatsheet"
-    ;;   (interactive)
-    ;;   (cheat-sheet-toggle (expand-file-name "~/Documents/cheat-sheet/emacs/magitCheatsheet.pdf")))
+  ;; (defun cheat-sheet-magit-toggle ()
+  ;;   "open the magit cheatsheet"
+  ;;   (interactive)
+  ;;   (cheat-sheet-toggle (expand-file-name "~/Documents/cheat-sheet/emacs/magitCheatsheet.pdf")))
 
-    ;; clojure-cheatsheet
-    ;; runs with existing repl only:
-    ;; M-x clojure-cheatsheet opens a helm like search over severyl clojure concepts/functions etc.
+  ;; clojure-cheatsheet
+  ;; runs with existing repl only:
+  ;; M-x clojure-cheatsheet opens a helm like search over severyl clojure concepts/functions etc.
 
-    ;; focus
-    ;; M-x focus-mode toggles this mode that focusses only on the construct under the cursor
+  ;; focus
+  ;; M-x focus-mode toggles this mode that focusses only on the construct under the cursor
 
-    ;; helm-ag
-    ;; search multi key word with M-x helm-ag
-
-
-    ;; (add-to-list 'load-path "~/.emacs.d/clomacs/src/elisp/")
-    ;; (require 'clomacs)
-
-    ;; (clomacs-defun get-property System/getProperty)
-    ;; (message (get-property "java.version"))
-
-    ;; (use-package kanban)
-
-    ;; (add-to-list 'load-path "~/git/local/hoclgen/src/elisp")
-    ;; (require 'hoclgen)
+  ;; helm-ag
+  ;; search multi key word with M-x helm-ag
 
 
-    ;; (add-to-list 'load-path "~/.emacs.d/xml-customizations")
-    ;; (load "xml-extensions.el")
+  ;; (add-to-list 'load-path "~/.emacs.d/clomacs/src/elisp/")
+  ;; (require 'clomacs)
+
+  ;; (clomacs-defun get-property System/getProperty)
+  ;; (message (get-property "java.version"))
+
+  ;; (use-package kanban)
+
+  ;; (add-to-list 'load-path "~/git/local/hoclgen/src/elisp")
+  ;; (require 'hoclgen)
 
 
-    ;; C-c C-a annotate the marked region, or the word under point
-    ;; annotations are saved in ~/.annotations
+  ;; (add-to-list 'load-path "~/.emacs.d/xml-customizations")
+  ;; (load "xml-extensions.el")
+
+
+  ;; C-c C-a annotate the marked region, or the word under point
+  ;; annotations are saved in ~/.annotations
 
 
 
-    ;; Set the defcustom variables defined in jiralib.el (actually only the jiralib-url is required, as the other 2 are usually computed from it correctly and is the case in the video demo):
+  ;; Set the defcustom variables defined in jiralib.el (actually only the jiralib-url is required, as the other 2 are usually computed from it correctly and is the case in the video demo):
 
-    ;; 3 matches for "\bdefcustom\b" in buffer: jiralib.el
-    ;;      55:(defcustom jiralib-host ""
-    ;;     107:(defcustom jiralib-wsdl-descriptor-url
-    ;;     120:(defcustom jiralib-url
+  ;; 3 matches for "\bdefcustom\b" in buffer: jiralib.el
+  ;;      55:(defcustom jiralib-host ""
+  ;;     107:(defcustom jiralib-wsdl-descriptor-url
+  ;;     120:(defcustom jiralib-url
 
 
-    ;; Write your password in ~/.authinfo, with machine being the (computed) jiralib-host, and the port being 80 (even if you are using https for Jira):
+  ;; Write your password in ~/.authinfo, with machine being the (computed) jiralib-host, and the port being 80 (even if you are using https for Jira):
 
-    ;; machine JIRALIB-HOST login USERNAME password XXXXX port 80
+  ;; machine JIRALIB-HOST login USERNAME password XXXXX port 80
 
 
 
@@ -7573,43 +7572,43 @@
 
  #+END_SRC
 * ido (disabled, now using helm)
-** ido itself (disabled)
-#+BEGIN_SRC emacs-lisp :tangle no
-    (use-package ido
-      :disabled t
-      :config
-      ;; ido-mode allows you to more easily navigate choices. For example,
-      ;; when you want to switch buffers, ido presents you with a list
-      ;; of buffers in the the mini-buffer. As you start to type a buffer's
-      ;; name, ido will narrow down the list of buffers to match the text
-      ;; you've typed in
-      ;; http://www.emacswiki.org/emacs/InteractivelyDoThings
-      (ido-mode t)
+** ido itself (configured to being not used, since it is started anyways)
+   #+BEGIN_SRC emacs-lisp
+   (use-package ido
+     :config
+     ;; ido-mode allows you to more easily navigate choices. For example,
+     ;; when you want to switch buffers, ido presents you with a list
+     ;; of buffers in the the mini-buffer. As you start to type a buffer's
+     ;; name, ido will narrow down the list of buffers to match the text
+     ;; you've typed in
+     ;; http://www.emacswiki.org/emacs/InteractivelyDoThings
+     (ido-mode 0)
+     (setq ido-mode nil)
 
-      ;; This allows partial matches, e.g. "tl" will match "Tyrion Lannister"
-      (setq ido-enable-flex-matching t)
+     ;; This allows partial matches, e.g. "tl" will match "Tyrion Lannister"
+     (setq ido-enable-flex-matching t)
 
-      ;; Turn this behavior off because it's annoying
-      (setq ido-use-filename-at-point nil)
+     ;; Turn this behavior off because it's annoying
+     (setq ido-use-filename-at-point nil)
 
-      ;; Don't try to match file across all "work" directories; only match files
-      ;; in the current directory displayed in the minibuffer
-      (setq ido-auto-merge-work-directories-length -1)
+     ;; Don't try to match file across all "work" directories; only match files
+     ;; in the current directory displayed in the minibuffer
+     (setq ido-auto-merge-work-directories-length -1)
 
-      ;; Includes buffer names of recently open files, even if they're not
-      ;; open now
-      (setq ido-use-virtual-buffers t)
+     ;; Includes buffer names of recently open files, even if they're not
+     ;; open now
+     (setq ido-use-virtual-buffers t)
 
-      (defface ivy-current-match
-        '((((class color) (background light))
-           :background "#1a4b77" :foreground "white")
-          (((class color) (background dark))
-           :background "#65a7e2" :foreground "black"))
-        "Face used by Ivy for highlighting first match.")
+     (defface ivy-current-match
+       '((((class color) (background light))
+          :background "#1a4b77" :foreground "white")
+         (((class color) (background dark))
+          :background "#65a7e2" :foreground "black"))
+       "Face used by Ivy for highlighting first match.")
 
-      (setq ivy-display-style 'fancy)
-      )
-#+END_SRC
+     (setq ivy-display-style 'fancy)
+     )
+   #+END_SRC
 ** ido grid (disabled)
 #+BEGIN_SRC emacs-lisp :tangle no
   (use-package ido-grid-mode
@@ -7673,7 +7672,7 @@
     :after ( async))
   (use-package helm
     :ensure helm
-    :after ( async popup rainbow-delimiters)
+    :after ( async popup rainbow-delimiters ido)
     :bind (("M-x" . helm-M-x)
            ("C-x C-f" . helm-find-files)
            ("s-f" . helm-for-files)
@@ -8433,11 +8432,17 @@
         (setq vr/default-regexp-modifiers (quote (:I t :M t :S nil :U nil)))))
   #+END_SRC
 * language server protocol mode
+#+BEGIN_SRC emacs-lisp
+(report-elapsed "check point language server protocol mode")
+#+END_SRC
   #+BEGIN_SRC emacs-lisp
   (use-package lsp-mode
     :commands lsp-mode)
   #+END_SRC
 * exwm (emacs window manager)
+#+BEGIN_SRC emacs-lisp
+(report-elapsed "check point exwm")
+#+END_SRC
   - C-c C-q <next key>: results in next key being send to the x-application unmodified
   - infos
     - eclipse usage
@@ -8732,11 +8737,17 @@
 
   #+END_SRC
 * nix specifics
+#+BEGIN_SRC emacs-lisp
+(report-elapsed "check point nix specifics")
+#+END_SRC
   #+BEGIN_SRC emacs-lisp
   (use-package company-nixos-options)
   (use-package nix-mode)
   #+END_SRC
 * currently evaluated
+#+BEGIN_SRC emacs-lisp
+(report-elapsed "check point currently evaluated")
+#+END_SRC
 ** blimb (image manipulation using imagemagick)
    - lets you interactively select magick commands to manipulate the image in the buffer
    - it has command autocomplete, description and some parameter completion facilities
@@ -8768,6 +8779,9 @@
    #+BEGIN_SRC emacs-lisp
    (use-package posframe)
    #+END_SRC
+#+BEGIN_SRC emacs-lisp
+(report-elapsed "check point - posframe")
+#+END_SRC
 ** flycheck-posframe
    - display flycheck results in posframe (as floating frame at point position)
    - enable via 'flycheck-posframe-mode' (not enabled by default)
@@ -8804,6 +8818,9 @@
    #+BEGIN_SRC emacs-lisp
    (use-package gif-screencast) ;; one gif per user action
    #+END_SRC
+#+BEGIN_SRC emacs-lisp
+(report-elapsed "check point - screen cast")
+#+END_SRC
 ** async dired (execute several copy/zip etc. tasks asynchronously)
    - see [[https://vxlabs.com/2018/03/30/asynchronous-rsync-with-emacs-dired-and-tramp/][here]], [[https://truongtx.me/tmtxt-dired-async.html][here]] and [[https://truongtx.me/tmtxt-async-tasks.html][here]]
    - install elisp files
@@ -8894,6 +8911,9 @@
        :ensure atomic-chrome
        :config (atomic-chrome-start-server))
    #+END_SRC
+#+BEGIN_SRC emacs-lisp
+(report-elapsed "check point - atomic chrome")
+#+END_SRC
 ** cakecrumbs (show hierarchy in header for css and html)
    #+BEGIN_SRC emacs-lisp
      (use-package cakecrumbs
@@ -8946,6 +8966,9 @@
      :after ( xterm-color)
      :init (add-hook 'term-mode-hook #'eterm-256color-mode))
    #+END_SRC
+#+BEGIN_SRC emacs-lisp
+(report-elapsed "check point - eterm-256color")
+#+END_SRC
 ** pcre2el (replace regular expression syntax with more readable one)
    - see here
    #+BEGIN_SRC emacs-lisp
@@ -8994,6 +9017,9 @@
        :init
        (add-hook 'lsp-mode-hook 'lsp-ui-mode))
    #+END_SRC
+#+BEGIN_SRC emacs-lisp
+(report-elapsed "check point - lsp-ui")
+#+END_SRC
 ** company lsp
    #+BEGIN_SRC emacs-lisp
    (use-package company-lsp
@@ -9121,50 +9147,71 @@
      :commands helm-google helm-google-suggest
      :after ( helm)) ;; quick google searches, really ?
    #+END_SRC
+#+BEGIN_SRC emacs-lisp
+(report-elapsed "check point - helm google")
+#+END_SRC
 ** ivy swiper hydra
    #+BEGIN_SRC emacs-lisp
    (use-package ivy-hydra
      :after ( hydra ivy)) ;; adds an hydra for ivy/swiper TODO: include into own hydras
    #+END_SRC
+#+BEGIN_SRC emacs-lisp
+(report-elapsed "check point - ivy swiper hydra")
+#+END_SRC
 ** ripgrep over directory trees
    #+BEGIN_SRC emacs-lisp
    (use-package ripgrep
      :commands ripgrep-regexp) ;; allow M-x ripgrep-regexp (search in directory + subdirectories)
    #+END_SRC
+#+BEGIN_SRC emacs-lisp
+(report-elapsed "check point - rip grep")
+#+END_SRC
 ** elisp refs (find references to elisp functions....)
    #+BEGIN_SRC emacs-lisp
    (use-package elisp-refs) ;; allow M-x elisp-refs-...
    #+END_SRC
+#+BEGIN_SRC emacs-lisp
+(report-elapsed "check point - elisp efs")
+#+END_SRC
 ** company bib tex
    #+BEGIN_SRC emacs-lisp
    (use-package company-bibtex
      :after ( company tex-mode)) ;; add bibtex references using company
    #+END_SRC
+#+BEGIN_SRC emacs-lisp
+(report-elapsed "check point - bib tex")
+#+END_SRC
 ** cider stuff
    #+BEGIN_SRC emacs-lisp
-     ;; C-c C-t (hydra for test in cider)
-     ;; C-c M-r (hydra for repl)
-     ;; C-c M-t (test)
-     ;; C-c C-d (hydra for documentation)
-     (use-package cider-hydra ;; adds hydras
-       :ensure cider-hydra
-       :after ( hydra cider))
-     (use-package cider-decompile ;; decompilation extension for cider [https://github.com/clojure-emacs/cider-decompile]
-       :ensure cider-decompile
-       :after ( cider javap-mode))
-     ;; (use-package cider-profile ;; CIDER profiling support [https://github.com/thunknyc/nrepl-profile]
-     ;;   :defer 10
-     ;;   :after ( cider)
-     ;;   :init
-     ;;   (progn
-     ;;     (add-hook 'cider-mode-hook 'cider-profile-mode)
-     ;;     (add-hook 'cider-repl-mode-hook 'cider-profile-mode)))
+   ;; C-c C-t (hydra for test in cider)
+   ;; C-c M-r (hydra for repl)
+   ;; C-c M-t (test)
+   ;; C-c C-d (hydra for documentation)
+   ;; (use-package cider-hydra ;; adds hydras
+   ;;   :ensure cider-hydra
+   ;;   :after ( hydra cider))
+   (use-package cider-decompile ;; decompilation extension for cider [https://github.com/clojure-emacs/cider-decompile]
+     :ensure cider-decompile
+     :after ( cider javap-mode))
+   ;; (use-package cider-profile ;; CIDER profiling support [https://github.com/thunknyc/nrepl-profile]
+   ;;   :defer 10
+   ;;   :after ( cider)
+   ;;   :init
+   ;;   (progn
+   ;;     (add-hook 'cider-mode-hook 'cider-profile-mode)
+   ;;     (add-hook 'cider-repl-mode-hook 'cider-profile-mode)))
    #+END_SRC
+#+BEGIN_SRC emacs-lisp
+(report-elapsed "check point - cider stuff")
+#+END_SRC
 ** window / frame tiling
    #+BEGIN_SRC emacs-lisp
    (use-package tile
      :commands tile tile-select tile-frames-horizontal tile-frames-vertically tile-frames-top-to-bottom tile-frames-side-by-side) ;; see [https://github.com/IvanMalison/tile], tiles windows into predefined setups
    #+END_SRC
+#+BEGIN_SRC emacs-lisp
+(report-elapsed "check point - window / frame")
+#+END_SRC
 ** bug hunter
    #+BEGIN_SRC emacs-lisp
    (use-package bug-hunter ;; allows via commands to hunt bugs in emacs lisp files see https://github.com/Malabarba/elisp-bug-hunter
@@ -9172,6 +9219,9 @@
      :commands bug-hunter-file bug-hunter-init-file)
 
    #+END_SRC
+#+BEGIN_SRC emacs-lisp
+(report-elapsed "check point - bug hunter")
+#+END_SRC
 ** flycheck scala (deactivated, ensime provides all functionality needed here)
    #+BEGIN_SRC emacs-lisp :tangle no
    ;; install flycheck for scala
@@ -9352,6 +9402,9 @@
    (use-package dired-collapse
      :commands dired-collapse-mode)
    #+END_SRC
+#+BEGIN_SRC emacs-lisp
+(report-elapsed "check point - dired-collapse")
+#+END_SRC
 ** org-pomodoro (time management technique)
    - install libnotify (e.g. nix-env -iA nixos.libnotify)
    #+BEGIN_SRC emacs-lisp
@@ -9471,6 +9524,9 @@
          (setq projectile-switch-project-action 'neotree-projectile-action)))
    #+END_SRC
 * to test
+#+BEGIN_SRC emacs-lisp
+(report-elapsed "check point to test")
+#+END_SRC
 ** deadgrep - ripgrep front end
 ** helm-tail - tailing of several sources
 ** lsp-html - lsp frontend for html serving
@@ -9550,6 +9606,9 @@
 ** company suggest (propose sentence completion based on wikionary or google)
    - company-suggest, see [[https://github.com/juergenhoetzel/company-suggest][here]]
 * look at
+#+BEGIN_SRC emacs-lisp
+(report-elapsed "check point look at")
+#+END_SRC
 ** powerthesaurus - interface to powerthesaurus.org
 ** eglot - lsp client (for multiple languages)
 ** pickle - Major mode for editing cucumber gherkin files.
@@ -9592,6 +9651,9 @@
    - allows to control surf within exwm
    - surf is a webkit based browser that works as embedded x application and can thus be embedded into emacs directly
    - don't need this, since chromium or firefox can be directly embedded into exwm
+#+BEGIN_SRC emacs-lisp
+(report-elapsed "check point 4")
+#+END_SRC
 * tested but discarded
 ** diminish (hide minor modes from spaceline mode line) (obsolete now)
    - its still a dependency of use-package, so its still loaded
@@ -9717,19 +9779,19 @@
    #+END_SRC
 * finish - up
   #+BEGIN_SRC emacs-lisp
-    (report-elapsed "enter finish - up")
+  (report-elapsed "enter finish - up")
 
-    (require 'server)
-    ;; start a server to allow reuse of this server when opening other files from within the os
-    (unless (server-running-p)
-      (server-start))
-    ;; (maximize-frame)
-    (gb/do-after-display-system-init
-     (toggle-frame-fullscreen)
-     (ido-mode 0)
-     (midnight-mode 1))
-    (setq gc-cons-threshold 80000)
-    (report-elapsed "exit finish - up")
+  (require 'server)
+  ;; start a server to allow reuse of this server when opening other files from within the os
+  (unless (server-running-p)
+    (server-start))
+  ;; (maximize-frame)
+  (gb/do-after-display-system-init
+   (toggle-frame-fullscreen)
+   (ido-mode 0)
+   (midnight-mode 1))
+  (setq gc-cons-threshold 80000)
+  (report-elapsed "exit finish - up")
   #+END_SRC
 
 #  LocalWords:  flyspell
