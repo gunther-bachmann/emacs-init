@@ -8293,13 +8293,17 @@
               ("e" . gb/dired-ediff-files))
        :init
          (add-hook 'dired-mode-hook 'auto-revert-mode)
+     (add-hook 'dired-mode-hook 'dired-omit-mode)
        :config
      (setq dired-dwim-target t) ;; try to guess the directory to use for dired
      (setq dired-listing-switches "-Alh --group-directories-first") ;; default switches for ls to be used for dired listing
      (setq diredp-hide-details-propagate-flag t) ;; opening subfolders inherit details flag (shown/hidden)
      (if gnu-ls-installed
        (setq insert-directory-program gnu-ls-bin-path))
-
+     (setq  dired-omit-files "^\\.?#\\|^\\.$\\|^\\.\\.$\\|^\\..*")
+     (setq dired-guess-shell-alist-user '(
+                                          ("\\.mpe?g\\'\\|\\.avi\\'\\|\\.mp4\\'" "cvlc")
+                                          ))
      ;; snippet from https://oremacs.com/2017/03/18/dired-ediff/
      (defun gb/dired-ediff-files ()
        "ediff two marked files (no questions asked)"
