@@ -5568,6 +5568,13 @@
        (interactive)
        (ansi-term (executable-find "fish")))
    #+END_SRC
+** bash completion
+   #+BEGIN_SRC emacs-lisp
+   (use-package bash-completion
+     :config
+     (setq bash-completion-prog (s-trim (shell-command-to-string "which bash")))
+     (bash-completion-setup))
+   #+END_SRC
 ** shell (bash) checking
    - built in shell editing mode, explicitly initialized here to enable flycheck-mode
    #+BEGIN_SRC emacs-lisp
