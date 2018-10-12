@@ -2783,9 +2783,9 @@
            (interactive)
            (unwind-protect
                (progn
-                 (nlinum-mode 1)
+                     (setq display-line-numbers t)
                  (goto-line (read-number "Goto line: ")))
-             (nlinum-mode -1)))
+                 (setq display-line-numbers nil)))
        )
        :config
        (progn
@@ -3183,6 +3183,11 @@
 ** toggle commands (C-x t ...)
    #+BEGIN_SRC emacs-lisp
      (define-prefix-command 'gb/toggle-map)
+
+   (defun gb/toggle-line-numbers ()
+     ""
+     (interactive)
+     (setq display-line-numbers (not display-line-numbers)))
      ;; The manual recommends C-c for user keys, but C-x t is
      ;; always free, whereas C-c t is used by some modes.
      (define-key ctl-x-map "t" 'gb/toggle-map)
@@ -3196,6 +3201,8 @@
      (define-key gb/toggle-map "l" #'toggle-truncate-lines)
      (when (fboundp 'gb/toggle-visible-mark-mode)
        (define-key gb/toggle-map "m" #'gb/toggle-visible-mark-mode))
+   (define-key gb/toggle-map "n" #'gb/toggle-line-numbers)
+   (define-key gb/toggle-map "o" #'dired-omit-mode)
      (define-key gb/toggle-map "p" #'toggle-serif)
      (define-key gb/toggle-map "q" #'toggle-debug-on-quit)
      (define-key gb/toggle-map "r" #'toggle-word-wrap)
