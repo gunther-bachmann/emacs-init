@@ -3268,9 +3268,10 @@
    - highlight blocks associated with buffer commands until any key is pressed
      (e.g. highlight pasted text)
    #+BEGIN_SRC emacs-lisp
-   (use-package volatile-highlights
-     :config
-     (volatile-highlights-mode t))
+   (when (locate-library "volatile-highlights")
+      (use-package volatile-highlights
+        :config
+        (volatile-highlights-mode t)))
    #+END_SRC
 ** region related editing
 *** wrap-region
@@ -3544,13 +3545,14 @@
 ** aggressive indent mode (also used by parinfer) 
    automatically indents all while typing 
    #+BEGIN_SRC emacs-lisp
-   (use-package aggressive-indent
-     :config
-     (progn ;; (global-aggressive-indent-mode 1) ;; enable mode for all programming modes
-       (add-to-list 'aggressive-indent-excluded-modes 'html-mode)
-       ;;(add-to-list 'aggressive-indent-excluded-modes 'clojure-mode)
-       ;;(add-to-list 'aggressive-indent-excluded-modes 'emacs-lisp-mode)
-       )) ;; disable mode for ...
+   (when (locate-library "aggressive-indent")
+     (use-package aggressive-indent
+       :config
+       (progn ;; (global-aggressive-indent-mode 1) ;; enable mode for all programming modes
+         (add-to-list 'aggressive-indent-excluded-modes 'html-mode)
+         ;;(add-to-list 'aggressive-indent-excluded-modes 'clojure-mode)
+         ;;(add-to-list 'aggressive-indent-excluded-modes 'emacs-lisp-mode)
+         ))) ;; disable mode for ...
    #+END_SRC
 ** with editor
    #+BEGIN_SRC emacs-lisp
@@ -4085,22 +4087,23 @@
    - back-button allows navigation throught the mark buffer positions
    - STATUS: produces errors on post command hooks (default is disabled)
    #+BEGIN_SRC emacs-lisp
-   (use-package visible-mark
-     :init
-     (defface visible-mark-active ;; put this before (require 'visible-mark)
-       '((((type tty) (class mono)))
-         (t (:background "magenta"))) "")
-     (setq visible-mark-max 2)
-     (setq visible-mark-faces `(visible-mark-face1 visible-mark-face2))
-     (defun gb/toggle-visible-mark-mode ()
-       "toggle visible mark mode"
-       (if (bound-and-true-p visible-mark-mode)
-           (visible-mark-mode -1)
-         (visible-mark-mode t)))
-     :config
-     (global-visible-mark-mode -1) ;; disable visible mark mode globally (until explicitly toggled for a mode)
-     ;; or add (visible-mark-mode) to specific hooks
-     )
+   (when (locate-library "visible-mark")
+     (use-package visible-mark
+       :init
+       (defface visible-mark-active ;; put this before (require 'visible-mark)
+         '((((type tty) (class mono)))
+           (t (:background "magenta"))) "")
+       (setq visible-mark-max 2)
+       (setq visible-mark-faces `(visible-mark-face1 visible-mark-face2))
+       (defun gb/toggle-visible-mark-mode ()
+         "toggle visible mark mode"
+         (if (bound-and-true-p visible-mark-mode)
+             (visible-mark-mode -1)
+           (visible-mark-mode t)))
+       :config
+       (global-visible-mark-mode -1) ;; disable visible mark mode globally (until explicitly toggled for a mode)
+       ;; or add (visible-mark-mode) to specific hooks
+       ))
    #+END_SRC
 ** back-button
    #+BEGIN_SRC emacs-lisp
@@ -4157,9 +4160,10 @@
 ** region-state
    - Show the number of chars/lines or rows/columns in the region
    #+BEGIN_SRC emacs-lisp
-   (use-package region-state
-     :config
-     (region-state-mode 1))
+   (when (locate-library "region-state")
+     (use-package region-state
+       :config
+       (region-state-mode 1)))
    #+END_SRC
 ** goto last change
    #+BEGIN_SRC emacs-lisp
@@ -5319,7 +5323,8 @@
    - [ ] add code mappings (java, clojure)
    - [ ] eval usefulness
  #+BEGIN_SRC emacs-lisp
-   (use-package code-library)
+ (when (locate-library "code-library")
+  (use-package code-library))
  #+END_SRC
 ** speedbar (currently disabled, see sidebar)
  #+BEGIN_SRC emacs-lisp :tangle no
@@ -5883,6 +5888,7 @@
    - use functions yankpad-map, yankpad-expand
    - see [[https://github.com/Kungsgeten/yankpad][homepage]]
    #+BEGIN_SRC emacs-lisp
+   (when (locate-library "yankpad")
      (use-package yankpad
        :init
        (when (package-installed-p 'company)
@@ -5890,7 +5896,7 @@
          ;; (add-to-list 'company-backends #'company-yankpad)
          )
        :config
-       (setq yankpad-file "~/yankpad.org"))
+       (setq yankpad-file "~/yankpad.org")))
    #+END_SRC
 * organizational (org, mail, news)
 ** elfeed
@@ -7512,7 +7518,8 @@
     #+END_SRC
 *** adaptive warp
     #+BEGIN_SRC emacs-lisp
-      (use-package adaptive-wrap)
+    (when (locate-library "adaptive-wrap")
+      (use-package adaptive-wrap))
     #+END_SRC
 *** insertion of web images
     - allow insertion of images via url, which automatically downloads
@@ -8222,14 +8229,15 @@
 ** bibtex
    - check https://nickhigham.wordpress.com/2016/01/06/managing-bibtex-files-with-emacs/
    #+BEGIN_SRC emacs-lisp
-     (use-package parsebib)
-     (use-package let-alist)
-     (use-package biblio-core
-       :after ( let-alist seq dash))
-     (use-package biblio
-       :after ( biblio-core))
-     (use-package helm-bibtex
-       :after ( helm parsebib dash biblio))
+   (when (locate-library "parsebib")
+     (use-package parsebib))
+   (use-package let-alist)
+   (use-package biblio-core
+     :after ( let-alist seq dash))
+   (use-package biblio
+     :after ( biblio-core))
+   (use-package helm-bibtex
+     :after ( helm parsebib dash biblio))
    #+END_SRC
 ** latex extra
    - see [[https://github.com/Malabarba/latex-extra][here]]
@@ -8284,8 +8292,9 @@
   #+END_SRC
 * bookmark+
    #+BEGIN_SRC emacs-lisp
-     ;; adds lots of functions all starting with bmkp
-     (use-package bookmark+)
+   ;; adds lots of functions all starting with bmkp
+   (when (locate-library "bookmark+")
+    (use-package bookmark+))
    #+END_SRC
 * dired
 ** configuration
@@ -8420,15 +8429,16 @@
 * stripe-buffer
   add stripes to background of dired (or any other mode)
   #+BEGIN_SRC emacs-lisp
+  (when (locate-library "stripe-buffer")
     (use-package stripe-buffer
       :init (progn
-      ;; (add-hook 'dired-mode-hook 'turn-on-stripe-buffer-mode)
-      ;; (add-hook 'dired-mode-hook 'stripe-listify-buffer)
-      )
+              ;; (add-hook 'dired-mode-hook 'turn-on-stripe-buffer-mode)
+              ;; (add-hook 'dired-mode-hook 'stripe-listify-buffer)
+              )
       :config
       (custom-set-faces
        '(stripe-highlight ((t (:background "gray15")))))
-      )
+      ))
   #+END_SRC
 * figlet (text->ascii art)
   - 'M-x figlet' to enter a text that is transformed into asci art
@@ -8555,7 +8565,8 @@
    #+END_SRC
 ** screen cast -> gif
    #+BEGIN_SRC emacs-lisp
-   (use-package gif-screencast) ;; one gif per user action
+   (when (locate-library "gif-screencast")
+     (use-package gif-screencast)) ;; one gif per user action
    #+END_SRC
 #+BEGIN_SRC emacs-lisp
 (report-elapsed "check point - screen cast")
@@ -8631,8 +8642,9 @@
    #+END_SRC
 ** info colors
    #+BEGIN_SRC emacs-lisp
-   (use-package info-colors
-     :init (add-hook 'Info-selection-hook 'info-colors-fontify-node))
+   (when (locate-library "info-colors")
+     (use-package info-colors
+       :init (add-hook 'Info-selection-hook 'info-colors-fontify-node)))
    #+END_SRC
 ** flycheck gradle
    #+BEGIN_SRC emacs-lisp
@@ -8655,32 +8667,33 @@
 #+END_SRC
 ** cakecrumbs (show hierarchy in header for css and html)
    #+BEGIN_SRC emacs-lisp
-     (use-package cakecrumbs
-       :config
-       ;; Specify all major-mode (`cakecrumbs' decide how to deal with
-       ;; cursor's context by variable `major-mode'.)
-       (setq cakecrumbs-html-major-modes   '(html-mode web-mode nxml-mode sgml-mode))
-       (setq cakecrumbs-jade-major-modes   '(yajade-mode jade-mode pug-mode))
-       (setq cakecrumbs-scss-major-modes   '(scss-mode less-css-mode css-mode))
-       (setq cakecrumbs-stylus-major-modes '(stylus-mode sass-mode))  ; currently, sass-mode use the same rule with stylus-mode
+   (use-package cakecrumbs
+     :ensure t
+     :config
+     ;; Specify all major-mode (`cakecrumbs' decide how to deal with
+     ;; cursor's context by variable `major-mode'.)
+     (setq cakecrumbs-html-major-modes   '(html-mode web-mode nxml-mode sgml-mode))
+     (setq cakecrumbs-jade-major-modes   '(yajade-mode jade-mode pug-mode))
+     (setq cakecrumbs-scss-major-modes   '(scss-mode less-css-mode css-mode))
+     (setq cakecrumbs-stylus-major-modes '(stylus-mode sass-mode))  ; currently, sass-mode use the same rule with stylus-mode
 
-       ;; Auto `add-hook' for above major-mode.  (Auto enable `cakecrumbs'
-       ;; for the major-modes which have specify in above variables)
-       (cakecrumbs-auto-setup)
+     ;; Auto `add-hook' for above major-mode.  (Auto enable `cakecrumbs'
+     ;; for the major-modes which have specify in above variables)
+     (cakecrumbs-auto-setup)
 
-       ;; Set to number to refresh after idling N seconds.
-       ;; Set to nil, refresh without any delay.
-       (setq cakecrumbs-refresh-delay-seconds 0.1)
+     ;; Set to number to refresh after idling N seconds.
+     ;; Set to nil, refresh without any delay.
+     (setq cakecrumbs-refresh-delay-seconds 0.1)
 
-       ;; Appearances
-       (setq cakecrumbs-separator " | ")
-       (setq cakecrumbs-ellipsis "[...] ")
+     ;; Appearances
+     (setq cakecrumbs-separator " | ")
+     (setq cakecrumbs-ellipsis "[...] ")
 
-       ;; Ignore some patterns in selector string
-       (setq cakecrumbs-ignored-patterns '(
-                                           "[.]col-[a-z][a-z]-[0-9]+"  ; Bootstrap's .col-*
-                                           ))
-       )
+     ;; Ignore some patterns in selector string
+     (setq cakecrumbs-ignored-patterns '(
+                                         "[.]col-[a-z][a-z]-[0-9]+"  ; Bootstrap's .col-*
+                                         ))
+     )
    #+END_SRC
 ** auto-sudoedit
    - opens tramp sudo if file is readonly automatically (see [[https://github.com/ncaq/auto-sudoedit][here]])
@@ -8752,9 +8765,10 @@
 ** lsp-ui
    - emacs ui integration for lsp (like flycheck etc.)
    #+BEGIN_SRC emacs-lisp
+   (when (locate-library "lsp-ui")
      (use-package lsp-ui
        :init
-       (add-hook 'lsp-mode-hook 'lsp-ui-mode))
+       (add-hook 'lsp-mode-hook 'lsp-ui-mode)))
    #+END_SRC
 #+BEGIN_SRC emacs-lisp
 (report-elapsed "check point - lsp-ui")
@@ -9030,7 +9044,8 @@
    #+END_SRC
 ** historian
    #+BEGIN_SRC emacs-lisp
-   (use-package historian)
+   (when (locate-library "historian")
+    (use-package historian))
    #+END_SRC
 ** org-brain
    organize org files within org-brain-path into somthing like a mindmap / wiki that can be browsed
@@ -9133,7 +9148,8 @@
    #+END_SRC
 ** json-navigator
    #+BEGIN_SRC emacs-lisp
-   (use-package json-navigator)
+   (when (locate-library "json-navigator")
+     (use-package json-navigator))
    #+END_SRC
 ** dired-collapse
    - collapse empty directories (like src/main/java... is done by github)
@@ -9223,8 +9239,8 @@
    #+END_SRC
 ** docker compose mode
    #+BEGIN_SRC emacs-lisp
-   (use-package docker-compose-mode
-     )
+   (when (locate-library "docker-compose-mode")
+     (use-package docker-compose-mode))
    #+END_SRC
 ** comint (bifocal)
    - will automatically split a comint buffer, if scrolling into the history (by bifocal-up, down, next, prev)
