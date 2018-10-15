@@ -28,7 +28,7 @@
 * preset
   - things to setup before anything else happens
   #+BEGIN_SRC emacs-lisp
-  (setq gb/log-startup-timing t) ;; set true for timing messages during startup
+  (setq gb/log-startup-timing nil) ;; set true for timing messages during startup
   (setq gb/debug-package nil) ;; fails on all packages that could not be loaded but are not mandatory either
 
   (setq gb/time (float-time))
@@ -9364,6 +9364,12 @@
 #+BEGIN_SRC emacs-lisp
 (report-elapsed "check point look at")
 #+END_SRC
+** yaml-imode
+   - This package enhances the imenu support in yaml-mode
+   - requires ruby >= 2.5
+     #+BEGIN_SRC emacs-lisp :tangle no
+     (use-package yaml-imode)
+     #+END_SRC
 ** powerthesaurus - interface to powerthesaurus.org
 ** eglot - lsp client (for multiple languages)
 ** pickle - Major mode for editing cucumber gherkin files.
