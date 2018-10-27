@@ -2968,16 +2968,22 @@
                (not (-first (lambda (reg) (string-match reg mode-name)) selfinsert-modification-mode-ignore-list)))
           (,func)
         (self-insert-command 1)))
+   (defvar gb/read-only-navigation-mode-exception-list '( "*eww*" )
+     "list of modes that should not execute navigation commands in read only buffers!")
 
    (defun gb/selfInsertOrNextLine ()
      "insert n if in a buffer that allows changes, else move down"
      (interactive)
-     (selfinsertOrFunction next-line))
+     (if (-first (lambda (el) (string= el (buffer-name))) gb/read-only-navigation-mode-exception-list)
+         (self-insert-command 1)
+       (selfinsertOrFunction next-line)))
 
    (defun gb/selfInsertOrPreviousLine ()
      "insert n if in a buffer that allows changes, else move down"
      (interactive)
-     (selfinsertOrFunction previous-line))
+     (if (-first (lambda (el) (string= el (buffer-name))) gb/read-only-navigation-mode-exception-list)
+         (self-insert-command 1)
+       (selfinsertOrFunction previous-line)))
 
    (bind-key "p" 'gb/selfInsertOrPreviousLine text-mode-map)
    (bind-key "n" 'gb/selfInsertOrNextLine text-mode-map)
