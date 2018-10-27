@@ -8500,7 +8500,9 @@
 (report-elapsed "check point nix specifics")
 #+END_SRC
   #+BEGIN_SRC emacs-lisp
-  ;; (use-package company-nixos-options)
+  (use-package nixos-options)
+  (use-package company-nixos-options
+    :after (company nixos-options cl-lib))
   (use-package nix-mode)
   (use-package direnv
     :config
