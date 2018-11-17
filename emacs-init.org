@@ -7182,7 +7182,7 @@
 *** make org export use better highlighting with htmlize
  #+BEGIN_SRC emacs-lisp
     (use-package htmlize
-      :defer 30)
+      :ensure t)
  #+END_SRC
 *** IMPLEMENT helm org rifle
 **** find keybindings
