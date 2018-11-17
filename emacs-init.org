@@ -9377,6 +9377,11 @@
 #+BEGIN_SRC emacs-lisp
 (report-elapsed "check point look at")
 #+END_SRC
+** org-present using a cell phone to switch pages
+   #+BEGIN_SRC emacs-lisp :tangle no
+   (use-package org-present-remote
+     :after org)
+   #+END_SRC
 ** yaml-imode
    - This package enhances the imenu support in yaml-mode
    - requires ruby >= 2.5
