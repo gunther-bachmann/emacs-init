@@ -466,7 +466,7 @@
 ** add theme
    #+BEGIN_SRC emacs-lisp
    (use-package color-theme-sanityinc-tomorrow
-     :ensure color-theme-sanityinc-tomorrow
+     :ensure t
      :config
      (progn
        (load-theme 'sanityinc-tomorrow-night t)
@@ -1447,7 +1447,7 @@
 ** display symbols (pretty-mode, prettify-greek)
    #+BEGIN_SRC emacs-lisp
    (use-package pretty-mode
-     :ensure pretty-mode
+     :ensure t
      :config
      (progn
        (global-pretty-mode 1)
@@ -1463,7 +1463,7 @@
        ))
 
    (use-package prettify-greek
-     :ensure prettify-greek) ;; prettify greek symbols
+     :ensure t) ;; prettify greek symbols
    #+END_SRC
 ** font related stuff
    #+BEGIN_SRC emacs-lisp
@@ -1945,7 +1945,7 @@
 ** symon sytem stats (for minibuffer)
    #+BEGIN_SRC emacs-lisp
    (use-package symon
-     ;; :commands symon-mode
+     :commands symon-mode
      :config
      (progn
        ;; make sure to load it
@@ -2276,8 +2276,9 @@
 *** spaceline (mode line of spacemacs)
     #+BEGIN_SRC emacs-lisp
     (when gb/use-space-line
+      (use-package powerline)
       (use-package spaceline
-        :ensure spaceline
+        :ensure t
         :after ( powerline) ;; symon
         :config
         ;; Valid Values: alternate, arrow, arrow-fade, bar, box, brace,
@@ -2450,7 +2451,7 @@
     ;; (use-package font-lock+)
     (when gb/use-space-line
       (use-package all-the-icons
-        :ensure all-the-icons
+        :ensure t
         :after ( memoize) ;; font-lock+
         :config
         ;; extend list of all-the-icons-mode-icon-alist
@@ -2464,10 +2465,10 @@
             )))
 
       (use-package memoize
-        :ensure memoize)
+        :ensure t)
 
       (use-package spaceline-all-the-icons
-        :ensure spaceline-all-the-icons
+        :ensure t
         :after ( spaceline all-the-icons memoize) ;; indent-info
         ;; :defer 1
         :config
@@ -2620,9 +2621,9 @@
       ;; (sml/setup)
 
       (use-package powerline
-        :ensure powerline)
+        :ensure t)
       (use-package smart-mode-line-powerline-theme
-        :ensure smart-mode-line-powerline-theme
+        :ensure t
         :after ( powerline))
       (use-package smart-mode-line
         :after (powerline smart-mode-line-powerline-theme)
@@ -2690,20 +2691,20 @@
     See [[https://github.com/lunaryorn/fancy-battery.el][link]]
     #+BEGIN_SRC emacs-lisp
     (use-package fancy-battery
-      :ensure fancy-battery
+      :ensure t
       :init (progn (add-hook 'after-init-hook #'fancy-battery-mode)))
     #+END_SRC
 ** rainbow mode
    #+BEGIN_SRC emacs-lisp
    (use-package rainbow-mode
-     :ensure rainbow-mode
+     :ensure t
      :init (add-hook 'help-mode-hook #'rainbow-mode))
    #+END_SRC
 ** rainbow identifiers
    #+BEGIN_SRC emacs-lisp
    ;; can be switched off by M-x rainbow-identifiers-mode, which toggles the mode
    (use-package rainbow-identifiers
-     :ensure rainbow-identifiers
+     :ensure t
      :init
      (add-hook 'prog-mode-hook 'rainbow-identifiers-mode))
    #+END_SRC
@@ -2894,7 +2895,7 @@
    - display ^L as h-bar
    #+BEGIN_SRC emacs-lisp
    (use-package form-feed
-     :ensure form-feed
+     :ensure t
      :init
      (progn (add-hook 'text-mode-hook #'form-feed-mode)))
    #+END_SRC
@@ -2908,7 +2909,7 @@
    - Minor mode to highlight indentation
    #+BEGIN_SRC emacs-lisp
    (use-package highlight-indent-guides
-     :ensure highlight-indent-guides
+     :ensure t
      :init ;; (add-hook 'prog-mode-hook #'highlight-indent-guides-mode)
      :config
      (progn
@@ -3013,14 +3014,16 @@
    3. set mark, move right/left/up/down, call M-x smart-region will make a rectangular selection
    #+begin_src emacs-lisp 
    (use-package smart-region
-     :commands smart-region
-     :after (expand-region multiple-cursors))
+     ;; :commands smart-region
+     :after (expand-region multiple-cursors)
+     )
    #+end_src
 ** edit-indirect
    - edit region in separate buffer (and guess mode)
    #+begin_src emacs-lisp 
    (use-package edit-indirect
-     :commands edit-indirect-region edit-indirect-commit)
+     ;; :commands edit-indirect-region edit-indirect-commit
+     :ensure t)
    #+end_src
 ** autosave
    #+BEGIN_SRC emacs-lisp
@@ -3031,7 +3034,7 @@
    - [[https://github.com/lewang/ws-butler][home page]]
    #+BEGIN_SRC emacs-lisp
    (use-package ws-butler
-     :ensure ws-butler
+     :ensure t
      :config
      (progn
        (ws-butler-global-mode 1)))
@@ -3050,7 +3053,7 @@
    - display escaping \ (which is normaly doubled) as single red backslash
    #+BEGIN_SRC emacs-lisp
    (use-package easy-escape
-     :ensure easy-escape
+     :ensure t
      :init (add-hook 'prog-mode-hook 'easy-escape-minor-mode)
      :config
      (progn
@@ -3175,7 +3178,7 @@
 
 
    (use-package rainbow-delimiters
-     :ensure rainbow-delimiters
+     :ensure t
      :init
      (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
 
@@ -3265,7 +3268,7 @@
    - C-x u opens the undo tree and lets you move through the tree of undo/redo
    #+BEGIN_SRC emacs-lisp 
    (use-package undo-tree
-     :ensure undo-tree
+     :ensure t
      :config
      (progn
        ;; (setq undo-tree-auto-save-history t) ;; it seems that this feature regularly causes emacs to crash, if this history file cannot be read properly
@@ -3295,7 +3298,7 @@
     #+BEGIN_SRC emacs-lisp
     ;; wrap-region
     (use-package wrap-region
-      :ensure wrap-region
+      :ensure t
       :config
       (progn
         (wrap-region-global-mode 1)
@@ -3321,13 +3324,14 @@
     - key binding is Press C-, a w ' to add '' to the current word:
     #+BEGIN_SRC emacs-lisp
     (use-package embrace
-      :after ( expand-region))
+      :after ( expand-region)
+      )
     #+END_SRC
 *** change-inner
     #+BEGIN_SRC emacs-lisp
     (use-package change-inner
       :after ( expand-region)
-      :bind (("M-i" . change-inner)
+      :bind (("M-i" . change-inner) ;; bindung overwritten from somewhere
              ("M-o" . change-outer)))
     #+END_SRC
 *** easy kill
@@ -3352,14 +3356,14 @@
       - ? help
     #+BEGIN_SRC emacs-lisp
     (use-package easy-kill
-      :ensure easy-kill
+      :ensure t
       :init (global-set-key [remap kill-ring-save] 'easy-kill))
     #+END_SRC
 *** expand region
     expand / shrink region smartly
     #+BEGIN_SRC emacs-lisp
     (use-package expand-region
-      :ensure expand-region
+      :ensure t
       :after (key-chord) ;; optional, install key chords that do region expansion/shrink
       ;; :defer t ;; valid since init script registeres keys
       :init
@@ -3444,9 +3448,11 @@
      - available functions are: ace-mc-add-multiple-cursors
    #+BEGIN_SRC emacs-lisp
    (use-package ace-mc
-     :commands ace-mc-add-multiple-cursors ace-mc-add-single-cursor
+     ;; :commands ace-mc-add-multiple-cursors ace-mc-add-single-cursor
      :bind (("C-|" . ace-mc-add-multiple-cursors))
-     :after (avy multiple-cursors ace-jump-mode))
+     :after (avy multiple-cursors ace-jump-mode)
+     :init (bind-key "C-|" #'ace-mc-add-multiple-cursors)
+     )
    #+END_SRC
 ** key-chord
    #+BEGIN_SRC emacs-lisp
@@ -3535,7 +3541,7 @@
 ** bookmarking (needs hydra)
    #+BEGIN_SRC emacs-lisp
    (use-package bm
-     :ensure bm
+     :ensure t
      :bind
      ( "C-c b t" . bm-toggle)
      ( "C-c b n" . bm-next)
@@ -3578,7 +3584,7 @@
    - https://github.com/Kungsgeten/selected.el
    #+BEGIN_SRC emacs-lisp 
    (use-package selected
-     :ensure selected
+     :ensure t
      :init (progn
              (add-hook 'org-mode-hook 'selected-minor-mode)
              (add-hook 'prog-mode-hook 'selected-minor-mode))
@@ -3658,7 +3664,7 @@
        an additional hook. the hook should use well defined languages as parameters to let each hook what exactly to set
    #+BEGIN_SRC emacs-lisp
    (use-package flyspell
-     :after ( org)
+     ;; :after ( org)
      :init (progn
              (defun gb/activate-ispell-in-org-mode ()
                "activate ispell and try to select to right language (e.g. `#+language: de')
@@ -3736,14 +3742,14 @@
    - allow for additional help information for functions
    #+BEGIN_SRC emacs-lisp
    (use-package helpful
-     :ensure helpful
+     :ensure t
      :commands (helpful-macro helpful-function helpful-command helpful-variable helpful-at-point)
      :bind ("s-h" . helpful-at-point))
    #+END_SRC
 ** which key
    #+BEGIN_SRC emacs-lisp
    (use-package which-key
-     :ensure which-key
+     :ensure t
      :config
      (progn
        (bind-key "C-h y" #'which-key-show-top-level)
@@ -3767,8 +3773,8 @@
 ** company
    #+BEGIN_SRC emacs-lisp
    (use-package company-try-hard
-     :ensure company-try-hard
-     :after (company)
+     :ensure t
+     ;; :after (company)
      :config
      (progn
        (global-set-key (kbd "M-TAB") #'company-try-hard)
@@ -3778,8 +3784,8 @@
        ))
 
    (use-package company-box
-     :ensure company-box
-     :after (company)
+     :ensure t
+     ;; :after (company)
      :init
      (add-hook 'company-mode-hook 'company-box-mode)
      :config
@@ -3789,8 +3795,8 @@
         '(company-box-candidate ((t (:foreground "gray85")))))))
 
    (use-package company
-     :after (selected)
-     :ensure company
+     ;; :after (selected)
+     :ensure t
      :init (progn
              (add-hook 'after-init-hook 'global-company-mode))
      :config
@@ -3841,8 +3847,8 @@
        ))
 
    (use-package company-statistics
-     :ensure company-statistics
-     :after (company)
+     :ensure t
+     ;; :after (company)
      :init
      (progn
        (add-hook 'after-init-hook 'company-statistics-mode)))
@@ -3851,7 +3857,7 @@
 ** company flx
    #+BEGIN_SRC emacs-lisp
    (use-package company-flx
-     :ensure company-flx
+     :ensure t
      :after (company)
      :config
      (with-eval-after-load 'company (add-hook 'company-mode-hook (lambda () (add-to-list 'company-backends 'company-capf))) (company-flx-mode +1)))
@@ -3860,14 +3866,14 @@
    - provide company help for fish (or other shell) completions within modes like (fish-mode, shell-mode)
    #+BEGIN_SRC emacs-lisp
    (use-package company-shell
-     :ensure company-shell
+     :ensure t
      :after (company)
      :config (add-to-list 'company-backends 'company-shell))
    #+END_SRC
 ** helm-company
    #+BEGIN_SRC emacs-lisp
    (use-package helm-company
-     :ensure helm-company
+     :ensure t
      :after ( helm company)
      :bind (:map company-mode-map
                  ("C-:" . helm-company)
@@ -3878,7 +3884,7 @@
    - describe current keybindings with helm interface
    #+BEGIN_SRC emacs-lisp
    (use-package helm-descbinds
-     :ensure helm-descbinds
+     :ensure t
      :after (helm company)
      :bind (("\C-h b" . helm-descbinds)))
    #+END_SRC
@@ -3952,7 +3958,7 @@
 ** helm-swoop
    #+BEGIN_SRC emacs-lisp
    (use-package helm-swoop
-     :ensure helm-swoop
+     :ensure t
      :bind (("C-S-s" . helm-swoop)
             ("C-M-S-s" . helm-multi-swoop-all))
      :after (helm))
@@ -3960,14 +3966,14 @@
 ** pos tip
    #+BEGIN_SRC emacs-lisp
    (use-package pos-tip
-     :ensure pos-tip)
+     :ensure t)
    #+END_SRC
 ** help at point
    - show help in modeline to text that is propertized as button... (e.g. in customize-.... modes)
    - the timer will make the help appear after x seconds (can be a float)
    #+BEGIN_SRC emacs-lisp
    (use-package help-at-pt
-     :ensure help-at-pt
+     :ensure t
      :config
      (progn
        (custom-set-variables '(help-at-pt-display-when-idle (quote (kbd-help button local-map keymap)) nil (help-at-pt)))
@@ -3986,7 +3992,7 @@
 ** ace and avy
    #+BEGIN_SRC emacs-lisp
    (use-package ace-link
-     :ensure ace-link
+     :ensure t
      :after (gnus)
      :bind (
             ;; bind within org mode
@@ -4004,7 +4010,7 @@
 
    (use-package ace-window  ;; select open window with one key
      :after ( key-chord) ;; optional, key binding
-     :ensure ace-window
+     :ensure t
      :init
      (progn
        (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
@@ -4012,7 +4018,7 @@
          (key-chord-define-global "o0"   'ace-window))))
 
    (use-package ace-flyspell
-     :ensure ace-flyspell
+     :ensure t
      :after ( flyspell avy))
    ;; available commands 'M-x ace-flyspell-jump-word', jump to incorrect spelling via ace
    ;; 'M-x ace-flyspell-dwim', autocorrect word
@@ -4021,7 +4027,7 @@
    #+END_SRC
    #+BEGIN_SRC emacs-lisp :tangle no
    (use-package ace-isearch
-     :ensure ace-isearch
+     :ensure t
      :after ( avy helm-swoop ace-jump-mode)
      :disabled t
      :config
@@ -4047,7 +4053,7 @@
    #+END_SRC
    #+BEGIN_SRC emacs-lisp
    (use-package avy
-     :ensure avy
+     :ensure t
      :bind (("C-S-SPC" . avy-goto-char-timer)
             ("C-c SPC" . avy-goto-char-timer)
             ("C-c C-SPC" . avy-goto-char-timer)
@@ -4066,7 +4072,7 @@
 
 
    (use-package avy-zap
-     :ensure avy-zap
+     :ensure t
      :after ( avy)
      :bind
      (("M-Z" . avy-zap-to-char-dwim)
@@ -4155,7 +4161,7 @@
    #+BEGIN_SRC emacs-lisp
    (use-package jumplist
      :after (helm helm-swoop)
-     :ensure jumplist
+     :ensure t
      :bind (
             ("C-," . jumplist-previous)
             ("C-." . jumplist-next))
@@ -4183,7 +4189,7 @@
 ** goto last change
    #+BEGIN_SRC emacs-lisp
    (use-package goto-chg
-     :ensure goto-chg
+     :ensure t
      :bind (
             ("C-c b ," . goto-last-change)
             ("C-c b ." . goto-last-change-reverse)))
@@ -4191,7 +4197,7 @@
 ** smart scan (jump to next/prev of symbol)
    #+BEGIN_SRC emacs-lisp
    (use-package smartscan
-     :ensure smartscan
+     :ensure t
      :config
      (progn
        (global-smartscan-mode +1)
@@ -4204,7 +4210,7 @@
    #+BEGIN_SRC emacs-lisp
    ;; display # of matches in modeline when searching
    (use-package anzu
-     :ensure anzu
+     :ensure t
      :config
      (global-anzu-mode +1))
    #+END_SRC
@@ -4227,7 +4233,7 @@
    ;; Turn on recent file mode so that you can more easily switch to
    ;; recently edited files when you first start emacs
    (use-package recentf
-     :ensure recentf
+     :ensure t
      :config
      (progn
        (setq recentf-save-file (concat user-emacs-directory ".recentf"))
@@ -4246,15 +4252,15 @@
    #+BEGIN_SRC emacs-lisp
    (use-package ivy
      :after (easy-escape)
-     :ensure ivy)
+     :ensure t)
    (use-package swiper
-     :ensure swiper
+     :ensure t
      :after ( ivy))
    #+END_SRC
 ** counsel
    #+BEGIN_SRC emacs-lisp
    (use-package counsel
-     :ensure counsel
+     :ensure t
      :after ( swiper)
      ;; :bind (("M-y" . counsel-yank-pop)
      ;;        :map ivy-minibuffer-map
@@ -4268,7 +4274,7 @@
 ** highlight-thing
    #+BEGIN_SRC emacs-lisp
    (use-package highlight-thing
-     :ensure highlight-thing
+     :ensure t
      :init
      (progn
        (defun gb/toogle-highlight-what-thing ()
@@ -4288,7 +4294,7 @@
 ** minimap
    #+BEGIN_SRC emacs-lisp
    (use-package minimap
-     :ensure minimap
+     :ensure t
      :bind (("s-m" . minimap-mode))
      :config
      (progn
@@ -4320,7 +4326,7 @@
     - shows eval-last-sexp as overlay behind the expression evaluated (instead of only minibuffer)
     #+BEGIN_SRC emacs-lisp 
     (use-package eros
-      :ensure eros
+      :ensure t
       :config
       (progn
         (eros-mode 1)))
@@ -4352,7 +4358,7 @@
     - this may become anoying
     #+BEGIN_SRC emacs-lisp
     (use-package eldoc-overlay
-      :ensure eldoc-overlay
+      :ensure t
       :after( inline-docs)
       :commands eldoc-overlay-mode)
     #+END_SRC
@@ -4361,7 +4367,7 @@
     ;; Automatically load paredit when editing a lisp file
     ;; More at http://www.emacswiki.org/emacs/ParEdit
     (use-package paredit
-      :ensure paredit
+      :ensure t
       :init
       (progn
         (add-hook 'emacs-lisp-mode-hook       #'enable-paredit-mode)
@@ -4379,7 +4385,7 @@
     #+BEGIN_SRC emacs-lisp
     ;; allows navigation M-. and M-, to jump to definition and return back
     (use-package elisp-slime-nav
-      :ensure elisp-slime-nav
+      :ensure t
       :init
       (dolist (hook '(emacs-lisp-mode-hook ielm-mode-hook))
         (add-hook hook 'elisp-slime-nav-mode))
@@ -4405,7 +4411,7 @@
       (use-package iedit
         :after (rainbow-identifiers))
       (use-package lispy
-        :ensure lispy
+        :ensure t
         :bind (("C-1" . lispy-describe-inline)) ;; make C-1 available even without lispy mode!
         :after ( hydra iedit)
         :config
@@ -4423,11 +4429,11 @@
 
     ;; A little more syntax highlighting
     (use-package clojure-mode-extra-font-locking
-      :ensure clojure-mode-extra-font-locking
+      :ensure t
       :after ( clojure-mode))
 
     (use-package clojure-mode
-      :ensure clojure-mode
+      :ensure t
       :after ( subword ;; optional, when active, clojure switches to this minor mode too
                flycheck ;; optional, when active, clojure switches to this minor mode too
                paredit ;; optional, when active, clojure switches to this minor mode too
@@ -4504,7 +4510,7 @@
 *** flycheck-clojure
     #+BEGIN_SRC emacs-lisp
     (use-package flycheck-clojure
-      :ensure flycheck-clojure
+      :ensure t
       :after (flycheck clojure-mode))
     #+END_SRC
 *** cider
@@ -4513,7 +4519,7 @@
     ;; Cider
     ;;;;
     (use-package cider
-      :ensure cider
+      :ensure t
       :commands cider-jack-in
       :after ( clojure-mode
                company ;; optional for completion
@@ -4636,7 +4642,7 @@
 *** helm-cider
     #+BEGIN_SRC emacs-lisp
     (use-package helm-cider
-      :ensure helm-cider
+      :ensure t
       :after ( helm cider)
       :config
       (helm-cider-mode 1))
@@ -4673,14 +4679,14 @@
 *** clj-refactor
     #+BEGIN_SRC emacs-lisp
     (use-package inflections
-      :ensure inflections)
+      :ensure t)
     (use-package peg
-      :ensure peg)
+      :ensure t)
     (use-package edn
-      :ensure edn
+      :ensure t
       :after ( peg))
     (use-package clj-refactor
-      :ensure clj-refactor
+      :ensure t
       :after ( hydra s seq yasnippet paredit multiple-cursors clojure-mode cider edn inflections)
       :init
       (defun gb/clojure-mode-hook ()
@@ -4694,7 +4700,7 @@
     #+BEGIN_SRC emacs-lisp
     (use-package typed-clojure-mode
       :after ( clojure-mode subword)
-      :ensure typed-clojure-mode
+      :ensure t
       :init
       (add-hook 'clojure-mode-hook 'typed-clojure-mode))
     #+END_SRC
@@ -4731,32 +4737,32 @@
 ** elixir
    #+BEGIN_SRC emacs-lisp
    (use-package elixir-mode
-     :ensure elixir-mode)
+     :ensure t)
    #+END_SRC
 ** elm
    #+BEGIN_SRC emacs-lisp
    (use-package elm-mode
-     :ensure elm-mode)
+     :ensure t)
    #+END_SRC
 ** erlang
    #+BEGIN_SRC emacs-lisp :tangle no
    (use-package erlang
-     :ensure erlang)
+     :ensure t)
    #+END_SRC
 **** erlang company
      #+BEGIN_SRC emacs-lisp :tangle no
      (use-package ivy-erlang-complete
-       :ensure ivy-erlang-complete
+       :ensure t
        :after (ivy counsel erlang async))
      (use-package company-erlang
-       :ensure company-erlang
+       :ensure t
        :after ( erlang ivy-erlang-complete company))
      #+END_SRC
 ** groovy
    #+BEGIN_SRC emacs-lisp
    (use-package groovy-mode
      :commands groovy-mode
-     :ensure groovy-mode
+     :ensure t
      :init
      (progn
        ;; make sure for some labeled parameters in groovy to indent with 4
@@ -4776,7 +4782,7 @@
 ** haskell
    #+BEGIN_SRC emacs-lisp
    (use-package haskell-mode
-     :ensure haskell-mode
+     :ensure t
      :bind (:map haskell-mode-map
                  ("C-c C-l" . haskell-process-load-file)
                  ("C-c C-n C-t" . haskell-process-do-type)
@@ -4790,7 +4796,7 @@
 *** company-ghci
     #+BEGIN_SRC emacs-lisp
     (use-package company-ghci
-      :ensure company-ghci
+      :ensure t
       :after ( company haskell-mode)
       :init
       (push 'company-ghci company-backends)
@@ -4800,7 +4806,7 @@
 *** dante (intero fork, complete development environment for haskell)
     #+BEGIN_SRC emacs-lisp
     (use-package dante
-      :ensure dante
+      :ensure t
       :after ( haskell-mode company flycheck s f dash)
       :commands 'dante-mode
       :init
@@ -4820,13 +4826,13 @@
 *** flycheck-haskell (currently disabled)
     #+BEGIN_SRC emacs-lisp :tangle no
     (use-package flycheck-haskell
-      :ensure flycheck-haskell
+      :ensure t
       :after ( haskell-mode flycheck))
     #+END_SRC
 ** web-mode
    #+BEGIN_SRC emacs-lisp
    (use-package web-mode
-     :ensure web-mode
+     :ensure t
      :mode (("\\.phtml\\'" . web-mode)
             ("\\.tpl\\.php\\'" . web-mode)
             ("\\.[agj]sp\\'" . web-mode)
@@ -4846,7 +4852,7 @@
    ;; run ts repl in typescript-mode, allowing to send expressions to the interpreter
    ;; M-x run-ts ;; starts a comint buffer with repl
    (use-package ts-comint
-     :ensure ts-comint
+     :ensure t
      :after ( typescript-mode)
      :init
      (setenv "NODE_NO_READLINE" "1")
@@ -4867,11 +4873,11 @@
                  (local-set-key (kbd "C-c l") 'ts-load-file-and-go))))
 
    (use-package typescript-mode
-     :ensure typescript-mode
+     :ensure t
      :mode (("\\.ts\\'" . typescript-mode)))
 
    (use-package tide
-     :ensure tide
+     :ensure t
      :after ( typescript-mode)
      :init (progn
              (add-hook 'typescript-mode-hook #'gb/setup-tide-mode)
@@ -5014,7 +5020,7 @@
 *** java programming mode
     #+BEGIN_SRC emacs-lisp
      (use-package javap-mode
-       :ensure javap-mode)
+       :ensure t)
     #+END_SRC
 ** php 
  #+BEGIN_SRC emacs-lisp :tangle no
@@ -5051,7 +5057,7 @@
 ** scala ensime (enhanced scala mode for emacs, currntely disabled)
  #+BEGIN_SRC emacs-lisp :tangle no
  (use-package ensime
-   :ensure ensime
+   :ensure t
    :after ( sbt-mode)
    :commands ensime
    :init
@@ -5071,33 +5077,33 @@
 ** editorconfig
    #+BEGIN_SRC emacs-lisp
       (use-package editorconfig
-        :ensure editorconfig
+        :ensure t
        :config (editorconfig-mode 1))
    #+END_SRC
 ** flymake
    #+BEGIN_SRC emacs-lisp
    (use-package flymake
-     :ensure flymake)
+     :ensure t)
    (use-package flymake-easy
-     :ensure flymake-easy
+     :ensure t
      :after ( flymake))
    (use-package flymake-yaml
-     :ensure flymake-yaml
+     :ensure t
      :after ( flymake-easy)
      :init (add-hook 'yaml-mode-hook 'flymake-yaml-load))
    (use-package flymake-shell
-     :ensure flymake-shell
+     :ensure t
      :after ( flymake-easy)
      :init (add-hook 'sh-set-shell-hook 'flymake-shell-load))
    (use-package flymake-json
-     :ensure flymake-json
+     :ensure t
      :after ( flymake-easy)
      :init (add-hook 'js-mode-hook 'flymake-json-maybe-load))
    #+END_SRC
 ** flycheck
    #+BEGIN_SRC emacs-lisp
      (use-package flycheck
-       :ensure flycheck
+       :ensure t
        :config
        (progn
          (define-key flycheck-mode-map flycheck-keymap-prefix nil)
@@ -5107,10 +5113,10 @@
          ;; (add-hook 'after-init-hook 'global-flycheck-mode)
          ))
      (use-package flycheck-tip
-       :ensure flycheck-tip
+       :ensure t
        :after ( flycheck))
      (use-package flycheck-pos-tip
-       :ensure flycheck-pos-tip
+       :ensure t
        :after ( flycheck)
        :config
        ;; (setq flycheck-display-errors-function #'flycheck-pos-tip-error-messages)
@@ -5131,7 +5137,7 @@
     - see [[http://batsov.com/projectile/][here]]
  #+BEGIN_SRC emacs-lisp
  (use-package projectile
-    :ensure projectile
+    :ensure t
     :config
    ;; projectile everywhere!
    ;; (projectile-global-mode)
@@ -5159,7 +5165,7 @@
 *** magit (and more)
     #+BEGIN_SRC emacs-lisp
     (use-package ediff
-      :ensure ediff
+      :ensure t
       :config
       ;; make sure that ediff session does not open control window in separate frame, which mixes up exwm
       (setq ediff-window-setup-function (quote ediff-setup-windows-plain)))
@@ -5177,11 +5183,11 @@
         window))
 
     (use-package magit-popup
-      :ensure magit-popup
+      :ensure t
       :after ( async))
     (use-package magit
-      :ensure magit
-      :after ( counsel helm async dash with-editor git-commit magit-popup)
+      :ensure t
+      ;; :after ( helm counsel async dash with-editor git-commit magit-popup)
       :commands magit-status
       :bind (
              ("C-c v s" . magit-status)
@@ -5231,14 +5237,14 @@
     ;; show git relevant change info in the fringe of the frame
     ;; git-gutter-fringe works with nlinum-mode !
     (use-package git-gutter
-      :ensure git-gutter
+      :ensure t
       :config
       (progn
         (custom-set-faces
          '(git-gutter:unchanged ((t (:background "orange4")))))))
 
     (use-package git-gutter-fringe
-      :ensure git-gutter-fringe
+      :ensure t
       :after ( git-gutter)
       :config (global-git-gutter-mode +1))
 
@@ -5264,18 +5270,18 @@
     ;; To always enable the mode when opening the magit-status buffer add magit-filenotify-mode to the magit-status-mode-hook.
 
     (use-package magit-gitflow
-      :ensure magit-gitflow
+      :ensure t
       :after ( magit)
       :init
       (add-hook 'magit-mode-hook 'turn-on-magit-gitflow))
     ;; C-f in magit status buffer will invoke gitflow action selector.
 
     (use-package git-blamed
-      :ensure git-blamed
+      :ensure t
       ) ;; enter git-blamed-mode colors background of lines according to commit (and should echo some info depending on cursor)
 
     (use-package git-timemachine
-      :ensure git-timemachine
+      :ensure t
       :commands git-timemachine
       :config
       (defun gb/git-timemachine-show-selected-revision ()
@@ -5305,7 +5311,7 @@
     - shows todos within the source code in magit overview
      #+BEGIN_SRC emacs-lisp
      (use-package magit-todos
-       :ensure magit-todos
+       :ensure t
        :after (a anaphora async dash f hl-todo magit pcre2el s)
        :config (magit-todos-mode))
      #+END_SRC
@@ -5377,7 +5383,7 @@
    - see usage documentation on [[http://jblevins.org/projects/markdown-mode/][homepage]]
    #+BEGIN_SRC emacs-lisp
    (use-package markdown-mode
-     :ensure markdown-mode
+     :ensure t
      :commands (markdown-mode gfm-mode)
      :mode (("\\.text\\'" . markdown-mode)
             ("\\.markdown\\'" . markdown-mode)
@@ -5404,7 +5410,7 @@
         '(org-plantuml-jar-path (concat user-emacs-directory "plantuml.jar"))
         '(plantuml-jar-path (concat user-emacs-directory "plantuml.jar")))
      (use-package plantuml-mode
-       :ensure plantuml-mode
+       :ensure t
        :after ( org)
        :mode ("\\.\\(puml\\|plantuml\\)\\'" . plantuml-mode)
        :config
@@ -5414,7 +5420,7 @@
        ;;(add-to-list 'auto-mode-alist '("\\.plantuml$" . plantuml-mode))
        )
      (use-package flycheck-plantuml
-       :ensure flycheck-plantuml
+       :ensure t
         :after ( flycheck plantuml-mode)
         :defer t
         :init
@@ -5428,7 +5434,7 @@
     - C-M q    like jump but shows tooltip
     #+BEGIN_SRC emacs-lisp
       (use-package dumb-jump
-        :ensure dumb-jump
+        :ensure t
         :config
         (dumb-jump-mode))
     #+END_SRC
@@ -5630,7 +5636,7 @@
   ;; old: to install under linux run 'sudo nix-shell -p autoconf automake libpng zlib poppler pkgconfig gcc --run make' in the build folder
   (if (and make-installed (or running-nixos poppler-installed) imagemagick-installed)
       (use-package pdf-tools
-        :ensure pdf-tools
+        :ensure t
         :mode ("\\.pdf$" . pdf-view-mode)
         :init (progn
                 ;; (add-hook 'after-init-hook 'pdf-tools-install)
@@ -5913,7 +5919,7 @@
 ** elfeed
  #+BEGIN_SRC emacs-lisp
    (use-package elfeed
-     :ensure elfeed
+     :ensure t
      :commands elfeed
      :bind (:map elfeed-search-mode-map
             ("l" . recenter-top-bottom)
@@ -5932,7 +5938,7 @@
 
    ;; Load elfeed-org
    (use-package elfeed-org
-     :ensure elfeed-org
+     :ensure t
      :after ( elfeed org dash)
      :init (progn
        ;; TOOD fix function that is not known here
@@ -5983,7 +5989,7 @@
    (use-package noflet)
 
    (use-package elfeed-goodies
-     :ensure elfeed-goodies
+     :ensure t
      :after ( elfeed popwin noflet ace-jump-mode) ;; powerline
      :config
      (progn
@@ -6450,7 +6456,7 @@
       RET ... Finish with the update of To/Cc/Bcc header (if necessary, open the mail buffer)
   #+BEGIN_SRC emacs-lisp
     (use-package bbdb-
-      :ensure bbdb-
+      :ensure t
       :after ( bbdb)
       :config
       (bbdb-:setup))
@@ -6463,7 +6469,7 @@
 *** extensive regex search in bbdb
  #+BEGIN_SRC emacs-lisp
    (use-package bbdb-ext
-     :ensure bbdb-ext
+     :ensure t
      :after ( bbdb))
  #+END_SRC
 *** DONE popup window for email selection in mail client (seems to be alternative to bbdb-) (deactivated)
@@ -7100,7 +7106,7 @@
 *** org bullets
  #+BEGIN_SRC emacs-lisp
  (use-package org-bullets
-   :ensure org-bullets
+   :ensure t
    :after ( org)
    :init
    (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
@@ -7129,7 +7135,7 @@
 *** password manager
  #+BEGIN_SRC emacs-lisp
    (use-package org-password-manager
-     :ensure org-password-manager
+     :ensure t
      :bind (:map org-mode-map
                  ("C-c s b" . gb/browse-to-link-property)
                  ("C-c s u" . org-password-manager-get-username)
@@ -7454,7 +7460,7 @@
      - lumo is expected in /usr/local/bin/lumo (crete symlink might be necessary)
      #+BEGIN_SRC emacs-lisp
      (use-package ob-clojurescript
-       :ensure ob-clojurescript)
+       :ensure t)
      #+END_SRC
 **** org babel lfe
      - use e.g. '#+BEGIN_SRC lfe :session mysession'
@@ -7498,7 +7504,7 @@
 **** org babel typescript
      #+BEGIN_SRC emacs-lisp
      (use-package ob-typescript
-       :ensure ob-typescript
+       :ensure t
        :after ( org))
      #+END_SRC
 **** org babel kotlin
@@ -7510,7 +7516,7 @@
 **** org babel elixir
      #+BEGIN_SRC emacs-lisp
      (use-package ob-elixir
-       :ensure ob-elixir
+       :ensure t
        :after ( org))
      #+END_SRC
 **** org babel browser
@@ -7524,7 +7530,7 @@
     - see [[https://github.com/astahlman/ob-async][here]]
     #+BEGIN_SRC emacs-lisp
     (use-package ob-async
-      :ensure ob-async
+      :ensure t
        :after ( org async))
     #+END_SRC
 *** adaptive warp
@@ -7545,7 +7551,7 @@
 *** org reveal (presentation)
     #+BEGIN_SRC emacs-lisp
     (use-package ox-reveal
-      :ensure ox-reveal
+      :ensure t
       :after ( org htmlize)
       :config
       (progn
@@ -7556,7 +7562,7 @@
     - headers of org tables stay in the header line while scrolling them out of view
     #+BEGIN_SRC emacs-lisp
       (use-package org-table-sticky-header
-        :ensure org-table-sticky-header
+        :ensure t
         :after ( org)
         :init
         (progn (add-hook 'org-mode-hook 'org-table-sticky-header-mode)))
@@ -7567,7 +7573,7 @@
     - when opening this link, pdf-view-mode is opened instead of system default pdf viewer!
     #+BEGIN_SRC emacs-lisp
       (use-package org-pdfview
-        :ensure org-pdfview
+        :ensure t
         :after (org pdf-tools))
       (progn
         (defun ensure-org-pdfview ()
@@ -7710,14 +7716,15 @@
 ** helm
 #+BEGIN_SRC emacs-lisp
   (use-package async
-    :ensure async) ;; TODO: add all async requirements, otherwise this will not work
+    :ensure t) ;; TODO: add all async requirements, otherwise this will not work
   (use-package popup
-    :ensure popup)
-  (use-package helm-core
-    :ensure helm-core
-    :after ( async))
+    :ensure t)
+;;  (use-package helm-core
+;;    :ensure t
+;;    :after ( async)
+;;    )
   (use-package helm
-    :ensure helm
+    :ensure t
     :after ( async popup rainbow-delimiters ido)
     :bind (("M-x" . helm-M-x)
            ("C-x C-f" . helm-find-files)
@@ -7785,14 +7792,14 @@
 ** helm git grep
    #+begin_src emacs-lisp 
      (use-package helm-ls-git
-       :ensure helm-ls-git
+       :ensure t
        :after ( helm)
        :bind (:map magit-mode-map
                    ("s-f" . helm-ls-git-ls)))
    #+end_src
    #+BEGIN_SRC emacs-lisp
      (use-package helm-git-grep
-       :ensure helm-git-grep
+       :ensure t
        :after ( helm)
        :bind (("C-c g" . helm-git-grep)
               :map isearch-mode-map
@@ -7818,7 +7825,7 @@
    - helm candidates are sorted using flx (more fuzzy sorting)
  #+BEGIN_SRC emacs-lisp
    (use-package helm-flx
-     :ensure helm-flx
+     :ensure t
      :after ( helm)
      :config
      (progn
@@ -7847,7 +7854,7 @@
 ** helm extensions
    #+BEGIN_SRC emacs-lisp :tangle no
    (use-package helm-ext
-     :ensure helm-ext
+     :ensure t
      :after ( helm)
      :config
      (progn
@@ -7863,7 +7870,7 @@
 #+BEGIN_SRC emacs-lisp
   (use-package docker
     :commands docker-machines docker-volumes docker-images docker-containers
-    :ensure docker
+    :ensure t
     :config
     (progn
       (if (is-macos-p)
@@ -7874,7 +7881,7 @@
             (setenv "DOCKER_MACHINE_NAME" "docker-host-4gb-2cpu")))
       ))
   (use-package docker-tramp
-    :ensure docker-tramp
+    :ensure t
     :after ( docker))
 #+END_SRC
 ** vagrant
@@ -7910,7 +7917,7 @@
   - https://github.com/bmag/imenu-list
   #+BEGIN_SRC emacs-lisp
     (use-package imenu-list
-      :ensure imenu-list)
+      :ensure t)
     ;; (use-package imenu+)
   #+END_SRC
 * imenu-anywhere
@@ -7920,7 +7927,7 @@
   - helm-imenu-anywhere
   #+BEGIN_SRC emacs-lisp
     (use-package imenu-anywhere
-      :ensure imenu-anywhere
+      :ensure t
       :bind (("s-i" . helm-imenu-anywhere)
              ("s-I" . helm-imenu-anywhere)))
   #+END_SRC
@@ -7939,7 +7946,7 @@
 * hydra
 #+BEGIN_SRC emacs-lisp
   (use-package hydra
-    :ensure hydra
+    :ensure t
     :bind (
            ( "<f1>" . hydra-allhydras/body) ;; globally defined, can be locally redefined
            ( "<M-f1>" . hydra-allhydras/body) ;; always jump to the global hydra
@@ -8182,7 +8189,7 @@
   versions can be ediffed with the current
 #+BEGIN_SRC emacs-lisp
   (use-package helm-backup
-    :ensure helm-backup
+    :ensure t
     :after (helm)
     :init
     (add-hook 'after-save-hook 'helm-backup-versioning))
@@ -8219,13 +8226,13 @@
    - adds company backend for latex proposals
    #+BEGIN_SRC emacs-lisp
      (use-package company-auctex
-       :ensure company-auctex
+       :ensure t
        :after ( tex-mode company yasnippet)
        :config (company-auctex-init))
    #+END_SRC
    #+BEGIN_SRC emacs-lisp
      (use-package company-math
-       :ensure company-math
+       :ensure t
        :after ( company tex-mode)
        :init (add-hook 'TeX-mode-hook 'gb/latex-mode-setup)
        :config
@@ -8311,7 +8318,6 @@
 ** configuration
    #+BEGIN_SRC emacs-lisp
    (use-package dired
-     :commands dired
      :bind (("C-x d" . dired)
             :map dired-mode-map
             ("e" . gb/dired-ediff-files))
@@ -8350,10 +8356,19 @@
                            (set-window-configuration wnd))))
            (error "no more than 2 files should be marked")))))
    #+END_SRC
+** dired subtree
+   #+BEGIN_SRC emacs-lisp
+     (use-package dired-subtree
+       :ensure t
+       :after ( dired)
+       :bind (:map dired-mode-map
+              ("TAB" . dired-subtree-toggle)
+              ("[" . dired-subtree-up))) ;; toggle subtree open/close M-x dired-subtree-toggle
+   #+END_SRC
 ** dired sidebar
    #+BEGIN_SRC emacs-lisp
    (use-package vscode-icon
-     :ensure vscode-icon
+     :ensure t
      :config
      ;; override the given function
      (defun vscode-icon-for-file (file)
@@ -8369,9 +8384,9 @@
              (vscode-icon-dir file)
            (vscode-icon-file file)))))
    (use-package dired-sidebar
-     :ensure dired-sidebar
+     :ensure t
      :bind (( "s-a" . dired-sidebar-toggle-sidebar))
-     :after (dired dired-subtree all-the-icons vscode-icon)
+     ;; :after (dired all-the-icons vscode-icon)
      :init
      (progn
        (setq dired-sidebar-width 55)
@@ -8424,18 +8439,8 @@
 ** dired rainbow
    #+BEGIN_SRC emacs-lisp
      (use-package dired-rainbow
-       :ensure dired-rainbow
+       :ensure t
        :after ( dired)) ;; Extended file highlighting according to its type
-   #+END_SRC
-** dired subtree
-   #+BEGIN_SRC emacs-lisp
-     (use-package dired-subtree
-       :ensure dired-subtree
-       :after ( dired)
-       :bind (:map dired-mode-map
-              ("TAB" . dired-subtree-toggle)
-              ("[" . dired-subtree-up))
-       :commands dired-subtree-toggle) ;; toggle subtree open/close M-x dired-subtree-toggle
    #+END_SRC
 * stripe-buffer
   add stripes to background of dired (or any other mode)
@@ -8469,9 +8474,9 @@
 * visual regexp
   #+BEGIN_SRC emacs-lisp
     (use-package visual-regexp
-      :ensure visual-regexp)
+      :ensure t)
     (use-package visual-regexp-steroids
-      :ensure visual-regexp-steroids
+      :ensure t
       :after ( visual-regexp)
       :config
       (progn 
@@ -8565,7 +8570,7 @@
 ** flycheck-package (elisp packages)
    #+BEGIN_SRC emacs-lisp
    (use-package flycheck-package
-     :ensure flycheck-package
+     :ensure t
      :after (flycheck))
    #+END_SRC
 ** ace helm line
@@ -8672,7 +8677,7 @@
      the text area with life update!
    #+BEGIN_SRC emacs-lisp
      (use-package atomic-chrome
-       :ensure atomic-chrome
+       :ensure t
        :config (atomic-chrome-start-server))
    #+END_SRC
 #+BEGIN_SRC emacs-lisp
@@ -8745,7 +8750,7 @@
    - see [[https://github.com/emacs-helm/helm-exwm][here]], problems documented [[https://github.com/emacs-helm/helm/issues/1889][here]]
    #+BEGIN_SRC emacs-lisp
    (use-package helm-exwm
-     :ensure helm-exwm
+     :ensure t
      :after ( exwm helm)
      :config
      (progn
@@ -8836,7 +8841,7 @@
    - check whether this clashes with other flycheck packages (like flycheck-tip and flycheck-pos-tip)
    #+BEGIN_SRC emacs-lisp
      (use-package flycheck-inline
-       :ensure flycheck-inline
+       :ensure t
        :after ( flycheck inline-docs)
        :config
        (flycheck-inline-mode 1) ;; see readme
@@ -8954,10 +8959,10 @@
    ;; C-c M-t (test)
    ;; C-c C-d (hydra for documentation)
    ;; (use-package cider-hydra ;; adds hydras
-   ;;   :ensure cider-hydra
+   ;;   :ensure t
    ;;   :after ( hydra cider))
    (use-package cider-decompile ;; decompilation extension for cider [https://github.com/clojure-emacs/cider-decompile]
-     :ensure cider-decompile
+     :ensure t
      :after ( cider javap-mode))
    ;; (use-package cider-profile ;; CIDER profiling support [https://github.com/thunknyc/nrepl-profile]
    ;;   :defer 10
@@ -9040,11 +9045,11 @@
 ** yaml
    #+BEGIN_SRC emacs-lisp
    (use-package yaml-mode
-     :ensure yaml-mode
+     :ensure t
      :mode (("\\.yml\\'" . yaml-mode)
             ("\\.yaml\\'" . yaml-mode)))
    (use-package yaml-tomato
-     :ensure yaml-tomato
+     :ensure t
      :after ( yaml-mode)
      :commands (yaml-tomato-show-current-path yaml-tomato-copy))
    #+END_SRC
@@ -9096,7 +9101,7 @@
    - allow highlighting of symbols
    #+BEGIN_SRC emacs-lisp
    (use-package symbol-overlay
-     :ensure symbol-overlay
+     :ensure t
      :config (setq symbol-overlay-colors '("dodger blue" "spring green" "orchid" "salmon")))
    #+END_SRC
 ** smart hungry delete
@@ -9104,7 +9109,7 @@
    - do smart delete of spaces
    #+BEGIN_SRC emacs-lisp
      (use-package smart-hungry-delete
-       :ensure smart-hungry-delete
+       :ensure t
        :bind (("S-<backspace>" . smart-hungry-delete-backward-char)
    		      ("C-S-d" . smart-hungry-delete-forward-char)))
    #+END_SRC
@@ -9139,9 +9144,9 @@
    #+BEGIN_SRC emacs-lisp
      (when ledger-installed
        (use-package ledger-mode
-         :ensure ledger-mode)
+         :ensure t)
        (use-package flycheck-ledger
-         :ensure flycheck-ledger
+         :ensure t
          :after ( ledger-mode flycheck)))
    #+END_SRC
 ** move frames around
@@ -9209,7 +9214,7 @@
      - Check the time a command was run by mousing over its prompt
    #+BEGIN_SRC emacs-lisp
    (use-package shx
-     :ensure shx
+     :ensure t
      :init (progn
         ;; add hook for shell
         (add-hook 'shell-mode-hook #'shx-mode)
@@ -9234,7 +9239,7 @@
    - open yarn lock files in a read only mode
    #+BEGIN_SRC emacs-lisp
    (use-package yarn-mode
-     :ensure yarn-mode
+     :ensure t
      :mode (("\\yarn.lock\\'" . yarn-mode)))
    #+END_SRC
 ** all the icons dired
@@ -9265,7 +9270,7 @@
 ** popwin (make windows like help, completion show in a popupwindow that can be closed via C-g
    #+BEGIN_SRC emacs-lisp
      (use-package popwin
-       :ensure popwin
+       :ensure t
        :config
        (popwin-mode 1)
        (setq popwin:popup-window-height 30))
@@ -9273,7 +9278,7 @@
 ** ranger (file browser/previewer, using dired)
    #+BEGIN_SRC emacs-lisp
      (use-package ranger
-       :ensure ranger
+       :ensure t
        :config
        (setq ranger-hide-cursor nil))
    #+END_SRC
@@ -9415,7 +9420,7 @@
 ** company quickhelp - produces help popups for company candidates (replaced by company-box)
    #+BEGIN_SRC emacs-lisp :tangle no
        (use-package company-quickhelp
-         ;; :ensure company-quickhelp
+         ;; :ensure t
          :after (company-box)
          :config
          (progn
@@ -9571,7 +9576,7 @@
   (when gb/use-exwm
     (use-package xelb
       :after (helm-external helm ace-window windmove)
-      :ensure xelb)
+      :ensure t)
     (use-package exwm
       :after (xelb)
       :bind (("<XF86MonBrightnessUp>" . gb/brightness-up)
@@ -9668,7 +9673,7 @@
                     (add-hook 'kill-emacs-hook #'gb/shutdown--immediately t)
                     (save-buffers-kill-emacs)))))
 
-      :ensure exwm)
+      :ensure t)
     (use-package exwm-config
       :after ( exwm )
       :config
