@@ -1086,16 +1086,16 @@
   (setq running-nixos (getenv "NIX_PATH"))
   (setq gb/use-exwm (or (string= "ok" (s-trim (shell-command-to-string "cat ~/.xinitrc | grep -q -e '^ *exec .*emacs' && echo 'ok'")))
                         running-nixos))
-  (if (is-linux-p)
-      (let* ((tracepathResult (shell-command-to-string "tracepath -b -m 4 github.com"))
-             (gb/behind-comp (s-contains? "compal" tracepathResult))
-             (gb/behind-kabeld (s-contains? "kabel-deutschland" tracepathResult)))
-        (setq gb/network-home (and gb/behind-comp gb/behind-kabeld)))
-    (setq gb/network-home nil))
+  ;; (if (is-linux-p)
+  ;;     (let* ((tracepathResult (shell-command-to-string "tracepath -b -m 4 github.com"))
+  ;;            (gb/behind-comp (s-contains? "compal" tracepathResult))
+  ;;            (gb/behind-kabeld (s-contains? "kabel-deutschland" tracepathResult)))
+  ;;       (setq gb/network-home (and gb/behind-comp gb/behind-kabeld)))
+  ;;   (setq gb/network-home nil))
   (setq gb/dual-monitor-setup (string= "2" (s-trim (shell-command-to-string "xrandr --listmonitors | grep \"Monitors\" | awk '{ print $2; }'"))))
 
-  (setq gb/use-smart-mode-line (and gb/use-exwm gb/dual-monitor-setup (not gb/network-home) (not running-nixos))) ;;
-  (setq gb/use-space-line (not gb/use-smart-mode-line))
+  ;; (setq gb/use-smart-mode-line (and gb/use-exwm gb/dual-monitor-setup (not gb/network-home) (not running-nixos))) ;;
+  ;; (setq gb/use-space-line (not gb/use-smart-mode-line))
 
 
   (when (is-_nix-p)
@@ -2571,7 +2571,7 @@
         ))
     #+END_SRC
 *** rich minority mode (hide minor modes from smart mode line) (disabled, smart mode line not in use anymore)
-    #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp :tangle no
     (when gb/use-smart-mode-line
       (use-package rich-minority
         :config
