@@ -9703,9 +9703,9 @@
       :config
       (exwm-config-default)
 
-      (if (shell-command-to-string "ps -A | grep VBoxClient")
-          (message "OK: VBoxClient seems to be running, thus clipboard sharing is probably active")
-        (message "ERROR: VBoxClient is not running! Clipboard sharing is not available"))
+      ;; (if (shell-command-to-string "ps -A | grep VBoxClient")
+      ;;     (message "OK: VBoxClient seems to be running, thus clipboard sharing is probably active")
+      ;;   (message "ERROR: VBoxClient is not running! Clipboard sharing is not available"))
 
       (defun gb/start-if-not-running (filename)
         "start this program if not already running"
