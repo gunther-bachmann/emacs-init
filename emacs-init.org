@@ -4136,7 +4136,8 @@
        ))
    #+END_SRC
 ** back-button
-   #+BEGIN_SRC emacs-lisp
+   - currently disabled, since it depends (transitively on pcache, which takes eons during kill-emacs-hooks execution)
+   #+BEGIN_SRC emacs-lisp :tangle-no
    (use-package back-button
      ;; :ensure back-button ;; has currently problems compiling
      :after ( hydra)
