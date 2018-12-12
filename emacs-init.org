@@ -5253,6 +5253,7 @@
       (setq magit-diff-adjust-tab-width t)
       (setq magit-diff-highlight-trailing t)
       (setq magit-diff-hide-trailing-cr-characters t)
+      (setq magit-display-buffer-function (quote magit-display-buffer-fullframe-status-v1))
 
       ;; make sure that magit closes all other windows on the frame
       (when (fboundp 'gb/display-buffer-fullframe)
