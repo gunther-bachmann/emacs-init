@@ -9905,6 +9905,7 @@
                 (lambda ()
                   (gb/start-if-not-running (s-trim (shell-command-to-string "which pasystray")))
                   ;; (start-process "yabar" nil  "/usr/bin/yabar") ;; see here: https://github.com/geommer/yabar
+                  (ido-mode nil)
                   ))
 
       ;; ensure that eclipse switches to char line mode
@@ -9939,7 +9940,9 @@
    (toggle-frame-fullscreen)
    (ido-mode 0)
    (midnight-mode 1))
-  (setq gc-cons-threshold 80000)
+  (setq gc-cons-threshold 8000000)
+  (ido-mode 0)
+  (midnight-mode 1)
   (report-elapsed "exit finish - up")
   #+END_SRC
 
