@@ -2270,9 +2270,11 @@
 *** doom modeline
     #+BEGIN_SRC emacs-lisp
     (use-package doom-modeline
-          :ensure t
-          :defer t
-          :hook (after-init . doom-modeline-init))
+      :ensure t
+      :defer t
+      :config
+      (setq doom-modeline-buffer-file-name-style 'relative-to-project)
+      :hook (after-init . doom-modeline-init))
     #+END_SRC
 *** spinner (busy indicator for modeline)
     - (spinner-start 'vertical-breathing 10)
