@@ -3972,7 +3972,9 @@
      :ensure t
      :bind (("C-S-s" . helm-swoop)
             ("C-M-S-s" . helm-multi-swoop-all))
-     :after (helm))
+     :after (helm)
+     :config
+     (setq helm-swoop-split-direction (quote split-window-horizontally)))
    #+END_SRC
 ** pos tip
    #+BEGIN_SRC emacs-lisp
