@@ -3167,8 +3167,8 @@
    ;; Highlight current line
    (global-hl-line-mode 1)
    (custom-set-faces
-    '(hl-line ((t (:background "gray15"))))
-    '(highlight ((t (:background "gray15"))))
+    '(hl-line ((t (:background "gray18"))))
+    '(highlight ((t (:background "gray18"))))
     '(font-lock-doc-face ((t (:foreground "gray52"))))
     '(font-lock-comment-face ((t (:foreground "gray38"))))
     '(font-lock-comment-delimiter-face ((t (:foreground "gray38"))))
