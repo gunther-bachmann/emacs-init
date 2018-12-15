@@ -9604,6 +9604,11 @@
        (setq smex-save-file (concat user-emacs-directory ".smex-items"))
        (smex-initialize)))
    #+END_SRC
+* general
+  #+BEGIN_SRC emacs-lisp
+  (use-package general
+    :ensure t)
+  #+END_SRC
 * exwm (emacs window manager)
 #+BEGIN_SRC emacs-lisp
 (report-elapsed "check point exwm")
@@ -9714,7 +9719,21 @@
                 (when (yes-or-no-p "Shutdown PC?")
                   (progn
                     (add-hook 'kill-emacs-hook #'gb/shutdown--immediately t)
-                    (save-buffers-kill-emacs)))))
+                    (save-buffers-kill-emacs))))
+              (defun gb/exwm-next-workspace (&optional inc)
+                "jump to the next (inc) workspace"
+                (interactive)
+                (let* ((inc (or inc 1))
+                       (index (+ exwm-workspace-current-index inc))
+                       (len (length exwm-workspace--list)))
+                  (exwm-workspace-switch (cond
+                                          ((< index 0) (+ index len))
+                                          ((< index len) index)
+                                          (t (- index len))))))
+              (defun gb/exwm-previous-workspace (&optional inc)
+                "jump to the previous (inc) workspace"
+                (interactive)
+                (gb/exwm-next-workspace (- (or inc 1)))))
 
       :ensure t)
     (use-package exwm-config
@@ -9766,6 +9785,12 @@
       ;; `exwm-input-prefix-keys' and then add the key sequence to `exwm-mode-map'.
       ;; The example shorten 'C-c q' to 'C-q'.
       (push ?\C-q exwm-input-prefix-keys)
+      (push ?\M-\s exwm-input-prefix-keys)
+      (general-define-key
+        :keymaps 'override
+        :prefix "M-SPC"
+        "s" 'helm-swoop
+        "SPC" 'avy-goto-char-timer)
       (define-key exwm-mode-map [?\C-q] #'exwm-input-send-next-key)
 
       (exwm-input-set-key (kbd "<XF86MonBrightnessUp>") #'gb/brightness-up)
@@ -9788,6 +9813,24 @@
           (exwm-reset))
         (funcall interactive-function))
 
+
+      (defun gb/windmove-left ()
+        ""
+        (if (windmove-find-other-window 'left)
+            (windmove-left)
+          (progn (gb/exwm-previous-workspace)
+                 (while (windmove-find-other-window 'right)
+                   (windmove-right)))))
+
+      (defun gb/windmove-right ()
+        ""
+        (if (windmove-find-other-window 'right)
+            (windmove-right)
+          (progn (gb/exwm-next-workspace)
+                 (while (windmove-find-other-window 'left)
+                   (windmove-left)))))
+
+
       ;; switch buffers
       (exwm-input-set-key (kbd "s-b") (lambda () (interactive) (gb/wrap-in-exwm-reset #'helm-mini)))
       ;; (exwm-input-set-key (kbd "s-b") #'helm-mini)
@@ -9800,8 +9843,8 @@
       ;; helm-M-x
       (exwm-input-set-key (kbd "s-SPC") #'helm-M-x) ;; may have problems jumping off from eclipse
 
-      (exwm-input-set-key (kbd "s-<left>") (lambda () (interactive) (gb/wrap-in-exwm-reset #'windmove-left)))
-      (exwm-input-set-key (kbd "s-<right>") (lambda () (interactive) (gb/wrap-in-exwm-reset #'windmove-right)))
+      (exwm-input-set-key (kbd "s-<left>") (lambda () (interactive) (gb/wrap-in-exwm-reset #'gb/windmove-left)))
+      (exwm-input-set-key (kbd "s-<right>") (lambda () (interactive) (gb/wrap-in-exwm-reset #'gb/windmove-right)))
       (exwm-input-set-key (kbd "s-<up>") (lambda () (interactive) (gb/wrap-in-exwm-reset #'windmove-up)))
       (exwm-input-set-key (kbd "s-<down>") (lambda () (interactive) (gb/wrap-in-exwm-reset #'windmove-down)))
 
