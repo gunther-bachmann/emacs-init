@@ -80,7 +80,7 @@
     - this code:
     #+BEGIN_SRC emacs-lisp :tangle no
     (use-package ace-jump-mode
-      :defer t ;; valid because of key registration in init
+      ;; :defer t ;; valid because of key registration in init
       :init
       (autoload 'ace-jump-mode "ace-jump-mode" nil t)
       (bind-key "c-." 'ace-jump-mode))
@@ -3292,7 +3292,7 @@
    - edit very large files in chunks (see [[https://github.com/m00natic/vlfi][here]])
    #+BEGIN_SRC emacs-lisp
    (use-package vlf
-     :defer 7
+     ;; :defer 7
      :config (require 'vlf-setup))
    #+END_SRC
 ** volatile hightlighting
@@ -4144,7 +4144,7 @@
    #+END_SRC
 ** back-button
    - currently disabled, since it depends (transitively on pcache, which takes eons during kill-emacs-hooks execution)
-   #+BEGIN_SRC emacs-lisp :tangle-no
+   #+BEGIN_SRC emacs-lisp :tangle no
    (use-package back-button
      ;; :ensure back-button ;; has currently problems compiling
      :after ( hydra)
@@ -4728,7 +4728,8 @@
 ** cypher mode (neo4j)
    #+BEGIN_SRC emacs-lisp
    (use-package cypher-mode
-     :defer 5)
+     ;; :defer 5
+     )
    #+END_SRC
 ** eclim eclipse emacs integration (disabled)
    #+BEGIN_SRC emacs-lisp :tangle no
@@ -5284,14 +5285,14 @@
     (use-package magit-gh-pulls
       :after ( magit)
       :disabled t
-      :defer 40
+      ;; :defer 40
       :init
       (add-hook 'magit-mode-hook 'turn-on-magit-gh-pulls))
 
     (use-package magit-filenotify
       :after ( magit)
       :disabled t
-      :defer 40
+      ;; :defer 40
       :init
       (add-hook 'after-save-hook 'magit-after-save-refresh-status)
       (add-hook 'magit-status-mode-hook 'magit-filenotify-mode))
@@ -5363,7 +5364,7 @@
     #+BEGIN_SRC emacs-lisp
     (when git-lfs-installed 
       (use-package magit-lfs
-        :defer 40
+        ;; :defer 40
         :after ( magit)))
     #+END_SRC
 ** gitignore (creation with helm)
@@ -5455,7 +5456,7 @@
      (use-package flycheck-plantuml
        :ensure t
         :after ( flycheck plantuml-mode)
-        :defer t
+        ;; :defer t
         :init
         (flycheck-plantuml-setup)
           ;; (add-to-list 'puml-mode-hook #'(lambda () (message "enable flycheck")))
@@ -5477,11 +5478,14 @@
    example project [[file:~/devel/emacs/Cask][here]]
    #+BEGIN_SRC emacs-lisp
    (use-package feature-mode
-     :defer 7)
+     ;; :defer 7
+     )
    (use-package ecukes
-     :defer 7)
+     ;; :defer 7
+     )
    (use-package espuds
-     :defer 7)
+     ;;:defer 7
+     )
    #+END_SRC
 * shell
 ** eshell
@@ -7215,7 +7219,7 @@
    (if (file-exists-p "~/Documents/blog/org-jekyll.el")
        (use-package org-jekyll
          :after ( org)
-         :defer 3
+         ;; :defer 3
          :load-path "~/Documents/blog"))
  #+END_SRC
 *** make org export use better highlighting with htmlize
@@ -7243,7 +7247,7 @@
     #+BEGIN_SRC emacs-lisp
     (use-package appt
       :after ( org)
-      :defer 20
+      ;; :defer 20
       :init (add-hook 'org-finalize-agenda-hook 'org-agenda-to-appt) ;; update appt list on agenda view
       :config
       (setq appt-time-msg-list nil)    ;; clear existing appt list
@@ -7500,7 +7504,7 @@
      - see [[https://github.com/zweifisch/ob-lfe][homepage]]
      #+BEGIN_SRC emacs-lisp
      (use-package ob-lfe
-       :defer 10
+       ;; :defer 10
        :after ( org))
      #+END_SRC
 **** org babel mongo
@@ -7514,16 +7518,18 @@
      - see [[https://github.com/krisajenkins/ob-mongo][homepage]]
      #+BEGIN_SRC emacs-lisp
      (use-package ob-mongo
-       :defer 10
+       ;; :defer 10
        :after ( org))
      #+END_SRC
 **** org babel redis
      - use e.g. '#+BEGIN_SRC redis db: 127.0.0.1:6379'
      - see [[https://github.com/stardiviner/ob-redis][homepage]]
-     #+BEGIN_SRC emacs-lisp
+     - no more availble on elpa
+     #+BEGIN_SRC emacs-lisp :tangle no
      (use-package ob-redis
-       :defer 10
-       :after ( org))
+       ;; :defer 10
+       ;; :after ( org)
+       )
      #+END_SRC
 **** org babel translate
      - translate a babel source code e.g. '#+BEGIN_SRC translate :src de :dest it'
@@ -7531,8 +7537,9 @@
      - see [[https://github.com/krisajenkins/ob-translate][homepage]]
      #+BEGIN_SRC emacs-lisp
      (use-package ob-translate
-       :defer 10
-       :after ( org))
+       ;; :defer 10
+       ;; :after ( org)
+       )
      #+END_SRC
 **** org babel typescript
      #+BEGIN_SRC emacs-lisp
@@ -7543,7 +7550,7 @@
 **** org babel kotlin
      #+BEGIN_SRC emacs-lisp
      (use-package ob-kotlin
-       :defer 10
+       ;; :defer 10
        :after ( org))
      #+END_SRC
 **** org babel elixir
@@ -7555,8 +7562,9 @@
 **** org babel browser
      #+BEGIN_SRC emacs-lisp
      (use-package ob-browser
-       :defer 10
-       :after ( org))
+       ;; :defer 10
+       ;; :after ( org)
+       )
      #+END_SRC
 *** ob async
     - add ':async t' to #begin_src header, execution of block (C-c C-c within babel block) executes asynchronously)
@@ -7624,7 +7632,8 @@
     #+BEGIN_SRC emacs-lisp
     (use-package orgit
       :after ( org magit)
-      :defer 40)
+      ;; :defer 40
+      )
     #+END_SRC
 ** slack (disabled)
  #+BEGIN_SRC emacs-lisp :tangle no
@@ -7922,7 +7931,7 @@
   (use-package vagrant
     :commands vagrant-up vagrant-edit vagrant-status)
   (use-package vagrant-tramp
-    :defer 20
+    ;; :defer 20
     :after ( vagrant)
     :commands vagrant-tramp-term)
 #+END_SRC
@@ -7930,19 +7939,19 @@
 *** ansible (disabled)
     #+BEGIN_SRC emacs-lisp :tangle no
       (use-package ansible
-        :defer 30
+        ;; :defer 30
         :commands ansible)
     #+END_SRC
 *** ansible-doc (disabled)
     #+BEGIN_SRC emacs-lisp :tangle no
     (use-package ansible-doc
-      :defer 30
+      ;; :defer 30
       :commands ansible-doc ansible-doc-mode)
     #+END_SRC
 *** company-ansible (disabled)
     #+BEGIN_SRC emacs-lisp :tangle no
     (use-package company-ansible
-      :defer 30
+      ;; :defer 30
       :after ( company))
     #+END_SRC
 * imenu
@@ -9031,7 +9040,7 @@
    ;; install flycheck for scala
    (use-package flycheck-scala-sbt
      :after ( ensime flycheck)
-     :defer t
+     ;; :defer t
      :init
      (progn
        (add-hook 'scala-mode-hook 'flycheck-scala-sbt-init)))
@@ -9119,8 +9128,9 @@
    - see [[https://github.com/et2010/org-edit-latex][here]]
    #+BEGIN_SRC emacs-lisp
    (use-package org-edit-latex
-     :after ( org tex-mode)
-     :defer 60)
+     ;; :after ( org tex-mode)
+     ;; :defer 60
+     )
    #+END_SRC
 ** helm books
    - allows searching for book titles using the google book api with helm
@@ -9168,7 +9178,7 @@
    ;; (use-package lsp-go :after ( lsp-mode))
    ;; (use-package lsp-haskell :after ( lsp-mode))
    (use-package lsp-java
-     :defer 10
+     ;; :defer 10
      :after ( lsp-mode))
    ;; (use-package lsp-python :after ( lsp-mode))
    ;; (use-package lsp-rust :after ( lsp-mode))
