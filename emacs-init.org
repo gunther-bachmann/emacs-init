@@ -2267,11 +2267,30 @@
        ))
    #+END_SRC
 ** modeline
+*** all the icons
+    #+BEGIN_SRC emacs-lisp
+    (use-package memoize
+      :ensure t)
+
+    (use-package all-the-icons
+      :ensure t
+      ;; :after ( memoize) ;; font-lock+
+      :config
+      ;; extend list of all-the-icons-mode-icon-alist
+      ;; by
+      ;; (typescript-mode all-the-icons-fileicon "typescript" :v-adjust -0.1 :face all-the-icons-yellow)
+      ;; (tide-mode all-the-icons-fileicon "typescript" :v-adjust -0.1 :face all-the-icons-yellow)
+      (with-eval-after-load 'all-the-icons
+        (progn
+          (add-to-list 'all-the-icons-mode-icon-alist '(typescript-mode all-the-icons-fileicon "typescript" :v-adjust -0.1 :face all-the-icons-yellow) t)
+          (add-to-list 'all-the-icons-mode-icon-alist '(tide-mode all-the-icons-fileicon "typescript" :v-adjust -0.1 :face all-the-icons-yellow) t)
+          )))
+    #+END_SRC
 *** doom modeline
     #+BEGIN_SRC emacs-lisp
     (use-package doom-modeline
       :ensure t
-      :defer t
+      ;; :after (all-the-icons)
       :config
       (setq doom-modeline-buffer-file-name-style 'relative-to-project)
       :hook (after-init . doom-modeline-init))
@@ -2461,23 +2480,6 @@
     #+begin_SRC emacs-lisp :tangle no
     ;; (use-package font-lock+)
     (when gb/use-space-line
-      (use-package all-the-icons
-        :ensure t
-        :after ( memoize) ;; font-lock+
-        :config
-        ;; extend list of all-the-icons-mode-icon-alist
-        ;; by
-        ;; (typescript-mode all-the-icons-fileicon "typescript" :v-adjust -0.1 :face all-the-icons-yellow)
-        ;; (tide-mode all-the-icons-fileicon "typescript" :v-adjust -0.1 :face all-the-icons-yellow)
-        (with-eval-after-load 'all-the-icons
-          (progn
-            (add-to-list 'all-the-icons-mode-icon-alist '(typescript-mode all-the-icons-fileicon "typescript" :v-adjust -0.1 :face all-the-icons-yellow) t)
-            (add-to-list 'all-the-icons-mode-icon-alist '(tide-mode all-the-icons-fileicon "typescript" :v-adjust -0.1 :face all-the-icons-yellow) t)
-            )))
-
-      (use-package memoize
-        :ensure t)
-
       (use-package spaceline-all-the-icons
         :ensure t
         :after ( spaceline all-the-icons memoize) ;; indent-info
