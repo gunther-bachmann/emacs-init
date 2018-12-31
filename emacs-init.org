@@ -435,6 +435,16 @@
      (report-elapsed ":config-exit paradox")
      )
    #+END_SRC
+** use package hydra (use-package extension)
+   #+begin_src emacs-lisp
+   (use-package use-package-hydra
+     :ensure t)
+   #+end_src
+** use package chords (use-package extension)
+   #+begin_src emacs-lisp
+   (use-package use-package-chords
+     :ensure t)
+   #+end_src
 * workarounds for broken packages
   #+BEGIN_SRC emacs-lisp
   ;; since perspective is using make-variable-frame-local and this function/macro is removed in emacs 26.x
