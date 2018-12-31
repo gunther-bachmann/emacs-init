@@ -1281,6 +1281,11 @@
    #+END_SRC
 
 * encryption
+** set auth-sources so that only gpg is used
+   #+BEGIN_SRC emacs-lisp
+   ;; (custom-set-variables  '(auth-sources ("~/.authinfo.gpg")))
+   (setq auth-sources '("~/.authinfo.gpg"))
+   #+END_SRC
 ** epa (see 'check-installation-status *nix)
 ** configure pinentry
    - see ~/.gnupg/gpg-agent.conf
