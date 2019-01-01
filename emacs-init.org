@@ -7611,6 +7611,9 @@
       :after ( org htmlize)
       :config
       (progn
+        ;; ox-reveal in the current version adds old format of structure template list, which needs to be removed here!
+        (if (s-starts-with-p "#+BEGIN_NOTES" (car (cdr (car org-structure-template-alist))))
+            (setq org-structure-template-alist (cdr org-structure-template-alist)))
         (setq org-reveal-root "./reveal.js"))) ;; look into local folder
     #+END_SRC
 *** org table sticky headers
@@ -10013,16 +10016,6 @@
   (gb/do-after-display-system-init
    (toggle-frame-fullscreen)
    (ido-mode 0)
-   (setq org-structure-template-alist '(("a" . "export ascii")
-    ("c" . "center")
-    ("C" . "comment")
-    ("e" . "example")
-    ("E" . "export")
-    ("h" . "export html")
-    ("l" . "export latex")
-    ("q" . "quote")
-    ("s" . "src")
-    ("v" . "verse")))
    (midnight-mode 1))
   (setq gc-cons-threshold 8000000)
   (ido-mode 0)
