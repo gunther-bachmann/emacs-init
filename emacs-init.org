@@ -4895,7 +4895,7 @@
          (if buf
              (switch-to-buffer buf)
            (progn
-             (ansi-term "/bin/zsh" "Typescript")
+             (ansi-term (s-trim (shell-command-to-string "which bash")) "Typescript")
              (comint-send-string "*Typescript*" "tsun\n")))))
      (add-hook 'typescript-mode-hook
                (lambda ()
