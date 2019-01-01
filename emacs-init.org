@@ -1,7 +1,7 @@
 #+title: init.el
 #+property: spellcheck no
 #+property: readonly yes
-#+property: header-args :tangle ~/.emacs.d/init.el :comments org 
+#+property: header-args :tangle ~/.emacs.d/init.el :comments both
 #
 # execute org-babel-tangle to actually export the code into a init.el (directly into the emacs directory)
 #   c-c c-v t  (org-babel-tangle)
@@ -2302,10 +2302,12 @@
           )))
     #+END_SRC
 *** doom modeline
+    - adjusted file doom-modeline.el:770, changed "save" to "details" (icon)
     #+BEGIN_SRC emacs-lisp
     (use-package doom-modeline
       :ensure t
-      ;; :after (all-the-icons)
+      :after (all-the-icons)
+      :pin melpa-stable
       :config
       (setq doom-modeline-buffer-file-name-style 'relative-to-project)
       :hook (after-init . doom-modeline-init))
@@ -9622,7 +9624,7 @@
        (setq smex-save-file (concat user-emacs-directory ".smex-items"))
        (smex-initialize)))
    #+END_SRC
-* general
+* general (key binding)
   #+BEGIN_SRC emacs-lisp
   (use-package general
     :ensure t)
