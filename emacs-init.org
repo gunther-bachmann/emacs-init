@@ -8618,6 +8618,14 @@
 #+BEGIN_SRC emacs-lisp
 (report-elapsed "check point currently evaluated")
 #+END_SRC
+** terraform
+   #+begin_src emacs-lisp
+   (use-package terraform-mode
+     :ensure t)
+   (use-package company-terraform
+     :ensure t
+     :after (company terraform-mode))
+   #+end_src
 ** blimb (image manipulation using imagemagick)
    - lets you interactively select magick commands to manipulate the image in the buffer
    - it has command autocomplete, description and some parameter completion facilities
