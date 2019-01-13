@@ -9840,20 +9840,37 @@
         (s-trim (shell-command-to-string "xrandr | grep -v disconnected | grep connected | grep primary | awk '{ print $1 }'")))
 
       ;; make sure multi monitor support is active
-      (when gb/dual-monitor-setup
-        (progn
-          (let ((second-monitor (gb/get-second-monitor))
-                (primary-monitor (gb/get-primary-monitor)))
-            (message "Starting multimonitor support for exwm.")
-            (require 'exwm-randr)
-            (setq exwm-randr-workspace-output-plist `(0 ,primary-monitor 1 ,second-monitor)) ;; 0 "DP-2"
-            (add-hook 'exwm-randr-screen-change-hook
-                      `(lambda ()
-                         (shell-command (s-concat "xrandr --output " ,primary-monitor " --left-of "  ,second-monitor " --auto"))
-                         (if (s-equals? ,second-monitor "DP-0")
-                             (let* ((xrandrmode (s-trim (shell-command-to-string (s-concat "xrandr -q | grep " ,second-monitor " -A 1 | tail -n 1 | awk '{ print $1; }'")))))
-                               (shell-command (s-concat "xrandr --output " ,second-monitor " --mode " xrandrmode))))))
-            (exwm-randr-enable))))
+      (progn
+        (message "Starting multimonitor support for exwm.")
+        (require 'exwm-randr)
+        (add-hook 'exwm-randr-screen-change-hook
+                  `(lambda ()
+                     (let ((dual-monitor (string= "2" (s-trim (shell-command-to-string "xrandr -q | grep ' connected ' | wc -l"))))
+                           (primary-monitor (gb/get-primary-monitor)))
+                       (message "exwm change hook")
+                       (message (s-trim (shell-command-to-string "xrandr --listmonitors | grep \"Monitors\" | awk '{ print $2; }'")))
+                       (if dual-monitor
+                           (let* ((second-monitor (gb/get-second-monitor)))
+                             (message "dual-monitor setup")
+                             (message primary-monitor)
+                             (message second-monitor)
+                             (if (string-empty-p second-monitor)
+                                 (setq exwm-randr-workspace-monitor-plist `(0 ,primary-monitor 1 ,primary-monitor 2 ,primary-monitor 3 ,primary-monitor))
+                               (progn
+                                 (message "dual monitor")
+                                 (setq  exwm-randr-workspace-monitor-plist `(0 ,primary-monitor 1 ,second-monitor 2 ,second-monitor 3 ,second-monitor)) ;; 0 "DP-2"
+                                 (shell-command (s-concat "xrandr --output " primary-monitor " --left-of "  second-monitor " --auto"))
+                                 (if (s-equals? second-monitor "DP-0")
+                                     (let* ((xrandrmode (s-trim (shell-command-to-string (s-concat "xrandr -q | grep " second-monitor " -A 1 | tail -n 1 | awk '{ print $1; }'")))))
+                                       (message xrandrmode)
+                                       (shell-command (s-concat "xrandr --output " second-monitor " --mode " xrandrmode))))
+                                 (exwm-randr-refresh))))
+                         (progn
+                           (message "single monitor")
+                           (setq exwm-randr-workspace-monitor-plist `(0 ,primary-monitor 1 ,primary-monitor 2 ,primary-monitor 3 ,primary-monitor))
+                           (exwm-randr-refresh)))
+                       )))
+        (exwm-randr-enable))
 
       ;; The following example demonstrates how to set a key binding only available
       ;; in line mode. It's simply done by first push the prefix key to
@@ -9878,6 +9895,7 @@
       (exwm-input-set-key (kbd "<s-f2>") #'gb/audio-lower-volume)
       (exwm-input-set-key (kbd "<s-f3>") #'gb/audio-raise-volume)
       (exwm-input-set-key (kbd "<s-f1>") #'gb/audio-mute-volume)
+      (exwm-input-set-key (kbd "<s-f12>") #'exwm-floating-toggle-floating)
 
       (defun gb/wrap-in-exwm-reset (interactive-function)
         "run exwm reset right before calling the given function"
@@ -9935,6 +9953,21 @@
           exwm--id-buffer-alist)))
 
       (require 'helm-external)
+
+      (defun gb/exwm--switch-or-run (program &optional alias)
+        "switch to this program if already open or start it"
+        ;; (exwm-reset)
+        (let* ((browser-alias (s-concat program "-browser"))
+               (stable-removed (s-replace "-stable" "" program)))
+          (if (-contains? (gb/exwm-distinct-exwm-buffer-names) program)
+              (exwm-workspace-switch-to-buffer (s-capitalize program))
+            (if (-contains? (gb/exwm-distinct-exwm-buffer-names) browser-alias)
+                (exwm-workspace-switch-to-buffer (s-capitalize browser-alias))
+              ;; (exwm-reset) ;; make sure that keyboard is no longer captured
+              (if (-contains? (gb/exwm-distinct-exwm-buffer-names) stable-removed)
+                  (exwm-workspace-switch-to-buffer (s-capitalize stable-removed))
+                (helm-run-external-command program))))))
+
       (defun gb/exwm-program-select (program)
         "select a native (unix) program to execute, select the buffer named as
                  the program instead, if such a buffer exists"
@@ -9946,11 +9979,8 @@
                        :del-input nil
                        :name "External Commands"
                        :history helm-external-command-history)))
-        ;; (exwm-reset)
-        (if (-contains? (gb/exwm-distinct-exwm-buffer-names) program)
-            (exwm-workspace-switch-to-buffer (capitalize program))
-          ;; (exwm-reset) ;; make sure that keyboard is no longer captured
-          (helm-run-external-command program)))
+        (gb/exwm--switch-or-run program)
+        )
 
       ;; start programs
       (exwm-input-set-key (kbd "s-1") #'gb/exwm-program-select) ;; do not wrap, since it already resets exwm
@@ -10028,6 +10058,8 @@
               (let ((sim-keys (append gb/simulation-keys
                                       `((,(kbd "C-S-s") . C-k)                   ;; search with search engine (C-S-s)
                                         (,(kbd "C-M-s") . f6)                    ;; jump into adresse bar (C-M-s)
+                                        (,(kbd "<C-left>") . C-S-tab)              ;; switch to previous tab
+                                        (,(kbd "<C-right>") . C-tab)               ;; switch to next tab
                                         ))))
                 (exwm-input-set-local-simulation-keys sim-keys))))))
 
@@ -10040,6 +10072,7 @@
                   (gb/start-if-not-running (s-trim (shell-command-to-string "which pasystray")))
                   ;; (start-process "yabar" nil  "/usr/bin/yabar") ;; see here: https://github.com/geommer/yabar
                   (ido-mode nil)
+                  (set-fringe-mode 10)
                   ))
 
       ;; ensure that eclipse switches to char line mode
