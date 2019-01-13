@@ -488,33 +488,72 @@
    #+END_SRC
 * splash and initial buffer config
   #+BEGIN_SRC emacs-lisp
-  ;; set scratch window content
-  (let* ((total-ram (if (is-macos-p)
-                        (/ (string-to-int (shell-command-to-string "sysctl hw.memsize | sed 's/.*:\s*//'")) (* 1024 1024 1024) )
-                      (/ (nth 0 (memory-info)) (* 1024 1024))))
-         (free-ram (if (is-macos-p) 0 (/ (nth 1 (memory-info)) (* 1024 1024))))
-         (total-ram-str (concat (number-to-string total-ram) "GB" ))
-         (free-ram-str (if (= 0 free-ram) "LOTS OF" (concat (number-to-string free-ram) "GB" )))
-         (len-avail-for-memory (+ (length emacs-version) 1))
-         (len-needed-for-memory (+ (length free-ram-str) (length total-ram-str))))
+    ;; set scratch window content
+    (defun gb/system-info () ""
+    (let* ((nix-flake '(        "          ::::.    ':::::     ::::'\n"
+                                "          ':::::    ':::::.  ::::'\n"
+                                "            :::::     '::::.:::::\n"
+                                "      .......:::::..... ::::::::\n"
+                                "     ::::::::::::::::::. ::::::    ::::.\n"
+                                "    ::::::::::::::::::::: :::::.  .::::'\n"
+                                "           .....           ::::' :::::'\n"
+                                "          :::::            '::' :::::'\n"
+                                " ........:::::               ' :::::::::::.\n"
+                                ":::::::::::::                 :::::::::::::\n"
+                                " ::::::::::: ..              :::::\n"
+                                "     .::::: .:::            :::::\n"
+                                "    .:::::  :::::          '''''    .....\n"
+                                "    :::::   ':::::.  ......:::::::::::::'\n"
+                                "     :::     ::::::. ':::::::::::::::::'\n"
+                                "            .:::::::: '::::::::::\n"
+                                "           .::::''::::.     '::::.\n"
+                                "          .::::'   ::::.     '::::.\n"
+                                "         .::::      ::::      '::::.\n"))
+           (mixto-nix (s-split "\n" (concat (s-trim (shell-command-to-string "neofetch --stdout")) (s-repeat (length nix-flake) "\n"))))
+           (max-line-len (-max (-map 'length mixto-nix)))
+           (max-line-spaces (s-repeat max-line-len " "))
+           (mixto-nix-padded (--map (s-left max-line-len (s-concat it max-line-spaces)) mixto-nix))
 
-    (setq initial-scratch-message 
-          (propertize (concat ";; ***** FREE SOFTWARE FOUNDATION  EMACS "
-                              emacs-version
-                              " *****\n;;   "
-                              total-ram-str 
-                              " RAM SYSTEM" 
-                              (make-string (max 2 (- len-avail-for-memory len-needed-for-memory)) ? )
-                              free-ram-str
-                              " EMACS LISP BYTES FREE\n;; READY\n")
-                      ;; properties do not work here, since they are overwritten/not used
-                      )))
+           (comments (-repeat (length nix-flake) ";; "))
+           (mixed (-interleave comments mixto-nix-padded nix-flake))
+           (pairs (-partition 3 mixed))
+           (result (--map (s-join "" it) pairs))
+           (nix-total (s-join "" result))
+           )
+           nix-total
+         ))
+    (let* ((total-ram (if (is-macos-p)
+                          (/ (string-to-int (shell-command-to-string "sysctl hw.memsize | sed 's/.*:\s*//'")) (* 1024 1024 1024) )
+                        (/ (nth 0 (memory-info)) (* 1024 1024))))
+           (free-ram (if (is-macos-p) 0 (/ (nth 1 (memory-info)) (* 1024 1024))))
+           (total-ram-str (concat (number-to-string total-ram) "GB" ))
+           (free-ram-str (if (= 0 free-ram) "LOTS OF" (concat (number-to-string free-ram) "GB" )))
+           (len-avail-for-memory (+ (length emacs-version) 1))
+           (len-needed-for-memory (+ (length free-ram-str) (length total-ram-str)))
+           (nix-total (gb/system-info))
+           )
 
-  ;; make sure no *Messages* buffer is open on startup 
-  (add-hook 'window-setup-hook 'delete-other-windows)
+      (setq initial-scratch-message
+            (propertize (concat ";; ***** FREE SOFTWARE FOUNDATION  EMACS "
+                                emacs-version
+                                " *****\n;;   "
+                                total-ram-str
+                                " RAM SYSTEM"
+                                (make-string (max 2 (- len-avail-for-memory len-needed-for-memory)) ? )
+                                free-ram-str
+                                " EMACS LISP BYTES FREE\n;; READY\n;;\n"
+                                nix-total
+                                ";;\n"
+                                ";; (shell-command-to-string \"s2cctl start\")\n"
+                                )
+                        ;; properties do not work here, since they are overwritten/not used
+                        )))
 
-  ;; Go strait to scratch buffer on startup
-  (setq inhibit-startup-message t)
+    ;; make sure no *Messages* buffer is open on startup
+    (add-hook 'window-setup-hook 'delete-other-windows)
+
+    ;; Go strait to scratch buffer on startup
+    (setq inhibit-startup-message t)
   #+END_SRC
 * own utility functions
 ** misc
