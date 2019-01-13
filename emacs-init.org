@@ -5423,6 +5423,12 @@
         ;; :defer 40
         :after ( magit)))
     #+END_SRC
+*** forge (magit access to pull requests on github/gitlab)
+    #+BEGIN_SRC emacs-lisp
+    (use-package forge
+      :after magit
+      :ensure t)
+    #+END_SRC
 ** gitignore (creation with helm)
    simply call helm-gitignore and select language for which to create this gitignore
  #+BEGIN_SRC emacs-lisp
