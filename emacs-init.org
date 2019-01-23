@@ -9908,7 +9908,7 @@
         (interactive)
         (when (and exwm-class-name
                    (or (string= exwm-class-name "X64")
-                    (string= (downcase exwm-class-name) "eclipse")))
+                       (string= (downcase exwm-class-name) "eclipse")))
           (exwm-reset))
         (funcall interactive-function))
 
@@ -9928,7 +9928,6 @@
           (progn (gb/exwm-next-workspace)
                  (while (windmove-find-other-window 'left)
                    (windmove-left)))))
-
 
       ;; switch buffers
       (exwm-input-set-key (kbd "s-b") (lambda () (interactive) (gb/wrap-in-exwm-reset #'helm-mini)))
@@ -10049,7 +10048,7 @@
         (progn
           (when (and exwm-class-name
                      (or (string= exwm-class-name "X64")
-                      (string= (downcase exwm-class-name) "eclipse")))
+                         (string= (downcase exwm-class-name) "eclipse")))
             (progn
               ;; (setq-local exwm-input-prefix-keys '(?\C-l))
               (message "eclipse specific exwm settings applied.")
@@ -10093,8 +10092,8 @@
         "switch to char mode if target buffer is eclipse (or any other buffer that should be in char mode)"
         (when (and exwm-class-name
                    (or (string= exwm-class-name "X64")
-                    (string= (downcase exwm-class-name) "eclipse")
-                    ))
+                       (string= (downcase exwm-class-name) "eclipse")
+                       ))
           (progn
             (exwm-input-release-keyboard (exwm--buffer->id (window-buffer)))
             (setq exwm-input-set-local-simulation-keys nil)))
