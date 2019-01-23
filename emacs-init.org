@@ -9898,6 +9898,10 @@
       (exwm-input-set-key (kbd "<s-f3>") #'gb/audio-raise-volume)
       (exwm-input-set-key (kbd "<s-f1>") #'gb/audio-mute-volume)
       (exwm-input-set-key (kbd "<s-f12>") #'exwm-floating-toggle-floating)
+      (exwm-input-set-key (kbd "s-l") #'gb/lock-screen)
+      (exwm-input-set-key (kbd "s-'") #'gb/exwm-previous-workspace)
+      (exwm-input-set-key (kbd "s-/") #'gb/exwm-next-workspace)
+
 
       (defun gb/wrap-in-exwm-reset (interactive-function)
         "run exwm reset right before calling the given function"
