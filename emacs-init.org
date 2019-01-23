@@ -9839,37 +9839,39 @@
         "get the second monitor if connected"
         (s-trim (shell-command-to-string "xrandr | grep -v disconnected | grep connected | grep primary | awk '{ print $1 }'")))
 
+      (defun gb/refresh-exwm-monitor-setup ()
+        "refresh current multi monitor setup for exwm"
+        (interactive)
+        (let ((dual-monitor (string= "2" (s-trim (shell-command-to-string "xrandr -q | grep ' connected ' | wc -l"))))
+              (primary-monitor (gb/get-primary-monitor)))
+          (message "exwm change hook")
+          (message (s-trim (shell-command-to-string "xrandr --listmonitors | grep \"Monitors\" | awk '{ print $2; }'")))
+          (if dual-monitor
+              (let* ((second-monitor (gb/get-second-monitor)))
+                (message "dual-monitor setup")
+                (message primary-monitor)
+                (message second-monitor)
+                (if (string-empty-p second-monitor)
+                    (setq exwm-randr-workspace-monitor-plist (-interleave (number-sequence 0 (-  (exwm-workspace--count) 1)) (-repeat (exwm-workspace--count) primary-monitor)))
+                  (progn
+                    (message "dual monitor")
+                    (setq  exwm-randr-workspace-monitor-plist (append `(0 ,primary-monitor) (-interleave (number-sequence 1 (-  (exwm-workspace--count) 1)) (-repeat (- (exwm-workspace--count) 1) second-monitor)))) ;; 0 "DP-2"
+                    (shell-command (s-concat "xrandr --output " primary-monitor " --left-of "  second-monitor " --auto"))
+                    (if (s-equals? second-monitor "DP-0")
+                        (let* ((xrandrmode (s-trim (shell-command-to-string (s-concat "xrandr -q | grep " second-monitor " -A 1 | tail -n 1 | awk '{ print $1; }'")))))
+                          (message xrandrmode)
+                          (shell-command (s-concat "xrandr --output " second-monitor " --mode " xrandrmode))))
+                    (exwm-randr-refresh))))
+            (progn
+              (message "single monitor")
+              (setq exwm-randr-workspace-monitor-plist (-interleave (number-sequence 0 (-  (exwm-workspace--count) 1)) (-repeat (exwm-workspace--count) primary-monitor)))
+              (exwm-randr-refresh)))))
+
       ;; make sure multi monitor support is active
       (progn
         (message "Starting multimonitor support for exwm.")
         (require 'exwm-randr)
-        (add-hook 'exwm-randr-screen-change-hook
-                  `(lambda ()
-                     (let ((dual-monitor (string= "2" (s-trim (shell-command-to-string "xrandr -q | grep ' connected ' | wc -l"))))
-                           (primary-monitor (gb/get-primary-monitor)))
-                       (message "exwm change hook")
-                       (message (s-trim (shell-command-to-string "xrandr --listmonitors | grep \"Monitors\" | awk '{ print $2; }'")))
-                       (if dual-monitor
-                           (let* ((second-monitor (gb/get-second-monitor)))
-                             (message "dual-monitor setup")
-                             (message primary-monitor)
-                             (message second-monitor)
-                             (if (string-empty-p second-monitor)
-                                 (setq exwm-randr-workspace-monitor-plist `(0 ,primary-monitor 1 ,primary-monitor 2 ,primary-monitor 3 ,primary-monitor))
-                               (progn
-                                 (message "dual monitor")
-                                 (setq  exwm-randr-workspace-monitor-plist `(0 ,primary-monitor 1 ,second-monitor 2 ,second-monitor 3 ,second-monitor)) ;; 0 "DP-2"
-                                 (shell-command (s-concat "xrandr --output " primary-monitor " --left-of "  second-monitor " --auto"))
-                                 (if (s-equals? second-monitor "DP-0")
-                                     (let* ((xrandrmode (s-trim (shell-command-to-string (s-concat "xrandr -q | grep " second-monitor " -A 1 | tail -n 1 | awk '{ print $1; }'")))))
-                                       (message xrandrmode)
-                                       (shell-command (s-concat "xrandr --output " second-monitor " --mode " xrandrmode))))
-                                 (exwm-randr-refresh))))
-                         (progn
-                           (message "single monitor")
-                           (setq exwm-randr-workspace-monitor-plist `(0 ,primary-monitor 1 ,primary-monitor 2 ,primary-monitor 3 ,primary-monitor))
-                           (exwm-randr-refresh)))
-                       )))
+        (add-hook 'exwm-randr-screen-change-hook #'gb/refresh-exwm-monitor-setup)
         (exwm-randr-enable))
 
       ;; The following example demonstrates how to set a key binding only available
