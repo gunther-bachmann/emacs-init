@@ -10079,6 +10079,10 @@
                   ;; (start-process "yabar" nil  "/usr/bin/yabar") ;; see here: https://github.com/geommer/yabar
                   (ido-mode nil)
                   (set-fringe-mode 10)
+                  (toggle-truncate-lines 1)
+                  (gb/disable-ligatures)
+                  (setq global-mode-string '("" appt-mode-string display-time-string emms-mode-line-string emms-playing-time-string " " fancy-battery-mode-line " "
+                                             (:eval (elt exwm-workspace--switch-history (exwm-workspace--position exwm-workspace--current)))))
                   ))
 
       ;; ensure that eclipse switches to char line mode
@@ -10112,7 +10116,8 @@
   (gb/do-after-display-system-init
    (toggle-frame-fullscreen)
    (ido-mode 0)
-   (midnight-mode 1))
+   (midnight-mode 1)
+   (set-fringe-mode 10))
   (setq gc-cons-threshold 8000000)
   (ido-mode 0)
   (midnight-mode 1)
