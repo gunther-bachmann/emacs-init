@@ -1970,12 +1970,10 @@
 
        (bind-key "C-x C-c" 'dont-kill-emacs)
 
-       (bind-key "s-+" 'decrease-transparency)
-       (bind-key "s--" 'increase-transparency)
-       (bind-key "s-#" 'disable-transparency)
-       (bind-key "s-]" 'decrease-transparency)
-       (bind-key "s-'" 'increase-transparency)
-       (bind-key "s-/" 'disable-transparency)
+       ;; (bind-key "s-+" 'decrease-transparency)
+       ;; (bind-key "s--" 'increase-transparency)
+       ;; (bind-key "s-#" 'disable-transparency)
+       ;; (bind-key "s-]" 'decrease-transparency)
 
        (bind-key "C-;" 'toggle-comment-on-line)
 
