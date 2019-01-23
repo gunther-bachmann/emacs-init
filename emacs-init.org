@@ -3324,12 +3324,14 @@
          ;; keep track of saved places in ~/.emacs.d/places
          (setq save-place-file (concat user-emacs-directory "places")))))
    #+END_SRC
-** save on focus loss
-   #+BEGIN_SRC emacs-lisp
+** save on focus loss (inactive)
+   - this function is run on focus out, which again is called when exwm switching buffers, which causes problems
+     because the buffer switch is undone (focus jumps back to last exwm buffer)
+   #+BEGIN_SRC emacs-lisp :tangle no
    (defun save-all ()
      (interactive)
      (save-some-buffers t))
-   (add-hook 'focus-out-hook 'save-all)
+   ;; (add-hook 'focus-out-hook 'save-all)
    #+END_SRC
 ** undo tree
    - C-x u opens the undo tree and lets you move through the tree of undo/redo
