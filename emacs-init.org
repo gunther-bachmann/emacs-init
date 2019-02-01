@@ -5718,10 +5718,10 @@
    #+END_SRC
 ** zshell
    #+BEGIN_SRC emacs-lisp
-     (defun start-zsh ()
-       "start a  z shell within ansi-term"
-       (interactive)
-       (ansi-term "/usr/local/bin/zsh"))
+   (defun start-zsh ()
+     "start a  z shell within ansi-term"
+     (interactive)
+     (ansi-term (s-trim (shell-command-to-string "command -v zsh"))))
    #+END_SRC
 * ebooks
   #+BEGIN_SRC emacs-lisp
