@@ -4990,6 +4990,12 @@
        ;; (flycheck-add-next-checker 'javascript-eslint 'jsx-tide 'append)
        ))
    #+END_SRC
+** prettier-js (pretty print js)
+   #+begin_src emacs-lisp
+   (use-package prettier-js
+     :ensure t
+     :commands prettier-js)
+   #+end_src
 ** java script
    #+BEGIN_SRC emacs-lisp
    ;; (use-package tagedit)
