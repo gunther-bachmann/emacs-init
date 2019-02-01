@@ -9917,9 +9917,10 @@
                 (let* ((workspaceIdx (exwm-workspace--position exwm-workspace--current))
                        (monitor (nth (+ 1 (* 2 workspaceIdx)) exwm-randr-workspace-monitor-plist)))
                   (unless (or (s-equals? (gb/get-primary-monitor) monitor)
-                             (string-empty-p (gb/get-second-monitor)))
+                              (string-empty-p (gb/get-second-monitor)))
                     (setq gb/exwm--previous-workspace workspaceIdx)
-                    (exwm-workspace-switch 0))))
+                    (exwm-workspace-switch 0)
+                    t)))
               (defun gb/exwm-workspace-right ()
                 "jump to workspace right of the current one (multi monitor)"
                 ;; if on multimonitor, check if there is one left of this
@@ -9928,7 +9929,8 @@
                        (monitor (nth (+ 1 (* 2 workspaceIdx)) exwm-randr-workspace-monitor-plist)))
                   (when (and (s-equals? (gb/get-primary-monitor) monitor)
                              (not (string-empty-p (gb/get-second-monitor))))
-                    (exwm-workspace-switch gb/exwm--previous-workspace))))
+                    (exwm-workspace-switch gb/exwm--previous-workspace)
+                    t)))
               (defun gb/exwm-workspace-down ()
                 "jump to workspace down of the current one (multi monitor)"
                 (interactive)
@@ -10076,17 +10078,17 @@
         ""
         (if (windmove-find-other-window 'left)
             (windmove-left)
-          (progn (gb/exwm-workspace-left)
-                 (while (windmove-find-other-window 'right)
-                   (windmove-right)))))
+          (if (gb/exwm-workspace-left)
+              (while (windmove-find-other-window 'right)
+                (windmove-right)))))
 
       (defun gb/windmove-right ()
         ""
         (if (windmove-find-other-window 'right)
             (windmove-right)
-          (progn (gb/exwm-workspace-right)
-                 (while (windmove-find-other-window 'left)
-                   (windmove-left)))))
+          (if (gb/exwm-workspace-right)
+              (while (windmove-find-other-window 'left)
+                (windmove-left)))))
 
       ;; switch buffers
       (exwm-input-set-key (kbd "s-b") (lambda () (interactive) (gb/wrap-in-exwm-reset #'helm-mini)))
