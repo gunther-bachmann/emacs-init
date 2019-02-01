@@ -5486,12 +5486,15 @@
             ("\\.markdown\\'" . markdown-mode)
             ("README\\.md\\'" . gfm-mode)
             ("\\.md\\'" . markdown-mode))
+     :demand markdown-edit-indirect
+     :bind (:map markdown-mode-map
+            ("C-c '" . markdown-edit-indirect))
      :config
      (progn))
    #+END_SRC
-** markdown code block edit
+** markdown code block edit (obsolete since markdown-mode includes code edit now)
    - allows C-' in a markdown code block to edit code in a separate buffer (like org mode does)
-   #+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp :tangle no
      (use-package edit-indirect)
      (use-package markdown-edit-indirect
        :after ( markdown-mode edit-indirect)
