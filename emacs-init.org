@@ -9174,8 +9174,21 @@
    #+BEGIN_SRC emacs-lisp
    (use-package yaml-mode
      :ensure t
-     :mode (("\\.yml\\'" . yaml-mode)
-            ("\\.yaml\\'" . yaml-mode)))
+     :mode (("\\.?yml\\(\\.tpl\\)?\\'" . yaml-mode)
+            ("\\.?yaml\\(\\.tpl\\)?\\'" . yaml-mode))
+     :bind (:map yaml-mode-map
+                 ("<tab>" . 'gb/toggle-fold-by-indentation))
+     :config
+     (defun gb/toggle-fold-by-indentation ()
+       "Toggle fold all lines larger than indentation on current line"
+       (interactive)
+       (let ((col 1))
+         (save-excursion
+           (back-to-indentation)
+           (setq col (+ 1 (current-column)))
+           (set-selective-display
+            (if selective-display nil (or col 1)))))))
+
    (use-package yaml-tomato
      :ensure t
      :after ( yaml-mode)
