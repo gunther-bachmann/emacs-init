@@ -9739,6 +9739,13 @@
   (use-package kubernetes-tramp
     :ensure t)
   #+end_src
+* vue
+  #+begin_src emacs-lisp
+  (use-package vue-html-mode
+    :ensure t)
+  (use-package vue-mode
+    :ensure t)
+  #+end_src
 * exwm (emacs window manager)
 #+BEGIN_SRC emacs-lisp
 (report-elapsed "check point exwm")
