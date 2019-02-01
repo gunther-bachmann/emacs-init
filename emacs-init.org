@@ -100,6 +100,7 @@
       the file .session in the .emacs.d
 * enhancements and todos
   list of todos and enhancements to be implmented, checked, verified (some day)
+** TODO write major-mode-hydra s
 ** TODO switch gnus mail sync with google calendar to org-gcal
 ** TODO lsp-mode: check what packages have to be deactivated in order to not interfere with lsp-mode and company suggestions
 ** TODO allow duplex/non-duplex configuration of printer / printing (see org header "printer")
@@ -8236,6 +8237,12 @@
 
     )  
 #+END_SRC
+** major mode hydra
+   - define pretty hydras for major modes pretty easy (see [[https://github.com/jerrypnz/major-mode-hydra.el][here]])
+   #+begin_src emacs-lisp
+   (use-package major-mode-hydra
+     :ensure t)
+   #+end_src
 * TEST clear-text (mode that makes you use only the 1000 most common english words)
 #+BEGIN_SRC emacs-lisp
   (use-package clear-text
