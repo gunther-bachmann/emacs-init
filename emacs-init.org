@@ -8437,6 +8437,8 @@
    (use-package dired
      :bind (("C-x d" . dired)
             :map dired-mode-map
+
+            ("`" . gb/dired-open-term)
             ("e" . gb/dired-ediff-files))
      :init
      (add-hook 'dired-mode-hook 'auto-revert-mode)
@@ -8451,6 +8453,30 @@
      (setq dired-guess-shell-alist-user '(
                                           ("\\.mkv\\'\\|\\.mpe?g\\'\\|\\.avi\\'\\|\\.mp4\\'" "cvlc")
                                           ))
+
+     ;; snippet from
+     (defun gb/dired-open-term ()
+       "Open an `ansi-term' that corresponds to current directory."
+       (interactive)
+       (let* ((current-dir (dired-current-directory))
+              (current-file (dired-get-filename))
+              (wanted-dir (if (file-directory-p current-file)
+                              current-file
+                            current-dir)))
+         (term-send-string
+          (gb/terminal)
+          (if (file-remote-p wanted-dir)
+              (let ((v (tramp-dissect-file-name wanted-dir t)))
+                (format "ssh %s@%s\n"
+                        (aref v 1) (aref v 2)))
+            (format "cd '%s'\n" wanted-dir)))))
+
+     (defun gb/terminal ()
+       "Switch to terminal. Launch if nonexistent."
+       (interactive)
+       (let* ((buffer-name (generate-new-buffer-name "*terminal*")))
+         (shell buffer-name)))
+
      ;; snippet from https://oremacs.com/2017/03/18/dired-ediff/
      (defun gb/dired-ediff-files ()
        "ediff two marked files (no questions asked)"
