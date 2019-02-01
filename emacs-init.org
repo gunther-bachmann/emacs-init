@@ -905,7 +905,7 @@
         This program won't work in non unix environments.
 
         the return value is either t or nil."
-     (let* ((which-result (shell-command-to-string (concat "which " program-string))))
+     (let* ((which-result (shell-command-to-string (concat "command -v " program-string))))
        (not (or (string-empty-p which-result)
                 (string-match (concat "no " program-string " in") which-result)
                 (string-match "not found"  which-result)))))
@@ -1202,23 +1202,23 @@
       (if firefox-installed
           (progn
             (setq browse-url-browser-function 'browse-url-firefox)
-            (setq browse-url-firefox-program (s-trim (shell-command-to-string "which firefox")))))
+            (setq browse-url-firefox-program (s-trim (shell-command-to-string "command -v firefox")))))
 
       ;; chromium takes precedence (over firefox)
       (if chromium-installed
           (progn
             (setq browse-url-browser-function 'browse-url-chromium)
-            (setq browse-url-chromium-program (s-trim (shell-command-to-string "which chromium")))))
+            (setq browse-url-chromium-program (s-trim (shell-command-to-string "command -v chromium")))))
 
       ;; icecat takes precedence (over firefox)
       ;; (if icecat-installed
       ;;   (progn
       ;;     (setq browse-url-browser-function 'browse-url-default-browser)
-      ;;     (setq browse-url-chromium-program (s-trim (shell-command-to-string "which icecat")))))
+      ;;     (setq browse-url-chromium-program (s-trim (shell-command-to-string "command -v icecat")))))
 
       (setq gnu-ls-installed (not (is-ms-windows-p)))
       (if gnu-ls-installed
-          (setq gnu-ls-bin-path (car (split-string (shell-command-to-string "which ls")))))
+          (setq gnu-ls-bin-path (car (split-string (shell-command-to-string "command -v ls")))))
       ))
   #+END_SRC
 * check emacs capabilities
@@ -4937,7 +4937,7 @@
          (if buf
              (switch-to-buffer buf)
            (progn
-             (ansi-term (s-trim (shell-command-to-string "which bash")) "Typescript")
+             (ansi-term (s-trim (shell-command-to-string "command -v bash")) "Typescript")
              (comint-send-string "*Typescript*" "tsun\n")))))
      (add-hook 'typescript-mode-hook
                (lambda ()
@@ -5705,7 +5705,7 @@
    #+BEGIN_SRC emacs-lisp
    (use-package bash-completion
      :config
-     (setq bash-completion-prog (s-trim (shell-command-to-string "which bash")))
+     (setq bash-completion-prog (s-trim (shell-command-to-string "command -v bash")))
      (bash-completion-setup))
    #+END_SRC
 ** shell (bash) checking
@@ -5796,7 +5796,7 @@
         :config
         (progn
           ;; (setq pdf-info-epdfinfo-program "~/.emacs.d/elpa/pdf-tools-20180428.1527/build/server/epdfinfo")
-          (setq pdf-misc-print-programm (s-trim (shell-command-to-string "which lp")))
+          (setq pdf-misc-print-programm (s-trim (shell-command-to-string "command -v lp")))
           (setq pdf-view-display-size (quote fit-page))
           (setq pdf-misc-print-programm-args '("-o" "media=A4" "-o" "sides=two-sided-long-edge")))))
   #+END_SRC
@@ -7329,7 +7329,7 @@
       (run-at-time "24:01" 3600 'org-agenda-to-appt)           ;; update appt list hourly
 
       ;; set up the call to terminal-notifier
-      (defvar gb/appt-notifier-path (s-trim (shell-command-to-string "which notify-send")))
+      (defvar gb/appt-notifier-path (s-trim (shell-command-to-string "command -v notify-send")))
 
       (defun gb/appt-send-notification (title msg)
         (shell-command (concat gb/appt-notifier-path " " msg " -a " title)))
@@ -10233,7 +10233,7 @@
       ;; start pasystray from within emacs, starting it within xinitrc does not work
       (add-hook 'exwm-init-hook
                 (lambda ()
-                  (gb/start-if-not-running (s-trim (shell-command-to-string "which pasystray")))
+                  (gb/start-if-not-running (s-trim (shell-command-to-string "command -v pasystray")))
                   ;; (start-process "yabar" nil  "/usr/bin/yabar") ;; see here: https://github.com/geommer/yabar
                   (ido-mode nil)
                   (set-fringe-mode 10)
