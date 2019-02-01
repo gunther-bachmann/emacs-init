@@ -9857,6 +9857,77 @@
                   (progn
                     (add-hook 'kill-emacs-hook #'gb/shutdown--immediately t)
                     (save-buffers-kill-emacs))))
+              (defun gb/exwm-visualize-workspace-switch (newidx length display-width)
+                "visualize the switched to workspace by a foreground ascii art"
+                (interactive)
+                (let* (
+                       (spaces-before newidx)
+                       (spaces-after (- length newidx 1))
+                       (separator (s-concat "+" (s-join "" (-repeat display-width "-")) "+"))
+                       (empty-space (s-concat "|" (s-join "" (-repeat display-width " ")) "|"))
+                       (new-space (s-concat "|" (s-join "" (-repeat display-width "X")) "|"))
+                       (empty (s-concat separator "\n" empty-space))
+                       (filled (s-concat separator "\n" new-space))
+                       (display (s-join "\n" (append (-repeat spaces-before empty) `(,filled) (-repeat spaces-after empty) `(,separator)))))
+                  ;; (posframe-hide " *my-posframe-buffer*")
+                  ;; (posframe-show " *my-posframe-buffer*"
+                  ;;                :string display
+                  ;;                :poshandler 'posframe-poshandler-frame-center
+                  ;;                :timeout 2)
+                  (posframe-show " *inpos-posframe-buffer"
+                                 :string (s-concat "workspace [" (number-to-string newidx) "]")
+                                 :position (point)
+                                 :timeout 1
+                                 :background-color "dark orange"
+                                 :foreground-color "black")
+                  ;; (start-process-shell-command " *play sound*" nil "mpg123 ~/Downloads/typewriter-line-break-1.mp3")
+                  ))
+
+              (defvar gb/exwm--previous-workspace 1 "workspace index before going left")
+              (defun gb/exwm-workspace-left ()
+                "jump to workspace left of the current one (multi monitor)"
+                ;; if on multimonitor, check if there is one left of this
+                (interactive)
+                (let* ((workspaceIdx (exwm-workspace--position exwm-workspace--current))
+                       (monitor (nth (+ 1 (* 2 workspaceIdx)) exwm-randr-workspace-monitor-plist)))
+                  (unless (or (s-equals? (gb/get-primary-monitor) monitor)
+                             (string-empty-p (gb/get-second-monitor)))
+                    (setq gb/exwm--previous-workspace workspaceIdx)
+                    (exwm-workspace-switch 0))))
+              (defun gb/exwm-workspace-right ()
+                "jump to workspace right of the current one (multi monitor)"
+                ;; if on multimonitor, check if there is one left of this
+                (interactive)
+                (let* ((workspaceIdx (exwm-workspace--position exwm-workspace--current))
+                       (monitor (nth (+ 1 (* 2 workspaceIdx)) exwm-randr-workspace-monitor-plist)))
+                  (when (and (s-equals? (gb/get-primary-monitor) monitor)
+                             (not (string-empty-p (gb/get-second-monitor))))
+                    (exwm-workspace-switch gb/exwm--previous-workspace))))
+              (defun gb/exwm-workspace-down ()
+                "jump to workspace down of the current one (multi monitor)"
+                (interactive)
+                (let* ((workspaceIdx (exwm-workspace--position exwm-workspace--current))
+                       (monitor (nth (+ 1 (* 2 workspaceIdx)) exwm-randr-workspace-monitor-plist))
+                       (lastIndex (- (length exwm-workspace--list) 1))
+                       (single-mon-p (string-empty-p (gb/get-second-monitor))))
+                  (when (or (and (s-equals? (gb/get-second-monitor) monitor)
+                                 (< workspaceIdx lastIndex))
+                            (and single-mon-p
+                                 (< workspaceIdx lastIndex)))
+                    (progn (exwm-workspace-switch (+ 1 workspaceIdx))
+                           (gb/exwm-visualize-workspace-switch (+ workspaceIdx (if single-mon-p 1 0)) (- (length exwm-workspace--list) (if single-mon-p 0 1)) 10)))))
+              (defun gb/exwm-workspace-up ()
+                "jump to workspace up of the current one (multi monitor)"
+                (interactive)
+                (let* ((workspaceIdx (exwm-workspace--position exwm-workspace--current))
+                       (monitor (nth (+ 1 (* 2 workspaceIdx)) exwm-randr-workspace-monitor-plist))
+                       (single-mon-p (string-empty-p (gb/get-second-monitor))))
+                  (when (or (and (s-equals? (gb/get-second-monitor) monitor)
+                                 (> workspaceIdx 1))
+                            (and single-mon-p
+                                 (> workspaceIdx 0)))
+                    (progn (exwm-workspace-switch (- workspaceIdx 1))
+                           (gb/exwm-visualize-workspace-switch (- workspaceIdx (if single-mon-p 1 2)) (- (length exwm-workspace--list) (if single-mon-p 0 1)) 10)))))
               (defun gb/exwm-next-workspace (&optional inc)
                 "jump to the next (inc) workspace"
                 (interactive)
@@ -9961,8 +10032,8 @@
       (exwm-input-set-key (kbd "<s-f1>") #'gb/audio-mute-volume)
       (exwm-input-set-key (kbd "<s-f12>") #'exwm-floating-toggle-floating)
       (exwm-input-set-key (kbd "s-l") #'gb/lock-screen)
-      (exwm-input-set-key (kbd "s-'") #'gb/exwm-previous-workspace)
-      (exwm-input-set-key (kbd "s-/") #'gb/exwm-next-workspace)
+      (exwm-input-set-key (kbd "s-'") #'gb/exwm-workspace-up)
+      (exwm-input-set-key (kbd "s-/") #'gb/exwm-workspace-down)
 
 
       (defun gb/wrap-in-exwm-reset (interactive-function)
@@ -9979,7 +10050,7 @@
         ""
         (if (windmove-find-other-window 'left)
             (windmove-left)
-          (progn (gb/exwm-previous-workspace)
+          (progn (gb/exwm-workspace-left)
                  (while (windmove-find-other-window 'right)
                    (windmove-right)))))
 
@@ -9987,7 +10058,7 @@
         ""
         (if (windmove-find-other-window 'right)
             (windmove-right)
-          (progn (gb/exwm-next-workspace)
+          (progn (gb/exwm-workspace-right)
                  (while (windmove-find-other-window 'left)
                    (windmove-left)))))
 
