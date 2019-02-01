@@ -8449,7 +8449,7 @@
          (setq insert-directory-program gnu-ls-bin-path))
      (setq  dired-omit-files "^\\.?#\\|^\\.$\\|^\\.\\.$\\|^\\..*")
      (setq dired-guess-shell-alist-user '(
-                                          ("\\.mpe?g\\'\\|\\.avi\\'\\|\\.mp4\\'" "cvlc")
+                                          ("\\.mkv\\'\\|\\.mpe?g\\'\\|\\.avi\\'\\|\\.mp4\\'" "cvlc")
                                           ))
      ;; snippet from https://oremacs.com/2017/03/18/dired-ediff/
      (defun gb/dired-ediff-files ()
