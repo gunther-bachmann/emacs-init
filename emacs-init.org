@@ -5817,7 +5817,7 @@
      (quote
       (("1.8.0_40" . "/Library/Java/JavaVirtualMachines/jdk1.8.0_40.jdk/Contents/Home")
        ("1.7.0_40" . "/Library/Java/JavaVirtualMachines/jdk1.7.0_40.jdk/Contents/Home"))))
-   '(malabar-repl-grooysh "/usr/local/bin/groovysh")
+   '(malabar-repl-grooysh (s-trim (shell-command-to-string "command -v groovysh")))
    '(recentf-max-saved-items 80)
    '(region ((t (:background "gray45" :inverse-video nil))))
    '(rng-schema-locating-files
@@ -7374,7 +7374,7 @@
      ;; within this dir the file INSTALL_RECEIPT.json exists.
      ;; within this json file, under the key source.version.stable = '0.10' the version string is accessible
      ;; thus the org-ditaa-jar-path can be constructed (which is true for mac os brew systems)
-     (setq org-ditaa-jar-path "/usr/share/java/ditaa/ditaa-0_10.jar") ;; "/usr/local/bin/ditaa"
+     (setq org-ditaa-jar-path "~/bin/ditaa.jar") ;; "/usr/local/bin/ditaa"
 
      (custom-set-faces
       `(org-block-begin-line ((t ( ;;:underline "#A7A6AA"
@@ -7384,7 +7384,7 @@
       :height 0.8 :foreground "#606060"))))
       )
      ;; set sed command for org babel
-     (setq org-babel-sed-command "/usr/local/opt/gnu-sed/libexec/gnubin/sed")
+     (setq org-babel-sed-command (s-trim (shell-command-to-string "command -v sed")))
 
      (setq org-src-fontify-natively t)
      (setq org-src-tab-acts-natively t)
