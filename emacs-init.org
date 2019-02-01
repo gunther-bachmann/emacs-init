@@ -673,7 +673,7 @@
     #+END_SRC
 *** dos/windows-eol
     #+BEGIN_SRC emacs-lisp
-    (defun remove-dos-eol ()
+    (defun gb/remove-dos-eol ()
       "Do not show ^M in files containing mixed UNIX and DOS line endings.
               This is especially useful when viewing diffs in magit!"
       (interactive)
@@ -1966,8 +1966,8 @@
        (bind-key "M-i" 'indent-relative)
 
 
-       (bind-key "C-c RET" 'remove-dos-eol)
-       (bind-key "C-c <C-return>" 'remove-dos-eol)
+       (bind-key "C-c RET" 'gb/remove-dos-eol)
+       (bind-key "C-c <C-return>" 'gb/remove-dos-eol)
 
        (bind-key "C-x C-c" 'dont-kill-emacs)
 
