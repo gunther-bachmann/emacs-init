@@ -8672,14 +8672,21 @@
 #+END_SRC
 ** switch buffers
    #+begin_src emacs-lisp
-   (use-package nswbuff
-     :commands (nswbuff-switch-to-next-buffer nswbuff-switch-to-previous-buffer)
-     :ensure t
-     :config
-     (progn
-       (setq nswbuff-clear-delay 1.5))
-     :bind (("s-2" . nswbuff-switch-to-next-buffer)
-            ("s-@" . nswbuff-switch-to-previous-buffer)))
+     (use-package nswbuff
+       :commands (nswbuff-switch-to-next-buffer nswbuff-switch-to-previous-buffer)
+       :ensure t
+       :config
+       (progn
+         (setq nswbuff-buffer-list-function nil)
+         (setq nswbuff-exclude-buffer-regexps (quote ("^ " "^\\*helm")))
+         (setq nswbuff-status-window-layout (quote adjust))
+         (setq nswbuff-clear-delay 1.5)
+         (custom-set-faces
+          '(nswbuff-current-buffer-face ((t (:foreground "GoldenRod1" :weight bold))))
+          '(nswbuff-separator-face ((t (:foreground "GoldenRod1"))))
+          '(nswbuff-special-buffers-face ((t (:foreground "dim gray" :underline nil :weight normal))))))
+       :bind (("s-<tab>" . nswbuff-switch-to-next-buffer)
+              ("S-s-<iso-lefttab>" . nswbuff-switch-to-previous-buffer)))
    #+end_src
 ** terraform
    #+begin_src emacs-lisp
