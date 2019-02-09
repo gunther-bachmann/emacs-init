@@ -9922,7 +9922,7 @@
                   ;;                :poshandler 'posframe-poshandler-frame-center
                   ;;                :timeout 2)
                   (posframe-show " *inpos-posframe-buffer"
-                                 :string (s-concat "workspace [" (number-to-string newidx) "]")
+                                 :string (s-concat "monitor workspace [" (number-to-string newidx) "]")
                                  :position (point)
                                  :timeout 1
                                  :background-color "dark orange"
@@ -9941,6 +9941,7 @@
                               (string-empty-p (gb/get-second-monitor)))
                     (setq gb/exwm--previous-workspace workspaceIdx)
                     (exwm-workspace-switch 0)
+                    (doom-modeline-set-selected-window)
                     t)))
               (defun gb/exwm-workspace-right ()
                 "jump to workspace right of the current one (multi monitor)"
@@ -9964,7 +9965,8 @@
                             (and single-mon-p
                                  (< workspaceIdx lastIndex)))
                     (progn (exwm-workspace-switch (+ 1 workspaceIdx))
-                           (gb/exwm-visualize-workspace-switch (+ workspaceIdx (if single-mon-p 1 0)) (- (length exwm-workspace--list) (if single-mon-p 0 1)) 10)))))
+                           (gb/exwm-visualize-workspace-switch (+ workspaceIdx (if single-mon-p 1 0)) (- (length exwm-workspace--list) (if single-mon-p 0 1)) 10)
+                           (doom-modeline-set-selected-window)))))
               (defun gb/exwm-workspace-up ()
                 "jump to workspace up of the current one (multi monitor)"
                 (interactive)
@@ -9976,7 +9978,8 @@
                             (and single-mon-p
                                  (> workspaceIdx 0)))
                     (progn (exwm-workspace-switch (- workspaceIdx 1))
-                           (gb/exwm-visualize-workspace-switch (- workspaceIdx (if single-mon-p 1 2)) (- (length exwm-workspace--list) (if single-mon-p 0 1)) 10)))))
+                           (gb/exwm-visualize-workspace-switch (- workspaceIdx (if single-mon-p 1 2)) (- (length exwm-workspace--list) (if single-mon-p 0 1)) 10)
+                           (doom-modeline-set-selected-window)))))
               (defun gb/exwm-next-workspace (&optional inc)
                 "jump to the next (inc) workspace"
                 (interactive)
