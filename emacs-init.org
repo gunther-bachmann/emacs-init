@@ -3298,6 +3298,7 @@
    (when (fboundp 'gb/toggle-ligatures)
      (define-key gb/toggle-map "t" #'gb/toggle-ligatures))
    (define-key gb/toggle-map "u" #'gb/switch-dictionary)
+   (define-key gb/toggle-map "v" #'eldoc-overlay-mode)
    (define-key gb/toggle-map "w" #'whitespace-mode)
    (define-key gb/toggle-map "5" #'toggle-frame-fullscreen)
    #+END_SRC
@@ -4431,9 +4432,11 @@
     - does this all the time, after some delay.
     - this may become anoying
     #+BEGIN_SRC emacs-lisp
+    (use-package quick-peek
+      :ensure t)
     (use-package eldoc-overlay
       :ensure t
-      :after( inline-docs)
+      :after (inline-docs quick-peek)
       :commands eldoc-overlay-mode)
     #+END_SRC
 *** paredit
