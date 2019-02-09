@@ -8666,6 +8666,17 @@
 #+BEGIN_SRC emacs-lisp
 (report-elapsed "check point currently evaluated")
 #+END_SRC
+** switch buffers
+   #+begin_src emacs-lisp
+   (use-package nswbuff
+     :commands (nswbuff-switch-to-next-buffer nswbuff-switch-to-previous-buffer)
+     :ensure t
+     :config
+     (progn
+       (setq nswbuff-clear-delay 1.5))
+     :bind (("s-2" . nswbuff-switch-to-next-buffer)
+            ("s-@" . nswbuff-switch-to-previous-buffer)))
+   #+end_src
 ** terraform
    #+begin_src emacs-lisp
    (use-package terraform-mode
@@ -10068,6 +10079,8 @@
       (exwm-input-set-key (kbd "s-l") #'gb/lock-screen)
       (exwm-input-set-key (kbd "s-'") #'gb/exwm-workspace-up)
       (exwm-input-set-key (kbd "s-/") #'gb/exwm-workspace-down)
+      (exwm-input-set-key (kbd "s-2") #'nswbuff-switch-to-next-buffer)
+      (exwm-input-set-key (kbd "s-@") #'nswbuff-switch-to-previous-buffer)
 
 
       (defun gb/wrap-in-exwm-reset (interactive-function)
