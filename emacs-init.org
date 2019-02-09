@@ -8675,6 +8675,13 @@
      (use-package nswbuff
        :commands (nswbuff-switch-to-next-buffer nswbuff-switch-to-previous-buffer)
        :ensure t
+       :init
+       (progn
+         (defun gb/nswbuff-in-other-frame-p (orig-function &rest args)
+           "check for buffer in other frames only if not the scratch buffer"
+           (unless (string= (buffer-name (car args)) "*scratch*")
+             (apply orig-function args)))
+         (advice-add 'nswbuff-in-other-frame-p :around #'gb/nswbuff-in-other-frame-p))
        :config
        (progn
          (setq nswbuff-buffer-list-function nil)
