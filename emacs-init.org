@@ -8523,7 +8523,8 @@
        :after ( dired)
        :bind (:map dired-mode-map
               ("TAB" . dired-subtree-toggle)
-              ("[" . dired-subtree-up))) ;; toggle subtree open/close M-x dired-subtree-toggle
+              ("[" . dired-subtree-up)
+              ("C-c C-u" . dired-subtree-up))) ;; toggle subtree open/close M-x dired-subtree-toggle
    #+END_SRC
 ** dired sidebar
    #+BEGIN_SRC emacs-lisp
