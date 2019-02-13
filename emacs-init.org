@@ -8546,14 +8546,35 @@
            (vscode-icon-file file)))))
    (use-package dired-sidebar
      :ensure t
-     :bind (( "s-a" . dired-sidebar-toggle-sidebar))
+     :bind (( "s-A" . dired-sidebar-toggle-sidebar)
+            ( "s-a" . gb/dired-sidebar-follow-file))
      ;; :after (dired all-the-icons vscode-icon)
-     :init
+     :config
+     (defun gb/dired-sidebar-follow-file ()
+       "ensure sidebar is open and position cursor on file from which this function was called"
+       (interactive)
+       (if (and (dired-sidebar-showing-sidebar-p)
+                (string= (buffer-name) (buffer-name (dired-sidebar-buffer))))
+           (dired-sidebar-hide-sidebar)
+         (if (buffer-file-name)
+             (unless (dired-sidebar-showing-sidebar-p)
+               (dired-sidebar-show-sidebar))
+           (dired-sidebar-toggle-sidebar))
+         (when (buffer-file-name)
+           (let* ((filename (expand-file-name (buffer-file-name)))
+                  (current-root (expand-file-name (replace-regexp-in-string "^:" "" (buffer-name (dired-sidebar-buffer))))))
+             (select-window (get-buffer-window (dired-sidebar-buffer)))
+             (let* ((omitmode dired-omit-mode))
+               (dired-omit-mode -1) ;; make sure to switch off omit mode for cursor placement (since this is disrupted otherwise)
+               (dired-sidebar-point-at-file filename current-root)
+               (when omitmode (dired-omit-mode t)))))))
      (progn
        (setq dired-sidebar-width 55)
-       (setq dired-sidebar-icon-scale 0.18)
+       (setq dired-sidebar-icon-scale 0.2)
        (setq dired-sidebar-theme 'vscode)
-       (setq dired-sidebar-use-term-integration t)
+       (setq dired-sidebar-follow-file-at-point-on-toggle-open t)
+       (setq dired-sidebar-should-follow-file nil) ;; follow file in dired sidebar tree, put that on a hotkey
+       (setq dired-sidebar-use-term-integration nil) ;; get workdir by dired root (direnv is called a bit too often)
        (setq dired-sidebar-use-custom-font t)))
    #+END_SRC
 ** dired-du (size calc in dired)
