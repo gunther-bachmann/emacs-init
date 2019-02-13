@@ -8511,10 +8511,10 @@
    #+END_SRC
 ** dired imenu (to select files)
    #+begin_src emacs-lisp
-     (use-package dired-imenu
-       :ensure t
-       :bind (:map dired-mode-map
-                   ("s-i" . imenu)))
+   (use-package dired-imenu
+     :ensure t
+     ;; key must not be configured through :bind, since add hook is not executed if s-i is used
+     :config (bind-key "s-i" #'imenu  dired-mode-map))
    #+end_src
 ** dired subtree
    #+BEGIN_SRC emacs-lisp
