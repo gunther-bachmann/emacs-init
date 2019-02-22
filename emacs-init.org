@@ -8454,6 +8454,7 @@
      (add-hook 'dired-mode-hook 'auto-revert-mode)
      (add-hook 'dired-mode-hook 'dired-omit-mode)
      :config
+     (setq dired-omit-size-limit 60000)
      (setq dired-dwim-target t) ;; try to guess the directory to use for dired
      (setq dired-listing-switches "-Alh --group-directories-first") ;; default switches for ls to be used for dired listing
      (setq diredp-hide-details-propagate-flag t) ;; opening subfolders inherit details flag (shown/hidden)
@@ -8473,18 +8474,20 @@
               (wanted-dir (if (file-directory-p current-file)
                               current-file
                             current-dir)))
-         (term-send-string
-          (gb/terminal)
-          (if (file-remote-p wanted-dir)
-              (let ((v (tramp-dissect-file-name wanted-dir t)))
-                (format "ssh %s@%s\n"
-                        (aref v 1) (aref v 2)))
-            (format "cd '%s'\n" wanted-dir)))))
+         (if (file-remote-p wanted-dir)
+             (term-send-string
+              (gb/terminal wanted-dir)
+              (when (file-remote-p wanted-dir)
+                (let ((tramp-file-name (tramp-dissect-file-name wanted-dir t)))
+                  (format "ssh %s@%s\n"
+                          (aref tramp-file-name 1) (aref tramp-file-name 2)))))
+           (cd wanted-dir)
+           (gb/terminal wanted-dir))))
 
-     (defun gb/terminal ()
+     (defun gb/terminal (&optional suffix)
        "Switch to terminal. Launch if nonexistent."
        (interactive)
-       (let* ((buffer-name (generate-new-buffer-name "*terminal*")))
+       (let* ((buffer-name (generate-new-buffer-name (s-concat "*terminal" (or suffix "") "*"))))
          (shell buffer-name)))
 
      ;; snippet from https://oremacs.com/2017/03/18/dired-ediff/
