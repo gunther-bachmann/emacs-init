@@ -8697,6 +8697,12 @@
 #+BEGIN_SRC emacs-lisp
 (report-elapsed "check point currently evaluated")
 #+END_SRC
+** github reviews with emacs
+   #+begin_src emacs-lisp
+   (use-package greview
+     :load-path "~/.emacs.d/additionals/greview"
+     :commands (greview-start-review))
+   #+end_src
 ** switch buffers
    #+begin_src emacs-lisp
      (use-package nswbuff
