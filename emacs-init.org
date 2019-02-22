@@ -8703,6 +8703,13 @@
      :load-path "~/.emacs.d/additionals/greview"
      :commands (greview-start-review))
    #+end_src
+** switch buffer expose
+   #+begin_src emacs-lisp
+   (use-package buffer-expose
+     :load-path "~/.emacs.d/additionals/buffer-expose/"
+     :bind (( "s-e" . #'buffer-expose))
+     :config (setq buffer-expose-show-current-buffer t))
+   #+end_src
 ** switch buffers
    #+begin_src emacs-lisp
      (use-package nswbuff
