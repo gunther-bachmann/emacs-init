@@ -5678,7 +5678,7 @@
    #+BEGIN_SRC emacs-lisp
      ;; open a shell at the current directory
      (use-package shell-here
-       :bind (("C-c s !" . shell-here)))
+       :bind (("C-x C-h" . shell-here)))
      ;;      (define-key (current-global-map) "\C-c!" 'shell-here) ;
    #+END_SRC
 ** shell ansi colors configuration (disabled)
@@ -5822,16 +5822,9 @@
    '(ido-mode nil) ;; disable ido mode
 ;;   '(initial-frame-alist (quote ((fullscreen . maximized))))
    '(jde-jdk-doc-url "https://docs.oracle.com/javase/8/docs/api/")
-   '(jde-jdk-registry
-     (quote
-      (("1.8.0_40" . "/Library/Java/JavaVirtualMachines/jdk1.8.0_40.jdk/Contents/Home")
-       ("1.7.0_40" . "/Library/Java/JavaVirtualMachines/jdk1.7.0_40.jdk/Contents/Home"))))
    '(malabar-repl-grooysh (s-trim (shell-command-to-string "command -v groovysh")))
    '(recentf-max-saved-items 80)
    '(region ((t (:background "gray45" :inverse-video nil))))
-   '(rng-schema-locating-files
-     (quote
-      ((concat user-emacs-directory "ant-mode/ant-schemas.xml") "schemas.xml" "~/devel/xspec-read-only/editors/emacs/schemas.xml" "/Applications/Emacs.app/Contents/Resources/etc/schema/schemas.xml")))
    '(send-mail-function (quote smtpmail-multi-send-it))
    '(truncate-lines nil)
    '(xslt-process-registered-stylesheets nil))
@@ -7904,11 +7897,12 @@
 #+END_SRC
 ** helm cmd t
    #+begin_src emacs-lisp
-     (use-package helm-cmd-t
-       :bind (("s-r" . helm-cmd-t)
-              ("s-t" . helm-cmd-t-repos))
-       :config
-       (setq helm-cmd-t-candidate-number-limit 60))
+   (use-package helm-cmd-t
+     :ensure t
+     :bind (("s-g" . helm-cmd-t)
+            ("s-t" . helm-cmd-t-repos))
+     :config
+     (setq helm-cmd-t-candidate-number-limit 60))
    #+end_src
 ** helm git grep
    #+begin_src emacs-lisp 
@@ -8062,7 +8056,8 @@
 #+END_SRC
 * flycheck-tip
 #+BEGIN_SRC emacs-lisp
-  (use-package flycheck-tip)
+  (use-package flycheck-tip
+    :ensure t)
 #+END_SRC
 * hydra
 #+BEGIN_SRC emacs-lisp
@@ -8799,6 +8794,7 @@
    #+BEGIN_SRC emacs-lisp
    (use-package ace-jump-helm-line
      :after ( helm)
+     :ensure t
      :bind (:map helm-map
             ( "C-'" . ace-jump-helm-line)))
    #+END_SRC
@@ -8937,11 +8933,13 @@
 ** auto-sudoedit
    - opens tramp sudo if file is readonly automatically (see [[https://github.com/ncaq/auto-sudoedit][here]])
    #+BEGIN_SRC emacs-lisp
-   (use-package auto-sudoedit)
+   (use-package auto-sudoedit
+     :ensure t)
    #+END_SRC
 ** eshell auto suggestion
    #+BEGIN_SRC emacs-lisp
    (use-package esh-autosuggest
+     :ensure t
      :after ( company))
    #+END_SRC
 ** dimmer (disabled, mode line was dimmed, recheck 08.2018)
@@ -8954,6 +8952,7 @@
    - see [[http://github.com/dieggsy/eterm-256color][here]]
    #+BEGIN_SRC emacs-lisp
    (use-package eterm-256color
+     :ensure t
      :after ( xterm-color)
      :init (add-hook 'term-mode-hook #'eterm-256color-mode))
    #+END_SRC
@@ -9006,6 +9005,7 @@
    #+BEGIN_SRC emacs-lisp
    (when (locate-library "lsp-ui")
      (use-package lsp-ui
+       :ensure t
        :init
        (add-hook 'lsp-mode-hook 'lsp-ui-mode)))
    #+END_SRC
@@ -9016,6 +9016,7 @@
    #+BEGIN_SRC emacs-lisp
    (use-package company-lsp
      :after ( company lsp-mode)
+     :ensure t
      :config (push 'company-lsp company-backends))
    #+END_SRC
 ** iy-goto-char
@@ -9371,6 +9372,7 @@
    ;; (use-package lsp-haskell :after ( lsp-mode))
    (use-package lsp-java
      ;; :defer 10
+     :ensure t
      :after ( lsp-mode))
    ;; (use-package lsp-python :after ( lsp-mode))
    ;; (use-package lsp-rust :after ( lsp-mode))
