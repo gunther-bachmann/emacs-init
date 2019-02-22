@@ -8762,7 +8762,7 @@
      (require 'emms-playing-time)
      (emms-playing-time 1))
    #+END_SRC
-** posframe (disabled)
+** posframe
    - posframe allows floating frames to be displayed at point position
    #+BEGIN_SRC emacs-lisp
    (use-package posframe)
@@ -10116,10 +10116,10 @@
       (push ?\C-q exwm-input-prefix-keys)
       (push ?\M-\s exwm-input-prefix-keys)
       (general-define-key
-        :keymaps 'override
-        :prefix "M-SPC"
-        "s" 'helm-swoop
-        "SPC" 'avy-goto-char-timer)
+       :keymaps 'override
+       :prefix "M-SPC"
+       "s" 'helm-swoop
+       "SPC" 'avy-goto-char-timer)
       (define-key exwm-mode-map [?\C-q] #'exwm-input-send-next-key)
 
       (exwm-input-set-key (kbd "<XF86MonBrightnessUp>") #'gb/brightness-up)
@@ -10216,7 +10216,7 @@
 
       (defun gb/exwm-program-select (program)
         "select a native (unix) program to execute, select the buffer named as
-                 the program instead, if such a buffer exists"
+         the program instead, if such a buffer exists"
         (interactive (list
                       (helm-comp-read
                        "RunProgram: "
