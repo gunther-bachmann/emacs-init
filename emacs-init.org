@@ -10230,8 +10230,9 @@
       (exwm-input-set-key (kbd "s-l") #'gb/lock-screen)
       (exwm-input-set-key (kbd "s-'") #'gb/exwm-workspace-up)
       (exwm-input-set-key (kbd "s-/") #'gb/exwm-workspace-down)
+      (exwm-input-set-key (kbd "s-e") #'buffer-expose)
 
-      ;; globally set keys that will not be routed to the respective xwindow
+      ;; globally set keys that will not be routed to the respective xwindow (some keys set by exwm-input-set-key are swallowed by x-applications)
       (setq exwm-input-global-keys
             `(([?\s-r] . exwm-reset)
               ([?\s-w] . exwm-workspace-switch)
