@@ -559,7 +559,18 @@
 * own utility functions
 ** misc
    #+BEGIN_SRC emacs-lisp
+   (defun gb/disable-all-minor-modes ()
+     (interactive)
+     (mapc
+      (lambda (mode-symbol)
+        (when (functionp mode-symbol)
+          ;; some symbols are functions which aren't normal mode functions
+          (ignore-errors
+            (funcall mode-symbol -1))))
+      minor-mode-list))
+
    (setq async-shell-command-display-buffer nil) ;; make sure that the async command does not open a result buffer
+
    (defun available-keys ()
      "return a list of ids for which the private key is known"
      (remove-if 'string-empty-p (s-split "\n" (shell-command-to-string "gpg -Kq 2> /dev/null | grep -e \"^uid\" | awk '{ print $5; }'"))))
