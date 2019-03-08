@@ -8865,6 +8865,17 @@
      :after (company terraform-mode)
      :config (company-terraform-init))
    #+end_src
+** jest (javascript/typescript testing)
+   - see https://jestjs.io/
+   - bind the command 'jest-popup' (main command)
+   #+BEGIN_SRC emacs-lisp
+   (use-package jest
+     :ensure t)
+   (use-package flycheck-jest
+     :ensure t
+     :after (flycheck jest)
+     :config (flycheck-jest-setup))
+   #+END_SRC
 ** blimb (image manipulation using imagemagick)
    - lets you interactively select magick commands to manipulate the image in the buffer
    - it has command autocomplete, description and some parameter completion facilities
