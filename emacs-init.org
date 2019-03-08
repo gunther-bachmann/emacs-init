@@ -10282,6 +10282,36 @@
       (exwm-input-set-key (kbd "s-<up>") (lambda () (interactive) (gb/wrap-in-exwm-reset #'windmove-up)))
       (exwm-input-set-key (kbd "s-<down>") (lambda () (interactive) (gb/wrap-in-exwm-reset #'windmove-down)))
 
+      (defun gb/remove-upper-window ()
+        ""
+        (interactive)
+        (if-let (upper-window (windmove-find-other-window 'up))
+            (delete-window upper-window)))
+
+      (defun gb/remove-lower-window ()
+        ""
+        (interactive)
+        (if-let (lower-window (windmove-find-other-window 'down))
+            (delete-window lower-window)))
+
+      (exwm-input-set-key (kbd "s-S-<up>") (lambda () (interactive) (gb/wrap-in-exwm-reset #'gb/remove-upper-window)))
+      (exwm-input-set-key (kbd "s-S-<down>") (lambda () (interactive) (gb/wrap-in-exwm-reset #'gb/remove-lower-window)))
+
+      (defun gb/remove-left-window ()
+        ""
+        (interactive)
+        (if-let (left-window (windmove-find-other-window 'left))
+            (delete-window left-window)))
+
+      (defun gb/remove-right-window ()
+        ""
+        (interactive)
+        (if-let (right-window (windmove-find-other-window 'right))
+            (delete-window right-window)))
+
+      (exwm-input-set-key (kbd "s-S-<left>") (lambda () (interactive) (gb/wrap-in-exwm-reset #'gb/remove-left-window)))
+      (exwm-input-set-key (kbd "s-S-<right>") (lambda () (interactive) (gb/wrap-in-exwm-reset #'gb/remove-right-window)))
+
       (defun gb/exwm-distinct-exwm-buffer-names ()
         "list of distinct running exwm buffers/programs"
         (-distinct
