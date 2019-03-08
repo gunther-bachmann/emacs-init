@@ -5676,10 +5676,11 @@
    #+END_SRC
 ** shell here
    #+BEGIN_SRC emacs-lisp
-     ;; open a shell at the current directory
-     (use-package shell-here
-       :bind (("C-x C-h" . shell-here)))
-     ;;      (define-key (current-global-map) "\C-c!" 'shell-here) ;
+   ;; open a shell at the current directory
+   (use-package shell-here
+     :after (eldoc-overlay)
+     :bind (("C-x C-h" . shell-here)))
+   ;;      (define-key (current-global-map) "\C-c!" 'shell-here) ;
    #+END_SRC
 ** shell ansi colors configuration (disabled)
    #+BEGIN_SRC emacs-lisp :tangle no
