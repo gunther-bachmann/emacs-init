@@ -5662,18 +5662,20 @@
    #+end_src
 ** settings
    #+BEGIN_SRC emacs-lisp
-     ;; make sure M-x shell opens into currently open window (and does not open a new one)
-     (add-to-list 'display-buffer-alist
-                  '("^\\*shell.*\\*$" . (display-buffer-same-window)))
-     (require 'comint) ;; part of emacs
-     (setq comint-password-prompt-regexp
-             (concat comint-password-prompt-regexp
-                     "\\|^.* passphrase.*\\'"))
+   ;; make sure M-x shell opens into currently open window (and does not open a new one)
+   (add-to-list 'display-buffer-alist
+                '("^\\*shell.*\\*$" . (display-buffer-same-window)))
+   (require 'comint) ;; part of emacs
+   (setq comint-password-prompt-regexp
+           (concat comint-password-prompt-regexp
+                   "\\|^.* passphrase.*\\'"))
 
-     (setq-default sh-basic-offset 2)
-     (setq-default sh-indentation 2)
+   (setq-default sh-basic-offset 2)
+   (setq-default sh-indentation 2)
 
-     (setq warning-suppress-types '((undo discard-info)))
+   (setq warning-suppress-types '((undo discard-info)))
+   (bind-key "<M-up>" #'helm-comint-input-ring comint-mode-map)
+   (bind-key "<M-S-up>" #'counsel-shell-history comint-mode-map)
    #+END_SRC
 ** tmux (disabled for now)
    - enables interaction with tmux sessions
