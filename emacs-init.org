@@ -9997,6 +9997,17 @@
   (use-package vue-mode
     :ensure t)
   #+end_src
+* EVAL org-noter (keep notes to pdf, epub etc. files, that scroll with the document)
+  - execute org-noter within a pdf document (pdf-tools), or epub (nov.el) ...
+  - now you are in a noter session (quit with q)
+  - i = insert note for page
+  - M-i = insert note with precise location (asked to click)
+  - M-n/p = jump to next/previous annotated page
+  #+begin_src emacs-lisp
+  (use-package org-noter
+    :ensure t
+    :commands (org-noter))
+  #+end_src
 * exwm (emacs window manager)
 #+BEGIN_SRC emacs-lisp
 (report-elapsed "check point exwm")
