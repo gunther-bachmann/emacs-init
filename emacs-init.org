@@ -9997,6 +9997,13 @@
   (use-package vue-mode
     :ensure t)
   #+end_src
+* EVAL winum (select windows by number, which is shown in the modeline)
+  - is useful for native applications in exwm, since ace-window cannot overlay those with the key to select those
+  #+begin_src emacs-lisp
+  (use-package winum
+    :ensure t
+    :config (winum-mode))
+  #+end_src
 * EVAL org-noter (keep notes to pdf, epub etc. files, that scroll with the document)
   - execute org-noter within a pdf document (pdf-tools), or epub (nov.el) ...
   - now you are in a noter session (quit with q)
