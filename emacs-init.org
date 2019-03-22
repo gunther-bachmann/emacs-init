@@ -10433,7 +10433,8 @@
         (interactive)
         (when (and exwm-class-name
                    (or (string= exwm-class-name "X64")
-                       (string= (downcase exwm-class-name) "eclipse")))
+                       (string= (downcase exwm-class-name) "eclipse")
+                       (string= (downcase exwm-class-name) "jetbrains-idea-ce")))
           (exwm-reset))
         (funcall interactive-function))
 
@@ -10601,9 +10602,13 @@
       (defun gb/exwm-after-switch ()
         "do some adjustments due to exwm switches with char/line mode"
         (progn
+          (if (and exwm-class-name (functionp 'helm-posframe-disable))
+              (helm-posframe-disable))
           (when (and exwm-class-name
                      (or (string= exwm-class-name "X64")
-                         (string= (downcase exwm-class-name) "eclipse")))
+                         (string= (downcase exwm-class-name) "eclipse")
+                         (string= exwm-class-name "qutebrowser")
+                         (string= (downcase exwm-class-name) "jetbrains-idea-ce")))
             (progn
               ;; (setq-local exwm-input-prefix-keys '(?\C-l))
               (message "eclipse specific exwm settings applied.")
@@ -10648,6 +10653,7 @@
         (when (and exwm-class-name
                    (or (string= exwm-class-name "X64")
                        (string= (downcase exwm-class-name) "eclipse")
+                       (string= (downcase exwm-class-name) "jetbrains-idea-ce")
                        ))
           (progn
             (exwm-input-release-keyboard (exwm--buffer->id (window-buffer)))
