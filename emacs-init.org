@@ -7996,6 +7996,28 @@
       (add-to-list 'helm-boring-file-regexp-list "\.elfeed/index$")
       (setq helm-M-x-always-save-history t)))
 #+END_SRC
+** helm posframe
+   - problems, when used with xapp in frame
+   - problems, when using it in a shell buffer
+   #+begin_src emacs-lisp :tangle no
+   (use-package helm-posframe
+     :init (helm-posframe-enable)
+     :ensure t
+     :config
+     (defun helm-posframe-disable ()
+       "Disable helm-posframe."
+       (interactive)
+       (require 'helm)
+       (setq helm-display-function #'helm-default-display-buffer)
+       (remove-hook 'helm-cleanup-hook #'helm-posframe-cleanup)
+       (message "helm-posframe is disabled."))
+     (setq helm-posframe-poshandler #'posframe-poshandler-window-top-right-corner)
+     (setq helm-posframe-height 57)
+     (setq helm-posframe-width 120)
+     (setq helm-posframe-parameters
+           '((left-fringe . 0)
+             (right-fringe . 0))))
+   #+end_src
 ** helm cmd t
    #+begin_src emacs-lisp
    (use-package helm-cmd-t
