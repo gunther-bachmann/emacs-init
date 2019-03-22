@@ -5676,6 +5676,7 @@
    (setq warning-suppress-types '((undo discard-info)))
    (bind-key "<M-up>" #'helm-comint-input-ring comint-mode-map)
    (bind-key "<M-S-up>" #'counsel-shell-history comint-mode-map)
+   (bind-key "<C-S-up>" #'helm-comint-prompts comint-mode-map)
    #+END_SRC
 ** tmux (disabled for now)
    - enables interaction with tmux sessions
