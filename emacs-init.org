@@ -6688,8 +6688,7 @@
           (let* ((element (org-element-at-point))
                  (start-element (car element))
                  (start (cadadr element))
-                 parent
-                 line)
+                 root-line)
             (cond
              ((eq start-element 'headline)
               (progn
@@ -6702,7 +6701,6 @@
              (t
               (save-excursion
                 (goto-char start)
-                (setq parent (org-element-at-point))
                 (setq root-line (thing-at-point 'line t)))
               (if (string-match "^ *-.*" root-line)
                   (if (not (string-match "^ *-.*" (thing-at-point 'line t)))
@@ -6713,50 +6711,61 @@
                     (org-insert-heading))
                 (org-insert-heading-respect-content))))))
 
+        (defun gb/org-return-dwim--on-checkbox-item ()
+          "call only if at the beginning of the checkbox to insert below"
+          (org-end-of-item)
+          (if (org-in-item-p)
+              (org-insert-todo-heading 1)
+            (progn (move-point-visually -1)
+                   (org-insert-todo-heading 1)
+                   (org-end-of-item)
+                   (if (not (org-in-item-p))
+                       (progn
+                         (move-point-visually -1)
+                         (org-end-of-line))))))
+
+        (defun gb/org-return-dwim--on-list-item ()
+          "call only if at the beginning of the item to insert below"
+          (org-end-of-line)
+          (if (org-in-item-p)
+              (org-meta-return)
+            (progn (move-point-visually -1)
+                   (org-insert-item)
+                   (org-end-of-item)
+                   (if (not (org-in-item-p))
+                       (progn
+                         (move-point-visually -1)
+                         (org-end-of-line))))))
+
+        (defun gb/org-return-dwim--is-list-or-item (list-type)
+          "is this org element type an item or a plain-list (- or - [ ])"
+          (or (eq list-type 'item)
+              (eq list-type 'plain-list)))
+
         (defun gb/org-return-dwim ()
           "execute return and continue element (lists) given by context"
           (interactive)
-          (move-beginning-of-line nil)
-          (let* ((list-type (car (org-element-at-point)))
-                 (line (thing-at-point 'line t)))
-            (cond ((eq list-type 'headline)
-                   (progn
-                     ;; (org-end-of-subtree)
-                     (org-insert-heading-after-current)
-                     (message "*")))
-                  ((and (string-match "^ *- \\[.*" line) (or (eq list-type 'item) (eq list-type 'plain-list)))
-                   (progn
-                     ;;(org-end-of-line)
-                     (org-end-of-item)
-                     (if (not (org-in-item-p))
-                         (progn (move-point-visually -1)
-                                (org-insert-todo-heading 1)
-                                (org-end-of-item)
-                                (if (not (org-in-item-p))
-                                    (progn
-                                      (move-point-visually -1)
-                                      (org-end-of-line)))
-                                )
-                       (org-insert-todo-heading 1))
-
-                     (message "- [ ]")))
-                  ((and (string-match "^ *- [^\\[].*" line) (or (eq list-type 'item) (eq list-type 'plain-list)))
-                   (progn
-                     (org-end-of-line)
-                     ;; (org-end-of-item)
-                     (if (not (org-in-item-p))
-                         (progn (move-point-visually -1)
-                                (org-insert-item)
-                                (org-end-of-item)
-                                (if (not (org-in-item-p))
-                                    (progn
-                                      (move-point-visually -1)
-                                      (org-end-of-line)))
-                                )
-                       (org-meta-return))
-                     (message "-")))
-                  (t (progn (org-end-of-line)(org-return-indent) (message "return")))))
-          )
+          ;; check if current point is over link and open that instead
+          (let* ((context (org-element-context))
+                 (type-at-point (car context)))
+            (cond ((eq 'link type-at-point)
+                   (browse-url (org-element-property :raw-link context)))
+                  (t
+                   (move-beginning-of-line nil) ;; to identify list as item (does not work when point is in text part of item)
+                   (let* ((list-type (car (org-element-at-point)))
+                          (line (thing-at-point 'line t))
+                          (todo-keyword (org-element-property :todo-keyword context)))
+                     (cond ((and (eq list-type 'headline) (null todo-keyword))
+                            (org-insert-heading-after-current))
+                           ((eq list-type 'headline)
+                            (org-insert-todo-heading context)
+                            (call-interactively 'org-move-subtree-down))
+                           ((and (string-match "^ *- \\[.*" line) (gb/org-return-dwim--is-list-or-item list-type))
+                            (gb/org-return-dwim--on-checkbox-item))
+                           ((and (string-match "^ *- [^\\[].*" line) (gb/org-return-dwim--is-list-or-item list-type))
+                            (gb/org-return-dwim--on-list-item))
+                           (t (progn (org-end-of-line)
+                                     (org-return-indent)))))))))
 
         (defun gb/org-smart-return (&optional ignore)
           "Add new list item, heading or table row with RET.
