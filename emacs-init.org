@@ -5693,7 +5693,9 @@
    ;; open a shell at the current directory
    (use-package shell-here
      :after (eldoc-overlay)
-     :bind (("C-x C-h" . shell-here)))
+     :bind (("C-x C-h" . shell-here)
+            :map dired-mode-map
+            ("C-x C-h" . shell-here)))
    ;;      (define-key (current-global-map) "\C-c!" 'shell-here) ;
    #+END_SRC
 ** shell ansi colors configuration (disabled)
@@ -8566,7 +8568,7 @@
    (use-package dired
      :bind (("C-x d" . dired)
             :map dired-mode-map
-
+            ("C-p" . diredp-previous-line)
             ("`" . gb/dired-open-term)
             ("e" . gb/dired-ediff-files))
      :init
@@ -9691,13 +9693,6 @@
        (popwin-mode 1)
        (setq popwin:popup-window-height 30))
    #+END_SRC
-** ranger (file browser/previewer, using dired)
-   #+BEGIN_SRC emacs-lisp
-     (use-package ranger
-       :ensure t
-       :config
-       (setq ranger-hide-cursor nil))
-   #+END_SRC
 ** neotree (deactivated)
    #+BEGIN_SRC emacs-lisp :tangle no
      (use-package neotree
@@ -9855,6 +9850,13 @@
 (report-elapsed "check point 4")
 #+END_SRC
 * tested but discarded
+** ranger (file browser/previewer, using dired)
+   #+BEGIN_SRC emacs-lisp :tangle no
+     (use-package ranger
+       :ensure t
+       :config
+       (setq ranger-hide-cursor nil))
+   #+END_SRC
 ** diminish (hide minor modes from spaceline mode line) (obsolete now)
    - its still a dependency of use-package, so its still loaded
    #+BEGIN_SRC emacs-lisp :tangle no
