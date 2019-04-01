@@ -5669,7 +5669,7 @@
    (require 'comint) ;; part of emacs
    (setq comint-password-prompt-regexp
            (concat comint-password-prompt-regexp
-                   "\\|^.* passphrase.*\\'"))
+                   "\\|^.*\\( passphrase\\|PIN\\).*\\'"))
 
    (setq-default sh-basic-offset 2)
    (setq-default sh-indentation 2)
