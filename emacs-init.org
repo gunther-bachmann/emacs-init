@@ -3290,6 +3290,7 @@
    ;; The manual recommends C-c for user keys, but C-x t is
    ;; always free, whereas C-c t is used by some modes.
    (define-key ctl-x-map "t" 'gb/toggle-map)
+   (define-key gb/toggle-map "a" #'dired-du--toggle-human-readable)
    (define-key gb/toggle-map "c" #'column-number-mode)
    (define-key gb/toggle-map "d" #'toggle-debug-on-error)
    (define-key gb/toggle-map "e" #'toggle-debug-on-error)
@@ -8773,6 +8774,8 @@
    (use-package dired+
      :load-path "~/.emacs.d/additionals/"
      :config (bind-key "s-!" 'diredp-async-shell-command-this-file dired-mode-map)
+             (bind-key "C-p" 'diredp-previous-line dired-mode-map)
+
      )
    #+END_SRC
 ** dired rainbow
