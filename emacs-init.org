@@ -10694,6 +10694,14 @@
 
 
   #+END_SRC
+* EVAL emacs surround (see [[https://github.com/ganmacs/emacs-surround][here]])
+  #+begin_src emacs-lisp
+  (when (file-exists-p "~/.emacs.d/additionals/emacs-surround/emacs-surround.el")
+    (use-package emacs-surround
+      :load-path "~/.emacs.d/additionals/emacs-surround/"
+      :ensure t
+      :bind (("s-q c s" . emacs-surround))))
+  #+end_src
 * finish - up
   #+BEGIN_SRC emacs-lisp
   (report-elapsed "enter finish - up")
