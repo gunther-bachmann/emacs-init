@@ -662,18 +662,34 @@
    (add-to-list 'default-frame-alist '(alpha 100 100))
    #+END_SRC
 ** editing
-*** space to control
-    - currently gb/space2ctrl works reliably only if executing by C-x C-e (eval last sexpr)
-      thus (interactive) is removed, since it cannot be called interactively
+*** space to control (with the help of xcape)
+    #+begin_src sh :tangle no
+    #!/usr/bin/env bash
+    XCAPEPID=$(pgrep xcape)
+    if [[ $XCAPEPID =~ ^[0-9]+$ ]]; then
+      echo "Killing existing xcape process with id=$XCAPEPID"
+      xmodmap -e "keycode  65 = space NoSymbol space"
+      kill $XCAPEPID
+    fi
+    if [ "$1" != "-k" ]; then
+      xmodmap -e "keycode 65 = Hyper_L"
+      xmodmap -e "remove mod4 = Hyper_L"
+      xmodmap -e "add Control = Hyper_L"
+      xmodmap -e "keycode any = space"
+      xcape -e "Hyper_L=space" &
+      echo "Installed space to control mapping"
+    fi
+    #+end_src
     #+BEGIN_SRC emacs-lisp
-    (defun gb/space2ctrl ()
+    (defun gb/keyboard-space-to-ctrl ()
       "map space to work as control"
-      (shell-command-to-string "s2cctl start")) ;; sleep had to be disabled in order to run
-
-    (defun gb/space2space ()
-      "map space to regular space again"
       (interactive)
-      (shell-command-to-string "s2cctl stop"))
+      (message (shell-command-to-string "space2ctrl")))
+
+    (defun gb/keyboard-space-to-space ()
+      "map space to work as space again"
+      (interactive)
+      (message (shell-command-to-string "space2ctrl -k")))
     #+END_SRC
 *** comment toggle
     #+BEGIN_SRC emacs-lisp
