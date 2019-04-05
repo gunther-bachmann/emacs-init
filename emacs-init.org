@@ -10006,6 +10006,12 @@
        (setq smex-save-file (concat user-emacs-directory ".smex-items"))
        (smex-initialize)))
    #+END_SRC
+** helm-fuzzier (seems not to have any positive effect)
+   #+begin_src emacs-lisp :tangle no
+   (use-package helm-fuzzier
+     :ensure t
+     :config (helm-fuzzier-mode 1))
+   #+end_src
 * general (key binding)
   #+BEGIN_SRC emacs-lisp
   (use-package general
