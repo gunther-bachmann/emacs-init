@@ -3430,8 +3430,16 @@
     #+BEGIN_SRC emacs-lisp
     (use-package change-inner
       :after ( expand-region)
-      :bind (("M-i" . change-inner) ;; bindung overwritten from somewhere
-             ("M-o" . change-outer)))
+      :init
+      (defun gb/change-word ()
+        "change word under cursor"
+        (interactive)
+        (er/mark-word)
+        (delete-backward-char 1)
+        (selected-off))
+      :bind (("s-q c i" . change-inner) ;; bindung overwritten from somewhere
+             ("s-q c o" . change-outer)
+             ("s-q c w" . gb/change-word)))
     #+END_SRC
 *** easy kill
     - see [[https://github.com/leoliu/easy-kill][here]]
