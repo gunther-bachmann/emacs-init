@@ -10825,6 +10825,12 @@
     :init
     (add-hook 'pdf-view-mode-hook 'pdf-view-restore-mode))
   #+end_src
+* EVAL docker mode
+  #+begin_src emacs-lisp
+  (use-package dockerfile-mode
+    :ensure t
+    :mode (("Dockerfile.*\\'" . dockerfile-mode)))
+  #+end_src
 * finish - up
   #+BEGIN_SRC emacs-lisp
   (report-elapsed "enter finish - up")
