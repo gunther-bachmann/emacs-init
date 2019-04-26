@@ -3053,30 +3053,33 @@
 ** selfinsertion on readonly modes
    #+BEGIN_SRC emacs-lisp
    ;; TODO: refactor macro to a normal function
-   (setq selfinsert-modification-mode-ignore-list '(".*magit.*" ".*Magit.*"))
+   (defvar gb/selfinsert-modification-mode-ignore-list '(".*magit.*" ".*Magit.*")
+     "list of mode regexes to ignore")
+   (defvar gb/read-only-navigation-mode-exception-list '( "*eww*" )
+     "list of buffer names that should not execute navigation commands in read only buffers!")
 
-   (defmacro selfinsertOrFunction (func)
+   (defmacro gb/selfinsertOrFunction (func)
      "execute selfinserting if buffer is r/w, else execute function passed"
      `(if (and buffer-read-only
-               (not (-first (lambda (reg) (string-match reg mode-name)) selfinsert-modification-mode-ignore-list)))
+               (not (-first (lambda (reg) (string-match reg mode-name)) gb/selfinsert-modification-mode-ignore-list)))
           (,func)
         (self-insert-command 1)))
-   (defvar gb/read-only-navigation-mode-exception-list '( "*eww*" )
-     "list of modes that should not execute navigation commands in read only buffers!")
+
+   (defmacro gb/selfInsertOrFunctionFiltered (func)
+     "insert n if in a buffer that allows changes, else move down"
+     `(if (-first (lambda (el) (string= el (buffer-name))) gb/read-only-navigation-mode-exception-list)
+         (self-insert-command 1)
+        (gb/selfinsertOrFunction ,func)))
 
    (defun gb/selfInsertOrNextLine ()
      "insert n if in a buffer that allows changes, else move down"
      (interactive)
-     (if (-first (lambda (el) (string= el (buffer-name))) gb/read-only-navigation-mode-exception-list)
-         (self-insert-command 1)
-       (selfinsertOrFunction next-line)))
+     (gb/selfInsertOrFunctionFiltered next-line))
 
    (defun gb/selfInsertOrPreviousLine ()
      "insert n if in a buffer that allows changes, else move down"
      (interactive)
-     (if (-first (lambda (el) (string= el (buffer-name))) gb/read-only-navigation-mode-exception-list)
-         (self-insert-command 1)
-       (selfinsertOrFunction previous-line)))
+     (gb/selfInsertOrFunctionFiltered previous-line))
 
    (bind-key "p" 'gb/selfInsertOrPreviousLine text-mode-map)
    (bind-key "n" 'gb/selfInsertOrNextLine text-mode-map)
