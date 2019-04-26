@@ -10515,6 +10515,7 @@
        "SPC" 'avy-goto-char-timer)
       (define-key exwm-mode-map [?\C-q] #'exwm-input-send-next-key)
 
+      ;; changes via exwm-input-set-key become active after restart of exwm only!
       (exwm-input-set-key (kbd "<XF86MonBrightnessUp>") #'gb/brightness-up)
       (exwm-input-set-key (kbd "<XF86MonBrightnessDown>") #'gb/brightness-down)
       (exwm-input-set-key (kbd "<XF86AudioLowerVolume>") #'gb/audio-lower-volume)
@@ -10544,6 +10545,7 @@
         (when (and exwm-class-name
                    (or (string= exwm-class-name "X64")
                        (string= (downcase exwm-class-name) "eclipse")
+                       (string= (downcase exwm-class-name) "dosbox")
                        (string= (downcase exwm-class-name) "jetbrains-idea-ce")))
           (exwm-reset))
         (funcall interactive-function))
@@ -10711,6 +10713,21 @@
       ;; somehow the switch of workspace fails if some graphic program (like eclipse or chromium) is running
       ;; this does not fix the problem, though
 
+      (defun gb/exwm-release-keyboard ()
+        (interactive)
+        (message "resetting exwm keyboard binding.")
+        (exwm-input-release-keyboard)
+        (exwm-input-set-local-simulation-keys nil))
+
+      (exwm-input-set-key (kbd "H-r") #'gb/exwm-release-keyboard)
+
+      (defun gb/exwm-grab-keyboard ()
+        (interactive)
+        (message "grab exwm keyboard binding.")
+        (exwm-input-grab-keyboard))
+
+      (exwm-input-set-key (kbd "H-g") #'gb/exwm-grab-keyboard)
+
       (defun gb/exwm-after-switch ()
         "do some adjustments due to exwm switches with char/line mode"
         (progn
@@ -10720,10 +10737,11 @@
                      (or (string= exwm-class-name "X64")
                          (string= (downcase exwm-class-name) "eclipse")
                          (string= exwm-class-name "qutebrowser")
+                         (string= exwm-class-name "dosbox")
                          (string= (downcase exwm-class-name) "jetbrains-idea-ce")))
             (progn
               ;; (setq-local exwm-input-prefix-keys '(?\C-l))
-              (message "eclipse specific exwm settings applied.")
+              (message "native keyboard exwm settings applied.")
               (exwm-input-release-keyboard (exwm--buffer->id (window-buffer)))
               (exwm-input-set-local-simulation-keys nil)))
           (when (and exwm-class-name
@@ -10738,7 +10756,9 @@
                                         (,(kbd "<C-left>") . C-S-tab)              ;; switch to previous tab
                                         (,(kbd "<C-right>") . C-tab)               ;; switch to next tab
                                         ))))
-                (exwm-input-set-local-simulation-keys sim-keys))))))
+                (exwm-input-set-local-simulation-keys sim-keys))))
+          (when (not exwm-class-name)
+            (message "no exwm keyboard modification applied."))))
 
       (add-hook 'helm-after-action-hook #'gb/exwm-after-switch)
       (add-hook 'helm-quit-hook #'gb/exwm-after-switch)
@@ -10766,6 +10786,7 @@
         (when (and exwm-class-name
                    (or (string= exwm-class-name "X64")
                        (string= (downcase exwm-class-name) "eclipse")
+                       (string= (downcase exwm-class-name) "dosbox")
                        (string= (downcase exwm-class-name) "jetbrains-idea-ce")
                        ))
           (progn
