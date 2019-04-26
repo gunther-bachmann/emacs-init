@@ -5768,6 +5768,19 @@
    ;; open a shell at the current directory
    (use-package shell-here
      :after (eldoc-overlay)
+     :config
+     (defun gb/install-proc-listener (&rest r)
+       "install process listener to close window ofter exited or finished message"
+       (message "advicing to exit buffer")
+       (let ((process (get-buffer-process (current-buffer))))
+         (when process
+           (set-process-sentinel
+            process
+            (lambda (_proc change)
+              (when (string-match-p "\\(?:finished\\|exited\\)" change)
+                (progn
+                  (kill-buffer (current-buffer)))))))))
+     (advice-add 'shell-here :after #'gb/install-proc-listener)
      :bind (("C-x C-h" . shell-here)
             :map dired-mode-map
             ("C-x C-h" . shell-here)))
