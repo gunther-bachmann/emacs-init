@@ -10816,6 +10816,15 @@
         (call-interactively 'shell-pop)))
     :bind (("C-c C-h" . gb/shell-pop-new)))
   #+end_src
+* EVAL pdf-view-restore (disabled)
+  - stores .pdf-view-restore in each folder where pdfs are opned!
+  #+begin_src emacs-lisp :tangle no
+  (use-package pdf-view-restore
+    :after pdf-tools
+    :ensure t
+    :init
+    (add-hook 'pdf-view-mode-hook 'pdf-view-restore-mode))
+  #+end_src
 * finish - up
   #+BEGIN_SRC emacs-lisp
   (report-elapsed "enter finish - up")
