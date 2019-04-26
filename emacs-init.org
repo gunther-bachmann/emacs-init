@@ -544,8 +544,6 @@
                                 free-ram-str
                                 " EMACS LISP BYTES FREE\n;; READY\n;;\n"
                                 nix-total
-                                ";;\n"
-                                ";; (shell-command-to-string \"s2cctl start\")\n"
                                 )
                         ;; properties do not work here, since they are overwritten/not used
                         )))
@@ -10754,6 +10752,7 @@
                   (set-fringe-mode 10)
                   (toggle-truncate-lines 1)
                   (gb/disable-ligatures)
+                  ;; (exwm-mff-mode)
                   (setq global-mode-string '("" appt-mode-string display-time-string emms-mode-line-string emms-playing-time-string " " fancy-battery-mode-line " "
                                              (:eval (elt exwm-workspace--switch-history (exwm-workspace--position exwm-workspace--current)))))
                   ))
@@ -10782,8 +10781,7 @@
   #+begin_src emacs-lisp
   (when (file-exists-p "~/.emacs.d/additionals/emacs-surround/emacs-surround.el")
     (use-package emacs-surround
-      :load-path "~/.emacs.d/additionals/emacs-surround/"
-      :ensure t
+      :load-path "/home/pe/.emacs.d/additionals/emacs-surround"
       :bind (("s-q c s" . emacs-surround))))
   #+end_src
 * EVAL racket
@@ -10831,6 +10829,9 @@
     :ensure t
     :mode (("Dockerfile.*\\'" . dockerfile-mode)))
   #+end_src
+* INTERESTING isearch-project, gnus-summary-repo, dash-docs, aio, json-reformatter-jq
+  #+begin_src emacs-lisp
+  #+end_src
 * finish - up
   #+BEGIN_SRC emacs-lisp
   (report-elapsed "enter finish - up")
@@ -10853,4 +10854,3 @@
   #+END_SRC
 
 #  LocalWords:  flyspell
-
