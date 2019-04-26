@@ -10069,6 +10069,14 @@
      :ensure t
      :config (helm-fuzzier-mode 1))
    #+end_src
+** frog-jump-buffer, allows avy selection in popup frame  (discarded)
+   #+begin_src emacs-lisp :tangle no
+   (use-package frog-menu
+     :load-path "/home/pe/.emacs.d/additionals/frog-menu/")
+   (use-package frog-jump-buffer
+     :load-path "/home/pe/.emacs.d/additionals/frog-jump-buffer/"
+     :after frog-menu)
+   #+end_src
 * general (key binding)
   #+BEGIN_SRC emacs-lisp
   (use-package general
