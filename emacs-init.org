@@ -10430,6 +10430,17 @@
                 (gb/exwm-next-workspace (- (or inc 1)))))
 
       :ensure t)
+  (use-package exwm-mff
+    :load-path "/home/pe/.emacs.d/additionals/exwm-mff"
+    :config
+    (defun gb/mouse-pointer-to-cursor ()
+      (interactive)
+      (if exwm-class-name
+          (exwm-mff-warp-to-selected-window)
+        (let ((position (window-absolute-pixel-position)))
+          (set-mouse-absolute-pixel-position
+           (car position) (cdr position)))))
+    :after exwm-config)
     (use-package exwm-config
       :after ( exwm )
       :config
@@ -10572,6 +10583,8 @@
       (exwm-input-set-key (kbd "s-<right>") (lambda () (interactive) (gb/wrap-in-exwm-reset #'gb/windmove-right)))
       (exwm-input-set-key (kbd "s-<up>") (lambda () (interactive) (gb/wrap-in-exwm-reset #'windmove-up)))
       (exwm-input-set-key (kbd "s-<down>") (lambda () (interactive) (gb/wrap-in-exwm-reset #'windmove-down)))
+
+      (exwm-input-set-key (kbd "H-c") #'gb/mouse-pointer-to-cursor)
 
       (defun gb/remove-upper-window ()
         ""
