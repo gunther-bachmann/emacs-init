@@ -10786,6 +10786,20 @@
       :ensure t
       :bind (("s-q c s" . emacs-surround))))
   #+end_src
+* EVAL racket
+  #+begin_src emacs-lisp
+  (use-package racket-mode
+    :ensure t
+    :bind (:map racket-mode-map
+                ("C-c r" . #'racket-run)))
+  (use-package flymake-racket
+    :after racket-mode
+    :ensure t
+    :config (flymake-racket-setup))
+  (use-package scribble-mode
+    :after racket-mode
+    :ensure t)
+  #+end_src
 * finish - up
   #+BEGIN_SRC emacs-lisp
   (report-elapsed "enter finish - up")
