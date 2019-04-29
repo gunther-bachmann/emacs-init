@@ -1357,6 +1357,11 @@
    - need to add the line `allow-emacs-pinentry` to gpg-agent.conf
    - killing gpg agent by `gpgconf --kill gpg-agent`, restart is automatic, as soon as it is needed
    - see [[https://help.ubuntu.com/community/GnuPrivacyGuardHowto][here]] too
+   #+begin_src emacs-lisp
+   (defun pinentry-emacs (desc prompt ok error)
+     (let ((str (read-passwd (concat (replace-regexp-in-string "%22" "\"" (replace-regexp-in-string "%0A" "\n" desc)) prompt ": "))))
+       str))
+   #+end_src
    #+BEGIN_SRC emacs-lisp
    (use-package epa
      :config
