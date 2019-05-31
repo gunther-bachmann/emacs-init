@@ -5410,7 +5410,8 @@
 
         (defun gb/disable-smartscan ()
           ""
-          (smartscan-mode -1))
+          (if (fboundp #'smartscan-mode)
+            (smartscan-mode -1)))
 
         (add-hook 'magit-mode-hook 'gb/disable-smartscan))
       :config
@@ -5429,12 +5430,12 @@
       (setq magit-display-buffer-function (quote magit-display-buffer-fullframe-status-v1))
 
       ;; make sure that magit closes all other windows on the frame
-      (when (fboundp 'gb/display-buffer-fullframe)
-        (add-to-list 'display-buffer-alist
-                     `(,(rx "*magit: ")
-                       (gb/display-buffer-fullframe)
-                       (reusable-frames . nil)))))
-
+      ;; (when (fboundp 'gb/display-buffer-fullframe)
+      ;;   (add-to-list 'display-buffer-alist
+      ;;                `(,(rx "*magit: ")
+      ;;                  (gb/display-buffer-fullframe)
+      ;;                  (reusable-frames . nil))))
+    )
     ;; show git relevant change info in the fringe of the frame
     ;; git-gutter-fringe works with nlinum-mode !
     (use-package git-gutter
@@ -5595,12 +5596,7 @@
      :mode (("\\.text\\'" . markdown-mode)
             ("\\.markdown\\'" . markdown-mode)
             ("README\\.md\\'" . gfm-mode)
-            ("\\.md\\'" . markdown-mode))
-     :demand markdown-edit-indirect
-     :bind (:map markdown-mode-map
-            ("C-c '" . markdown-edit-indirect))
-     :config
-     (progn))
+            ("\\.md\\'" . markdown-mode)))
    #+END_SRC
 ** markdown code block edit (obsolete since markdown-mode includes code edit now)
    - allows C-' in a markdown code block to edit code in a separate buffer (like org mode does)
@@ -5608,10 +5604,8 @@
      (use-package edit-indirect)
      (use-package markdown-edit-indirect
        :after ( markdown-mode edit-indirect)
-       :config
-       (progn
-         (eval-after-load 'markdown-mode
-           '(define-key markdown-mode-map (kbd "C-c '") 'markdown-edit-indirect))))
+       :bind (:map markdown-mode-map
+                   ("C-c '" . markdown-edit-indirect)))
    #+END_SRC
 ** plantuml
    - https://github.com/skuro/plantuml-mode
@@ -6230,57 +6224,58 @@
 ** gnus (mail)
 *** gnu-firstentry
  #+BEGIN_SRC emacs-lisp
- ;; add support to send from different smtp accounts
- ;; do this before custom variables are set, otherwise send-mail-function won't be set correctly!
- (use-package smtpmail-multi)
+   ;; add support to send from different smtp accounts
+   ;; do this before custom variables are set, otherwise send-mail-function won't be set correctly!
+   (use-package smtpmail-multi)
 
- ;; closed by gnu-lastentry!
- (use-package gnus
-   :commands gnus
-   :after ( smtpmail-multi mm-decode hydra bbdb)
-   :bind (
-          :map gnus-group-mode-map
-          ("<f1>" . hydra-gnus-group/body)
-          ("C-c b l" . gnus-bookmark-bmenu-list)
-          :map gnus-summary-mode-map
-          ("<f1>" . hydra-gnus-summary/body)
-          ("C-c b l" . gnus-bookmark-bmenu-list)
-          ("C-c b m" . gnus-bookmark-set)
-          ("C-c b s" . gnus-bookmark-set)
-          :map gnus-article-edit-mode-map
-          ("<f1>" . hydra-gnus-article-mime-part/body)
-          :map gnus-article-mode-map
-          ("<f1>" . hydra-gnus-article-mime-part/body)
-          ("C-c b l" . gnus-bookmark-bmenu-list)
-          :map message-mode-map
-          ("<f1>" . hydra-gnus-article-mime-part/body)
-          ("TAB" . company-try-hard)
-          )
-   :init  (progn
-            ;; Sign messages by default
-            (add-hook 'message-setup-hook 'mml-secure-sign-pgpmime)
+   ;; closed by gnu-lastentry!
+   (use-package gnus
+     :commands gnus
+     :after ( smtpmail-multi mm-decode hydra bbdb)
+     :bind (
+            :map gnus-group-mode-map
+            ("<f1>" . hydra-gnus-group/body)
+            ("C-c b l" . gnus-bookmark-bmenu-list)
+            :map gnus-summary-mode-map
+            ("<f1>" . hydra-gnus-summary/body)
+            ("C-c b l" . gnus-bookmark-bmenu-list)
+            ("C-c b m" . gnus-bookmark-set)
+            ("C-c b s" . gnus-bookmark-set)
+            :map gnus-article-edit-mode-map
+            ("<f1>" . hydra-gnus-article-mime-part/body)
+            :map gnus-article-mode-map
+            ("<f1>" . hydra-gnus-article-mime-part/body)
+            ("C-c b l" . gnus-bookmark-bmenu-list)
+            :map message-mode-map
+            ("<f1>" . hydra-gnus-article-mime-part/body)
+            ("TAB" . company-try-hard)
+            )
+     :init  (progn
+              ;; Sign messages by default
+              (add-hook 'message-setup-hook 'mml-secure-sign-pgpmime)
 
-            (defun gb/cache-sender-key ()
-              "cache the gpg key based on the from field of this message"
-              (interactive)
+              (defun gb/cache-sender-key ()
+                "cache the gpg key based on the from field of this message"
+                (interactive)
 
-              (save-excursion
-                (save-restriction
-                  (message-narrow-to-headers)
-                  (let ((from (message-fetch-field "from")))
-                    (message (concat "cache password for " from))
-                    (gb/cache-gpg-key from)))))
+                (save-excursion
+                  (save-restriction
+                    (message-narrow-to-headers)
+                    (let ((from (message-fetch-field "from")))
+                      (message (concat "cache password for " from))
+                      (gb/cache-gpg-key from)))))
 
-            (add-hook 'gnus-message-setup-hook 'gb/cache-sender-key)
+              ;; no need to cache gpg key with a working pinentry-emacs running!
+              ;; (add-hook 'gnus-message-setup-hook 'gb/cache-sender-key)
 
-            ;; make sure that truncate lines is off and word wrap is on when viewing articels
-            (add-hook 'gnus-article-mode-hook
-                      (lambda ()
-                        (setq
-                         fill-column 60
-                         truncate-lines nil
-                         word-wrap t))))
-   :config ;; closing bracket follows way down !
+              ;; make sure that truncate lines is off and word wrap is on when viewing articles
+              (add-hook 'gnus-article-mode-hook
+                        (lambda ()
+                          (setq
+                           fill-column 60
+                           truncate-lines nil
+                           word-wrap t))))
+     :config ;; closing bracket follows way down !
  #+END_SRC
 *** hydra
     #+BEGIN_SRC emacs-lisp
@@ -6373,7 +6368,9 @@
       ;; use the sender to select default key
       (setq mml-secure-openpgp-sign-with-sender t)
       (setq mm-verify-option (quote known))
-      (setq mml-secure-fail-when-key-problem t)
+      ;; if no key is found, ask use which to use, or what to do
+      (setq mml-secure-fail-when-key-problem nil)
+      ;; (setq mml-secure-openpgp-signers '("0xE1ADB507AF17A860489F07080D64ED7DB693CA8B"))
 
       (setq mm-fill-flowed nil)
       (setq mm-inline-large-images (quote resize))
@@ -7592,9 +7589,9 @@
      (setq org-src-fontify-natively t)
      (setq org-src-tab-acts-natively t)
      (setq electric-indent-inhibit t)
-     (setq org-edit-src-content-indentation 0)
+     (setq org-edit-src-content-indentation 2)
      (setq org-adapt-indentation t)
-     (setq org-src-preserve-indentation t)
+     (setq org-src-preserve-indentation nil)
 
      ;; (addToList org-babel-shell-names "fish")
 
@@ -8537,6 +8534,7 @@
 #+BEGIN_SRC emacs-lisp
   (use-package helm-backup
     :ensure t
+    :defer 30
     :after (helm)
     :init
     (add-hook 'after-save-hook 'helm-backup-versioning))
@@ -8781,55 +8779,57 @@
               ("C-c C-u" . dired-subtree-up))) ;; toggle subtree open/close M-x dired-subtree-toggle
    #+END_SRC
 ** dired sidebar
+   - patched line 605 in dired-sidebar.el with '(dirs (split-string (cadr (split-string name (regexp-quote root))) "/")))'
    #+BEGIN_SRC emacs-lisp
-   (use-package vscode-icon
-     :ensure t
-     :config
-     ;; override the given function
-     (defun vscode-icon-for-file (file)
-       "Return an vscode icon image given FILE.
+     (use-package vscode-icon
+       :ensure t
+       :config
+       ;; override the given function
+       (defun vscode-icon-for-file (file)
+         "Return an vscode icon image given FILE.
 
-   Icon Source: https://github.com/vscode-icons/vscode-icons"
-       (let ((default-directory
-               (if (image-type-available-p 'imagemagick)
-                   (concat vscode-icon-dir "23/") ;; <- originally 128 which is a bit large
-                 (concat vscode-icon-dir
-                         (number-to-string vscode-icon-size) "/"))))
-         (if (file-directory-p file)
-             (vscode-icon-dir file)
-           (vscode-icon-file file)))))
-   (use-package dired-sidebar
-     :ensure t
-     :bind (( "s-A" . dired-sidebar-toggle-sidebar)
-            ( "s-a" . gb/dired-sidebar-follow-file))
-     ;; :after (dired all-the-icons vscode-icon)
-     :config
-     (defun gb/dired-sidebar-follow-file ()
-       "ensure sidebar is open and position cursor on file from which this function was called"
-       (interactive)
-       (if (and (dired-sidebar-showing-sidebar-p)
-                (string= (buffer-name) (buffer-name (dired-sidebar-buffer))))
-           (dired-sidebar-hide-sidebar)
-         (if (buffer-file-name)
-             (unless (dired-sidebar-showing-sidebar-p)
-               (dired-sidebar-show-sidebar))
-           (dired-sidebar-toggle-sidebar))
-         (when (buffer-file-name)
-           (let* ((filename (expand-file-name (buffer-file-name)))
-                  (current-root (expand-file-name (replace-regexp-in-string "^:" "" (buffer-name (dired-sidebar-buffer))))))
-             (select-window (get-buffer-window (dired-sidebar-buffer)))
-             (let* ((omitmode dired-omit-mode))
-               (dired-omit-mode -1) ;; make sure to switch off omit mode for cursor placement (since this is disrupted otherwise)
-               (dired-sidebar-point-at-file filename current-root)
-               (when omitmode (dired-omit-mode t)))))))
-     (progn
-       (setq dired-sidebar-width 55)
-       (setq dired-sidebar-icon-scale 0.2)
-       (setq dired-sidebar-theme 'vscode)
-       (setq dired-sidebar-follow-file-at-point-on-toggle-open t)
-       (setq dired-sidebar-should-follow-file nil) ;; follow file in dired sidebar tree, put that on a hotkey
-       (setq dired-sidebar-use-term-integration nil) ;; get workdir by dired root (direnv is called a bit too often)
-       (setq dired-sidebar-use-custom-font t)))
+     Icon Source: https://github.com/vscode-icons/vscode-icons"
+         (let ((default-directory
+                 (if (image-type-available-p 'imagemagick)
+                     (concat vscode-icon-dir "23/") ;; <- originally 128 which is a bit large
+                   (concat vscode-icon-dir
+                           (number-to-string vscode-icon-size) "/"))))
+           (if (file-directory-p file)
+               (vscode-icon-dir file)
+             (vscode-icon-file file)))))
+     (use-package dired-sidebar
+       :ensure t
+       :bind (( "s-A" . dired-sidebar-toggle-sidebar)
+              ( "s-a" . gb/dired-sidebar-follow-file))
+       ;; :after (dired all-the-icons vscode-icon)
+       :config
+       (defun gb/dired-sidebar-follow-file ()
+         "ensure sidebar is open and position cursor on file from which this function was called"
+         (interactive)
+         (if (and (dired-sidebar-showing-sidebar-p)
+                  (string= (buffer-name) (buffer-name (dired-sidebar-buffer))))
+             (dired-sidebar-hide-sidebar)
+           (if (buffer-file-name)
+               (unless (dired-sidebar-showing-sidebar-p)
+                 (dired-sidebar-show-sidebar))
+             (dired-sidebar-toggle-sidebar))
+           (when (buffer-file-name)
+             (let* ((filename (expand-file-name (buffer-file-name)))
+                    (current-root (expand-file-name (replace-regexp-in-string "^:" "" (buffer-name (dired-sidebar-buffer))))))
+               (select-window (get-buffer-window (dired-sidebar-buffer)))
+               (if (s-starts-with? current-root filename)
+                   (let* ((omitmode dired-omit-mode))
+                     (dired-omit-mode -1) ;; make sure to switch off omit mode for cursor placement (since this is disrupted otherwise)
+                     (dired-sidebar-point-at-file filename current-root)
+                     (when omitmode (dired-omit-mode t))))))))
+       (progn
+         (setq dired-sidebar-width 60)
+         (setq dired-sidebar-icon-scale 0.2)
+         (setq dired-sidebar-theme 'vscode)
+         (setq dired-sidebar-follow-file-at-point-on-toggle-open t)
+         (setq dired-sidebar-should-follow-file nil) ;; follow file in dired sidebar tree, put that on a hotkey
+         (setq dired-sidebar-use-term-integration nil) ;; get workdir by dired root (direnv is called a bit too often)
+         (setq dired-sidebar-use-custom-font t)))
    #+END_SRC
 ** dired-du (size calc in dired)
    #+BEGIN_SRC emacs-lisp
@@ -8942,14 +8942,16 @@
 (report-elapsed "check point nix specifics")
 #+END_SRC
   #+BEGIN_SRC emacs-lisp
-  (use-package nixos-options)
-  (use-package company-nixos-options
-    :after (company nixos-options cl-lib))
-  (use-package nix-mode)
-  (use-package direnv
-    :config
-    (direnv-mode)
-    (advice-add 'direnv--export :before #'(lambda (orig-func &rest args) (message "running direnv ..."))))
+    (use-package nixos-options
+      :defer 30)
+    (use-package company-nixos-options
+      :after (company nixos-options cl-lib)
+      :init (add-to-list 'company-backends 'company-nixos-options))
+    (use-package nix-mode)
+    (use-package direnv
+      :config
+      (direnv-mode)
+      (advice-add 'direnv--export :before #'(lambda (orig-func &rest args) (message "running direnv ..."))))
   #+END_SRC
 * currently evaluated
 #+BEGIN_SRC emacs-lisp
@@ -9224,11 +9226,13 @@
      :ensure t
      :after ( company))
    #+END_SRC
-** dimmer (disabled, mode line was dimmed, recheck 08.2018)
+** dimmer
    - dim non selected buffers (slightly)
-   #+BEGIN_SRC emacs-lisp :tangle no
-   (use-package dimmer
-     :config (dimmer-activate))
+   #+BEGIN_SRC emacs-lisp
+     (use-package dimmer
+       :ensure t
+       :config (dimmer-activate)
+       (setq dimmer-exclusion-regexp "\\*helm.*"))
    #+END_SRC
 ** eterm-256color
    - see [[http://github.com/dieggsy/eterm-256color][here]]
@@ -10368,12 +10372,12 @@
                   ;;                :string display
                   ;;                :poshandler 'posframe-poshandler-frame-center
                   ;;                :timeout 2)
-                  (posframe-show " *inpos-posframe-buffer"
-                                 :string (s-concat "monitor workspace [" (number-to-string newidx) "]")
-                                 :position (point)
-                                 :timeout 1
-                                 :background-color "dark orange"
-                                 :foreground-color "black")
+                  ;; (posframe-show " *inpos-posframe-buffer"
+                  ;;                :string (s-concat "monitor workspace [" (number-to-string newidx) "]")
+                  ;;                :position (point)
+                  ;;                :timeout 1
+                  ;;                :background-color "dark orange"
+                  ;;                :foreground-color "black")
                   ;; (start-process-shell-command " *play sound*" nil "mpg123 ~/Downloads/typewriter-line-break-1.mp3")
                   ))
 
@@ -10869,7 +10873,7 @@
     :ensure t
     :mode (("Dockerfile.*\\'" . dockerfile-mode)))
   #+end_src
-* INTERESTING isearch-project, gnus-summary-repo, dash-docs, aio, json-reformatter-jq
+* INTERESTING isearch-project, gnus-summary-repo, dash-docs, aio, json-reformatter-jq, multi-magit, live-preview, nix-haskell-mode
   #+begin_src emacs-lisp
   #+end_src
 * finish - up
