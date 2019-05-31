@@ -8997,12 +8997,29 @@
    #+end_src
 ** terraform
    #+begin_src emacs-lisp
-   (use-package terraform-mode
-     :ensure t)
-   (use-package company-terraform
-     :ensure t
-     :after (company terraform-mode)
-     :config (company-terraform-init))
+     (use-package terraform-mode
+       :ensure t
+       :config
+       (when (fboundp #'dumb-jump-go)
+         (add-to-list 'dumb-jump-find-rules
+                      '(:type "resource" :supports ("ag" "grep" "rg" "git-grep")
+                              :language "terraform"
+                              :regex "^\\s*resource\\s+\".*\" \"JJJ\"\\j"
+                              :tests ("resource \"aws_some\" \"name\" { }")))
+         (add-to-list 'dumb-jump-find-rules
+                      '(:type "variable" :supports ("ag" "grep" "rg" "git-grep")
+                              :language "terraform"
+                              :regex "^\\s*variable\\s+\"JJJ\"\\j"
+                              :tests ("variable \"name\" { }")))
+         (add-to-list 'dumb-jump-language-file-exts
+                      '(:language "terraform" :ext "tf" :agtype "terraform" :rgtype nil))
+         (add-to-list 'dumb-jump-language-comments
+                      '(:comment "#" :language "terraform"))
+         ))
+     (use-package company-terraform
+       :ensure t
+       :after (company terraform-mode)
+       :config (company-terraform-init))
    #+end_src
 ** jest (javascript/typescript testing)
    - see https://jestjs.io/
