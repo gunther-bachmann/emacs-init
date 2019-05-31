@@ -365,6 +365,13 @@
            use-package-ensure-system-package
            s))
 
+  (use-package benchmark-init
+    :ensure t
+    :demand t
+    :config
+    ;; To disable collection of benchmark data after init is done.
+    (add-hook 'after-init-hook 'benchmark-init/deactivate))
+
   ;; add mac specific packages
   (when (is-macos-p)
     (add-to-list 'package-to-install-initially 'exec-path-from-shell))
