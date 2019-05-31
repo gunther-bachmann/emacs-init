@@ -10847,17 +10847,36 @@
   #+end_src
 * EVAL racket
   #+begin_src emacs-lisp
-  (use-package racket-mode
-    :ensure t
-    :bind (:map racket-mode-map
-                ("C-c r" . #'racket-run)))
-  (use-package flymake-racket
-    :after racket-mode
-    :ensure t
-    :config (flymake-racket-setup))
-  (use-package scribble-mode
-    :after racket-mode
-    :ensure t)
+    (use-package racket-mode
+      :ensure t
+      :bind (:map racket-mode-map
+                  ("C-c r" . #'racket-run))
+      :init
+      (when (fboundp 'paredit-mode)
+        (add-hook 'racket-mode-hook 'paredit-mode))
+      (when (boundp 'prettify-greek-upper)
+        (add-hook 'racket-mode-hook
+                  (lambda ()
+                    (setq prettify-symbols-alist prettify-greek-lower)
+                    (prettify-symbols-mode t))))
+      (when (fboundp 'gb/enable-ligatures))
+          (add-hook 'racket-mode-hook
+                  (lambda () (gb/enable-ligatures))))
+    (use-package flymake-racket
+      :after racket-mode
+      :ensure t
+      :config (flymake-racket-setup))
+    (use-package scribble-mode ;; documentation files
+      :after racket-mode
+      :ensure t
+      :init
+      (add-hook 'scribble-mode-hook #'racket-mode))
+    (use-package ob-racket
+      :load-path "~/.emacs.d/additionals/ob-racket/"
+      :after org
+      :config
+      (append '((racket . t) (scribble . t)) org-babel-load-languages))
+
   #+end_src
 * EVAL browse-kill-ring
   #+begin_src emacs-lisp
