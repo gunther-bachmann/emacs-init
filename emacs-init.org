@@ -1540,24 +1540,29 @@
    #+END_SRC
 ** display symbols (pretty-mode, prettify-greek)
    #+BEGIN_SRC emacs-lisp
-   (use-package pretty-mode
-     :ensure t
-     :config
-     (progn
-       (global-pretty-mode 1)
-       (global-prettify-symbols-mode 1)
-       (setq prettify-symbols-unprettify-at-point t)
+     (use-package pretty-mode
+       :ensure t
+       :config
+       (progn
+         (global-pretty-mode 1)
+         (global-prettify-symbols-mode 1)
+         (setq prettify-symbols-unprettify-at-point t)
 
-       ;; make sure this does not collide with symbols from fira code symbol replacement (ligatures)
-       (pretty-deactivate-groups
-        '(:equality :ordering :ordering-double :ordering-triple
-                    :arrows :arrows-twoheaded :punctuation :arithmetic :arithmetic-double))
-       (pretty-activate-groups
-        '(:sub-and-superscripts :greek :arithmetic-nary))
-       ))
+         ;; make sure this does not collide with symbols from fira code symbol replacement (ligatures)
+         (pretty-deactivate-groups
+          '(:equality :ordering :ordering-double :ordering-triple
+                      :arrows :arrows-twoheaded :punctuation :arithmetic :arithmetic-double))
+         (pretty-activate-groups
+          '(:sub-and-superscripts :greek :arithmetic-nary))
+         ))
 
-   (use-package prettify-greek
-     :ensure t) ;; prettify greek symbols
+     (use-package prettify-greek
+       :ensure t
+       :config
+       (add-hook 'emacs-lisp-mode-hook
+                (lambda ()
+                  (setq prettify-symbols-alist prettify-greek-lower)
+                  (prettify-symbols-mode t))))
    #+END_SRC
 ** font related stuff
    #+BEGIN_SRC emacs-lisp
