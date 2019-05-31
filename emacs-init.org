@@ -734,33 +734,33 @@
     #+END_SRC
 ** scrolling
    #+BEGIN_SRC emacs-lisp
-   (defun scroll-up-line-7 ()
-     (interactive)
-     (scroll-up-line 7))
-   (defun scroll-down-line-7 ()
-     (interactive)
-     (scroll-down-line 7))
+     (defun scroll-up-line-7 ()
+       (interactive)
+       (scroll-up-line 7))
+     (defun scroll-down-line-7 ()
+       (interactive)
+       (scroll-down-line 7))
 
-   ;; scroll and move cursor
-   (defun scroll-up-line-and-move-cursor ()
-     (interactive)
-     (scroll-up 1)
-     (forward-line 1))
+     ;; scroll and move cursor
+     (defun scroll-up-line-and-move-cursor ()
+       (interactive)
+       (scroll-up 1)
+       (next-line))
 
-   (defun scroll-down-line-and-move-cursor ()
-     (interactive)
-     (scroll-down 1)
-     (forward-line -1))
+     (defun scroll-down-line-and-move-cursor ()
+       (interactive)
+       (scroll-down 1)
+       (previous-line))
 
-   (defun scroll-up-line-and-move-cursor-7 ()
-     (interactive)
-     (scroll-up-line 7)
-     (next-line 7))
+     (defun scroll-up-line-and-move-cursor-7 ()
+       (interactive)
+       (scroll-up-line 7)
+       (next-line 7))
 
-   (defun scroll-down-line-and-move-cursor-7 ()
-     (interactive)
-     (scroll-down-line 7)
-     (previous-line 7))
+     (defun scroll-down-line-and-move-cursor-7 ()
+       (interactive)
+       (scroll-down-line 7)
+       (previous-line 7))
    #+END_SRC
 ** hydra utils
    #+BEGIN_SRC emacs-lisp
