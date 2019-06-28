@@ -9047,7 +9047,14 @@
                       '(:language "terraform" :ext "tf" :agtype "terraform" :rgtype nil))
          (add-to-list 'dumb-jump-language-comments
                       '(:comment "#" :language "terraform"))
-         ))
+         )
+       (when (locate-file "terraform" exec-path)
+         (defun gb/terraform-formatter-hook ()
+           "format terraform files on save"
+           (when (string= major-mode "terraform-mode")
+             (shell-command (s-concat "pushd " (file-name-directory (buffer-file-name)) "&& terraform fmt && popd"))
+             (message "autosave action formatting terraform files")))
+         (add-hook 'after-save-hook #'gb/terraform-formatter-hook)))
      (use-package company-terraform
        :ensure t
        :after (company terraform-mode)
