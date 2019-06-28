@@ -699,6 +699,11 @@
     fi
     #+end_src
     #+BEGIN_SRC emacs-lisp
+    (defun gb/switch-alt-win ()
+      "switch alt and windows key mapping"
+      (interactive)
+      (message (shell-command-to-string "switchAltWin")))
+
     (defun gb/keyboard-space-to-ctrl ()
       "map space to work as control"
       (interactive)
