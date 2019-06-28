@@ -19,6 +19,14 @@
 #   - entries with 'preinstall' mark packages that are installed up front
 #   - entries with 'ok: ... installed' mark checks for external programs that are needed for some packages to work
 #
+* elpa-mirror (see https://github.com/redguardtoo/elpa-mirror)
+  #+begin_src emacs-lisp
+    (add-to-list 'load-path "~/.emacs.d/additionals/")
+    (require 'elpa-mirror)
+    (setq elpamr-default-output-directory "~/repo/myelpa")
+    (setq use-elpa-mirror nil)
+    (setq elpamr-debug t)
+  #+end_src
 * use-package
   - enable this for precompilation (still needs work on this init file though)
   #+BEGIN_SRC emacs-lisp
@@ -303,90 +311,95 @@
   #+END_SRC
 * package setup
   #+BEGIN_SRC emacs-lisp
-  (report-elapsed "enter package setup")
-  (require 'package)
+    (report-elapsed "enter package setup")
+    (require 'package)
 
-  ;; package access either through secure https, or insecure http
-  (setq secure-package-access t)
+    ;; package access either through secure https, or insecure http
+    (setq secure-package-access t)
 
 
-  (when gb/debug-package
-    (setq ;; add verbosity level to use package
-     ;; use-package-verbose t
-     ;; make sure that use-package does minimal reporting to the message buffer
-     use-package-expand-minimally t))
+    (when gb/debug-package
+      (setq ;; add verbosity level to use package
+       ;; use-package-verbose t
+       ;; make sure that use-package does minimal reporting to the message buffer
+       use-package-expand-minimally t))
 
-  (if secure-package-access
-      (setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
-                               ("melpa-stable" . "https://stable.melpa.org/packages/")
-                               ("org" . "https://orgmode.org/elpa/")
-                               ("melpa" . "https://melpa.org/packages/")))
-    (setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
-                             ("melpa-stable" . "http://stable.melpa.org/packages/")
-                             ("org" . "http://orgmode.org/elpa/")
-                             ("melpa" . "http://melpa.org/packages/"))))
+    (if use-elpa-mirror
+        (setq package-archives
+              '(("myelpa" . "https://raw.githubusercontent.com/gunther-bachmann/myelpa/master/")))        ;; (setq package-archives '(("myelpa" . "~/repo/myelpa/")))
+      (progn
+        (if secure-package-access
+            (setq package-archives '(;; ("gnu" . "https://elpa.gnu.org/packages/")
+                                     ("melpa-stable" . "https://stable.melpa.org/packages/")
+                                     ("org" . "https://orgmode.org/elpa/")
+                                     ("melpa" . "https://melpa.org/packages/")))
+          (setq package-archives '(;; ("gnu" . "http://elpa.gnu.org/packages/")
+                                   ("melpa-stable" . "http://stable.melpa.org/packages/")
+                                   ("org" . "http://orgmode.org/elpa/")
+                                   ("melpa" . "http://melpa.org/packages/"))))
 
-  (setq package-archive-priorities
-        '(("melpa-stable" . 20)  ;; stable is preferred
-          ("melpa" . 10)
-          ("gnu" . 0)))
+        (setq package-archive-priorities
+              '(("melpa-stable" . 20)  ;; stable is preferred
+                ("melpa" . 10)
+                ;;("gnu" . 0)
+                ))))
 
-  (setq package-menu-async (is-_nix-p)) ;; defaulting operations to be async (is problematic on windows systems)
+    (setq package-menu-async (is-_nix-p)) ;; defaulting operations to be async (is problematic on windows systems)
 
-  (package-initialize) ;; cannot use t as parameter since initialization is necessary for init file to work
+    (package-initialize) ;; cannot use t as parameter since initialization is necessary for init file to work
 
-  (defun require-package (package)
-    "refresh package archives, check package presence and install if it's not installed"
-    (if (null (require package nil t))
-        (progn
-          (let* ((ARCHIVES (if (null package-archive-contents)
-                               (progn (package-refresh-contents)
-                                      package-archive-contents)
-                             package-archive-contents))
-                 (AVAIL (assoc package ARCHIVES)))
-            (if AVAIL
-                (package-install package)))
-          (require package))))
+    (defun require-package (package)
+      "refresh package archives, check package presence and install if it's not installed"
+      (if (null (require package nil t))
+          (progn
+            (let* ((ARCHIVES (if (null package-archive-contents)
+                                 (progn (package-refresh-contents)
+                                        package-archive-contents)
+                               package-archive-contents))
+                   (AVAIL (assoc package ARCHIVES)))
+              (if AVAIL
+                  (package-install package)))
+            (require package))))
 
-  (setq package-to-install-initially
-        '( dash
-           ht
-           maxframe
-           bind-key
-           key-chord
-           validate
-           use-package
-           seq
-           ;; see here https://github.com/jabranham/system-packages
-           ;; allows for system manager actions (detecting the system manager)
-           system-packages
-           ;; see here  https://github.com/jwiegley/use-package
-           ;; makes sure that a system program is installed
-           use-package-ensure-system-package
-           s))
+    (setq package-to-install-initially
+          '( dash
+             ht
+             maxframe
+             bind-key
+             key-chord
+             validate
+             use-package
+             seq
+             ;; see here https://github.com/jabranham/system-packages
+             ;; allows for system manager actions (detecting the system manager)
+             system-packages
+             ;; see here  https://github.com/jwiegley/use-package
+             ;; makes sure that a system program is installed
+             use-package-ensure-system-package
+             s))
 
-  (use-package benchmark-init
-    :ensure t
-    :demand t
-    :config
-    ;; To disable collection of benchmark data after init is done.
-    (add-hook 'after-init-hook 'benchmark-init/deactivate))
+    (use-package benchmark-init
+      :ensure t
+      :demand t
+      :config
+      ;; To disable collection of benchmark data after init is done.
+      (add-hook 'after-init-hook 'benchmark-init/deactivate))
 
-  ;; add mac specific packages
-  (when (is-macos-p)
-    (add-to-list 'package-to-install-initially 'exec-path-from-shell))
+    ;; add mac specific packages
+    (when (is-macos-p)
+      (add-to-list 'package-to-install-initially 'exec-path-from-shell))
 
-  (dolist (package package-to-install-initially)
-    (progn
-      (message (concat "Preinstall/require " (symbol-name package)))
-      (require-package package)))
+    (dolist (package package-to-install-initially)
+      (progn
+        (message (concat "Preinstall/require " (symbol-name package)))
+        (require-package package)))
 
-  ;; TODO: recheck no and then. error is present in req-package version 1.2
-  ;; initialize unbound req-package variable (otherwise an error happens during startup)
-  ;;(if (not (boundp 'req-package-paths))
-  ;;    (setq req-package-paths (ht)))
+    ;; TODO: recheck now and then. error is present in req-package version 1.2
+    ;; initialize unbound req-package variable (otherwise an error happens during startup)
+    ;;(if (not (boundp 'req-package-paths))
+    ;;    (setq req-package-paths (ht)))
 
-  (report-elapsed "exit package setup")
+    (report-elapsed "exit package setup")
   #+END_SRC
 ** paradox (package list alternative)
    #+BEGIN_SRC emacs-lisp 
