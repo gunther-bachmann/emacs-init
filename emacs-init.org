@@ -1579,75 +1579,89 @@
    #+END_SRC
 ** font related stuff
    #+BEGIN_SRC emacs-lisp
-   (setq font-lock-support-mode 'jit-lock-mode)
-   (setq jit-lock-stealth-time 8
-         jit-lock-defer-contextually t
-         jit-lock-stealth-nice 1)
-   (setq-default font-lock-multiline t)
+     (setq gb/presentation-mode nil)
+     (setq font-lock-support-mode 'jit-lock-mode)
+     (setq jit-lock-stealth-time 8
+           jit-lock-defer-contextually t
+           jit-lock-stealth-nice 1)
+     (setq-default font-lock-multiline t)
 
-   (setq gb/default-font "Source Code Pro")
-   ;; (setq gb/default-font "Fira Code")
-   ;; (setq gb/default-font "Cousine")
+     (setq gb/default-font "Source Code Pro")
+     ;; (setq gb/default-font "Fira Code")
+     ;; (setq gb/default-font "Cousine")
+     ;; (setq gb/default-font "Lucida")
+     ;; (setq gb/default-font "Liberation Mono")
+     ;; (setq gb/default-font "Noto Mono for Powerline")
+     ;; (setq gb/default-font "DejaVu Sans Mono")
 
-   (when (not (member gb/default-font (font-family-list)))
-     (message (concat "WARNING: expected font '" gb/default-font "' not found in available font list.")))
+     (when (member gb/default-font (font-family-list))
+       ;; (set-frame-font (s-concat gb/default-font "-12") t t)
+       ;; (add-to-list 'initial-frame-alist `(font . ,gb/default-font))
+       ;; (add-to-list 'default-frame-alist `(font . ,gb/default-font))
+       )
 
-   (require 'ht)
-   (defun gb/get-font-heights (display-width win-system)
-     "Get font heights depending on display width"
-     (if (memq win-system '(mac ns))
-         (cond ((> display-width 3400)
-                (ht ('default-height 150) ('variable-pitch-height 140)))
-               ((ht ('default-height 130) ('variable-pitch-height 120))))
-       (cond ((> display-width 5000)
-              (ht ('default-height 140) ('variable-pitch-height 140)))
-             ((> display-width 3400)
-              (ht ('default-height 130) ('variable-pitch-height 130)))
-             ((ht ('default-height 110) ('variable-pitch-height 110))))))
+     (when (not (member gb/default-font (font-family-list)))
+       (message (concat "WARNING: expected font '" gb/default-font "' not found in available font list.")))
 
-   (defun gb/get-font-weights (win-system)
-     "Get font weights depending on windowing system"
-     (if (memq win-system '(mac ns))
-         (ht ('default-weight 'light) ('variable-pitch-weight 'regular))
-       (ht ('default-weight 'regular) ('variable-pitch-weight 'regular))))
+     (require 'ht)
+     (defun gb/get-font-heights (display-width win-system)
+       "Get font heights depending on display width"
+       (if (memq win-system '(mac ns))
+           (cond ((> display-width 3400)
+                  (ht ('default-height 150) ('variable-pitch-height 140)))
+                 ((ht ('default-height 130) ('variable-pitch-height 120))))
+         (cond (gb/presentation-mode
+                (ht ('default-height 250) ('variable-pitch-height 250)))
+               ((> display-width 5000)
+                (ht ('default-height 140) ('variable-pitch-height 140)))
+               ((> display-width 3400)
+                (ht ('default-height 130) ('variable-pitch-height 130)))
+               ((ht ('default-height 110) ('variable-pitch-height 110))))))
 
-   (setq gb/setup-main-fonts-needs-execution t)
-   (defun gb/setup-main-fonts (&optional frame)
-     "Set up default fonts.
+     (defun gb/get-font-weights (win-system)
+       "Get font weights depending on windowing system"
+       (if (memq win-system '(mac ns))
+           (ht ('default-weight 'light) ('variable-pitch-weight 'regular))
+         (ht ('default-weight 'regular) ('variable-pitch-weight 'regular))))
 
-     Use DEFAULT-HEIGHT for default face and VARIABLE-PITCH-HEIGHT
-     for variable-pitch face."
-     (if gb/setup-main-fonts-needs-execution
-         (let* ((attr-map (ht-merge (gb/get-font-heights (x-display-pixel-width) window-system)
-                                    (gb/get-font-weights window-system))))
-           (message "setting up default fonts")
-           (message (format "display pixel width %d" (x-display-pixel-width)))
-           (set-face-attribute 'default nil
-                               :family gb/default-font
-                               :height (ht-get attr-map 'default-height)
-                               :weight (ht-get attr-map 'default-weight))
-           (set-face-attribute 'variable-pitch nil
-                               ;; :family "Fira Sans"
-                               :height (ht-get attr-map 'variable-pitch-height)
-                               :weight (ht-get attr-map 'variable-pitch-weight))
-           (setq gb/setup-main-fonts-needs-execution nil))))
-
-   (defun gb/reset-main-fonts ()
-     "reinitialize fonts e.g. if resolution changed etc."
-     (interactive)
      (setq gb/setup-main-fonts-needs-execution t)
-     (gb/setup-main-fonts))
+     (defun gb/setup-main-fonts (&optional frame)
+       "Set up default fonts.
 
-   ;; (gb/setup-main-fonts)
-   (gb/do-after-display-system-init (gb/setup-main-fonts))
-   ;;(add-hook 'after-make-frame-functions #'gb/setup-main-fonts)
-   ;;(add-hook 'focus-in-hook #'gb/setup-main-fonts)
-   ;;(when (display-graphic-p)
-   ;;  (gb/setup-main-fonts))
+       Use DEFAULT-HEIGHT for default face and VARIABLE-PITCH-HEIGHT
+       for variable-pitch face."
+       (if gb/setup-main-fonts-needs-execution
+           (let* ((attr-map (ht-merge (gb/get-font-heights (x-display-pixel-width) window-system)
+                                      (gb/get-font-weights window-system))))
+             (message "setting up default fonts")
+             (message (format "display pixel width %d" (x-display-pixel-width)))
+             (set-face-attribute 'default nil
+                                 ;; :family gb/default-font
+                                 :font gb/default-font
+                                 :height (ht-get attr-map 'default-height)
+                                 :weight (ht-get attr-map 'default-weight))
+             (set-face-attribute 'variable-pitch nil
+                                 ;; :family "Fira Sans"
+                                 :height (ht-get attr-map 'variable-pitch-height)
+                                 :weight (ht-get attr-map 'variable-pitch-weight))
+             (setq gb/setup-main-fonts-needs-execution nil))))
 
-   ;; (if after-init-time
-   ;;     (gb/setup-main-fonts)
-   ;;   (add-hook 'after-init-hook 'gb/setup-main-fonts))
+     (defun gb/reset-main-fonts ()
+       "reinitialize fonts e.g. if resolution changed etc."
+       (interactive)
+       (setq gb/setup-main-fonts-needs-execution t)
+       (gb/setup-main-fonts))
+
+     ;; (gb/setup-main-fonts)
+     (gb/do-after-display-system-init (gb/setup-main-fonts))
+     ;;(add-hook 'after-make-frame-functions #'gb/setup-main-fonts)
+     ;;(add-hook 'focus-in-hook #'gb/setup-main-fonts)
+     ;;(when (display-graphic-p)
+     ;;  (gb/setup-main-fonts))
+
+     ;; (if after-init-time
+     ;;     (gb/setup-main-fonts)
+     ;;   (add-hook 'after-init-hook 'gb/setup-main-fonts))
 
    #+END_SRC
    - install ligatures via fira code symbol (had to install [[https://github.com/tonsky/FiraCode/files/412440/FiraCode-Regular-Symbol.zip][fira code symbol]] for the following to work)
@@ -10286,568 +10300,596 @@
         switching via C-x C-b is not available. To switch back to line mode use s-r (which resets exwm for this application).
   - [[https://github.com/ch11ng/exwm/wiki/Configuration-example][example configuration]]
   #+BEGIN_SRC emacs-lisp
-  (when gb/use-exwm
-    (use-package xelb
-      :after (helm-external helm ace-window windmove)
-      :ensure t)
-    (use-package exwm
-      :after (xelb)
-      :bind (("<XF86MonBrightnessUp>" . gb/brightness-up)
-             ("<XF86MonBrightnessDown>" . gb/brightness-down)
-             ("<XF86AudioLowerVolume>" . gb/audio-lower-volume)
-             ("<XF86AudioRaiseVolume>" . gb/audio-raise-volume)
-             ("<XF86AudioMute>" . gb/audio-mute-volume)
-             ("<s-f6>" . gb/brightness-up)
-             ("<s-f5>" . gb/brightness-down)
-             ("<s-f2>" . gb/audio-lower-volume)
-             ("<s-f3>" . gb/audio-raise-volume)
-             ("<s-f1>" . gb/audio-mute-volume))
-      :init (progn
-              (defun gb/brightness-up ()
-                ""
-                (interactive)
-                (shell-command "xbacklight -inc 10")
-                (let ((brightness (s-trim (shell-command-to-string "xbacklight -get"))))
-                  (message (s-concat "brightness up, now: " brightness " %%"))))
-              (defun gb/brightness-down ()
-                ""
-                (interactive)
-                (shell-command "xbacklight -dec 10")
-                (let ((brightness (s-trim (shell-command-to-string "xbacklight -get"))))
-                  (message (s-concat "brightness down, now: " brightness " %%"))))
-              (defun gb/audio-lower-volume ()
-                ""
-                (interactive)
-                (shell-command "pactl set-sink-volume 0 -10%")
-                (message (s-concat "volume down, now " (gb/get-volume-lr-escaped))))
-              (defun gb/get-volume-lr-escaped ()
-                ""
-                (s-replace "%" "%%" (s-trim (shell-command-to-string  "pactl list sinks | grep -A 9 \"Sink #0\" | grep \"Volume:\" | awk '{ print $5 \" / \" $12 }'"))))
-              (defun gb/audio-raise-volume ()
-                ""
-                (interactive)
-                (shell-command "pactl set-sink-volume 0 +10%")
-                (message (s-concat "volume up, now " (gb/get-volume-lr-escaped))))
-              (defun gb/lock-screen ()
-                "lock screen"
-                (interactive)
-                (shell-command "xset s activate"))
-              (defun gb/screensaver-enable ()
-                "enable screen saver"
-                (interactive)
-                (shell-command "xset s default")
-                (shell-command "xset s on")
-                (shell-command "xset +dpms")
-                (message "enabled screensaver"))
-              (defun gb/screensaver-disable ()
-                "enable screen saver"
-                (interactive)
-                (shell-command "xset s noblank")
-                (shell-command "xset s off")
-                (shell-command "xset -dpms")
-                (message "disabled screensaver"))
-              (defun gb/audio-mute-volume ()
-                ""
-                (interactive)
-                (shell-command "pactl set-sink-mute 0 toggle")
-                (message (s-concat "now muted: " (s-trim (shell-command-to-string "pactl list sinks | grep -A 9 \"Sink #0\" | grep \"Mute:\" | awk '{ print $2 }'")))))
-              (defun gb/keyboard-switch-alt-win ()
-                ""
-                (interactive)
-                (shell-command "setxkbmap -option \"altwin:swap_alt_win\""))
-              (defun gb/hibernate-laptop ()
-                "put laptop into hibernation (complete off, store memory onto disc)"
-                (interactive)
-                (shell-command-to-string "xfce4-power-manager") ;; make sure the power manager is running
-                (shell-command-to-string "systemctl hibernate"))
-              (defun gb/suspend-laptop ()
-                "put laptop into suspension (soft off, still uses power to keep memory up to date)"
-                (interactive)
-                (shell-command-to-string "xfce4-power-manager") ;; make sure the power manager is running
-                (shell-command-to-string "systemctl suspend"))
-              (defun gb/reboot--immediately ()
-                "immediately execute reboot, without running hooks nor asking questions"
-                (shell-command "reboot"))
-              (defun gb/reboot ()
-                "reboot pc"
-                (interactive)
-                (when (yes-or-no-p "Reboot PC?")
-                  (progn
-                    (add-hook 'kill-emacs-hook #'gb/reboot--immediately t)
-                    (save-buffers-kill-emacs))))
-              (defun gb/shutdown--immediately ()
-                "immediately execute shutdown, without running hooks nor asking questions"
-                (shell-command "shutdown -h now"))
-              (defun gb/shutdown ()
-                "reboot pc"
-                (interactive)
-                (when (yes-or-no-p "Shutdown PC?")
-                  (progn
-                    (add-hook 'kill-emacs-hook #'gb/shutdown--immediately t)
-                    (save-buffers-kill-emacs))))
-              (defun gb/exwm-visualize-workspace-switch (newidx length display-width)
-                "visualize the switched to workspace by a foreground ascii art"
-                (interactive)
-                (let* (
-                       (spaces-before newidx)
-                       (spaces-after (- length newidx 1))
-                       (separator (s-concat "+" (s-join "" (-repeat display-width "-")) "+"))
-                       (empty-space (s-concat "|" (s-join "" (-repeat display-width " ")) "|"))
-                       (new-space (s-concat "|" (s-join "" (-repeat display-width "X")) "|"))
-                       (empty (s-concat separator "\n" empty-space))
-                       (filled (s-concat separator "\n" new-space))
-                       (display (s-join "\n" (append (-repeat spaces-before empty) `(,filled) (-repeat spaces-after empty) `(,separator)))))
-                  ;; (posframe-hide " *my-posframe-buffer*")
-                  ;; (posframe-show " *my-posframe-buffer*"
-                  ;;                :string display
-                  ;;                :poshandler 'posframe-poshandler-frame-center
-                  ;;                :timeout 2)
-                  ;; (posframe-show " *inpos-posframe-buffer"
-                  ;;                :string (s-concat "monitor workspace [" (number-to-string newidx) "]")
-                  ;;                :position (point)
-                  ;;                :timeout 1
-                  ;;                :background-color "dark orange"
-                  ;;                :foreground-color "black")
-                  ;; (start-process-shell-command " *play sound*" nil "mpg123 ~/Downloads/typewriter-line-break-1.mp3")
-                  ))
+    (when gb/use-exwm
+      (use-package xelb
+        :after (helm-external helm ace-window windmove)
+        :ensure t)
+      (use-package exwm
+        :after (xelb)
+        :bind (("<XF86MonBrightnessUp>" . gb/brightness-up)
+               ("<XF86MonBrightnessDown>" . gb/brightness-down)
+               ("<XF86AudioLowerVolume>" . gb/audio-lower-volume)
+               ("<XF86AudioRaiseVolume>" . gb/audio-raise-volume)
+               ("<XF86AudioMute>" . gb/audio-mute-volume)
+               ("<s-f6>" . gb/brightness-up)
+               ("<s-f5>" . gb/brightness-down)
+               ("<s-f2>" . gb/audio-lower-volume)
+               ("<s-f3>" . gb/audio-raise-volume)
+               ("<s-f1>" . gb/audio-mute-volume))
+        :init (progn
+                (defun gb/brightness-up ()
+                  ""
+                  (interactive)
+                  (shell-command "xbacklight -inc 10")
+                  (let ((brightness (s-trim (shell-command-to-string "xbacklight -get"))))
+                    (message (s-concat "brightness up, now: " brightness " %%"))))
+                (defun gb/brightness-down ()
+                  ""
+                  (interactive)
+                  (shell-command "xbacklight -dec 10")
+                  (let ((brightness (s-trim (shell-command-to-string "xbacklight -get"))))
+                    (message (s-concat "brightness down, now: " brightness " %%"))))
+                (defun gb/audio-lower-volume ()
+                  ""
+                  (interactive)
+                  (shell-command "pactl set-sink-volume 0 -10%")
+                  (message (s-concat "volume down, now " (gb/get-volume-lr-escaped))))
+                (defun gb/get-volume-lr-escaped ()
+                  ""
+                  (s-replace "%" "%%" (s-trim (shell-command-to-string  "pactl list sinks | grep -A 9 \"Sink #0\" | grep \"Volume:\" | awk '{ print $5 \" / \" $12 }'"))))
+                (defun gb/audio-raise-volume ()
+                  ""
+                  (interactive)
+                  (shell-command "pactl set-sink-volume 0 +10%")
+                  (message (s-concat "volume up, now " (gb/get-volume-lr-escaped))))
+                (defun gb/lock-screen ()
+                  "lock screen"
+                  (interactive)
+                  (shell-command "xset s activate"))
+                (defun gb/screensaver-enable ()
+                  "enable screen saver"
+                  (interactive)
+                  (shell-command "xset s default")
+                  (shell-command "xset s on")
+                  (shell-command "xset +dpms")
+                  (message "enabled screensaver"))
+                (defun gb/screensaver-disable ()
+                  "enable screen saver"
+                  (interactive)
+                  (shell-command "xset s noblank")
+                  (shell-command "xset s off")
+                  (shell-command "xset -dpms")
+                  (message "disabled screensaver"))
+                (defun gb/audio-mute-volume ()
+                  ""
+                  (interactive)
+                  (shell-command "pactl set-sink-mute 0 toggle")
+                  (message (s-concat "now muted: " (s-trim (shell-command-to-string "pactl list sinks | grep -A 9 \"Sink #0\" | grep \"Mute:\" | awk '{ print $2 }'")))))
+                (defun gb/keyboard-switch-alt-win ()
+                  ""
+                  (interactive)
+                  (shell-command "setxkbmap -option \"altwin:swap_alt_win\""))
+                (defun gb/hibernate-laptop ()
+                  "put laptop into hibernation (complete off, store memory onto disc)"
+                  (interactive)
+                  (shell-command-to-string "xfce4-power-manager") ;; make sure the power manager is running
+                  (shell-command-to-string "systemctl hibernate"))
+                (defun gb/suspend-laptop ()
+                  "put laptop into suspension (soft off, still uses power to keep memory up to date)"
+                  (interactive)
+                  (shell-command-to-string "xfce4-power-manager") ;; make sure the power manager is running
+                  (shell-command-to-string "systemctl suspend"))
+                (defun gb/reboot--immediately ()
+                  "immediately execute reboot, without running hooks nor asking questions"
+                  (shell-command "reboot"))
+                (defun gb/reboot ()
+                  "reboot pc"
+                  (interactive)
+                  (when (yes-or-no-p "Reboot PC?")
+                    (progn
+                      (add-hook 'kill-emacs-hook #'gb/reboot--immediately t)
+                      (save-buffers-kill-emacs))))
+                (defun gb/reset-direnv ()
+                  "restart direnv mode, restart tide server and bash-completion"
+                  (interactive)
+                  (direnv-mode nil)
+                  (direnv-mode 1)
+                  (if (get-buffer "*tide-server*")
+                      (tide-restart-server))
+                  (bash-completion-reset))
+                (defun gb/shutdown--immediately ()
+                  "immediately execute shutdown, without running hooks nor asking questions"
+                  (shell-command "shutdown -h now"))
+                (defun gb/shutdown ()
+                  "reboot pc"
+                  (interactive)
+                  (when (yes-or-no-p "Shutdown PC?")
+                    (progn
+                      (add-hook 'kill-emacs-hook #'gb/shutdown--immediately t)
+                      (save-buffers-kill-emacs))))
+                (defun gb/exwm-visualize-workspace-switch (newidx length display-width)
+                  "visualize the switched to workspace by a foreground ascii art"
+                  (interactive)
+                  (let* (
+                         (spaces-before newidx)
+                         (spaces-after (- length newidx 1))
+                         (separator (s-concat "+" (s-join "" (-repeat display-width "-")) "+"))
+                         (empty-space (s-concat "|" (s-join "" (-repeat display-width " ")) "|"))
+                         (new-space (s-concat "|" (s-join "" (-repeat display-width "X")) "|"))
+                         (empty (s-concat separator "\n" empty-space))
+                         (filled (s-concat separator "\n" new-space))
+                         (display (s-join "\n" (append (-repeat spaces-before empty) `(,filled) (-repeat spaces-after empty) `(,separator)))))
+                    ;; (posframe-hide " *my-posframe-buffer*")
+                    ;; (posframe-show " *my-posframe-buffer*"
+                    ;;                :string display
+                    ;;                :poshandler 'posframe-poshandler-frame-center
+                    ;;                :timeout 2)
+                    ;; (posframe-show " *inpos-posframe-buffer"
+                    ;;                :string (s-concat "monitor workspace [" (number-to-string newidx) "]")
+                    ;;                :position (point)
+                    ;;                :timeout 1
+                    ;;                :background-color "dark orange"
+                    ;;                :foreground-color "black")
+                    ;; (start-process-shell-command " *play sound*" nil "mpg123 ~/Downloads/typewriter-line-break-1.mp3")
+                    ))
 
-              (defvar gb/exwm--previous-workspace 1 "workspace index before going left")
-              (defun gb/exwm-workspace-left ()
-                "jump to workspace left of the current one (multi monitor)"
-                ;; if on multimonitor, check if there is one left of this
-                (interactive)
-                (let* ((workspaceIdx (exwm-workspace--position exwm-workspace--current))
-                       (monitor (nth (+ 1 (* 2 workspaceIdx)) exwm-randr-workspace-monitor-plist)))
-                  (if (or (s-equals? (gb/get-primary-monitor) monitor)
-                         (string-empty-p (gb/get-second-monitor)))
-                      (progn (message "no workspace left of this.") nil)
-                    (setq gb/exwm--previous-workspace workspaceIdx)
-                    (exwm-workspace-switch 0)
-                    (doom-modeline-set-selected-window)
-                    t)))
-              (defun gb/exwm-workspace-right ()
-                "jump to workspace right of the current one (multi monitor)"
-                ;; if on multimonitor, check if there is one left of this
-                (interactive)
-                (let* ((workspaceIdx (exwm-workspace--position exwm-workspace--current))
-                       (monitor (nth (+ 1 (* 2 workspaceIdx)) exwm-randr-workspace-monitor-plist)))
-                  (if (and (s-equals? (gb/get-primary-monitor) monitor)
+                (defvar gb/exwm--previous-workspace 1 "workspace index before going left")
+                (defun gb/exwm-workspace-left ()
+                  "jump to workspace left of the current one (multi monitor)"
+                  ;; if on multimonitor, check if there is one left of this
+                  (interactive)
+                  (let* ((workspaceIdx (exwm-workspace--position exwm-workspace--current))
+                         (monitor (nth (+ 1 (* 2 workspaceIdx)) exwm-randr-workspace-monitor-plist)))
+                    (if (or (s-equals? (gb/get-primary-monitor) monitor)
+                            (string-empty-p (gb/get-second-monitor)))
+                        (progn (message "no workspace left of this.") nil)
+                      (setq gb/exwm--previous-workspace workspaceIdx)
+                      (exwm-workspace-switch 0)
+                      (doom-modeline-set-selected-window)
+                      t)))
+                (defun gb/exwm-workspace-right ()
+                  "jump to workspace right of the current one (multi monitor)"
+                  ;; if on multimonitor, check if there is one left of this
+                  (interactive)
+                  (let* ((workspaceIdx (exwm-workspace--position exwm-workspace--current))
+                         (monitor (nth (+ 1 (* 2 workspaceIdx)) exwm-randr-workspace-monitor-plist)))
+                    (if (and (s-equals? (gb/get-primary-monitor) monitor)
                              (not (string-empty-p (gb/get-second-monitor))))
-                      (progn (exwm-workspace-switch gb/exwm--previous-workspace) t)
-                    (message "no workspace right of this.")
-                    nil)))
-              (defun gb/exwm-workspace-down ()
-                "jump to workspace down of the current one (multi monitor)"
-                (interactive)
-                (let* ((workspaceIdx (exwm-workspace--position exwm-workspace--current))
-                       (monitor (nth (+ 1 (* 2 workspaceIdx)) exwm-randr-workspace-monitor-plist))
-                       (lastIndex (- (length exwm-workspace--list) 1))
-                       (single-mon-p (string-empty-p (gb/get-second-monitor))))
-                  (if (or (and (s-equals? (gb/get-second-monitor) monitor)
+                        (progn (exwm-workspace-switch gb/exwm--previous-workspace) t)
+                      (message "no workspace right of this.")
+                      nil)))
+                (defun gb/exwm-workspace-down ()
+                  "jump to workspace down of the current one (multi monitor)"
+                  (interactive)
+                  (let* ((workspaceIdx (exwm-workspace--position exwm-workspace--current))
+                         (monitor (nth (+ 1 (* 2 workspaceIdx)) exwm-randr-workspace-monitor-plist))
+                         (lastIndex (- (length exwm-workspace--list) 1))
+                         (single-mon-p (string-empty-p (gb/get-second-monitor))))
+                    (if (or (and (s-equals? (gb/get-second-monitor) monitor)
                                  (< workspaceIdx lastIndex))
                             (and single-mon-p
                                  (< workspaceIdx lastIndex)))
-                      (progn (exwm-workspace-switch (+ 1 workspaceIdx))
-                             (gb/exwm-visualize-workspace-switch (+ workspaceIdx (if single-mon-p 1 0)) (- (length exwm-workspace--list) (if single-mon-p 0 1)) 10)
-                             (doom-modeline-set-selected-window))
-                    (message "no workspace below this."))))
-              (defun gb/exwm-workspace-up ()
-                "jump to workspace up of the current one (multi monitor)"
-                (interactive)
-                (let* ((workspaceIdx (exwm-workspace--position exwm-workspace--current))
-                       (monitor (nth (+ 1 (* 2 workspaceIdx)) exwm-randr-workspace-monitor-plist))
-                       (single-mon-p (string-empty-p (gb/get-second-monitor))))
-                  (if (or (and (s-equals? (gb/get-second-monitor) monitor)
+                        (progn (exwm-workspace-switch (+ 1 workspaceIdx))
+                               (gb/exwm-visualize-workspace-switch (+ workspaceIdx (if single-mon-p 1 0)) (- (length exwm-workspace--list) (if single-mon-p 0 1)) 10)
+                               (doom-modeline-set-selected-window))
+                      (message "no workspace below this."))))
+                (defun gb/exwm-workspace-up ()
+                  "jump to workspace up of the current one (multi monitor)"
+                  (interactive)
+                  (let* ((workspaceIdx (exwm-workspace--position exwm-workspace--current))
+                         (monitor (nth (+ 1 (* 2 workspaceIdx)) exwm-randr-workspace-monitor-plist))
+                         (single-mon-p (string-empty-p (gb/get-second-monitor))))
+                    (if (or (and (s-equals? (gb/get-second-monitor) monitor)
                                  (> workspaceIdx 1))
                             (and single-mon-p
                                  (> workspaceIdx 0)))
-                      (progn (exwm-workspace-switch (- workspaceIdx 1))
-                             (gb/exwm-visualize-workspace-switch (- workspaceIdx (if single-mon-p 1 2)) (- (length exwm-workspace--list) (if single-mon-p 0 1)) 10)
-                             (doom-modeline-set-selected-window))
-                    (message "no workspace above this"))))
-              (defun gb/exwm-next-workspace (&optional inc)
-                "jump to the next (inc) workspace"
-                (interactive)
-                (let* ((inc (or inc 1))
-                       (index (+ exwm-workspace-current-index inc))
-                       (len (length exwm-workspace--list)))
-                  (exwm-workspace-switch (cond
-                                          ((< index 0) (+ index len))
-                                          ((< index len) index)
-                                          (t (- index len))))))
-              (defun gb/exwm-previous-workspace (&optional inc)
-                "jump to the previous (inc) workspace"
-                (interactive)
-                (gb/exwm-next-workspace (- (or inc 1)))))
+                        (progn (exwm-workspace-switch (- workspaceIdx 1))
+                               (gb/exwm-visualize-workspace-switch (- workspaceIdx (if single-mon-p 1 2)) (- (length exwm-workspace--list) (if single-mon-p 0 1)) 10)
+                               (doom-modeline-set-selected-window))
+                      (message "no workspace above this"))))
+                (defun gb/exwm-next-workspace (&optional inc)
+                  "jump to the next (inc) workspace"
+                  (interactive)
+                  (let* ((inc (or inc 1))
+                         (index (+ exwm-workspace-current-index inc))
+                         (len (length exwm-workspace--list)))
+                    (exwm-workspace-switch (cond
+                                            ((< index 0) (+ index len))
+                                            ((< index len) index)
+                                            (t (- index len))))))
+                (defun gb/exwm-previous-workspace (&optional inc)
+                  "jump to the previous (inc) workspace"
+                  (interactive)
+                  (gb/exwm-next-workspace (- (or inc 1)))))
 
-      :ensure t)
-  (use-package exwm-mff
-    :load-path "/home/pe/.emacs.d/additionals/exwm-mff"
-    :config
-    (defun gb/mouse-pointer-to-cursor ()
-      (interactive)
-      (if exwm-class-name
-          (exwm-mff-warp-to-selected-window)
-        (let ((position (window-absolute-pixel-position)))
-          (set-mouse-absolute-pixel-position
-           (car position) (cdr position)))))
-    :after exwm-config)
-    (use-package exwm-config
-      :after ( exwm )
-      :config
-      (exwm-config-default)
-
-      ;; (if (shell-command-to-string "ps -A | grep VBoxClient")
-      ;;     (message "OK: VBoxClient seems to be running, thus clipboard sharing is probably active")
-      ;;   (message "ERROR: VBoxClient is not running! Clipboard sharing is not available"))
-
-      (defun gb/start-if-not-running (filename)
-        "start this program if not already running"
-        (let* ((program (file-name-base filename))
-               (is-executable (file-executable-p filename))
-               (is-running (not (string-empty-p (shell-command-to-string (concat "ps -A | grep " program))))))
-          (cond ((and is-executable is-running) (message (format "OK: %s already running." program)))
-                (is-executable (progn (message (format "OK: starting %s." program))
-                                      (start-process-shell-command filename nil)))
-                (t (message (format "WARNING: program %s could not be run." filename))))
-          ))
-
-      (defun gb/get-second-monitor ()
-        "get the second monitor if connected"
-        (s-trim (shell-command-to-string "xrandr | grep -v disconnected | grep connected | grep -v primary | awk '{ print $1 }'")))
-
-      (defun gb/get-primary-monitor ()
-        "get the second monitor if connected"
-        (s-trim (shell-command-to-string "xrandr | grep -v disconnected | grep connected | grep primary | awk '{ print $1 }'")))
-
-      (defun gb/refresh-exwm-monitor-setup ()
-        "refresh current multi monitor setup for exwm"
-        (interactive)
-        (let ((dual-monitor (string= "2" (s-trim (shell-command-to-string "xrandr -q | grep ' connected ' | wc -l"))))
-              (primary-monitor (gb/get-primary-monitor)))
-          (message "exwm change hook")
-          (message (s-trim (shell-command-to-string "xrandr --listmonitors | grep \"Monitors\" | awk '{ print $2; }'")))
-          (if dual-monitor
-              (let* ((second-monitor (gb/get-second-monitor)))
-                (message "dual-monitor setup")
-                (message primary-monitor)
-                (message second-monitor)
-                (if (string-empty-p second-monitor)
-                    (setq exwm-randr-workspace-monitor-plist (-interleave (number-sequence 0 (-  (exwm-workspace--count) 1)) (-repeat (exwm-workspace--count) primary-monitor)))
-                  (progn
-                    (message "dual monitor")
-                    (setq  exwm-randr-workspace-monitor-plist (append `(0 ,primary-monitor) (-interleave (number-sequence 1 (-  (exwm-workspace--count) 1)) (-repeat (- (exwm-workspace--count) 1) second-monitor)))) ;; 0 "DP-2"
-                    (shell-command (s-concat "xrandr --output " primary-monitor " --left-of "  second-monitor " --auto"))
-                    (if (s-equals? second-monitor "DP-0")
-                        (let* ((xrandrmode (s-trim (shell-command-to-string (s-concat "xrandr -q | grep " second-monitor " -A 1 | tail -n 1 | awk '{ print $1; }'")))))
-                          (message xrandrmode)
-                          (shell-command (s-concat "xrandr --output " second-monitor " --mode " xrandrmode))))
-                    (exwm-randr-refresh))))
-            (progn
-              (message "single monitor")
-              (setq exwm-randr-workspace-monitor-plist (-interleave (number-sequence 0 (-  (exwm-workspace--count) 1)) (-repeat (exwm-workspace--count) primary-monitor)))
-              (exwm-randr-refresh)))))
-
-      ;; make sure multi monitor support is active
-      (progn
-        (message "Starting multimonitor support for exwm.")
-        (require 'exwm-randr)
-        (add-hook 'exwm-randr-screen-change-hook #'gb/refresh-exwm-monitor-setup)
-        (exwm-randr-enable))
-
-      ;; The following example demonstrates how to set a key binding only available
-      ;; in line mode. It's simply done by first push the prefix key to
-      ;; `exwm-input-prefix-keys' and then add the key sequence to `exwm-mode-map'.
-      ;; The example shorten 'C-c q' to 'C-q'.
-      (push ?\C-q exwm-input-prefix-keys)
-      (push ?\M-\s exwm-input-prefix-keys)
-      (general-define-key
-       :keymaps 'override
-       :prefix "M-SPC"
-       "s" 'helm-swoop
-       "SPC" 'avy-goto-char-timer)
-      (define-key exwm-mode-map [?\C-q] #'exwm-input-send-next-key)
-
-      ;; changes via exwm-input-set-key become active after restart of exwm only!
-      (exwm-input-set-key (kbd "<XF86MonBrightnessUp>") #'gb/brightness-up)
-      (exwm-input-set-key (kbd "<XF86MonBrightnessDown>") #'gb/brightness-down)
-      (exwm-input-set-key (kbd "<XF86AudioLowerVolume>") #'gb/audio-lower-volume)
-      (exwm-input-set-key (kbd "<XF86AudioRaiseVolume>") #'gb/audio-raise-volume)
-      (exwm-input-set-key (kbd "<XF86AudioMute>") #'gb/audio-mute-volume)
-      (exwm-input-set-key (kbd "<s-f6>") #'gb/brightness-up)
-      (exwm-input-set-key (kbd "<s-f5>") #'gb/brightness-down)
-      (exwm-input-set-key (kbd "<s-f2>") #'gb/audio-lower-volume)
-      (exwm-input-set-key (kbd "<s-f3>") #'gb/audio-raise-volume)
-      (exwm-input-set-key (kbd "<s-f1>") #'gb/audio-mute-volume)
-      (exwm-input-set-key (kbd "<s-f12>") #'exwm-floating-toggle-floating)
-      (exwm-input-set-key (kbd "s-l") #'gb/lock-screen)
-      (exwm-input-set-key (kbd "s-'") #'gb/exwm-workspace-up)
-      (exwm-input-set-key (kbd "s-/") #'gb/exwm-workspace-down)
-      (exwm-input-set-key (kbd "s-e") #'buffer-expose)
-
-      ;; globally set keys that will not be routed to the respective xwindow (some keys set by exwm-input-set-key are swallowed by x-applications)
-      (setq exwm-input-global-keys
-            `(([?\s-r] . exwm-reset)
-              ([?\s-w] . exwm-workspace-switch)
-              (,(kbd "<s-tab>") . nswbuff-switch-to-next-buffer)
-              (,(kbd "<s-iso-lefttab>") . nswbuff-switch-to-previous-buffer)))
-
-      (defun gb/wrap-in-exwm-reset (interactive-function)
-        "run exwm reset right before calling the given function"
-        (interactive)
-        (when (and exwm-class-name
-                   (or (string= exwm-class-name "X64")
-                       (string= (downcase exwm-class-name) "eclipse")
-                       (string= (downcase exwm-class-name) "dosbox")
-                       (string= (downcase exwm-class-name) "jetbrains-idea-ce")))
-          (exwm-reset))
-        (funcall interactive-function))
-
-
-      (defun gb/windmove-left ()
-        ""
-        (if (windmove-find-other-window 'left)
-            (windmove-left)
-          (if (gb/exwm-workspace-left)
-              (while (windmove-find-other-window 'right)
-                (windmove-right)))))
-
-      (defun gb/windmove-right ()
-        ""
-        (if (windmove-find-other-window 'right)
-            (windmove-right)
-          (if (gb/exwm-workspace-right)
-              (while (windmove-find-other-window 'left)
-                (windmove-left)))))
-
-      ;; switch buffers
-      (exwm-input-set-key (kbd "s-b") (lambda () (interactive) (gb/wrap-in-exwm-reset #'helm-mini)))
-      ;; (exwm-input-set-key (kbd "s-b") #'helm-mini)
-      ;; open files
-      (exwm-input-set-key (kbd "s-f") (lambda () (interactive) (gb/wrap-in-exwm-reset #'helm-for-files)))
-      ;; (exwm-input-set-key (kbd "s-f") #'helm-for-files)
-      ;; select window via ace
-      (exwm-input-set-key (kbd "s-o") (lambda () (interactive) (gb/wrap-in-exwm-reset #'ace-select-window)))
-      ;; (exwm-input-set-key (kbd "s-o") #'ace-select-window)
-      ;; helm-M-x
-      (exwm-input-set-key (kbd "s-SPC") #'helm-M-x) ;; may have problems jumping off from eclipse
-
-      (exwm-input-set-key (kbd "s-<left>") (lambda () (interactive) (gb/wrap-in-exwm-reset #'gb/windmove-left)))
-      (exwm-input-set-key (kbd "s-<right>") (lambda () (interactive) (gb/wrap-in-exwm-reset #'gb/windmove-right)))
-      (exwm-input-set-key (kbd "s-<up>") (lambda () (interactive) (gb/wrap-in-exwm-reset #'windmove-up)))
-      (exwm-input-set-key (kbd "s-<down>") (lambda () (interactive) (gb/wrap-in-exwm-reset #'windmove-down)))
-
-      (exwm-input-set-key (kbd "H-c") #'gb/mouse-pointer-to-cursor)
-
-      (defun gb/remove-upper-window ()
-        ""
-        (interactive)
-        (if-let (upper-window (windmove-find-other-window 'up))
-            (delete-window upper-window)))
-
-      (defun gb/remove-lower-window ()
-        ""
-        (interactive)
-        (if-let (lower-window (windmove-find-other-window 'down))
-            (delete-window lower-window)))
-
-      (exwm-input-set-key (kbd "s-S-<up>") (lambda () (interactive) (gb/wrap-in-exwm-reset #'gb/remove-upper-window)))
-      (exwm-input-set-key (kbd "s-S-<down>") (lambda () (interactive) (gb/wrap-in-exwm-reset #'gb/remove-lower-window)))
-
-      (defun gb/remove-left-window ()
-        ""
-        (interactive)
-        (if-let (left-window (windmove-find-other-window 'left))
-            (delete-window left-window)))
-
-      (defun gb/remove-right-window ()
-        ""
-        (interactive)
-        (if-let (right-window (windmove-find-other-window 'right))
-            (delete-window right-window)))
-
-      (exwm-input-set-key (kbd "s-S-<left>") (lambda () (interactive) (gb/wrap-in-exwm-reset #'gb/remove-left-window)))
-      (exwm-input-set-key (kbd "s-S-<right>") (lambda () (interactive) (gb/wrap-in-exwm-reset #'gb/remove-right-window)))
-
-      (defun gb/exwm-distinct-exwm-buffer-names ()
-        "list of distinct running exwm buffers/programs"
-        (-distinct
-         (map-values-apply
-          (lambda (name)
-            (->> name
-                 (buffer-name)
-                 (replace-regexp-in-string "<[0-9]*>$" "")
-                 (downcase)))
-          exwm--id-buffer-alist)))
-
-      (require 'helm-external)
-
-      (defun gb/exwm--switch-or-run (program &optional alias)
-        "switch to this program if already open or start it"
-        ;; (exwm-reset)
-        (let* ((browser-alias (s-concat program "-browser"))
-               (stable-removed (s-replace "-stable" "" program)))
-          (if (-contains? (gb/exwm-distinct-exwm-buffer-names) program)
-              (exwm-workspace-switch-to-buffer (s-capitalize program))
-            (if (-contains? (gb/exwm-distinct-exwm-buffer-names) browser-alias)
-                (exwm-workspace-switch-to-buffer (s-capitalize browser-alias))
-              ;; (exwm-reset) ;; make sure that keyboard is no longer captured
-              (if (-contains? (gb/exwm-distinct-exwm-buffer-names) stable-removed)
-                  (exwm-workspace-switch-to-buffer (s-capitalize stable-removed))
-                (helm-run-external-command program))))))
-
-      (defun gb/exwm-program-select (program)
-        "select a native (unix) program to execute, select the buffer named as
-         the program instead, if such a buffer exists"
-        (interactive (list
-                      (helm-comp-read
-                       "RunProgram: "
-                       (helm-external-commands-list-1 'sort)
-                       :must-match t
-                       :del-input nil
-                       :name "External Commands"
-                       :history helm-external-command-history)))
-        (gb/exwm--switch-or-run program)
+        :ensure t)
+      (use-package exwm-mff
+        :load-path "/home/pe/.emacs.d/additionals/exwm-mff"
+        :config
+        (defun gb/mouse-pointer-to-cursor ()
+          (interactive)
+          (if exwm-class-name
+              (exwm-mff-warp-to-selected-window)
+            (let ((position (window-absolute-pixel-position)))
+              (set-mouse-absolute-pixel-position
+               (car position) (cdr position)))))
+        :after exwm-config
         )
+      (use-package exwm-config
+        :after ( exwm )
+        :config
+        (exwm-config-default)
 
-      ;; start programs
-      (exwm-input-set-key (kbd "s-1") #'gb/exwm-program-select) ;; do not wrap, since it already resets exwm
+        ;; (if (shell-command-to-string "ps -A | grep VBoxClient")
+        ;;     (message "OK: VBoxClient seems to be running, thus clipboard sharing is probably active")
+        ;;   (message "ERROR: VBoxClient is not running! Clipboard sharing is not available"))
 
-      (setq gb/simulation-keys `(
-                                 ;; see http://ergoemacs.org/emacs/keystroke_rep.html for syntax of key definition
-                                 ;; movement
-                                 ;; read-key-sequence-vector can be used to get key-sequences as used as first element
-                                 (,(kbd "C-b") . left)
-                                 (,(kbd "M-b") . C-left)
-                                 (,(kbd "C-f") . right)
-                                 (,(kbd "M-f") . C-right)
-                                 (,(kbd "C-p") . up)
-                                 (,(kbd "C-n") . down)
-                                 (,(kbd "C-a") . home)
-                                 (,(kbd "C-e") . end)
-                                 (,(kbd "M-v") . prior)
-                                 (,(kbd "C-v") . next)
-                                 (,(kbd "C-d") . delete)
-                                 (,(kbd "M-d") . (S-C-right delete))
-                                 (,(kbd "<M-backspace>") . (S-C-left delete))
-                                 (,(kbd "C-k") . (S-end delete))
-                                 (,(kbd "M->") . (C-end))
-                                 (,(kbd "M-<") . (C-home))
-                                 ;; cut/paste.
-                                 (,(kbd "C-w") . ?\C-x)
-                                 (,(kbd "M-w") . ?\C-c)
-                                 (,(kbd "C-y") . ?\C-v)
-                                 ;; marking
-                                 (,(kbd "C-x h") . ?\C-a) ;; will work in emacs 27 first time [?\C-x ?h]
-                                 ;; other
-                                 (,(kbd "C-g") . escape)
-                                 ;; search
-                                 (,(kbd "C-s") . ?\C-f)))
-      (setq exwm-input-simulation-keys gb/simulation-keys)
+        (defun gb/start-if-not-running (filename)
+          "start this program if not already running"
+          (let* ((program (file-name-base filename))
+                 (is-executable (file-executable-p filename))
+                 (is-running (not (string-empty-p (shell-command-to-string (concat "ps -A | grep " program))))))
+            (cond ((and is-executable is-running) (message (format "OK: %s already running." program)))
+                  (is-executable (progn (message (format "OK: starting %s." program))
+                                        (start-process-shell-command filename nil)))
+                  (t (message (format "WARNING: program %s could not be run." filename))))
+            ))
 
-      ;; You can hide the mode-line of floating X windows by uncommenting the
-      ;; following lines
-      (add-hook 'exwm-floating-setup-hook #'exwm-layout-hide-mode-line)
-      (add-hook 'exwm-floating-exit-hook #'exwm-layout-show-mode-line)
+        (defun gb/get-second-monitor ()
+          "get the second monitor if connected"
+          (s-trim (shell-command-to-string "xrandr | grep -v disconnected | grep connected | grep -v primary | awk '{ print $1 }'")))
 
-      ;; You can hide the minibuffer and echo area when they're not used, by
-      ;; uncommenting the following line
-      ;; (setq exwm-workspace-minibuffer-position 'bottom)
+        (defun gb/get-primary-monitor ()
+          "get the second monitor if connected"
+          (s-trim (shell-command-to-string "xrandr | grep -v disconnected | grep connected | grep primary | awk '{ print $1 }'")))
 
-      ;; show all exwm buffers in all workspaces (no restriction)
-      (setq exwm-workspace-show-all-buffers t)
-      ;; automatic moving of x window from inactive workspace by switching buffer
-      (setq exwm-layout-show-all-buffers t)
+        (setq gb/presentation-mode nil)
 
-      ;; enable system tray which is displayed in the message area all the way to the right
-      (require 'exwm-systemtray)
-      (exwm-systemtray-enable)
+        (defun gb/switch-to-presentation-monitor-setup ()
+          ""
+          (interactive)
+          ;; (setq gb/setup-main-fonts-needs-execution t)
+          ;; (gb/setup-main-fonts) ;; restarts monitor setup
+          (setq gb/presentation-mode (not gb/presentation-mode))
+          (gb/refresh-exwm-monitor-setup)
+          (gb/reset-main-fonts))
 
-      ;; somehow the switch of workspace fails if some graphic program (like eclipse or chromium) is running
-      ;; this does not fix the problem, though
+        (defun gb/refresh-exwm-monitor-setup ()
+          "refresh current multi monitor setup for exwm"
+          (interactive)
+          (let ((dual-monitor (string= "2" (s-trim (shell-command-to-string "xrandr -q | grep ' connected ' | wc -l"))))
+                (primary-monitor (gb/get-primary-monitor)))
+            (message "exwm change hook")
+            (message (s-trim (shell-command-to-string "xrandr --listmonitors | grep \"Monitors\" | awk '{ print $2; }'")))
+            (if dual-monitor
+                (let* ((second-monitor (gb/get-second-monitor)))
+                  (message "dual-monitor setup")
+                  (message primary-monitor)
+                  (message second-monitor)
+                  (if (string-empty-p second-monitor)
+                      (setq exwm-randr-workspace-monitor-plist (-interleave (number-sequence 0 (-  (exwm-workspace--count) 1)) (-repeat (exwm-workspace--count) primary-monitor)))
+                    (if gb/presentation-mode
+                        (progn
+                          (message "dual monitor presentation mode")
+                          (setq  exwm-randr-workspace-monitor-plist (append `(0 ,primary-monitor) (-interleave (number-sequence 1 (-  (exwm-workspace--count) 1)) (-repeat (- (exwm-workspace--count) 1) primary-monitor))))
+                          (shell-command (s-concat "xrandr --output " second-monitor " --same-as "  primary-monitor " --mode 1920x1080"))
+                          ;; (shell-command (s-concat "xrandr --output " second-monitor " --mode 1920x1080"))
+                          (exwm-randr-refresh))
+                      (progn
+                        (message "dual monitor")
+                        (setq  exwm-randr-workspace-monitor-plist (append `(0 ,primary-monitor) (-interleave (number-sequence 1 (-  (exwm-workspace--count) 1)) (-repeat (- (exwm-workspace--count) 1) second-monitor)))) ;; 0 "DP-2"
+                        (shell-command (s-concat "xrandr --output " primary-monitor " --left-of "  second-monitor " --auto"))
+                        (if (s-equals? second-monitor "DP-0")
+                            (let* ((xrandrmode (s-trim (shell-command-to-string (s-concat "xrandr -q | grep " second-monitor " -A 1 | tail -n 1 | awk '{ print $1; }'")))))
+                              (message xrandrmode)
+                              (shell-command (s-concat "xrandr --output " second-monitor " --mode " xrandrmode))))
+                        (exwm-randr-refresh)))))
+              (progn
+                (message "single monitor")
+                (setq exwm-randr-workspace-monitor-plist (-interleave (number-sequence 0 (-  (exwm-workspace--count) 1)) (-repeat (exwm-workspace--count) primary-monitor)))
+                (exwm-randr-refresh)))))
 
-      (defun gb/exwm-release-keyboard ()
-        (interactive)
-        (message "resetting exwm keyboard binding.")
-        (exwm-input-release-keyboard)
-        (exwm-input-set-local-simulation-keys nil))
-
-      (exwm-input-set-key (kbd "H-r") #'gb/exwm-release-keyboard)
-
-      (defun gb/exwm-grab-keyboard ()
-        (interactive)
-        (message "grab exwm keyboard binding.")
-        (exwm-input-grab-keyboard))
-
-      (exwm-input-set-key (kbd "H-g") #'gb/exwm-grab-keyboard)
-
-      (defun gb/exwm-after-switch ()
-        "do some adjustments due to exwm switches with char/line mode"
+        ;; make sure multi monitor support is active
         (progn
-          (if (and exwm-class-name (functionp 'helm-posframe-disable))
-              (helm-posframe-disable))
+          (message "Starting multimonitor support for exwm.")
+          (require 'exwm-randr)
+          (add-hook 'exwm-randr-screen-change-hook #'gb/refresh-exwm-monitor-setup)
+          (exwm-randr-enable))
+
+        ;; The following example demonstrates how to set a key binding only available
+        ;; in line mode. It's simply done by first push the prefix key to
+        ;; `exwm-input-prefix-keys' and then add the key sequence to `exwm-mode-map'.
+        ;; The example shorten 'C-c q' to 'C-q'.
+        (push ?\C-q exwm-input-prefix-keys)
+        (push ?\M-\s exwm-input-prefix-keys)
+        (general-define-key
+         :keymaps 'override
+         :prefix "M-SPC"
+         "s" 'helm-swoop
+         "SPC" 'avy-goto-char-timer)
+        (define-key exwm-mode-map [?\C-q] #'exwm-input-send-next-key)
+
+        ;; changes via exwm-input-set-key become active after restart of exwm only!
+        (exwm-input-set-key (kbd "<XF86MonBrightnessUp>") #'gb/brightness-up)
+        (exwm-input-set-key (kbd "<XF86MonBrightnessDown>") #'gb/brightness-down)
+        (exwm-input-set-key (kbd "<XF86AudioLowerVolume>") #'gb/audio-lower-volume)
+        (exwm-input-set-key (kbd "<XF86AudioRaiseVolume>") #'gb/audio-raise-volume)
+        (exwm-input-set-key (kbd "<XF86AudioMute>") #'gb/audio-mute-volume)
+        (exwm-input-set-key (kbd "<s-f6>") #'gb/brightness-up)
+        (exwm-input-set-key (kbd "<s-f5>") #'gb/brightness-down)
+        (exwm-input-set-key (kbd "<s-f2>") #'gb/audio-lower-volume)
+        (exwm-input-set-key (kbd "<s-f3>") #'gb/audio-raise-volume)
+        (exwm-input-set-key (kbd "<s-f1>") #'gb/audio-mute-volume)
+        (exwm-input-set-key (kbd "<s-f12>") #'exwm-floating-toggle-floating)
+        (exwm-input-set-key (kbd "s-l") #'gb/lock-screen)
+        (exwm-input-set-key (kbd "s-'") #'gb/exwm-workspace-up)
+        (exwm-input-set-key (kbd "s-/") #'gb/exwm-workspace-down)
+        (exwm-input-set-key (kbd "s-e") #'buffer-expose)
+
+        ;; globally set keys that will not be routed to the respective xwindow (some keys set by exwm-input-set-key are swallowed by x-applications)
+        (setq exwm-input-global-keys
+              `(([?\s-r] . exwm-reset)
+                ([?\s-w] . exwm-workspace-switch)
+                (,(kbd "<s-tab>") . nswbuff-switch-to-next-buffer)
+                (,(kbd "<s-iso-lefttab>") . nswbuff-switch-to-previous-buffer)))
+
+        (defun gb/wrap-in-exwm-reset (interactive-function)
+          "run exwm reset right before calling the given function"
+          (interactive)
           (when (and exwm-class-name
                      (or (string= exwm-class-name "X64")
                          (string= (downcase exwm-class-name) "eclipse")
-                         (string= exwm-class-name "qutebrowser")
-                         (string= exwm-class-name "dosbox")
+                         (string= (downcase exwm-class-name) "dosbox")
                          (string= (downcase exwm-class-name) "jetbrains-idea-ce")))
-            (progn
-              ;; (setq-local exwm-input-prefix-keys '(?\C-l))
-              (message "native keyboard exwm settings applied.")
-              (exwm-input-release-keyboard (exwm--buffer->id (window-buffer)))
-              (exwm-input-set-local-simulation-keys nil)))
-          (when (and exwm-class-name
-                     (or (string= (downcase exwm-class-name) "google-chrome")
-                         (string= (downcase exwm-class-name) "firefox")
-                         (string= (downcase exwm-class-name) "chromium-browser")))
-            (progn
-              (message "local-sim-keys set for browser")
-              (let ((sim-keys (append gb/simulation-keys
-                                      `((,(kbd "C-S-s") . C-k)                   ;; search with search engine (C-S-s)
-                                        (,(kbd "C-M-s") . f6)                    ;; jump into adresse bar (C-M-s)
-                                        (,(kbd "<C-left>") . C-S-tab)              ;; switch to previous tab
-                                        (,(kbd "<C-right>") . C-tab)               ;; switch to next tab
-                                        ))))
-                (exwm-input-set-local-simulation-keys sim-keys))))
-          (when (not exwm-class-name)
-            (message "no exwm keyboard modification applied."))))
+            (exwm-reset))
+          (funcall interactive-function))
 
-      (add-hook 'helm-after-action-hook #'gb/exwm-after-switch)
-      (add-hook 'helm-quit-hook #'gb/exwm-after-switch)
 
-      ;; start pasystray from within emacs, starting it within xinitrc does not work
-      (add-hook 'exwm-init-hook
-                (lambda ()
-                  (gb/start-if-not-running (s-trim (shell-command-to-string "command -v pasystray")))
-                  ;; (start-process "yabar" nil  "/usr/bin/yabar") ;; see here: https://github.com/geommer/yabar
-                  (ido-mode nil)
-                  (set-fringe-mode 10)
-                  (toggle-truncate-lines 1)
-                  (gb/disable-ligatures)
-                  ;; (exwm-mff-mode)
-                  (setq global-mode-string '("" appt-mode-string display-time-string emms-mode-line-string emms-playing-time-string " " fancy-battery-mode-line " "
-                                             (:eval (elt exwm-workspace--switch-history (exwm-workspace--position exwm-workspace--current)))))
-                  ))
+        (defun gb/windmove-left ()
+          ""
+          (if (windmove-find-other-window 'left)
+              (windmove-left)
+            (if (gb/exwm-workspace-left)
+                (while (windmove-find-other-window 'right)
+                  (windmove-right)))))
 
-      ;; ensure that eclipse switches to char line mode
-      ;; and does not use simulation keys, since i have emacs binding enabled in eclipse
-      (add-hook 'exwm-manage-finish-hook #'gb/exwm-after-switch)
+        (defun gb/windmove-right ()
+          ""
+          (if (windmove-find-other-window 'right)
+              (windmove-right)
+            (if (gb/exwm-workspace-right)
+                (while (windmove-find-other-window 'left)
+                  (windmove-left)))))
 
-      (defadvice switch-to-buffer (after switch-to-buffer-check-exwm-buffer activate)
-        "switch to char mode if target buffer is eclipse (or any other buffer that should be in char mode)"
-        (when (and exwm-class-name
-                   (or (string= exwm-class-name "X64")
-                       (string= (downcase exwm-class-name) "eclipse")
-                       (string= (downcase exwm-class-name) "dosbox")
-                       (string= (downcase exwm-class-name) "jetbrains-idea-ce")
-                       ))
+        ;; switch buffers
+        (exwm-input-set-key (kbd "s-b") (lambda () (interactive) (gb/wrap-in-exwm-reset #'helm-mini)))
+        ;; (exwm-input-set-key (kbd "s-b") #'helm-mini)
+        ;; open files
+        (exwm-input-set-key (kbd "s-f") (lambda () (interactive) (gb/wrap-in-exwm-reset #'helm-for-files)))
+        ;; (exwm-input-set-key (kbd "s-f") #'helm-for-files)
+        ;; select window via ace
+        (exwm-input-set-key (kbd "s-o") (lambda () (interactive) (gb/wrap-in-exwm-reset #'ace-select-window)))
+        ;; (exwm-input-set-key (kbd "s-o") #'ace-select-window)
+        ;; helm-M-x
+        (exwm-input-set-key (kbd "s-SPC") #'helm-M-x) ;; may have problems jumping off from eclipse
+
+        (exwm-input-set-key (kbd "s-<left>") (lambda () (interactive) (gb/wrap-in-exwm-reset #'gb/windmove-left)))
+        (exwm-input-set-key (kbd "s-<right>") (lambda () (interactive) (gb/wrap-in-exwm-reset #'gb/windmove-right)))
+        (exwm-input-set-key (kbd "s-<up>") (lambda () (interactive) (gb/wrap-in-exwm-reset #'windmove-up)))
+        (exwm-input-set-key (kbd "s-<down>") (lambda () (interactive) (gb/wrap-in-exwm-reset #'windmove-down)))
+
+        (exwm-input-set-key (kbd "H-c") #'gb/mouse-pointer-to-cursor)
+
+        (defun gb/remove-upper-window ()
+          ""
+          (interactive)
+          (if-let (upper-window (windmove-find-other-window 'up))
+              (delete-window upper-window)))
+
+        (defun gb/remove-lower-window ()
+          ""
+          (interactive)
+          (if-let (lower-window (windmove-find-other-window 'down))
+              (delete-window lower-window)))
+
+        (exwm-input-set-key (kbd "s-S-<up>") (lambda () (interactive) (gb/wrap-in-exwm-reset #'gb/remove-upper-window)))
+        (exwm-input-set-key (kbd "s-S-<down>") (lambda () (interactive) (gb/wrap-in-exwm-reset #'gb/remove-lower-window)))
+
+        (defun gb/remove-left-window ()
+          ""
+          (interactive)
+          (if-let (left-window (windmove-find-other-window 'left))
+              (delete-window left-window)))
+
+        (defun gb/remove-right-window ()
+          ""
+          (interactive)
+          (if-let (right-window (windmove-find-other-window 'right))
+              (delete-window right-window)))
+
+        (exwm-input-set-key (kbd "s-S-<left>") (lambda () (interactive) (gb/wrap-in-exwm-reset #'gb/remove-left-window)))
+        (exwm-input-set-key (kbd "s-S-<right>") (lambda () (interactive) (gb/wrap-in-exwm-reset #'gb/remove-right-window)))
+
+        (defun gb/exwm-distinct-exwm-buffer-names ()
+          "list of distinct running exwm buffers/programs"
+          (-distinct
+           (map-values-apply
+            (lambda (name)
+              (->> name
+                   (buffer-name)
+                   (replace-regexp-in-string "<[0-9]*>$" "")
+                   (downcase)))
+            exwm--id-buffer-alist)))
+
+        (require 'helm-external)
+
+        (defun gb/exwm--switch-or-run (program &optional alias)
+          "switch to this program if already open or start it"
+          ;; (exwm-reset)
+          (let* ((browser-alias (s-concat program "-browser"))
+                 (stable-removed (s-replace "-stable" "" program)))
+            (if (-contains? (gb/exwm-distinct-exwm-buffer-names) program)
+                (exwm-workspace-switch-to-buffer (s-capitalize program))
+              (if (-contains? (gb/exwm-distinct-exwm-buffer-names) browser-alias)
+                  (exwm-workspace-switch-to-buffer (s-capitalize browser-alias))
+                ;; (exwm-reset) ;; make sure that keyboard is no longer captured
+                (if (-contains? (gb/exwm-distinct-exwm-buffer-names) stable-removed)
+                    (exwm-workspace-switch-to-buffer (s-capitalize stable-removed))
+                  (helm-run-external-command program))))))
+
+        (defun gb/exwm-program-select (program)
+          "select a native (unix) program to execute, select the buffer named as
+           the program instead, if such a buffer exists"
+          (interactive (list
+                        (helm-comp-read
+                         "RunProgram: "
+                         (helm-external-commands-list-1 'sort)
+                         :must-match t
+                         :del-input nil
+                         :name "External Commands"
+                         :history helm-external-command-history)))
+          (gb/exwm--switch-or-run program)
+          )
+
+        ;; start programs
+        (exwm-input-set-key (kbd "s-1") #'gb/exwm-program-select) ;; do not wrap, since it already resets exwm
+
+        (setq gb/simulation-keys `(
+                                   ;; see http://ergoemacs.org/emacs/keystroke_rep.html for syntax of key definition
+                                   ;; movement
+                                   ;; read-key-sequence-vector can be used to get key-sequences as used as first element
+                                   (,(kbd "C-b") . left)
+                                   (,(kbd "M-b") . C-left)
+                                   (,(kbd "C-f") . right)
+                                   (,(kbd "M-f") . C-right)
+                                   (,(kbd "C-p") . up)
+                                   (,(kbd "C-n") . down)
+                                   (,(kbd "C-a") . home)
+                                   (,(kbd "C-e") . end)
+                                   (,(kbd "M-v") . prior)
+                                   (,(kbd "C-v") . next)
+                                   (,(kbd "C-d") . delete)
+                                   (,(kbd "M-d") . (S-C-right delete))
+                                   (,(kbd "<M-backspace>") . (S-C-left delete))
+                                   (,(kbd "C-k") . (S-end delete))
+                                   (,(kbd "M->") . (C-end))
+                                   (,(kbd "M-<") . (C-home))
+                                   ;; cut/paste.
+                                   (,(kbd "C-w") . ?\C-x)
+                                   (,(kbd "M-w") . ?\C-c)
+                                   (,(kbd "C-y") . ?\C-v)
+                                   ;; marking
+                                   (,(kbd "C-x h") . ?\C-a) ;; will work in emacs 27 first time [?\C-x ?h]
+                                   ;; other
+                                   (,(kbd "C-g") . escape)
+                                   ;; search
+                                   (,(kbd "C-s") . ?\C-f)))
+        (setq exwm-input-simulation-keys gb/simulation-keys)
+
+        ;; You can hide the mode-line of floating X windows by uncommenting the
+        ;; following lines
+        (add-hook 'exwm-floating-setup-hook #'exwm-layout-hide-mode-line)
+        (add-hook 'exwm-floating-exit-hook #'exwm-layout-show-mode-line)
+
+        ;; You can hide the minibuffer and echo area when they're not used, by
+        ;; uncommenting the following line
+        ;; (setq exwm-workspace-minibuffer-position 'bottom)
+
+        ;; show all exwm buffers in all workspaces (no restriction)
+        (setq exwm-workspace-show-all-buffers t)
+        ;; automatic moving of x window from inactive workspace by switching buffer
+        (setq exwm-layout-show-all-buffers t)
+
+        ;; enable system tray which is displayed in the message area all the way to the right
+        (require 'exwm-systemtray)
+        (exwm-systemtray-enable)
+
+        ;; somehow the switch of workspace fails if some graphic program (like eclipse or chromium) is running
+        ;; this does not fix the problem, though
+
+        (defun gb/exwm-release-keyboard ()
+          (interactive)
+          (message "resetting exwm keyboard binding.")
+          (exwm-input-release-keyboard)
+          (exwm-input-set-local-simulation-keys nil))
+
+        (exwm-input-set-key (kbd "H-r") #'gb/exwm-release-keyboard)
+
+        (defun gb/exwm-grab-keyboard ()
+          (interactive)
+          (message "grab exwm keyboard binding.")
+          (exwm-input-grab-keyboard))
+
+        (exwm-input-set-key (kbd "H-g") #'gb/exwm-grab-keyboard)
+
+        (defun gb/exwm-after-switch ()
+          "do some adjustments due to exwm switches with char/line mode"
           (progn
-            (exwm-input-release-keyboard (exwm--buffer->id (window-buffer)))
-            (setq exwm-input-set-local-simulation-keys nil)))
-        )
+            (if (and exwm-class-name (functionp 'helm-posframe-disable))
+                (helm-posframe-disable))
+            (when (and exwm-class-name
+                       (or (string= exwm-class-name "X64")
+                           (string= (downcase exwm-class-name) "eclipse")
+                           (string= exwm-class-name "qutebrowser")
+                           (string= exwm-class-name "dosbox")
+                           (string= (downcase exwm-class-name) "jetbrains-idea-ce")))
+              (progn
+                ;; (setq-local exwm-input-prefix-keys '(?\C-l))
+                (message "native keyboard exwm settings applied.")
+                (exwm-input-release-keyboard (exwm--buffer->id (window-buffer)))
+                (exwm-input-set-local-simulation-keys nil)))
+            (when (and exwm-class-name
+                       (or (string= (downcase exwm-class-name) "google-chrome")
+                           (string= (downcase exwm-class-name) "firefox")
+                           (string= (downcase exwm-class-name) "chromium-browser")
+                           (string= (downcase exwm-class-name) "tor-browser")))
+              (progn
+                (message "local-sim-keys set for browser")
+                (let ((sim-keys (append gb/simulation-keys
+                                        `((,(kbd "C-S-s") . C-k)                   ;; search with search engine (C-S-s)
+                                          (,(kbd "C-M-s") . f6)                    ;; jump into adresse bar (C-M-s)
+                                          (,(kbd "<C-left>") . C-S-tab)              ;; switch to previous tab
+                                          (,(kbd "<C-right>") . C-tab)               ;; switch to next tab
+                                          ))))
+                  (exwm-input-set-local-simulation-keys sim-keys))))
+            (when (not exwm-class-name)
+              (message "no exwm keyboard modification applied."))))
 
-      ))
+        (add-hook 'helm-after-action-hook #'gb/exwm-after-switch)
+        (add-hook 'helm-quit-hook #'gb/exwm-after-switch)
+
+        ;; start pasystray from within emacs, starting it within xinitrc does not work
+        (add-hook 'exwm-init-hook
+                  (lambda ()
+                    (gb/start-if-not-running (s-trim (shell-command-to-string "command -v pasystray")))
+                    ;; (start-process "yabar" nil  "/usr/bin/yabar") ;; see here: https://github.com/geommer/yabar
+                    (ido-mode nil)
+                    (set-fringe-mode 10)
+                    (toggle-truncate-lines 1)
+                    (gb/disable-ligatures)
+                    ;; (exwm-mff-mode)
+                    (setq global-mode-string '("" appt-mode-string display-time-string emms-mode-line-string emms-playing-time-string " " fancy-battery-mode-line " "
+                                               (:eval (elt exwm-workspace--switch-history (exwm-workspace--position exwm-workspace--current)))))
+                    ))
+
+        ;; ensure that eclipse switches to char line mode
+        ;; and does not use simulation keys, since i have emacs binding enabled in eclipse
+        (add-hook 'exwm-manage-finish-hook #'gb/exwm-after-switch)
+
+        (defadvice switch-to-buffer (after switch-to-buffer-check-exwm-buffer activate)
+          "switch to char mode if target buffer is eclipse (or any other buffer that should be in char mode)"
+          (when (and exwm-class-name
+                     (or (string= exwm-class-name "X64")
+                         (string= (downcase exwm-class-name) "eclipse")
+                         (string= (downcase exwm-class-name) "dosbox")
+                         (string= (downcase exwm-class-name) "jetbrains-idea-ce")
+                         ))
+            (progn
+              (exwm-input-release-keyboard (exwm--buffer->id (window-buffer)))
+              (setq exwm-input-set-local-simulation-keys nil)))
+          )
+
+        ))
 
 
   #+END_SRC
