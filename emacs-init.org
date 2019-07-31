@@ -5895,72 +5895,118 @@
 * pdf-tooling
   - TODO check whether all that is required tools are installed for pdf tools to function, message if not, install if ok
   #+BEGIN_SRC emacs-lisp
-  ;; allow in emacs pdf view/annotate etc.
-  ;; if not functional do the following: remove package and restart emacs, then allow rebuild of pdf tooling, restart again
-  ;; new: use pdf-tool-install (works with nix os too, has to be a new version of pdf-tools though!)
-  ;; old: to install under linux run 'sudo nix-shell -p autoconf automake libpng zlib poppler pkgconfig gcc --run make' in the build folder
-  (if (and make-installed (or running-nixos poppler-installed) imagemagick-installed)
-      (use-package pdf-tools
-        :ensure t
-        :mode ("\\.pdf$" . pdf-view-mode)
-        :init (progn
-                ;; (add-hook 'after-init-hook 'pdf-tools-install)
-                ;; (add-hook 'pdf-tools-mode-hook 'pdf-isearch-minor-mode)
-                (add-hook 'pdf-view-mode-hook 'pdf-misc-minor-mode) ;; misc minor mode offset C-c C-p for printing pdf documents
+    ;; allow in emacs pdf view/annotate etc.
+    ;; if not functional do the following: remove package and restart emacs, then allow rebuild of pdf tooling, restart again
+    ;; new: use pdf-tool-install (works with nix os too, has to be a new version of pdf-tools though!)
+    ;; old: to install under linux run 'sudo nix-shell -p autoconf automake libpng zlib poppler pkgconfig gcc --run make' in the build folder
+    (if (and make-installed (or running-nixos poppler-installed) imagemagick-installed)
+        (use-package pdf-tools
+          :ensure t
+          :mode ("\\.pdf$" . pdf-view-mode)
+          :init (progn
+                  ;; (add-hook 'after-init-hook 'pdf-tools-install)
+                  ;; (add-hook 'pdf-tools-mode-hook 'pdf-isearch-minor-mode)
+                  (add-hook 'pdf-view-mode-hook 'pdf-misc-minor-mode) ;; misc minor mode offset C-c C-p for printing pdf documents
 
 
-                ;; copied from http://babbagefiles.blogspot.de/2017/11/more-pdf-tools-tricks.html
-                (add-hook 'pdf-view-mode-hook (lambda ()
-                                                (pdf-view-midnight-minor-mode))) ; automatically turns on midnight-mode for pdfs
+                  ;; copied from http://babbagefiles.blogspot.de/2017/11/more-pdf-tools-tricks.html
+                  ;; automatically turns on midnight-mode for pdfs
+                  (add-hook 'pdf-view-mode-hook (lambda () (pdf-view-midnight-minor-mode)))
 
-                (setq pdf-view-midnight-colors '("#ff9900" . "#0a0a12" )) ; set the amber profile as default (see below)
+                  (setq pdf-view-midnight-colors '("#ff9900" . "#0a0a12" )) ; set the amber profile as default (see below)
 
-                (defun gb/pdf-no-filter ()
-                  "View pdf without colour filter."
-                  (interactive)
-                  (pdf-view-midnight-minor-mode -1)
+                  (defun gb/pdf-no-filter ()
+                    "View pdf without colour filter."
+                    (interactive)
+                    (pdf-view-midnight-minor-mode -1)
+                    )
+
+                  ;; change midnite mode colours functions
+                  (defun gb/pdf-midnite-original ()
+                    "Set pdf-view-midnight-colors to original colours."
+                    (interactive)
+                    (setq pdf-view-midnight-colors '("#839496" . "#002b36" )) ; original values
+                    (pdf-view-midnight-minor-mode)
+                    )
+
+                  (defun gb/pdf-midnite-amber ()
+                    "Set pdf-view-midnight-colors to amber on dark slate blue."
+                    (interactive)
+                    (setq pdf-view-midnight-colors '("#ff9900" . "#0a0a12" )) ; amber
+                    (pdf-view-midnight-minor-mode)
+                    )
+
+                  (defun gb/pdf-midnite-green ()
+                    "Set pdf-view-midnight-colors to green on black."
+                    (interactive)
+                    (setq pdf-view-midnight-colors '("#00B800" . "#000000" )) ; green
+                    (pdf-view-midnight-minor-mode)
+                    )
+
+                  (defun gb/pdf-midnite-colour-schemes ()
+                    "Midnight mode colour schemes bound to keys"
+                    (local-set-key (kbd "!") (quote gb/pdf-no-filter))
+                    (local-set-key (kbd "@") (quote gb/pdf-midnite-amber))
+                    (local-set-key (kbd "#") (quote gb/pdf-midnite-green))
+                    (local-set-key (kbd "$") (quote gb/pdf-midnite-original))
+                    )
+
+                  (add-hook 'pdf-view-mode-hook 'gb/pdf-midnite-colour-schemes)
+
+                  ;; got from https://emacs.stackexchange.com/questions/24738/how-do-i-rotate-pages-in-pdf-tools/24766
+                  (defun pdf-view--rotate (&optional counterclockwise-p page-p)
+                    "Rotate PDF 90 degrees.  Requires pdftk to work.\n
+    Clockwise rotation is the default; set COUNTERCLOCKWISE-P to
+    non-nil for the other direction.  Rotate the whole document by
+    default; set PAGE-P to non-nil to rotate only the current page.
+    \nWARNING: overwrites the original file, so be careful!"
+                    ;; error out when pdftk is not installed
+                    (if (null (executable-find "pdftk"))
+                        (error "Rotation requires pdftk")
+                      ;; only rotate in pdf-view-mode
+                      (when (eq major-mode 'pdf-view-mode)
+                        (let* ((rotate (if counterclockwise-p "left" "right"))
+                               (file   (format "\"%s\"" (pdf-view-buffer-file-name)))
+                               (page   (pdf-view-current-page))
+                               (pages  (cond ((not page-p)                        ; whole doc?
+                                              (format "1-end%s" rotate))
+                                             ((= page 1)                          ; first page?
+                                              (format "%d%s %d-end"
+                                                      page rotate (1+ page)))
+                                             ((= page (pdf-info-number-of-pages)) ; last page?
+                                              (format "1-%d %d%s"
+                                                      (1- page) page rotate))
+                                             (t                                   ; interior page?
+                                              (format "1-%d %d%s %d-end"
+                                                      (1- page) page rotate (1+ page))))))
+                          ;; empty string if it worked
+                          (if (string= "" (shell-command-to-string
+                                           (format (concat "pdftk %s cat %s "
+                                                           "output %s.NEW "
+                                                           "&& mv %s.NEW %s")
+                                                   file pages file file file)))
+                              (pdf-view-revert-buffer nil t)
+                            (error "Rotation error!"))))))
+
+                  (defun gb/pdf-view-rotate-clockwise (&optional arg)
+                    "Rotate PDF page 90 degrees clockwise.  With prefix ARG, rotate
+    entire document."
+                    (interactive "P")
+                    (pdf-view--rotate nil (not arg)))
+
+                  (defun gb/pdf-view-rotate-counterclockwise (&optional arg)
+                    "Rotate PDF page 90 degrees counterclockwise.  With prefix ARG,
+    rotate entire document."
+                    (interactive "P")
+                    (pdf-view--rotate :counterclockwise (not arg)))
+
                   )
-
-                ;; change midnite mode colours functions
-                (defun gb/pdf-midnite-original ()
-                  "Set pdf-view-midnight-colors to original colours."
-                  (interactive)
-                  (setq pdf-view-midnight-colors '("#839496" . "#002b36" )) ; original values
-                  (pdf-view-midnight-minor-mode)
-                  )
-
-                (defun gb/pdf-midnite-amber ()
-                  "Set pdf-view-midnight-colors to amber on dark slate blue."
-                  (interactive)
-                  (setq pdf-view-midnight-colors '("#ff9900" . "#0a0a12" )) ; amber
-                  (pdf-view-midnight-minor-mode)
-                  )
-
-                (defun gb/pdf-midnite-green ()
-                  "Set pdf-view-midnight-colors to green on black."
-                  (interactive)
-                  (setq pdf-view-midnight-colors '("#00B800" . "#000000" )) ; green
-                  (pdf-view-midnight-minor-mode)
-                  )
-
-                (defun gb/pdf-midnite-colour-schemes ()
-                  "Midnight mode colour schemes bound to keys"
-                  (local-set-key (kbd "!") (quote gb/pdf-no-filter))
-                  (local-set-key (kbd "@") (quote gb/pdf-midnite-amber))
-                  (local-set-key (kbd "#") (quote gb/pdf-midnite-green))
-                  (local-set-key (kbd "$") (quote gb/pdf-midnite-original))
-                  )
-
-                (add-hook 'pdf-view-mode-hook 'gb/pdf-midnite-colour-schemes)
-
-
-                )
-        :config
-        (progn
-          ;; (setq pdf-info-epdfinfo-program "~/.emacs.d/elpa/pdf-tools-20180428.1527/build/server/epdfinfo")
-          (setq pdf-misc-print-programm (s-trim (shell-command-to-string "command -v lp")))
-          (setq pdf-view-display-size (quote fit-page))
-          (setq pdf-misc-print-programm-args '("-o" "media=A4" "-o" "sides=two-sided-long-edge")))))
+          :config
+          (progn
+            ;; (setq pdf-info-epdfinfo-program "~/.emacs.d/elpa/pdf-tools-20180428.1527/build/server/epdfinfo")
+            (setq pdf-misc-print-programm (s-trim (shell-command-to-string "command -v lp")))
+            (setq pdf-view-display-size (quote fit-page))
+            (setq pdf-misc-print-programm-args '("-o" "media=A4" "-o" "sides=two-sided-long-edge")))))
   #+END_SRC
 * rest
 #+BEGIN_SRC emacs-lisp
