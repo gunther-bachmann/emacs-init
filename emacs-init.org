@@ -5626,13 +5626,16 @@
 ** markdown
    - see usage documentation on [[http://jblevins.org/projects/markdown-mode/][homepage]]
    #+BEGIN_SRC emacs-lisp
-   (use-package markdown-mode
-     :ensure t
-     :commands (markdown-mode gfm-mode)
-     :mode (("\\.text\\'" . markdown-mode)
-            ("\\.markdown\\'" . markdown-mode)
-            ("README\\.md\\'" . gfm-mode)
-            ("\\.md\\'" . markdown-mode)))
+     (use-package markdown-mode
+       :ensure t
+       :commands (markdown-mode gfm-mode)
+       :bind (:map markdown-mode-map
+                   ("<M-down>" . markdown-move-subtree-down)
+                   ("<M-up>" . markdown-move-subtree-up))
+       :mode (("\\.text\\'" . markdown-mode)
+              ("\\.markdown\\'" . markdown-mode)
+              ("README\\.md\\'" . gfm-mode)
+              ("\\.md\\'" . markdown-mode)))
    #+END_SRC
 ** markdown code block edit (obsolete since markdown-mode includes code edit now)
    - allows C-' in a markdown code block to edit code in a separate buffer (like org mode does)
