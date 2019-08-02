@@ -11042,6 +11042,10 @@
     :mode (("Dockerfile.*\\'" . dockerfile-mode)))
   #+end_src
 * INTERESTING isearch-project, gnus-summary-repo, dash-docs, aio, json-reformatter-jq, multi-magit, live-preview, nix-haskell-mode
+* EVAL sysctl
+  #+begin_src emacs-lisp
+    (use-package sysctl)
+  #+end_src
   #+begin_src emacs-lisp
   #+end_src
 * finish - up
