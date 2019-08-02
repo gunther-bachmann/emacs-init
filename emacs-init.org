@@ -11041,11 +11041,11 @@
     :ensure t
     :mode (("Dockerfile.*\\'" . dockerfile-mode)))
   #+end_src
-* INTERESTING isearch-project, gnus-summary-repo, dash-docs, aio, json-reformatter-jq, multi-magit, live-preview, nix-haskell-mode
 * EVAL sysctl
   #+begin_src emacs-lisp
     (use-package sysctl)
   #+end_src
+* INTERESTING isearch-project, gnus-summary-repo, dash-docs, aio, json-reformatter-jq, multi-magit, live-preview, nix-haskell-mode, elpl (emacs lisp repl)
 * EVAL dianyou (gnus mail searching see https://github.com/redguardtoo/dianyou/blob/master/dianyou.el)
   #+begin_src emacs-lisp
     (use-package dianyou
