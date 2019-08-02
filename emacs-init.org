@@ -8576,11 +8576,6 @@
    (use-package major-mode-hydra
      :ensure t)
    #+end_src
-* TEST clear-text (mode that makes you use only the 1000 most common english words)
-#+BEGIN_SRC emacs-lisp
-  (use-package clear-text
-    :commands clear-text-mode)
-#+END_SRC
 * guide keys (disabled)
 ** alternative to which-key
 *** can be tuned to react to certain prefixes only
@@ -9940,292 +9935,6 @@
          (setq neo-smart-open t)
          (setq projectile-switch-project-action 'neotree-projectile-action)))
    #+END_SRC
-* to test
-#+BEGIN_SRC emacs-lisp
-(report-elapsed "check point to test")
-#+END_SRC
-** deadgrep - ripgrep front end
-** helm-tail - tailing of several sources
-** lsp-html - lsp frontend for html serving
-** project-abbrev - project specific abbrev expansion
-** template-overlays - overlays for template regions
-** company-posframe (company in separate frame, alternative to company box?)
-** exwm-edit (allow to edit any editable field within exwm into a separate buffer just as atomic-chrome)
-** company-nginx (allow for company completion of nginx files)
-** rustic (major mode for rust)
-** company-prescient (ordering and filtering of candidates)
-** organize imports java
-   - needs configuration, see here https://github.com/jcs090218/organize-imports-java
-   #+BEGIN_SRC emacs-lisp :tangle no
-   (use-package organize-imports-java)
-   #+END_SRC
-** ccls (c++ language server for lsp ui)
-   - see here https://github.com/MaskRay/emacs-ccls
-** karma test runner integration
-   - upbo
-** gif-screencast
-   - allow screencast recording single gif for each action, combining them into animated gifs thereafter
-   - https://github.com/Ambrevar/emacs-gif-screencast
-** ob-clojure-literate
-** org-noter
-   - keep notes in an org file that scrolls with the original
-** org-send-ebook
-   - send an ebook link to an external device (ebook reader) from org mode
-** scp (use scp to transfer files)
-** smart-jump (smart go to definition)
-** network-watch (allows hooks to run when network is goiing down/up)
-** latexdiff (diff between two latex files)
-** easy-jekyll (tool to manage jekyll blogs)
-** orca (org-capture configuration)
-   - allows filing based on the url it was captured from into special files/headers etc.
-** lsp-javacomp
-   - lsp support for java using [[https://github.com/tigersoldier/JavaComp][java-comp]]
-** archive-rpm
-   - provide an interface for rpm package open (extends archive-mode)
-** zoom
-   - keeps balanced windows, zooming the one currently having the focus
-** ox-hugo
-   - export org markdown to hugo blog entries
-   - see [[https://github.com/kaushalmodi/ox-hugo][here]]
-** shrink-path
-   - do fish like reduciton of paths (e.g. for modeline)
-** highlight-function-calls
-   - highlight functions in lisp specially
-** org-mind-map
-   - translate an org file into a mind map
-** org-super-agenda
-   - see [[https://github.com/alphapapa/org-super-agenda][here]]
-   - This package lets you "supercharge" your Org daily/weekly agenda. The idea is to group items into sections, rather than having them all
-     in one big list.
-   - lets you group agenda entries based on tags, regex on title, todo status etc.
-** org-projectile-helm
-   - This package aims to provide an easy interface to creating per project org-mode TODO headings.
-** org-category-capture
-   - This package aims to provide an easy interface to creating per project org-mode TODO headings.
-     #+BEGIN_SRC emacs-lisp
-     (use-package org-category-capture
-       :after ( org))
-     #+END_SRC
-** treemacs (tre
-** projectile-codesearch (use codesearch to query projects)
-** zop-to-char (more options during zap to char)
-** sx (elaborate stack exchange interface for emacs)
-** swiper-helm (helm interface for swipter)
-** html5-schema (html5 support for nXML)
-** magit-tbdiff (diffing extension for magit)
-   - git-tbdiff is a git extension that allows diffs for topic branches
-   - tbdiff shows the differences between two versions of a patch series, or more generally, two sets of commits (ignoring merges). To do
-     this in a meaningful way, it tries to find a good correspondence between commits in the two versions (see Algorithm below), and then
-     shows the difference between the pairs found. It also copes with removal and addition of commits.
-   - see [[https://github.com/magit/magit-tbdiff][link]]
-** indium (java script development environment)
-   - [[https://github.com/NicolasPetton/Indium][home page]]
-** company suggest (propose sentence completion based on wikionary or google)
-   - company-suggest, see [[https://github.com/juergenhoetzel/company-suggest][here]]
-* look at
-#+BEGIN_SRC emacs-lisp
-(report-elapsed "check point look at")
-#+END_SRC
-** org-present using a cell phone to switch pages
-   #+BEGIN_SRC emacs-lisp :tangle no
-   (use-package org-present-remote
-     :after org)
-   #+END_SRC
-** yaml-imode
-   - This package enhances the imenu support in yaml-mode
-   - requires ruby >= 2.5
-     #+BEGIN_SRC emacs-lisp :tangle no
-     (use-package yaml-imode)
-     #+END_SRC
-** powerthesaurus - interface to powerthesaurus.org
-** eglot - lsp client (for multiple languages)
-** pickle - Major mode for editing cucumber gherkin files.
-** attrap - Attrap! provides a command to attempt to fix the flycheck error at point.(haskel and elisp currently)
-** git-msg-prefix, provide prefix for commit messages based on previous commit messages and the like
-** org-wild-notifier, customizable notifier for org agenda entries (global or per entry)
-** texfrag
-   - allow tex fragments preview in (almost) any buffer
-   - see [[https://github.com/TobiasZawada/texfrag][here]]
-** counsel-tramp
-** helm-selected
-** use-package-ensure-system-package
-   - require binaries / packages of the underlying system for installation of package
-   - if provided with installation script might even execute the appropriate installation
-   - see [[https://github.com/waymondo/use-package-ensure-system-package][here]]
-* discarded
-** pinentry (obsolete as of emacs 26)
-   #+BEGIN_SRC emacs-lisp :tangle no
-     (use-package pinentry
-       :config
-       (progn
-         (pinentry-start)
-         ))
-   #+END_SRC
-** company quickhelp - produces help popups for company candidates (replaced by company-box)
-   #+BEGIN_SRC emacs-lisp :tangle no
-       (use-package company-quickhelp
-         ;; :ensure t
-         :after (company-box)
-         :config
-         (progn
-           ;; (company-quickhelp-mode 1)
-           (setq company-quickhelp-use-propertized-text t)
-           (setq company-quickhelp-max-lines 30)
-           ;; (setq company-quickhelp-color-background "gray80")
-           ;; (setq company-quickhelp-color-foreground "black")
-           ))
-   #+END_SRC
-** exwm-surf
-   - allows to control surf within exwm
-   - surf is a webkit based browser that works as embedded x application and can thus be embedded into emacs directly
-   - don't need this, since chromium or firefox can be directly embedded into exwm
-#+BEGIN_SRC emacs-lisp
-(report-elapsed "check point 4")
-#+END_SRC
-* tested but discarded
-** ranger (file browser/previewer, using dired)
-   #+BEGIN_SRC emacs-lisp :tangle no
-     (use-package ranger
-       :ensure t
-       :config
-       (setq ranger-hide-cursor nil))
-   #+END_SRC
-** diminish (hide minor modes from spaceline mode line) (obsolete now)
-   - its still a dependency of use-package, so its still loaded
-   #+BEGIN_SRC emacs-lisp :tangle no
-     (use-package diminish) ;; actual diminishing of modes is executed after init is completely run (see end of file)
-   #+END_SRC
-** use line if no region (deactive, currently evaluating easy-kill)
-   uses a line as region if no active region is selected and a
-   command is issued that works on regions
-   (not: M-% replace)
-   (yes: C-w)
-   #+BEGIN_SRC emacs-lisp :tangle no
-     (use-package whole-line-or-region
-     :config
-     (whole-line-or-region-mode 1))
-   #+END_SRC
-** mode icons (disabled)
-   - no longer used, since spaceline brings its own set of mode icons
- #+BEGIN_SRC emacs-lisp :tangle no
-   (use-package mode-icons
-     :disabled t
-     :config
-     (mode-icons-mode)
-     (setq mode-icons-desaturate-inactive t)
-     (setq mode-icons-desaturate-active nil)
-     (setq mode-icons-grayscale-transform t))
-
-     ;; (defvar minor-mode-icon-list
-     ;;   '((paredit-mode paredit-mode-hook "~/icons/clojure-icon-small.png" png))
-     ;;   "define a list of icon replacements for the given minor modes")
-
-     ;; (defun install-minor-mode-icons (rem-minor-mode-icon-list)
-     ;;   (let* ((minor-mode-icon (car rem-minor-mode-icon-list))
-     ;;          (rem-minor-mode-icon-list-new (cdr rem-minor-mode-icon-list)))
-     ;;     (if minor-mode-icon
-     ;;         (add-hook (nth 1 minor-mode-icon)
-     ;;                   `(lambda ()
-     ;;                      (let* ((mode-id (nth 0 ,minor-mode-icon))
-     ;;                             (icon-path (nth 2 ,minor-mode-icon))
-     ;;                             (icon-type (nth 3 ,minor-mode-icon))
-     ;;                             (image-line `(image :type ,icon-type :file ,icon-path :ascent center :margin ( 3 . 0 )))
-     ;;                             (minor-mode-element (assoc mode-id minor-mode-alist)))
-     ;;                        (if (message "FORMATSTRING" &optional ARGS)inor-mode-element
-     ;;                          (setf (cdr minor-mode-element) (list (propertize "dummy" 'display image-line))))))))
-     ;;     (if rem-minor-mode-icon-list-new
-     ;;         install-minor-mode-icons rem-minor-mode-icon-list-new)))
-
-     ;; (install-minor-mode-icons minor-mode-icon-list)
- #+END_SRC
-** fonts with ligatures (realized differently)
-   - the following is not functional within (my) emacs => it is not tangled
-     #+BEGIN_SRC emacs-lisp :tangle no
-
-       ;; if font with ligatures is selected, define some font compositions
-       (when (string= gb/default-font "Fira Code")
-         (let ((alist '((33 . ".\\(?:\\(?:==\\|!!\\)\\|[!=]\\)")
-                        (35 . ".\\(?:###\\|##\\|_(\\|[#(?[_{]\\)")
-                        (36 . ".\\(?:>\\)")
-                        (37 . ".\\(?:\\(?:%%\\)\\|%\\)")
-                        (38 . ".\\(?:\\(?:&&\\)\\|&\\)")
-                        (42 . ".\\(?:\\(?:\\*\\*/\\)\\|\\(?:\\*[*/]\\)\\|[*/>]\\)")
-                        (43 . ".\\(?:\\(?:\\+\\+\\)\\|[+>]\\)")
-                        (45 . ".\\(?:\\(?:-[>-]\\|<<\\|>>\\)\\|[<>}~-]\\)")
-                        (46 . ".\\(?:\\(?:\\.[.<]\\)\\|[.=-]\\)")
-                        (47 . ".\\(?:\\(?:\\*\\*\\|//\\|==\\)\\|[*/=>]\\)")
-                        (48 . ".\\(?:x[a-zA-Z]\\)")
-                        (58 . ".\\(?:::\\|[:=]\\)")
-                        (59 . ".\\(?:;;\\|;\\)")
-                        (60 . ".\\(?:\\(?:!--\\)\\|\\(?:~~\\|->\\|\\$>\\|\\*>\\|\\+>\\|--\\|<[<=-]\\|=[<=>]\\||>\\)\\|[*$+~/<=>|-]\\)")
-                        (61 . ".\\(?:\\(?:/=\\|:=\\|<<\\|=[=>]\\|>>\\)\\|[<=>~]\\)")
-                        (62 . ".\\(?:\\(?:=>\\|>[=>-]\\)\\|[=>-]\\)")
-                        (63 . ".\\(?:\\(\\?\\?\\)\\|[:=?]\\)")
-                        (91 . ".\\(?:]\\)")
-                        (92 . ".\\(?:\\(?:\\\\\\\\\\)\\|\\\\\\)")
-                        (94 . ".\\(?:=\\)")
-                        (119 . ".\\(?:ww\\)")
-                        (123 . ".\\(?:-\\)")
-                        (124 . ".\\(?:\\(?:|[=|]\\)\\|[=>|]\\)")
-                        (126 . ".\\(?:~>\\|~~\\|[>=@~-]\\)")
-                        )
-                      ))
-           (dolist (char-regexp alist)
-             (set-char-table-range composition-function-table (car char-regexp)
-                                   `([,(cdr char-regexp) 0 font-shape-gstring])))))
-     #+END_SRC
-** major mode icons
-   - does not work with spaceline (nor powerline)
-   #+BEGIN_SRC emacs-lisp :tangle no
-     (use-package xpm)
-     (use-package major-mode-icons
-       :after ( xpm)
-       :config
-       (progn
-         (setq mode-line-end-spaces
-               (quote ((:eval (major-mode-icons/show)))))
-         (major-mode-icons-mode 1)))
-   #+END_SRC
-** helm-navi
-   - does not work together with current org-mode and hide-pw
-     (opening password file does not start folded, passwords are shown)
-   #+BEGIN_SRC emacs-lisp :tangle no
-   (use-package outshine)
-   (use-package navi-mode)
-   (use-package outorg)
-   (use-package helm-navi
-     :after ( outshine navi-mode)
-     :commands helm-navi helm-navi-headings)
-   #+END_SRC
-** smex
-   - replaced by helm-M-x, a helm interface to M-x
-   #+BEGIN_SRC emacs-lisp :tangle no
-     ;; Enhances M-x to allow easier execution of commands. Provides
-     ;; a filterable list of possible commands in the minibuffer
-     ;; http://www.emacswiki.org/emacs/Smex
-     (use-package smex
-       :ensure t
-       :disabled t
-       :bind (("M-x" . smex))
-       :config
-       (progn
-       (setq smex-save-file (concat user-emacs-directory ".smex-items"))
-       (smex-initialize)))
-   #+END_SRC
-** helm-fuzzier (seems not to have any positive effect)
-   #+begin_src emacs-lisp :tangle no
-   (use-package helm-fuzzier
-     :ensure t
-     :config (helm-fuzzier-mode 1))
-   #+end_src
-** frog-jump-buffer, allows avy selection in popup frame  (discarded)
-   #+begin_src emacs-lisp :tangle no
-   (use-package frog-menu
-     :load-path "/home/pe/.emacs.d/additionals/frog-menu/")
-   (use-package frog-jump-buffer
-     :load-path "/home/pe/.emacs.d/additionals/frog-jump-buffer/"
-     :after frog-menu)
-   #+end_src
 * general (key binding)
   #+BEGIN_SRC emacs-lisp
   (use-package general
@@ -10269,108 +9978,65 @@
   (use-package vue-mode
     :ensure t)
   #+end_src
-* EVAL winum (select windows by number, which is shown in the modeline)
-  - is useful for native applications in exwm, since ace-window cannot overlay those with the key to select those
+* racket
   #+begin_src emacs-lisp
-  (use-package winum
-    :ensure t
-    :config (winum-mode))
-  #+end_src
-* EVAL org-noter (keep notes to pdf, epub etc. files, that scroll with the document)
-  - execute org-noter within a pdf document (pdf-tools), or epub (nov.el) ...
-  - now you are in a noter session (quit with q)
-  - i = insert note for page
-  - M-i = insert note with precise location (asked to click)
-  - M-n/p = jump to next/previous annotated page
-  #+begin_src emacs-lisp
-  (use-package org-noter
-    :ensure t
-    :commands (org-noter))
-  #+end_src
-* EVAL treemacs (start with C-x t t)
-  - see [[https://github.com/Alexander-Miller/treemacs][here]]
-  #+begin_src emacs-lisp
-    (use-package treemacs
+    (use-package racket-mode
       :ensure t
-      :defer t
+      :bind (:map racket-mode-map
+                  ("C-c r" . #'racket-run))
       :init
-      (with-eval-after-load 'winum
-        (define-key winum-keymap (kbd "M-0") #'treemacs-select-window))
+      (when (fboundp 'paredit-mode)
+        (add-hook 'racket-mode-hook 'paredit-mode))
+      (when (boundp 'prettify-greek-upper)
+        (add-hook 'racket-mode-hook
+                  (lambda ()
+                    (setq prettify-symbols-alist prettify-greek-lower)
+                    (prettify-symbols-mode t))))
+      (when (fboundp 'gb/enable-ligatures))
+          (add-hook 'racket-mode-hook
+                  (lambda () (gb/enable-ligatures))))
+    (use-package flymake-racket
+      :after racket-mode
+      :ensure t
+      :config (flymake-racket-setup))
+    (use-package scribble-mode ;; documentation files
+      :after racket-mode
+      :ensure t
+      :init
+      (add-hook 'scribble-mode-hook #'racket-mode))
+    (use-package ob-racket
+      :load-path "~/.emacs.d/additionals/ob-racket/"
+      :after org
       :config
-      (progn
-        (setq treemacs-collapse-dirs                 (if (executable-find "python") 3 0)
-              treemacs-deferred-git-apply-delay      0.5
-              treemacs-display-in-side-window        t
-              treemacs-file-event-delay              5000
-              treemacs-file-follow-delay             0.2
-              treemacs-follow-after-init             t
-              treemacs-git-command-pipe              ""
-              treemacs-goto-tag-strategy             'refetch-index
-              treemacs-indentation                   2
-              treemacs-indentation-string            " "
-              treemacs-is-never-other-window         nil
-              treemacs-max-git-entries               5000
-              treemacs-no-png-images                 nil
-              treemacs-no-delete-other-windows       t
-              treemacs-project-follow-cleanup        nil
-              treemacs-persist-file                  (expand-file-name ".cache/treemacs-persist" user-emacs-directory)
-              treemacs-recenter-distance             0.1
-              treemacs-recenter-after-file-follow    nil
-              treemacs-recenter-after-tag-follow     nil
-              treemacs-recenter-after-project-jump   'always
-              treemacs-recenter-after-project-expand 'on-distance
-              treemacs-show-cursor                   nil
-              treemacs-show-hidden-files             t
-              treemacs-silent-filewatch              nil
-              treemacs-silent-refresh                nil
-              treemacs-sorting                       'alphabetic-desc
-              treemacs-space-between-root-nodes      t
-              treemacs-tag-follow-cleanup            t
-              treemacs-tag-follow-delay              1.5
-              treemacs-width                         35)
+      (append '((racket . t) (scribble . t)) org-babel-load-languages))
 
-        ;; The default width and height of the icons is 22 pixels. If you are
-        ;; using a Hi-DPI display, uncomment this to double the icon size.
-        ;;(treemacs-resize-icons 44)
-
-        (treemacs-follow-mode t)
-        (treemacs-filewatch-mode t)
-        (treemacs-fringe-indicator-mode t)
-        (pcase (cons (not (null (executable-find "git")))
-                     (not (null (executable-find "python3"))))
-          (`(t . t)
-           (treemacs-git-mode 'deferred))
-          (`(t . _)
-           (treemacs-git-mode 'simple))))
-      :bind
-      (:map global-map
-            ("M-0"       . treemacs-select-window)
-            ("C-x t 1"   . treemacs-delete-other-windows)
-            ("C-x t t"   . treemacs)
-            ("C-x t B"   . treemacs-bookmark)
-            ("C-x t C-t" . treemacs-find-file)
-            ("C-x t M-t" . treemacs-find-tag)))
-
-    ;; (use-package treemacs-evil
-    ;;   :after treemacs evil
-    ;;   :ensure t)
-
-    (use-package treemacs-projectile
-      :after treemacs projectile
+  #+end_src
+* shell-pop
+  #+begin_src emacs-lisp
+  (use-package shell-pop
+    :config
+    (defun gb/shell-pop-new ()
+      (interactive)
+      (let ((current-prefix-arg '(4))) ;; emulate C-u
+        (call-interactively 'shell-pop)))
+    :bind (("C-c C-h" . gb/shell-pop-new)))
+  #+end_src
+* restclient
+  #+begin_src emacs-lisp
+    (use-package restclient
       :ensure t)
-
-    ;; (use-package treemacs-icons-dired
-    ;;   :after treemacs dired
-    ;;   :ensure t
-    ;;   :config (treemacs-icons-dired-mode))
-
-    (use-package treemacs-magit
-      :after treemacs magit
+    (use-package ob-restclient
+      :ensure t
+      :config (add-to-list 'org-babel-load-languages '(restclient . t))
+      (org-babel-do-load-languages 'org-babel-load-languages org-babel-load-languages))
+    (use-package company-restclient
+      :after company
+      :ensure t
+      :config (add-to-list 'company-backends 'company-restclient))
+    (use-package restclient-helm
       :ensure t)
-
-    ;; (use-package lsp-treemacs
-    ;;   :after treemacs lsp-mode
-    ;;   :ensure t)
+    (use-package restclient-test
+      :ensure t)
   #+end_src
 * exwm (emacs window manager)
 #+BEGIN_SRC emacs-lisp
@@ -10977,6 +10643,109 @@
 
 
   #+END_SRC
+* EVAL winum (select windows by number, which is shown in the modeline)
+  - is useful for native applications in exwm, since ace-window cannot overlay those with the key to select those
+  #+begin_src emacs-lisp
+  (use-package winum
+    :ensure t
+    :config (winum-mode))
+  #+end_src
+* EVAL org-noter (keep notes to pdf, epub etc. files, that scroll with the document)
+  - execute org-noter within a pdf document (pdf-tools), or epub (nov.el) ...
+  - now you are in a noter session (quit with q)
+  - i = insert note for page
+  - M-i = insert note with precise location (asked to click)
+  - M-n/p = jump to next/previous annotated page
+  #+begin_src emacs-lisp
+  (use-package org-noter
+    :ensure t
+    :commands (org-noter))
+  #+end_src
+* EVAL treemacs (start with C-x t t)
+  - see [[https://github.com/Alexander-Miller/treemacs][here]]
+  #+begin_src emacs-lisp
+    (use-package treemacs
+      :ensure t
+      :defer t
+      :init
+      (with-eval-after-load 'winum
+        (define-key winum-keymap (kbd "M-0") #'treemacs-select-window))
+      :config
+      (progn
+        (setq treemacs-collapse-dirs                 (if (executable-find "python") 3 0)
+              treemacs-deferred-git-apply-delay      0.5
+              treemacs-display-in-side-window        t
+              treemacs-file-event-delay              5000
+              treemacs-file-follow-delay             0.2
+              treemacs-follow-after-init             t
+              treemacs-git-command-pipe              ""
+              treemacs-goto-tag-strategy             'refetch-index
+              treemacs-indentation                   2
+              treemacs-indentation-string            " "
+              treemacs-is-never-other-window         nil
+              treemacs-max-git-entries               5000
+              treemacs-no-png-images                 nil
+              treemacs-no-delete-other-windows       t
+              treemacs-project-follow-cleanup        nil
+              treemacs-persist-file                  (expand-file-name ".cache/treemacs-persist" user-emacs-directory)
+              treemacs-recenter-distance             0.1
+              treemacs-recenter-after-file-follow    nil
+              treemacs-recenter-after-tag-follow     nil
+              treemacs-recenter-after-project-jump   'always
+              treemacs-recenter-after-project-expand 'on-distance
+              treemacs-show-cursor                   nil
+              treemacs-show-hidden-files             t
+              treemacs-silent-filewatch              nil
+              treemacs-silent-refresh                nil
+              treemacs-sorting                       'alphabetic-desc
+              treemacs-space-between-root-nodes      t
+              treemacs-tag-follow-cleanup            t
+              treemacs-tag-follow-delay              1.5
+              treemacs-width                         35)
+
+        ;; The default width and height of the icons is 22 pixels. If you are
+        ;; using a Hi-DPI display, uncomment this to double the icon size.
+        ;;(treemacs-resize-icons 44)
+
+        (treemacs-follow-mode t)
+        (treemacs-filewatch-mode t)
+        (treemacs-fringe-indicator-mode t)
+        (pcase (cons (not (null (executable-find "git")))
+                     (not (null (executable-find "python3"))))
+          (`(t . t)
+           (treemacs-git-mode 'deferred))
+          (`(t . _)
+           (treemacs-git-mode 'simple))))
+      :bind
+      (:map global-map
+            ("M-0"       . treemacs-select-window)
+            ("C-x t 1"   . treemacs-delete-other-windows)
+            ("C-x t t"   . treemacs)
+            ("C-x t B"   . treemacs-bookmark)
+            ("C-x t C-t" . treemacs-find-file)
+            ("C-x t M-t" . treemacs-find-tag)))
+
+    ;; (use-package treemacs-evil
+    ;;   :after treemacs evil
+    ;;   :ensure t)
+
+    (use-package treemacs-projectile
+      :after treemacs projectile
+      :ensure t)
+
+    ;; (use-package treemacs-icons-dired
+    ;;   :after treemacs dired
+    ;;   :ensure t
+    ;;   :config (treemacs-icons-dired-mode))
+
+    (use-package treemacs-magit
+      :after treemacs magit
+      :ensure t)
+
+    ;; (use-package lsp-treemacs
+    ;;   :after treemacs lsp-mode
+    ;;   :ensure t)
+  #+end_src
 * EVAL emacs surround (see [[https://github.com/ganmacs/emacs-surround][here]])
   #+begin_src emacs-lisp
   (when (file-exists-p "~/.emacs.d/additionals/emacs-surround/emacs-surround.el")
@@ -10984,54 +10753,11 @@
       :load-path "/home/pe/.emacs.d/additionals/emacs-surround"
       :bind (("s-q c s" . emacs-surround))))
   #+end_src
-* EVAL racket
-  #+begin_src emacs-lisp
-    (use-package racket-mode
-      :ensure t
-      :bind (:map racket-mode-map
-                  ("C-c r" . #'racket-run))
-      :init
-      (when (fboundp 'paredit-mode)
-        (add-hook 'racket-mode-hook 'paredit-mode))
-      (when (boundp 'prettify-greek-upper)
-        (add-hook 'racket-mode-hook
-                  (lambda ()
-                    (setq prettify-symbols-alist prettify-greek-lower)
-                    (prettify-symbols-mode t))))
-      (when (fboundp 'gb/enable-ligatures))
-          (add-hook 'racket-mode-hook
-                  (lambda () (gb/enable-ligatures))))
-    (use-package flymake-racket
-      :after racket-mode
-      :ensure t
-      :config (flymake-racket-setup))
-    (use-package scribble-mode ;; documentation files
-      :after racket-mode
-      :ensure t
-      :init
-      (add-hook 'scribble-mode-hook #'racket-mode))
-    (use-package ob-racket
-      :load-path "~/.emacs.d/additionals/ob-racket/"
-      :after org
-      :config
-      (append '((racket . t) (scribble . t)) org-babel-load-languages))
-
-  #+end_src
 * EVAL browse-kill-ring
   #+begin_src emacs-lisp
   (use-package browse-kill-ring
     :load-path "/home/pe/.emacs.d/additionals/browse-kill-ring"
     :commands (browse-kill-ring))
-  #+end_src
-* EVAL shell-pop
-  #+begin_src emacs-lisp
-  (use-package shell-pop
-    :config
-    (defun gb/shell-pop-new ()
-      (interactive)
-      (let ((current-prefix-arg '(4))) ;; emulate C-u
-        (call-interactively 'shell-pop)))
-    :bind (("C-c C-h" . gb/shell-pop-new)))
   #+end_src
 * EVAL pdf-view-restore (disabled)
   - stores .pdf-view-restore in each folder where pdfs are opned!
@@ -11052,29 +10778,301 @@
   #+begin_src emacs-lisp
     (use-package sysctl)
   #+end_src
-* INTERESTING isearch-project, gnus-summary-repo, dash-docs, aio, json-reformatter-jq, multi-magit, live-preview, nix-haskell-mode, elpl (emacs lisp repl)
 * EVAL dianyou (gnus mail searching see https://github.com/redguardtoo/dianyou/blob/master/dianyou.el)
   #+begin_src emacs-lisp
     (use-package dianyou
       :ensure t)
   #+end_src
-* EVAL restclient
-  #+begin_src emacs-lisp
-    (use-package restclient
-      :ensure t)
-    (use-package ob-restclient
-      :ensure t
-      :config (add-to-list 'org-babel-load-languages '(restclient . t))
-      (org-babel-do-load-languages 'org-babel-load-languages org-babel-load-languages))
-    (use-package company-restclient
-      :after company
-      :ensure t
-      :config (add-to-list 'company-backends 'company-restclient))
-    (use-package restclient-helm
-      :ensure t)
-    (use-package restclient-test
-      :ensure t)
-  #+end_src
+* INTERESTING isearch-project, gnus-summary-repo, dash-docs, aio, json-reformatter-jq, multi-magit, live-preview, nix-haskell-mode, elpl (emacs lisp repl)
+* to test
+#+BEGIN_SRC emacs-lisp
+(report-elapsed "check point to test")
+#+END_SRC
+** deadgrep - ripgrep front end
+** helm-tail - tailing of several sources
+** lsp-html - lsp frontend for html serving
+** project-abbrev - project specific abbrev expansion
+** template-overlays - overlays for template regions
+** company-posframe (company in separate frame, alternative to company box?)
+** exwm-edit (allow to edit any editable field within exwm into a separate buffer just as atomic-chrome)
+** company-nginx (allow for company completion of nginx files)
+** rustic (major mode for rust)
+** company-prescient (ordering and filtering of candidates)
+** organize imports java
+   - needs configuration, see here https://github.com/jcs090218/organize-imports-java
+   #+BEGIN_SRC emacs-lisp :tangle no
+   (use-package organize-imports-java)
+   #+END_SRC
+** ccls (c++ language server for lsp ui)
+   - see here https://github.com/MaskRay/emacs-ccls
+** karma test runner integration
+   - upbo
+** gif-screencast
+   - allow screencast recording single gif for each action, combining them into animated gifs thereafter
+   - https://github.com/Ambrevar/emacs-gif-screencast
+** ob-clojure-literate
+** org-send-ebook
+   - send an ebook link to an external device (ebook reader) from org mode
+** scp (use scp to transfer files)
+** smart-jump (smart go to definition)
+** network-watch (allows hooks to run when network is goiing down/up)
+** latexdiff (diff between two latex files)
+** easy-jekyll (tool to manage jekyll blogs)
+** orca (org-capture configuration)
+   - allows filing based on the url it was captured from into special files/headers etc.
+** lsp-javacomp
+   - lsp support for java using [[https://github.com/tigersoldier/JavaComp][java-comp]]
+** archive-rpm
+   - provide an interface for rpm package open (extends archive-mode)
+** zoom
+   - keeps balanced windows, zooming the one currently having the focus
+** ox-hugo
+   - export org markdown to hugo blog entries
+   - see [[https://github.com/kaushalmodi/ox-hugo][here]]
+** shrink-path
+   - do fish like reduciton of paths (e.g. for modeline)
+** highlight-function-calls
+   - highlight functions in lisp specially
+** org-mind-map
+   - translate an org file into a mind map
+** org-super-agenda
+   - see [[https://github.com/alphapapa/org-super-agenda][here]]
+   - This package lets you "supercharge" your Org daily/weekly agenda. The idea is to group items into sections, rather than having them all
+     in one big list.
+   - lets you group agenda entries based on tags, regex on title, todo status etc.
+** org-projectile-helm
+   - This package aims to provide an easy interface to creating per project org-mode TODO headings.
+** org-category-capture
+   - This package aims to provide an easy interface to creating per project org-mode TODO headings.
+     #+BEGIN_SRC emacs-lisp
+     (use-package org-category-capture
+       :after ( org))
+     #+END_SRC
+** projectile-codesearch (use codesearch to query projects)
+** zop-to-char (more options during zap to char)
+** sx (elaborate stack exchange interface for emacs)
+** swiper-helm (helm interface for swipter)
+** html5-schema (html5 support for nXML)
+** magit-tbdiff (diffing extension for magit)
+   - git-tbdiff is a git extension that allows diffs for topic branches
+   - tbdiff shows the differences between two versions of a patch series, or more generally, two sets of commits (ignoring merges). To do
+     this in a meaningful way, it tries to find a good correspondence between commits in the two versions (see Algorithm below), and then
+     shows the difference between the pairs found. It also copes with removal and addition of commits.
+   - see [[https://github.com/magit/magit-tbdiff][link]]
+** indium (java script development environment)
+   - [[https://github.com/NicolasPetton/Indium][home page]]
+** company suggest (propose sentence completion based on wikionary or google)
+   - company-suggest, see [[https://github.com/juergenhoetzel/company-suggest][here]]
+* look at
+#+BEGIN_SRC emacs-lisp
+(report-elapsed "check point look at")
+#+END_SRC
+** org-present using a cell phone to switch pages
+   #+BEGIN_SRC emacs-lisp :tangle no
+   (use-package org-present-remote
+     :after org)
+   #+END_SRC
+** yaml-imode
+   - This package enhances the imenu support in yaml-mode
+   - requires ruby >= 2.5
+     #+BEGIN_SRC emacs-lisp :tangle no
+     (use-package yaml-imode)
+     #+END_SRC
+** powerthesaurus - interface to powerthesaurus.org
+** eglot - lsp client (for multiple languages)
+** pickle - Major mode for editing cucumber gherkin files.
+** attrap - Attrap! provides a command to attempt to fix the flycheck error at point.(haskel and elisp currently)
+** git-msg-prefix, provide prefix for commit messages based on previous commit messages and the like
+** org-wild-notifier, customizable notifier for org agenda entries (global or per entry)
+** texfrag
+   - allow tex fragments preview in (almost) any buffer
+   - see [[https://github.com/TobiasZawada/texfrag][here]]
+** counsel-tramp
+** helm-selected
+** use-package-ensure-system-package
+   - require binaries / packages of the underlying system for installation of package
+   - if provided with installation script might even execute the appropriate installation
+   - see [[https://github.com/waymondo/use-package-ensure-system-package][here]]
+* discarded
+** pinentry (obsolete as of emacs 26)
+   #+BEGIN_SRC emacs-lisp :tangle no
+     (use-package pinentry
+       :config
+       (progn
+         (pinentry-start)
+         ))
+   #+END_SRC
+** company quickhelp - produces help popups for company candidates (replaced by company-box)
+   #+BEGIN_SRC emacs-lisp :tangle no
+       (use-package company-quickhelp
+         ;; :ensure t
+         :after (company-box)
+         :config
+         (progn
+           ;; (company-quickhelp-mode 1)
+           (setq company-quickhelp-use-propertized-text t)
+           (setq company-quickhelp-max-lines 30)
+           ;; (setq company-quickhelp-color-background "gray80")
+           ;; (setq company-quickhelp-color-foreground "black")
+           ))
+   #+END_SRC
+** exwm-surf
+   - allows to control surf within exwm
+   - surf is a webkit based browser that works as embedded x application and can thus be embedded into emacs directly
+   - don't need this, since chromium or firefox can be directly embedded into exwm
+#+BEGIN_SRC emacs-lisp
+(report-elapsed "check point 4")
+#+END_SRC
+* tested but discarded
+** ranger (file browser/previewer, using dired)
+   #+BEGIN_SRC emacs-lisp :tangle no
+     (use-package ranger
+       :ensure t
+       :config
+       (setq ranger-hide-cursor nil))
+   #+END_SRC
+** diminish (hide minor modes from spaceline mode line) (obsolete now)
+   - its still a dependency of use-package, so its still loaded
+   #+BEGIN_SRC emacs-lisp :tangle no
+     (use-package diminish) ;; actual diminishing of modes is executed after init is completely run (see end of file)
+   #+END_SRC
+** use line if no region (deactive, currently evaluating easy-kill)
+   uses a line as region if no active region is selected and a
+   command is issued that works on regions
+   (not: M-% replace)
+   (yes: C-w)
+   #+BEGIN_SRC emacs-lisp :tangle no
+     (use-package whole-line-or-region
+     :config
+     (whole-line-or-region-mode 1))
+   #+END_SRC
+** mode icons (disabled)
+   - no longer used, since spaceline brings its own set of mode icons
+ #+BEGIN_SRC emacs-lisp :tangle no
+   (use-package mode-icons
+     :disabled t
+     :config
+     (mode-icons-mode)
+     (setq mode-icons-desaturate-inactive t)
+     (setq mode-icons-desaturate-active nil)
+     (setq mode-icons-grayscale-transform t))
+
+     ;; (defvar minor-mode-icon-list
+     ;;   '((paredit-mode paredit-mode-hook "~/icons/clojure-icon-small.png" png))
+     ;;   "define a list of icon replacements for the given minor modes")
+
+     ;; (defun install-minor-mode-icons (rem-minor-mode-icon-list)
+     ;;   (let* ((minor-mode-icon (car rem-minor-mode-icon-list))
+     ;;          (rem-minor-mode-icon-list-new (cdr rem-minor-mode-icon-list)))
+     ;;     (if minor-mode-icon
+     ;;         (add-hook (nth 1 minor-mode-icon)
+     ;;                   `(lambda ()
+     ;;                      (let* ((mode-id (nth 0 ,minor-mode-icon))
+     ;;                             (icon-path (nth 2 ,minor-mode-icon))
+     ;;                             (icon-type (nth 3 ,minor-mode-icon))
+     ;;                             (image-line `(image :type ,icon-type :file ,icon-path :ascent center :margin ( 3 . 0 )))
+     ;;                             (minor-mode-element (assoc mode-id minor-mode-alist)))
+     ;;                        (if (message "FORMATSTRING" &optional ARGS)inor-mode-element
+     ;;                          (setf (cdr minor-mode-element) (list (propertize "dummy" 'display image-line))))))))
+     ;;     (if rem-minor-mode-icon-list-new
+     ;;         install-minor-mode-icons rem-minor-mode-icon-list-new)))
+
+     ;; (install-minor-mode-icons minor-mode-icon-list)
+ #+END_SRC
+** fonts with ligatures (realized differently)
+   - the following is not functional within (my) emacs => it is not tangled
+     #+BEGIN_SRC emacs-lisp :tangle no
+
+       ;; if font with ligatures is selected, define some font compositions
+       (when (string= gb/default-font "Fira Code")
+         (let ((alist '((33 . ".\\(?:\\(?:==\\|!!\\)\\|[!=]\\)")
+                        (35 . ".\\(?:###\\|##\\|_(\\|[#(?[_{]\\)")
+                        (36 . ".\\(?:>\\)")
+                        (37 . ".\\(?:\\(?:%%\\)\\|%\\)")
+                        (38 . ".\\(?:\\(?:&&\\)\\|&\\)")
+                        (42 . ".\\(?:\\(?:\\*\\*/\\)\\|\\(?:\\*[*/]\\)\\|[*/>]\\)")
+                        (43 . ".\\(?:\\(?:\\+\\+\\)\\|[+>]\\)")
+                        (45 . ".\\(?:\\(?:-[>-]\\|<<\\|>>\\)\\|[<>}~-]\\)")
+                        (46 . ".\\(?:\\(?:\\.[.<]\\)\\|[.=-]\\)")
+                        (47 . ".\\(?:\\(?:\\*\\*\\|//\\|==\\)\\|[*/=>]\\)")
+                        (48 . ".\\(?:x[a-zA-Z]\\)")
+                        (58 . ".\\(?:::\\|[:=]\\)")
+                        (59 . ".\\(?:;;\\|;\\)")
+                        (60 . ".\\(?:\\(?:!--\\)\\|\\(?:~~\\|->\\|\\$>\\|\\*>\\|\\+>\\|--\\|<[<=-]\\|=[<=>]\\||>\\)\\|[*$+~/<=>|-]\\)")
+                        (61 . ".\\(?:\\(?:/=\\|:=\\|<<\\|=[=>]\\|>>\\)\\|[<=>~]\\)")
+                        (62 . ".\\(?:\\(?:=>\\|>[=>-]\\)\\|[=>-]\\)")
+                        (63 . ".\\(?:\\(\\?\\?\\)\\|[:=?]\\)")
+                        (91 . ".\\(?:]\\)")
+                        (92 . ".\\(?:\\(?:\\\\\\\\\\)\\|\\\\\\)")
+                        (94 . ".\\(?:=\\)")
+                        (119 . ".\\(?:ww\\)")
+                        (123 . ".\\(?:-\\)")
+                        (124 . ".\\(?:\\(?:|[=|]\\)\\|[=>|]\\)")
+                        (126 . ".\\(?:~>\\|~~\\|[>=@~-]\\)")
+                        )
+                      ))
+           (dolist (char-regexp alist)
+             (set-char-table-range composition-function-table (car char-regexp)
+                                   `([,(cdr char-regexp) 0 font-shape-gstring])))))
+     #+END_SRC
+** major mode icons
+   - does not work with spaceline (nor powerline)
+   #+BEGIN_SRC emacs-lisp :tangle no
+     (use-package xpm)
+     (use-package major-mode-icons
+       :after ( xpm)
+       :config
+       (progn
+         (setq mode-line-end-spaces
+               (quote ((:eval (major-mode-icons/show)))))
+         (major-mode-icons-mode 1)))
+   #+END_SRC
+** helm-navi
+   - does not work together with current org-mode and hide-pw
+     (opening password file does not start folded, passwords are shown)
+   #+BEGIN_SRC emacs-lisp :tangle no
+   (use-package outshine)
+   (use-package navi-mode)
+   (use-package outorg)
+   (use-package helm-navi
+     :after ( outshine navi-mode)
+     :commands helm-navi helm-navi-headings)
+   #+END_SRC
+** smex
+   - replaced by helm-M-x, a helm interface to M-x
+   #+BEGIN_SRC emacs-lisp :tangle no
+     ;; Enhances M-x to allow easier execution of commands. Provides
+     ;; a filterable list of possible commands in the minibuffer
+     ;; http://www.emacswiki.org/emacs/Smex
+     (use-package smex
+       :ensure t
+       :disabled t
+       :bind (("M-x" . smex))
+       :config
+       (progn
+       (setq smex-save-file (concat user-emacs-directory ".smex-items"))
+       (smex-initialize)))
+   #+END_SRC
+** helm-fuzzier (seems not to have any positive effect)
+   #+begin_src emacs-lisp :tangle no
+   (use-package helm-fuzzier
+     :ensure t
+     :config (helm-fuzzier-mode 1))
+   #+end_src
+** frog-jump-buffer, allows avy selection in popup frame  (discarded)
+   #+begin_src emacs-lisp :tangle no
+   (use-package frog-menu
+     :load-path "/home/pe/.emacs.d/additionals/frog-menu/")
+   (use-package frog-jump-buffer
+     :load-path "/home/pe/.emacs.d/additionals/frog-jump-buffer/"
+     :after frog-menu)
+   #+end_src
+** clear-text (mode that makes you use only the 1000 most common english words)
+ #+BEGIN_SRC emacs-lisp :tangle no
+   (use-package clear-text
+     :ensure t
+     :commands clear-text-mode)
+ #+END_SRC
 * finish - up
   #+BEGIN_SRC emacs-lisp
   (report-elapsed "enter finish - up")
