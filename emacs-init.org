@@ -11046,6 +11046,11 @@
   #+begin_src emacs-lisp
     (use-package sysctl)
   #+end_src
+* EVAL dianyou (gnus mail searching see https://github.com/redguardtoo/dianyou/blob/master/dianyou.el)
+  #+begin_src emacs-lisp
+    (use-package dianyou
+      :ensure t)
+  #+end_src
 * EVAL restclient
   #+begin_src emacs-lisp
     (use-package restclient
