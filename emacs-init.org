@@ -11046,7 +11046,22 @@
   #+begin_src emacs-lisp
     (use-package sysctl)
   #+end_src
+* EVAL restclient
   #+begin_src emacs-lisp
+    (use-package restclient
+      :ensure t)
+    (use-package ob-restclient
+      :ensure t
+      :config (add-to-list 'org-babel-load-languages '(restclient . t))
+      (org-babel-do-load-languages 'org-babel-load-languages org-babel-load-languages))
+    (use-package company-restclient
+      :after company
+      :ensure t
+      :config (add-to-list 'company-backends 'company-restclient))
+    (use-package restclient-helm
+      :ensure t)
+    (use-package restclient-test
+      :ensure t)
   #+end_src
 * finish - up
   #+BEGIN_SRC emacs-lisp
