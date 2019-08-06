@@ -423,7 +423,12 @@
                        ("melpa" . 10))))
              (paradox-list-packages nil)
              (when current-prefix-arg
-               (message "don't forget to execute M-x elpamr-create-mirror-for-installed")))
+               (message "don't forget to execute M-x gb/update-myelpa-packages")))
+         (defun gb/update-myelpa-packages ()
+           ""
+           (interactive)
+           (elpamr-create-mirror-for-installed)
+           (magit-status "~/repo/myelpa"))
          ;; (defun gb/ensure-github-token ()
          ;;   "make sure to load github token if it is empty"
          ;;   (if (not paradox-github-token)
