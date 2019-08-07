@@ -5423,148 +5423,152 @@
     #+END_SRC
 *** magit (and more)
     #+BEGIN_SRC emacs-lisp
-    (use-package ediff
-      :ensure t
-      :config
-      ;; make sure that ediff session does not open control window in separate frame, which mixes up exwm
-      (setq ediff-window-setup-function (quote ediff-setup-windows-plain)))
+      (use-package ediff
+        :ensure t
+        :config
+        ;; make sure that ediff session does not open control window in separate frame, which mixes up exwm
+        (setq ediff-window-setup-function (quote ediff-setup-windows-plain)))
 
-    ;; TODO move this function to some general function pool
-    (defun gb/display-buffer-fullframe (buffer alist)
-      "Display BUFFER in fullscreen.
+      ;; TODO move this function to some general function pool
+      (defun gb/display-buffer-fullframe (buffer alist)
+        "Display BUFFER in fullscreen.
 
-              ALIST is a `display-buffer' ALIST.
+                ALIST is a `display-buffer' ALIST.
 
-              Return the new window for BUFFER."
-      (let ((window (display-buffer-pop-up-window buffer alist)))
-        (when window
-          (delete-other-windows window))
-        window))
+                Return the new window for BUFFER."
+        (let ((window (display-buffer-pop-up-window buffer alist)))
+          (when window
+            (delete-other-windows window))
+          window))
 
-    (use-package magit-popup
-      :ensure t
-      :after ( async))
-    (use-package magit
-      :ensure t
-      ;; :after ( helm counsel async dash with-editor git-commit magit-popup)
-      :commands magit-status
-      :bind (
-             ("C-c v s" . magit-status)
-             :map magit-mode-map
-             ("C-x f" . counsel-git))
-      :init
-      (progn
+      (use-package magit-popup
+        :ensure t
+        :after ( async))
+      (use-package magit
+        :ensure t
+        ;; :after ( helm counsel async dash with-editor git-commit magit-popup)
+        :commands magit-status magit-list-repositories
+        :bind (
+               ("C-c v s" . magit-status)
+               ("C-c v l" . magit-list-repositories)
+               :map magit-mode-map
+               ("C-x f" . counsel-git)
+               :map magit-repolist-mode-map
+               ("s-i" . helm-imenu))
+        :init
+        (progn
 
-        (defun gb/magit-log-trace-definition ()
-          "Show log for the definition marked."
+          (defun gb/magit-log-trace-definition ()
+            "Show log for the definition marked."
+            (interactive)
+            (let ((fname  (or (magit-file-relative-name)
+                              (user-error "Buffer isn't visiting a file")))
+                  (fn (or (buffer-substring-no-properties (region-beginning) (region-end))
+                          (user-error "function not marked")))
+                  (rev (or magit-buffer-refname
+                           (magit-get-current-branch)
+                           "HEAD")))
+              (magit-log-trace-definition fname fn rev)))
+
+          (defun gb/disable-smartscan ()
+            ""
+            (if (fboundp #'smartscan-mode)
+              (smartscan-mode -1)))
+
+          (add-hook 'magit-mode-hook 'gb/disable-smartscan))
+        :config
+        (require 'magit-mode)
+        (setq magit-repository-directories '(( "~/repo" . 3)))
+        (setq magit-completing-read-function 'helm--completing-read-default)  ;; magit-ido-completing-read)
+        (setq magit-fetch-arguments (quote ("--prune")))
+        (setq magit-item-highlight-face nil)
+        (setq magit-last-seen-setup-instructions "1.4.0")
+        (setq magit-log-arguments (quote ("--graph" "--color" "--decorate" "-n200")))
+        (setq magit-pull-arguments (quote ("--rebase")))
+        (setq magit-use-overlays nil)
+        (setq magit-diff-refine-hunk t)
+        (setq magit-diff-adjust-tab-width t)
+        (setq magit-diff-highlight-trailing t)
+        (setq magit-diff-hide-trailing-cr-characters t)
+        (setq magit-display-buffer-function (quote magit-display-buffer-fullframe-status-v1))
+
+        ;; make sure that magit closes all other windows on the frame
+        ;; (when (fboundp 'gb/display-buffer-fullframe)
+        ;;   (add-to-list 'display-buffer-alist
+        ;;                `(,(rx "*magit: ")
+        ;;                  (gb/display-buffer-fullframe)
+        ;;                  (reusable-frames . nil))))
+      )
+      ;; show git relevant change info in the fringe of the frame
+      ;; git-gutter-fringe works with nlinum-mode !
+      (use-package git-gutter
+        :ensure t
+        :config
+        (progn
+          (custom-set-faces
+           '(git-gutter:unchanged ((t (:background "orange4")))))))
+
+      (use-package git-gutter-fringe
+        :ensure t
+        :after ( git-gutter)
+        :config (global-git-gutter-mode +1))
+
+      (use-package magit-gh-pulls
+        :after ( magit)
+        :disabled t
+        ;; :defer 40
+        :init
+        (add-hook 'magit-mode-hook 'turn-on-magit-gh-pulls))
+
+      (use-package magit-filenotify
+        :after ( magit)
+        :disabled t
+        ;; :defer 40
+        :init
+        (add-hook 'after-save-hook 'magit-after-save-refresh-status)
+        (add-hook 'magit-status-mode-hook 'magit-filenotify-mode))
+
+      ;; use automatic file notification to update magit status buffer
+      ;; (add-hook 'magit-status-mode-hook 'magit-filenotify-mode )
+      ;; currently no file notification package is available
+      ;; Activate the mode inside the magit-status buffer by calling M-x magit-filenotify-mode [RET]. Repeat the same step to deactivate it again.
+      ;; To always enable the mode when opening the magit-status buffer add magit-filenotify-mode to the magit-status-mode-hook.
+
+      (use-package magit-gitflow
+        :ensure t
+        :after ( magit)
+        :init
+        (add-hook 'magit-mode-hook 'turn-on-magit-gitflow))
+      ;; C-f in magit status buffer will invoke gitflow action selector.
+
+      (use-package git-blamed
+        :ensure t
+        ) ;; enter git-blamed-mode colors background of lines according to commit (and should echo some info depending on cursor)
+
+      (use-package git-timemachine
+        :ensure t
+        :commands git-timemachine
+        :config
+        (defun gb/git-timemachine-show-selected-revision ()
+          "Show last (current) revision of file."
           (interactive)
-          (let ((fname  (or (magit-file-relative-name)
-                            (user-error "Buffer isn't visiting a file")))
-                (fn (or (buffer-substring-no-properties (region-beginning) (region-end))
-                        (user-error "function not marked")))
-                (rev (or magit-buffer-refname
-                         (magit-get-current-branch)
-                         "HEAD")))
-            (magit-log-trace-definition fname fn rev)))
+          (let (collection)
+            (setq collection
+                  (mapcar (lambda (rev)
+                            ;; re-shape list for the ivy-read
+                            (cons (concat (substring (nth 0 rev) 0 7) "|" (nth 5 rev) "|" (nth 6 rev)) rev))
+                          (git-timemachine--revisions)))
+            (ivy-read "commits:"
+                      collection
+                      :action (lambda (rev)
+                                (git-timemachine-show-revision rev)))))
 
-        (defun gb/disable-smartscan ()
-          ""
-          (if (fboundp #'smartscan-mode)
-            (smartscan-mode -1)))
-
-        (add-hook 'magit-mode-hook 'gb/disable-smartscan))
-      :config
-      (require 'magit-mode)
-      (setq magit-completing-read-function 'helm--completing-read-default)  ;; magit-ido-completing-read)
-      (setq magit-fetch-arguments (quote ("--prune")))
-      (setq magit-item-highlight-face nil)
-      (setq magit-last-seen-setup-instructions "1.4.0")
-      (setq magit-log-arguments (quote ("--graph" "--color" "--decorate" "-n200")))
-      (setq magit-pull-arguments (quote ("--rebase")))
-      (setq magit-use-overlays nil)
-      (setq magit-diff-refine-hunk t)
-      (setq magit-diff-adjust-tab-width t)
-      (setq magit-diff-highlight-trailing t)
-      (setq magit-diff-hide-trailing-cr-characters t)
-      (setq magit-display-buffer-function (quote magit-display-buffer-fullframe-status-v1))
-
-      ;; make sure that magit closes all other windows on the frame
-      ;; (when (fboundp 'gb/display-buffer-fullframe)
-      ;;   (add-to-list 'display-buffer-alist
-      ;;                `(,(rx "*magit: ")
-      ;;                  (gb/display-buffer-fullframe)
-      ;;                  (reusable-frames . nil))))
-    )
-    ;; show git relevant change info in the fringe of the frame
-    ;; git-gutter-fringe works with nlinum-mode !
-    (use-package git-gutter
-      :ensure t
-      :config
-      (progn
-        (custom-set-faces
-         '(git-gutter:unchanged ((t (:background "orange4")))))))
-
-    (use-package git-gutter-fringe
-      :ensure t
-      :after ( git-gutter)
-      :config (global-git-gutter-mode +1))
-
-    (use-package magit-gh-pulls
-      :after ( magit)
-      :disabled t
-      ;; :defer 40
-      :init
-      (add-hook 'magit-mode-hook 'turn-on-magit-gh-pulls))
-
-    (use-package magit-filenotify
-      :after ( magit)
-      :disabled t
-      ;; :defer 40
-      :init
-      (add-hook 'after-save-hook 'magit-after-save-refresh-status)
-      (add-hook 'magit-status-mode-hook 'magit-filenotify-mode))
-
-    ;; use automatic file notification to update magit status buffer
-    ;; (add-hook 'magit-status-mode-hook 'magit-filenotify-mode )
-    ;; currently no file notification package is available
-    ;; Activate the mode inside the magit-status buffer by calling M-x magit-filenotify-mode [RET]. Repeat the same step to deactivate it again.
-    ;; To always enable the mode when opening the magit-status buffer add magit-filenotify-mode to the magit-status-mode-hook.
-
-    (use-package magit-gitflow
-      :ensure t
-      :after ( magit)
-      :init
-      (add-hook 'magit-mode-hook 'turn-on-magit-gitflow))
-    ;; C-f in magit status buffer will invoke gitflow action selector.
-
-    (use-package git-blamed
-      :ensure t
-      ) ;; enter git-blamed-mode colors background of lines according to commit (and should echo some info depending on cursor)
-
-    (use-package git-timemachine
-      :ensure t
-      :commands git-timemachine
-      :config
-      (defun gb/git-timemachine-show-selected-revision ()
-        "Show last (current) revision of file."
-        (interactive)
-        (let (collection)
-          (setq collection
-                (mapcar (lambda (rev)
-                          ;; re-shape list for the ivy-read
-                          (cons (concat (substring (nth 0 rev) 0 7) "|" (nth 5 rev) "|" (nth 6 rev)) rev))
-                        (git-timemachine--revisions)))
-          (ivy-read "commits:"
-                    collection
-                    :action (lambda (rev)
-                              (git-timemachine-show-revision rev)))))
-
-      (defun gb/git-timemachine ()
-        "Open git snapshot with the selected version.  Based on ivy-mode."
-        (interactive)
-        (unless (featurep 'git-timemachine)
-          (require 'git-timemachine))
-        (git-timemachine--start #'gb/git-timemachine-show-selected-revision)))
+        (defun gb/git-timemachine ()
+          "Open git snapshot with the selected version.  Based on ivy-mode."
+          (interactive)
+          (unless (featurep 'git-timemachine)
+            (require 'git-timemachine))
+          (git-timemachine--start #'gb/git-timemachine-show-selected-revision)))
 
 
     #+END_SRC
