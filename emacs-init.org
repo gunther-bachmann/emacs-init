@@ -10046,6 +10046,16 @@
     :bind (("C-c C-h" . gb/shell-pop-new)))
   #+end_src
 * restclient
+  - provide a mode that allows for rest calls and result presentation
+    simply paste the following text into a buffer and activate restclient-mode
+        :basicauth := (base64-encode-string "******:****")
+        :auth-header = AUTHORIZATION: Basic :basicauth
+
+        GET https://api.k8s.dev....de/api/v1/namespaces/default/pods?limit=500
+        ACCEPT: application/json;as=Table;v=v1beta1;g=meta.k8s.io, application/json
+        USER-AGENT: kubectl/v1.14.0 (linux/amd64) kubernetes/641856d
+        :auth-header
+
   #+begin_src emacs-lisp
     (use-package restclient
       :ensure t)
@@ -10066,7 +10076,7 @@
 #+BEGIN_SRC emacs-lisp
 (report-elapsed "check point exwm")
 #+END_SRC
-  - C-c C-q <next key>: results in next key being send to the x-application unmodified
+  - C-q <next key>: results in next key being send to the x-application unmodified
   - infos
     - eclipse usage
       - since eclipse is configured to use emacs key bindings they may collide with exwm and emacs native keybindings.  Thus it makes more
@@ -10780,7 +10790,7 @@
 * EVAL browse-kill-ring
   #+begin_src emacs-lisp
   (use-package browse-kill-ring
-    :load-path "/home/pe/.emacs.d/additionals/browse-kill-ring"
+    :load-path "~/.emacs.d/additionals/browse-kill-ring"
     :commands (browse-kill-ring))
   #+end_src
 * EVAL pdf-view-restore (disabled)
@@ -10807,91 +10817,6 @@
     (use-package dianyou
       :ensure t)
   #+end_src
-* INTERESTING isearch-project, gnus-summary-repo, dash-docs, aio, json-reformatter-jq, multi-magit, live-preview, nix-haskell-mode, elpl (emacs lisp repl)
-* to test
-#+BEGIN_SRC emacs-lisp
-(report-elapsed "check point to test")
-#+END_SRC
-** deadgrep - ripgrep front end
-** helm-tail - tailing of several sources
-** lsp-html - lsp frontend for html serving
-** project-abbrev - project specific abbrev expansion
-** template-overlays - overlays for template regions
-** company-posframe (company in separate frame, alternative to company box?)
-** exwm-edit (allow to edit any editable field within exwm into a separate buffer just as atomic-chrome)
-** company-nginx (allow for company completion of nginx files)
-** rustic (major mode for rust)
-** company-prescient (ordering and filtering of candidates)
-** organize imports java
-   - needs configuration, see here https://github.com/jcs090218/organize-imports-java
-   #+BEGIN_SRC emacs-lisp :tangle no
-   (use-package organize-imports-java)
-   #+END_SRC
-** ccls (c++ language server for lsp ui)
-   - see here https://github.com/MaskRay/emacs-ccls
-** karma test runner integration
-   - upbo
-** gif-screencast
-   - allow screencast recording single gif for each action, combining them into animated gifs thereafter
-   - https://github.com/Ambrevar/emacs-gif-screencast
-** ob-clojure-literate
-** org-send-ebook
-   - send an ebook link to an external device (ebook reader) from org mode
-** scp (use scp to transfer files)
-** smart-jump (smart go to definition)
-** network-watch (allows hooks to run when network is goiing down/up)
-** latexdiff (diff between two latex files)
-** easy-jekyll (tool to manage jekyll blogs)
-** orca (org-capture configuration)
-   - allows filing based on the url it was captured from into special files/headers etc.
-** lsp-javacomp
-   - lsp support for java using [[https://github.com/tigersoldier/JavaComp][java-comp]]
-** archive-rpm
-   - provide an interface for rpm package open (extends archive-mode)
-** zoom
-   - keeps balanced windows, zooming the one currently having the focus
-** ox-hugo
-   - export org markdown to hugo blog entries
-   - see [[https://github.com/kaushalmodi/ox-hugo][here]]
-** shrink-path
-   - do fish like reduciton of paths (e.g. for modeline)
-** highlight-function-calls
-   - highlight functions in lisp specially
-** org-mind-map
-   - translate an org file into a mind map
-** org-super-agenda
-   - see [[https://github.com/alphapapa/org-super-agenda][here]]
-   - This package lets you "supercharge" your Org daily/weekly agenda. The idea is to group items into sections, rather than having them all
-     in one big list.
-   - lets you group agenda entries based on tags, regex on title, todo status etc.
-** org-projectile-helm
-   - This package aims to provide an easy interface to creating per project org-mode TODO headings.
-** org-category-capture
-   - This package aims to provide an easy interface to creating per project org-mode TODO headings.
-     #+BEGIN_SRC emacs-lisp
-     (use-package org-category-capture
-       :after ( org))
-     #+END_SRC
-** projectile-codesearch (use codesearch to query projects)
-** zop-to-char (more options during zap to char)
-** sx (elaborate stack exchange interface for emacs)
-** swiper-helm (helm interface for swipter)
-** html5-schema (html5 support for nXML)
-** magit-tbdiff (diffing extension for magit)
-   - git-tbdiff is a git extension that allows diffs for topic branches
-   - tbdiff shows the differences between two versions of a patch series, or more generally, two sets of commits (ignoring merges). To do
-     this in a meaningful way, it tries to find a good correspondence between commits in the two versions (see Algorithm below), and then
-     shows the difference between the pairs found. It also copes with removal and addition of commits.
-   - see [[https://github.com/magit/magit-tbdiff][link]]
-** indium (java script development environment)
-   - [[https://github.com/NicolasPetton/Indium][home page]]
-** company suggest (propose sentence completion based on wikionary or google)
-   - company-suggest, see [[https://github.com/juergenhoetzel/company-suggest][here]]
-* look at
-#+BEGIN_SRC emacs-lisp
-(report-elapsed "check point look at")
-#+END_SRC
-** org-present using a cell phone to switch pages
 * EVAL tempbuff mode
   - remove buffers deemed unused see https://www.emacswiki.org/emacs/TempbufMode
   #+begin_src emacs-lisp
@@ -10913,31 +10838,136 @@
          :keymap 'macrostep-keymap
          :transient t)))
   #+end_src
+* INTERESTING
+** blog/presentation
+  - org-present using a cell phone to switch pages
    #+BEGIN_SRC emacs-lisp :tangle no
    (use-package org-present-remote
      :after org)
    #+END_SRC
-** yaml-imode
-   - This package enhances the imenu support in yaml-mode
-   - requires ruby >= 2.5
-     #+BEGIN_SRC emacs-lisp :tangle no
-     (use-package yaml-imode)
-     #+END_SRC
-** powerthesaurus - interface to powerthesaurus.org
-** eglot - lsp client (for multiple languages)
-** pickle - Major mode for editing cucumber gherkin files.
-** attrap - Attrap! provides a command to attempt to fix the flycheck error at point.(haskel and elisp currently)
-** git-msg-prefix, provide prefix for commit messages based on previous commit messages and the like
-** org-wild-notifier, customizable notifier for org agenda entries (global or per entry)
-** texfrag
-   - allow tex fragments preview in (almost) any buffer
-   - see [[https://github.com/TobiasZawada/texfrag][here]]
-** counsel-tramp
-** helm-selected
-** use-package-ensure-system-package
-   - require binaries / packages of the underlying system for installation of package
-   - if provided with installation script might even execute the appropriate installation
-   - see [[https://github.com/waymondo/use-package-ensure-system-package][here]]
+  - easy-jekyll (tool to manage jekyll blogs)
+  - ox-hugo
+    - export org markdown to hugo blog entries
+    - see [[https://github.com/kaushalmodi/ox-hugo][here]]
+  - gif-screencast
+    - allow screencast recording single gif for each action, combining them into animated gifs thereafter
+    - https://github.com/Ambrevar/emacs-gif-screencast
+** completion/templates
+  - company suggest (propose sentence completion based on wikionary or google)
+    - company-suggest, see [[https://github.com/juergenhoetzel/company-suggest][here]]
+  - project-abbrev - project specific abbrev expansion
+  - company-posframe (company in separate frame, alternative to company box?)
+  - company-nginx (allow for company completion of nginx files)
+  - company-prescient (ordering and filtering of candidates)
+** configuration
+  - use-package-ensure-system-package
+    - require binaries / packages of the underlying system for installation of package
+    - if provided with installation script might even execute the appropriate installation
+    - see [[https://github.com/waymondo/use-package-ensure-system-package][here]]
+** document
+  - latexdiff (diff between two latex files)
+  - texfrag
+    - allow tex fragments preview in (almost) any buffer
+    - see [[https://github.com/TobiasZawada/texfrag][here]]
+** function selection
+  - helm-selected
+** git
+  - magit-tbdiff (diffing extension for magit)
+    - git-tbdiff is a git extension that allows diffs for topic branches
+    - tbdiff shows the differences between two versions of a patch series, or more generally, two sets of commits (ignoring merges). To do
+      this in a meaningful way, it tries to find a good correspondence between commits in the two versions (see Algorithm below), and then
+      shows the difference between the pairs found. It also copes with removal and addition of commits.
+    - see [[https://github.com/magit/magit-tbdiff][link]]
+  - git-msg-prefix, provide prefix for commit messages based on previous commit messages and the like
+  - multi-magit
+  - github-notifier: display github notifications in modeline (see [[https://github.com/xuchunyang/github-notifier.el][here]])
+  - magit-circleci: magit extension for circleci (see last build result ...)
+** java/kotlin/scala
+  - lsp-javacomp
+    - lsp support for java using [[https://github.com/tigersoldier/JavaComp][java-comp]]
+  - organize imports java
+    - needs configuration, see here https://github.com/jcs090218/organize-imports-java
+    #+BEGIN_SRC emacs-lisp :tangle no
+    (use-package organize-imports-java)
+    #+END_SRC
+** languages
+  - karma test runner integration (upbo)
+  - rustic (major mode for rust)
+  - ccls (c++ language server for lsp ui), see here https://github.com/MaskRay/emacs-ccls
+  - eglot - lsp client (for multiple languages)
+  - dash-docs
+*** javascript/json/yaml/html
+    - indium (java script development environment) [[https://github.com/NicolasPetton/Indium][home page]]
+    - lsp-html - lsp frontend for html serving
+    - html5-schema (html5 support for nXML)
+    - json-reformatter-jq
+    - yaml-imode
+      - This package enhances the imenu support in yaml-mode
+      - requires ruby >= 2.5
+          #+BEGIN_SRC emacs-lisp :tangle no
+          (use-package yaml-imode)
+          #+END_SRC
+** lisp/racket/haskell/clojure
+  - ob-clojure-literate
+  - highlight-function-calls
+    - highlight functions in lisp specially
+  - attrap - Attrap! provides a command to attempt to fix the flycheck error at point.(haskell and elisp currently)
+  - nix-haskell-mode
+  - elpl (emacs lisp repl)
+** mail
+  - gnus-summary-repo
+** navigation
+  - smart-jump (smart go to definition)
+** org
+  - org-wild-notifier, customizable notifier for org agenda entries (global or per entry)
+  - orca (org-capture configuration)
+    - allows filing based on the url it was captured from into special files/headers etc.
+  - org-send-ebook
+    - send an ebook link to an external device (ebook reader) from org mode
+  - org-mind-map
+    - translate an org file into a mind map
+  - org-super-agenda
+    - see [[https://github.com/alphapapa/org-super-agenda][here]]
+    - This package lets you "supercharge" your Org daily/weekly agenda. The idea is to group items into sections, rather than having them all
+      in one big list.
+    - lets you group agenda entries based on tags, regex on title, todo status etc.
+  - org-projectile-helm
+    - This package aims to provide an easy interface to creating per project org-mode TODO headings.
+  - org-category-capture
+    - This package aims to provide an easy interface to creating per project org-mode TODO headings.
+      #+BEGIN_SRC emacs-lisp
+      (use-package org-category-capture
+        :after ( org))
+      #+END_SRC
+** os/system
+  - network-watch (allows hooks to run when network is goiing down/up)
+  - scp (use scp to transfer files)
+  - kubel: Emacs extension for controlling Kubernetes with limited permissions. (https://github.com/abrochard/kubel)
+  - archive-rpm
+    - provide an interface for rpm package open (extends archive-mode)
+  - counsel-tramp
+** searching/replace
+  - zop-to-char (more options during zap to char)
+  - deadgrep - ripgrep front end
+  - projectile-codesearch (use codesearch to query projects)
+  - isearch-project
+  - swiper-helm (helm interface for swipter)
+  - color-rg: search and refactoring tool based in ripgrep (see [[https://github.com/manateelazycat/color-rg][here]])
+** utilities
+  - shrink-path
+    - do fish like reduciton of paths (e.g. for modeline)
+** windowmanager/x-integration
+  - exwm-edit (allow to edit any editable field within exwm into a separate buffer just as atomic-chrome)
+  - zoom
+    - keeps balanced windows, zooming the one currently having the focus
+** unsorted
+  - helm-tail - tailing of several sources
+  - template-overlays - overlays for template regions
+  - sx (elaborate stack exchange interface for emacs)
+  - powerthesaurus - interface to powerthesaurus.org
+  - pickle - Major mode for editing cucumber gherkin files.
+  - aio
+  - live-preview
 * discarded
 ** pinentry (obsolete as of emacs 26)
    #+BEGIN_SRC emacs-lisp :tangle no
@@ -10968,7 +10998,6 @@
 #+BEGIN_SRC emacs-lisp
 (report-elapsed "check point 4")
 #+END_SRC
-* tested but discarded
 ** ranger (file browser/previewer, using dired)
    #+BEGIN_SRC emacs-lisp :tangle no
      (use-package ranger
