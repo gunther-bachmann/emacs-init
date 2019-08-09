@@ -10892,6 +10892,27 @@
 (report-elapsed "check point look at")
 #+END_SRC
 ** org-present using a cell phone to switch pages
+* EVAL tempbuff mode
+  - remove buffers deemed unused see https://www.emacswiki.org/emacs/TempbufMode
+  #+begin_src emacs-lisp
+    (when (file-exists-p "~/.emacs.d/additionals/tempbuf.el")
+      (use-package tempbuf
+        :load-path "~/.emacs.d/additionals/"
+        :config (add-hook 'after-change-major-mode-hook 'turn-on-tempbuf-mode)))
+  #+end_src
+* EVAL hercules
+  - see https://gitlab.com/jjzmajic/hercules.el
+  - creates hydra like popups derived from which key information
+  #+begin_src emacs-lisp
+    (when (file-exists-p "~/.emacs.d/additionals/hercules.el/hercules.el")
+      (use-package hercules
+        :load-path "~/.emacs.d/additionals/hercules.el/"
+        :config
+        (hercules-def
+         :toggle-funs #'macrostep-mode
+         :keymap 'macrostep-keymap
+         :transient t)))
+  #+end_src
    #+BEGIN_SRC emacs-lisp :tangle no
    (use-package org-present-remote
      :after org)
