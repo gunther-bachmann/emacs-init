@@ -9146,6 +9146,10 @@
        :ensure t
        :after (company terraform-mode)
        :config (company-terraform-init))
+     (when (file-exists-p "~/.emacs.d/additionals/terraform-doc.el")
+       (use-package terraform-doc
+         :load-path "~/.emacs.d/additionals"
+         :commands terraform-doc))
    #+end_src
 ** jest (javascript/typescript testing)
    - see https://jestjs.io/
