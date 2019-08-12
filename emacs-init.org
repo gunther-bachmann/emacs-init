@@ -10877,8 +10877,9 @@
   - texfrag
     - allow tex fragments preview in (almost) any buffer
     - see [[https://github.com/TobiasZawada/texfrag][here]]
-** function selection
+** (function) selection
   - helm-selected
+  - helm-org - Helm for org headlines and keywords completion
 ** git
   - magit-tbdiff (diffing extension for magit)
     - git-tbdiff is a git extension that allows diffs for topic branches
@@ -10954,6 +10955,7 @@
   - archive-rpm
     - provide an interface for rpm package open (extends archive-mode)
   - counsel-tramp
+  - proced-narrow - Live-narrowing of search results for proced.
 ** searching/replace
   - zop-to-char (more options during zap to char)
   - deadgrep - ripgrep front end
@@ -10969,6 +10971,7 @@
   - zoom
     - keeps balanced windows, zooming the one currently having the focus
 ** unsorted
+  - flycheck-indicator - A fancy mode line indicator for `flycheck-mode'
   - helm-tail - tailing of several sources
   - template-overlays - overlays for template regions
   - sx (elaborate stack exchange interface for emacs)
