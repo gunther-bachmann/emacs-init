@@ -9066,6 +9066,13 @@
       :defer 30)
     (use-package company-nixos-options
       :after (company nixos-options cl-lib)
+      :ensure t
+      :config
+      ;; overwrite function with patched version (to work with org-babel)
+      (defun company-nixos--in-nix-context-p ()
+        (or (eq major-mode 'nix-mode)
+           (equal "nix" (file-name-extension
+                         (or (buffer-file-name (current-buffer)) "")))))
       :init (add-to-list 'company-backends 'company-nixos-options))
     (use-package nix-mode)
     (use-package direnv
