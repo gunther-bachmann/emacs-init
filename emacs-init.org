@@ -10849,6 +10849,12 @@
          :keymap 'macrostep-keymap
          :transient t)))
   #+end_src
+* EVAL scihub (access to otherwise under copyright inaccessible research papers etc.)
+  #+begin_src emacs-lisp
+    (use-package scihub
+      :config
+      (setq scihub-download-directory "~/Downloads"))
+  #+end_src
 * INTERESTING
 ** blog/presentation
   - org-present using a cell phone to switch pages
