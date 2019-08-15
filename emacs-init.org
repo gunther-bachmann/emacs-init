@@ -10834,7 +10834,7 @@
     (when (file-exists-p "~/.emacs.d/additionals/tempbuf.el")
       (use-package tempbuf
         :load-path "~/.emacs.d/additionals/"
-        :config (add-hook 'after-change-major-mode-hook 'turn-on-tempbuf-mode)))
+        :config (add-hook 'dired-mode-hook 'turn-on-tempbuf-mode)))
   #+end_src
 * EVAL hercules
   - see https://gitlab.com/jjzmajic/hercules.el
