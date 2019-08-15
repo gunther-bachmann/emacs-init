@@ -10234,7 +10234,7 @@
                          (monitor (nth (+ 1 (* 2 workspaceIdx)) exwm-randr-workspace-monitor-plist)))
                     (if (or (s-equals? (gb/get-primary-monitor) monitor)
                             (string-empty-p (gb/get-second-monitor)))
-                        (progn (message "no workspace left of this.") nil)
+                        (progn (message "no workspace left of this.") (beacon-blink) nil)
                       (setq gb/exwm--previous-workspace workspaceIdx)
                       (exwm-workspace-switch 0)
                       (doom-modeline-set-selected-window)
@@ -10249,6 +10249,7 @@
                              (not (string-empty-p (gb/get-second-monitor))))
                         (progn (exwm-workspace-switch gb/exwm--previous-workspace) t)
                       (message "no workspace right of this.")
+                      (beacon-blink)
                       nil)))
                 (defun gb/exwm-workspace-down ()
                   "jump to workspace down of the current one (multi monitor)"
@@ -10264,7 +10265,8 @@
                         (progn (exwm-workspace-switch (+ 1 workspaceIdx))
                                (gb/exwm-visualize-workspace-switch (+ workspaceIdx (if single-mon-p 1 0)) (- (length exwm-workspace--list) (if single-mon-p 0 1)) 10)
                                (doom-modeline-set-selected-window))
-                      (message "no workspace below this."))))
+                      (message "no workspace below this.")
+                      (beacon-blink))))
                 (defun gb/exwm-workspace-up ()
                   "jump to workspace up of the current one (multi monitor)"
                   (interactive)
@@ -10278,7 +10280,8 @@
                         (progn (exwm-workspace-switch (- workspaceIdx 1))
                                (gb/exwm-visualize-workspace-switch (- workspaceIdx (if single-mon-p 1 2)) (- (length exwm-workspace--list) (if single-mon-p 0 1)) 10)
                                (doom-modeline-set-selected-window))
-                      (message "no workspace above this"))))
+                      (message "no workspace above this")
+                      (beacon-blink))))
                 (defun gb/exwm-next-workspace (&optional inc)
                   "jump to the next (inc) workspace"
                   (interactive)
