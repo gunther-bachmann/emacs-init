@@ -9201,10 +9201,10 @@
        :ensure t
        :after (company terraform-mode)
        :config (company-terraform-init))
-     (when (file-exists-p "~/.emacs.d/additionals/terraform-doc.el")
-       (use-package terraform-doc
-         :load-path "~/.emacs.d/additionals"
-         :commands terraform-doc))
+     (use-package terraform-doc
+       :ensure t
+       :after (terraform-mode)
+       :commands terraform-doc)
    #+end_src
 ** jest (javascript/typescript testing)
    - see https://jestjs.io/
@@ -10346,7 +10346,7 @@
 
         :ensure t)
       (use-package exwm-mff
-        :load-path "/home/pe/.emacs.d/additionals/exwm-mff"
+        :ensure t
         :config
         (defun gb/mouse-pointer-to-cursor ()
           (interactive)
@@ -10902,6 +10902,14 @@
       :config
       (setq scihub-download-directory "~/Downloads"))
   #+end_src
+* EVAL POSTPONED company-fuzzy
+  - takes too long
+  - does not allow for narrowing down
+  - may interfer with company-hard
+  #+begin_src emacs-lisp :tangle to
+    (use-package company-fuzzy
+      :ensure t)
+  #+end_src
 * INTERESTING
 ** blog/presentation
   - org-present using a cell phone to switch pages
@@ -10910,6 +10918,7 @@
      :after org)
    #+END_SRC
   - easy-jekyll (tool to manage jekyll blogs)
+  - grip-mode (preview md files as github does)
   - ox-hugo
     - export org markdown to hugo blog entries
     - see [[https://github.com/kaushalmodi/ox-hugo][here]]
@@ -10923,6 +10932,7 @@
   - company-posframe (company in separate frame, alternative to company box?)
   - company-nginx (allow for company completion of nginx files)
   - company-prescient (ordering and filtering of candidates)
+  - company-fuzzy (fuzzy matchin in company mode)
 ** configuration
   - use-package-ensure-system-package
     - require binaries / packages of the underlying system for installation of package
@@ -10947,6 +10957,8 @@
   - multi-magit
   - github-notifier: display github notifications in modeline (see [[https://github.com/xuchunyang/github-notifier.el][here]])
   - magit-circleci: magit extension for circleci (see last build result ...)
+  - magit-vcsh, vcsh (vcsh allow separation of .git tree and actual files -> easy way to add file, like dot files from your home directory
+    into a version controlled repository)
 ** java/kotlin/scala
   - lsp-javacomp
     - lsp support for java using [[https://github.com/tigersoldier/JavaComp][java-comp]]
@@ -11014,6 +11026,7 @@
   - proced-narrow - Live-narrowing of search results for proced.
 ** searching/replace
   - zop-to-char (more options during zap to char)
+  - mark-thing-at (mark certain things at point, e.g. words, s-exp, url, filename ...)
   - deadgrep - ripgrep front end
   - projectile-codesearch (use codesearch to query projects)
   - isearch-project
@@ -11024,6 +11037,7 @@
     - do fish like reduciton of paths (e.g. for modeline)
 ** windowmanager/x-integration
   - exwm-edit (allow to edit any editable field within exwm into a separate buffer just as atomic-chrome)
+  - edwin (dynamic window manager)
   - zoom
     - keeps balanced windows, zooming the one currently having the focus
 ** unsorted
@@ -11035,6 +11049,8 @@
   - pickle - Major mode for editing cucumber gherkin files.
   - aio
   - live-preview
+** development
+   - navigel (develop modes based on tablist more efficiently)
 * discarded
 ** pinentry (obsolete as of emacs 26)
    #+BEGIN_SRC emacs-lisp :tangle no
