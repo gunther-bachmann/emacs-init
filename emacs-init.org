@@ -10616,6 +10616,7 @@
                                    (,(kbd "C-k") . (S-end delete))
                                    (,(kbd "M->") . (C-end))
                                    (,(kbd "M-<") . (C-home))
+                                   (,(kbd "C-j") . (S-return))
                                    ;; cut/paste.
                                    (,(kbd "C-w") . ?\C-x)
                                    (,(kbd "M-w") . ?\C-c)
