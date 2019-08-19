@@ -4005,86 +4005,133 @@
    #+END_SRC
 ** company
    #+BEGIN_SRC emacs-lisp
-   (use-package company-try-hard
-     :ensure t
-     ;; :after (company)
-     :config
-     (progn
-       (global-set-key (kbd "M-TAB") #'company-try-hard)
-       (global-set-key (kbd "<C-tab>") #'company-try-hard)
-       (global-set-key (kbd "M-/") #'company-try-hard)
-       (define-key company-active-map (kbd "M-TAB") #'company-try-hard)
-       ))
+     (use-package company-try-hard
+       :ensure t
+       ;; :after (company)
+       :config
+       (progn
+         (global-set-key (kbd "M-TAB") #'company-try-hard)
+         (global-set-key (kbd "<C-tab>") #'company-try-hard)
+         (global-set-key (kbd "M-/") #'company-try-hard)
+         (define-key company-active-map (kbd "M-TAB") #'company-try-hard)
+         ))
 
-   (use-package company-box
-     :ensure t
-     ;; :after (company)
-     :init
-     (add-hook 'company-mode-hook 'company-box-mode)
-     :config
-     (progn
-       (setq company-box-enable-icon nil)
-       (custom-set-faces
-        '(company-box-candidate ((t (:foreground "gray85")))))))
+     (use-package company-box
+       :ensure t
+       ;; :after (company)
+       :init
+       (add-hook 'company-mode-hook 'company-box-mode)
 
-   (use-package company
-     ;; :after (selected)
-     :ensure t
-     :init (progn
-             (add-hook 'after-init-hook 'global-company-mode))
-     :config
-     (progn
-       (setq company-idle-delay nil)
-       (setq company-show-numbers nil)
-       ;; use numbers 0-9 to select company completion candidates
-       (let ((map company-active-map))
-         (mapc (lambda (x) (define-key map (format "%d" x)
-                             `(lambda () (interactive) (company-complete-number ,x))))
-               (number-sequence 0 9)))
+       ;; overwrite the following two functions with customized values for setting
+       ;; width and alignment of the scrollbar for company box
+       (defun company-box--update-scrollbar-buffer (height-blank height-scrollbar percent buffer)
+         (with-current-buffer buffer
+           (erase-buffer)
+           (setq header-line-format nil
+                 mode-line-format nil
+                 cursor-in-non-selected-windows nil)
+           (unless (zerop height-blank)
+             (insert (propertize " " 'display `(space :align-to right-fringe :height ,height-blank :width 2))
+                     (propertize "\n" 'face '(:height 1))))
+           (setq height-scrollbar (if (= percent 1)
+                                      ;; Due to float/int casting in the emacs code, there might 1 or 2
+                                      ;; remainings pixels
+                                      (+ height-scrollbar 10)
+                                    height-scrollbar))
+           (insert (propertize " " 'face (list :background (face-background 'company-box-scrollbar nil t))
+                               'display `(space :align-to left-fringe :height ,height-scrollbar :width 2)))
+           (current-buffer)))
 
-       ;; this will make company be used tab completion (if no indenting needs to take place)
-       (global-set-key (kbd "TAB") #'company-indent-or-complete-common)
-       (setq company-minimum-prefix-length 4)
-       (setq company-tooltip-limit 15)
-       (setq company-tooltip-flip-when-above t)
-       (setq company-dabbrev-downcase nil) ;; make company suggestions case sensitive (no downcase conversion)
-       (setq company-backends
-             (quote
-              (company-capf company-shell company-bbdb company-semantic company-files
-                            company-dabbrev-code company-gtags company-etags company-keywords
-                            company-oddmuse company-dabbrev)))
-       (setq company-dabbrev-code-modes
-             (quote
-              (prog-mode
-               batch-file-mode
-               css-mode
-               ;; erlang-mode
-               ;; haskell-mode
-               ;; jde-mode
-               ;; lua-mode
-               ;; python-mode
-               clojure-mode
-               ;; scala-mode
-               )))
+       (defun company-box--update-scrollbar (frame &optional first)
+         (let* ((selection company-selection)
+                (buffer (company-box--get-buffer "-scrollbar"))
+                (h-frame company-box--height)
+                (n-elements (min company-candidates-length company-box-max-candidates))
+                (percent (company-box--percent selection (1- n-elements)))
+                (percent-display (company-box--percent h-frame (* n-elements (frame-char-height frame))))
+                (scrollbar-pixels (* h-frame percent-display))
+                (height-scrollbar (/ scrollbar-pixels (frame-char-height frame)))
+                (blank-pixels (* (- h-frame scrollbar-pixels) percent))
+                (height-blank (/ blank-pixels (frame-char-height frame))))
+           (cond
+            ((and first (= percent-display 1) (window-live-p company-box--scrollbar-window))
+             (delete-window company-box--scrollbar-window))
+            ((window-live-p company-box--scrollbar-window)
+             (company-box--update-scrollbar-buffer height-blank height-scrollbar percent buffer))
+            ((/= percent-display 1)
+             (setq
+              company-box--scrollbar-window
+              (with-selected-frame (company-box--get-frame)
+                (display-buffer-in-side-window
+                 (company-box--update-scrollbar-buffer height-blank height-scrollbar percent buffer)
+                 '((side . left) (window-width . 2)))))
+             (set-frame-parameter frame 'company-box-scrollbar (window-buffer company-box--scrollbar-window))
+             (window-preserve-size company-box--scrollbar-window t t)))))
 
-       (custom-set-faces
-        '(company-echo-common ((t (:inherit company-echo :foreground "gray15"))))
-        '(company-preview ((t (:foreground "gray15"))))
-        '(company-preview-common ((t (:foreground "tomato2"))))
-        '(company-tooltip ((t (:background "gray15" :foreground "gray85"))))
-        '(company-tooltip-selection ((t (:background "gray23" :foreground "white"))))
-        '(company-tooltip-common ((t (:foreground "firebrick4"))))
-        '(company-tooltip-annotation ((t (:foreground "gray15")))))
+       :config
+       (progn
+         (setq company-box-enable-icon nil)
+         (custom-set-faces
+          '(company-box-candidate ((t (:foreground "gray85")))))))
+
+     (use-package company
+       ;; :after (selected)
+       :ensure t
+       :init (progn
+               (add-hook 'after-init-hook 'global-company-mode))
+       :config
+       (progn
+         (setq company-idle-delay nil)
+         (setq company-show-numbers nil)
+         ;; use numbers 0-9 to select company completion candidates
+         (let ((map company-active-map))
+           (mapc (lambda (x) (define-key map (format "%d" x)
+                          `(lambda () (interactive) (company-complete-number ,x))))
+                 (number-sequence 0 9)))
+
+         ;; this will make company be used tab completion (if no indenting needs to take place)
+         (global-set-key (kbd "TAB") #'company-indent-or-complete-common)
+         (setq company-minimum-prefix-length 4)
+         (setq company-tooltip-limit 15)
+         (setq company-tooltip-flip-when-above t)
+         (setq company-dabbrev-downcase nil) ;; make company suggestions case sensitive (no downcase conversion)
+         (setq company-backends
+               (quote
+                (company-capf company-shell company-bbdb company-semantic company-files
+                              company-dabbrev-code company-gtags company-etags company-keywords
+                              company-oddmuse company-dabbrev)))
+         (setq company-dabbrev-code-modes
+               (quote
+                (prog-mode
+                 batch-file-mode
+                 css-mode
+                 ;; erlang-mode
+                 ;; haskell-mode
+                 ;; jde-mode
+                 ;; lua-mode
+                 ;; python-mode
+                 clojure-mode
+                 ;; scala-mode
+                 )))
+
+         (custom-set-faces
+          '(company-echo-common ((t (:inherit company-echo :foreground "gray15"))))
+          '(company-preview ((t (:foreground "gray15"))))
+          '(company-preview-common ((t (:foreground "tomato2"))))
+          '(company-tooltip ((t (:background "gray15" :foreground "gray85"))))
+          '(company-tooltip-selection ((t (:background "gray23" :foreground "white"))))
+          '(company-tooltip-common ((t (:foreground "firebrick4"))))
+          '(company-tooltip-annotation ((t (:foreground "gray15")))))
 
 
-       ))
+         ))
 
-   (use-package company-statistics
-     :ensure t
-     ;; :after (company)
-     :init
-     (progn
-       (add-hook 'after-init-hook 'company-statistics-mode)))
+     (use-package company-statistics
+       :ensure t
+       ;; :after (company)
+       :init
+       (progn
+         (add-hook 'after-init-hook 'company-statistics-mode)))
 
    #+END_SRC
 ** company flx
