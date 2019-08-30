@@ -3832,6 +3832,14 @@
      :config
      (progn ))
    #+END_SRC
+** german umlaute with quail input method (switch with C-\)
+   #+begin_src emacs-lisp
+     (quail-define-package "gb/de-keyboard" "Deutsch (Umlaute etc.)" "DE+" t "umlaute durch *e" nil t nil nil nil nil nil nil nil nil t)
+     (quail-define-rules ("AE" ?Ä) ("ae" ?ä) ("AEE" ["AE"])
+                         ("OE" ?Ö) ("ae" ?ö) ("OEE" ["OE"])
+                         ("UE" ?Ü) ("ae" ?ü) ("UEE" ["UE"])
+                         ("sz" ?ß) ("szz" ["sz"]))
+   #+end_src
 * language specific stuff
 ** langtool (very! elaborate spellchecking)
    - instrument languagetool (see [[https://www.languagetool.org/][here]])
