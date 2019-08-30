@@ -5633,7 +5633,7 @@
      #+BEGIN_SRC emacs-lisp
      (use-package magit-todos
        :ensure t
-       :after (a anaphora async dash f hl-todo magit pcre2el s)
+       ;; :after (a anaphora async dash f hl-todo magit pcre2el s)
        :config (magit-todos-mode))
      #+END_SRC
 *** magit imerge
@@ -8839,12 +8839,17 @@
      (use-package dired
        :bind (("C-x d" . dired)
               :map dired-mode-map
+              ("C-c m" . gb/dired-open-media)
               ("C-p" . diredp-previous-line)
               ("`" . gb/dired-open-term)
               ("e" . gb/dired-ediff-files))
        :init
        (add-hook 'dired-mode-hook 'auto-revert-mode)
        (add-hook 'dired-mode-hook 'dired-omit-mode)
+       (defun gb/dired-open-media ()
+         "open mount point for media in separate dired window"
+         (interactive)
+         (dired "/run/media/pe"))
        :config
        (setq dired-omit-size-limit 60000)
        (setq dired-dwim-target t) ;; try to guess the directory to use for dired
@@ -10896,14 +10901,16 @@
   - see https://gitlab.com/jjzmajic/hercules.el
   - creates hydra like popups derived from which key information
   #+begin_src emacs-lisp
-    (when (file-exists-p "~/.emacs.d/additionals/hercules.el/hercules.el")
-      (use-package hercules
-        :load-path "~/.emacs.d/additionals/hercules.el/"
-        :config
-        (hercules-def
-         :toggle-funs #'macrostep-mode
-         :keymap 'macrostep-keymap
-         :transient t)))
+    (use-package hercules
+      :ensure t
+      :config
+      (hercules-def
+       :toggle-funs #'macrostep-mode
+       :keymap 'macrostep-keymap)
+      (hercules-def
+       :toggle-funs #'debugger-mode
+       :keymap 'debugger-mode-map
+       :transient t))
   #+end_src
 * EVAL scihub (access to otherwise under copyright inaccessible research papers etc.)
   #+begin_src emacs-lisp
@@ -11060,6 +11067,7 @@
   - live-preview
 ** development
    - navigel (develop modes based on tablist more efficiently)
+   - helm-taskrunner (select from tasks the build system of the current project provides (e.g. gradle tasks)) https://github.com/emacs-taskrunner/helm-taskrunner
 * discarded
 ** pinentry (obsolete as of emacs 26)
    #+BEGIN_SRC emacs-lisp :tangle no
