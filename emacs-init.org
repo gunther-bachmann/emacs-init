@@ -2451,7 +2451,7 @@
     #+BEGIN_SRC emacs-lisp
     (use-package spinner)
     #+END_SRC
-*** spaceline (mode line of spacemacs)
+*** spaceline (mode line of spacemacs) (disabled)
     #+BEGIN_SRC emacs-lisp :tangle no
     (when gb/use-space-line
       (use-package powerline)
@@ -2623,7 +2623,7 @@
 
          )))
     #+END_SRC
-*** spaceline all the icons
+*** spaceline all the icons (disabled)
     - important: install fonts located [[https://github.com/domtronn/all-the-icons.el/tree/master/fonts][here]]
     #+begin_SRC emacs-lisp :tangle no
     ;; (use-package font-lock+)
@@ -2770,7 +2770,7 @@
                   " yas" ;; yasnippets
                   )))))
     #+END_SRC
-*** smart mode line
+*** smart mode line (disabled)
     #+BEGIN_SRC emacs-lisp :tangle no
       (when gb/use-smart-mode-line
 
@@ -2848,10 +2848,10 @@
             (add-to-list 'sml/replacer-regexp-list '("^~/Documents/clojure/workspace" ":clj:")))))
 
     #+END_SRC
-*** fancy battery (for modeline)
+*** fancy battery (for modeline) (disabled)
     Display of battery status in the emacs mode line (all the way to the left)
     See [[https://github.com/lunaryorn/fancy-battery.el][link]]
-    #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp :tangle no
     (use-package fancy-battery
       :ensure t
       :init (progn (add-hook 'after-init-hook #'fancy-battery-mode)))
@@ -7252,6 +7252,10 @@
 
         ))
   #+END_SRC
+
+  #+RESULTS:
+  : org-toggle-item
+
 *** org mobile
     - this will put all org files (known to the system) into the transfer folder which is not what I want, I don't want all files to be
       synced via Dropwizard
@@ -10953,6 +10957,7 @@
   - company-nginx (allow for company completion of nginx files)
   - company-prescient (ordering and filtering of candidates)
   - company-fuzzy (fuzzy matchin in company mode)
+  - helm-fuzzy
 ** configuration
   - use-package-ensure-system-package
     - require binaries / packages of the underlying system for installation of package
@@ -10987,6 +10992,7 @@
     #+BEGIN_SRC emacs-lisp :tangle no
     (use-package organize-imports-java)
     #+END_SRC
+  - taskrunner - Retrieve build system/taskrunner tasks  (e.g. gradle tasks ....)
 ** languages
   - karma test runner integration (upbo)
   - rustic (major mode for rust)
@@ -11069,6 +11075,7 @@
   - pickle - Major mode for editing cucumber gherkin files.
   - aio
   - live-preview
+  - howdoyou - A stackoverflow and its sisters' sites reader
 ** development
    - navigel (develop modes based on tablist more efficiently)
    - helm-taskrunner (select from tasks the build system of the current project provides (e.g. gradle tasks)) https://github.com/emacs-taskrunner/helm-taskrunner
