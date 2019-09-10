@@ -6999,9 +6999,9 @@
 
         (defun gb/org-return-dwim--on-list-item ()
           "call only if at the beginning of the item to insert below"
-          (org-end-of-line)
+          (org-end-of-item)
           (if (org-in-item-p)
-              (org-meta-return)
+              (org-insert-item)
             (progn (move-point-visually -1)
                    (org-insert-item)
                    (org-end-of-item)
