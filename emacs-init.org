@@ -10659,6 +10659,8 @@
         ;; uncommenting the following line
         ;; (setq exwm-workspace-minibuffer-position 'bottom)
 
+        (setq exwm-workspace-number 8) ;; set the number of workspaces (default is 4)
+
         ;; show all exwm buffers in all workspaces (no restriction)
         (setq exwm-workspace-show-all-buffers t)
         ;; automatic moving of x window from inactive workspace by switching buffer
