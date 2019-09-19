@@ -9008,11 +9008,14 @@
               ( "s-a" . gb/dired-sidebar-follow-file))
        ;; :after (dired all-the-icons vscode-icon)
        :config
+       ;; make sure that long lines are truncated in sidebar
+       (advice-add 'dired-sidebar-toggle-sidebar :after #'(lambda (&rest args) (toggle-truncate-lines '(1))))
+
        (defun gb/dired-sidebar-follow-file ()
          "ensure sidebar is open and position cursor on file from which this function was called"
          (interactive)
          (if (and (dired-sidebar-showing-sidebar-p)
-                  (string= (buffer-name) (buffer-name (dired-sidebar-buffer))))
+                (string= (buffer-name) (buffer-name (dired-sidebar-buffer))))
              (dired-sidebar-hide-sidebar)
            (if (buffer-file-name)
                (unless (dired-sidebar-showing-sidebar-p)
@@ -9028,7 +9031,9 @@
                      (dired-sidebar-point-at-file filename current-root)
                      (when omitmode (dired-omit-mode t))))))))
        (progn
+         (setq truncate-partial-width-windows 20) ;; ensure that windows smaller than 20 truncate long lines
          (setq dired-sidebar-width 60)
+         (setq dired-sidebar-one-instance-p t) ;; ensure one instance of sidebar per frame
          (setq dired-sidebar-icon-scale 0.2)
          (setq dired-sidebar-theme 'vscode)
          (setq dired-sidebar-follow-file-at-point-on-toggle-open t)
