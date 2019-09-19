@@ -9168,6 +9168,7 @@
     (use-package direnv
       :config
       (direnv-mode)
+      (setq direnv-use-faces-in-summary nil)
       (advice-add 'direnv--export :before #'(lambda (orig-func &rest args) (message "running direnv ..."))))
   #+END_SRC
 * currently evaluated
