@@ -5355,13 +5355,23 @@
      (add-hook 'python-mode-hook #'flycheck-mode))
  #+END_SRC
 ** scala ensime (enhanced scala mode for emacs, currntely disabled)
- #+BEGIN_SRC emacs-lisp :tangle no
- (use-package ensime
-   :ensure t
-   :after ( sbt-mode)
-   :commands ensime
-   :init
-   (add-hook 'scala-mode-hook 'ensime-mode))
+ #+BEGIN_SRC emacs-lisp
+   (use-package sbt-mode)
+   (use-package scala-mode)
+   (use-package scalariform)
+   (use-package ensime
+     :ensure t
+     ;; :after ( sbt-mode)
+     :commands ensime
+     :init
+     (add-hook 'scala-mode-hook 'ensime-mode)
+     :config
+     (custom-set-faces '(ensime-implicit-highlight ((t (:underline "#404040"))))
+                       '(ensime-breakpoint-face ((t (:overline "light gray" :underline "light gray")))))
+     (setq ensime-sbt-perform-on-save "compile")
+     (setq ensime-search-interface 'helm)
+     (setq ensime-eldoc-hints 'all))
+   (use-package flycheck-ensime)
  #+END_SRC
 ** xml
    #+BEGIN_SRC emacs-lisp :tangle no
