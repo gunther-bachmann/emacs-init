@@ -6554,6 +6554,9 @@
 
       (setq mm-fill-flowed nil)
       (setq mm-inline-large-images (quote resize))
+      (setq mm-html-blocked-images ".*") ;; block images
+      (setq mm-enable-external nil) ;; don't allow execution of external programs for mm parts
+      (setq gnus-inhibit-images t) ;; don't show any images in html messages
 
       (setq nnmail-extra-headers (quote (To Newsgroups Cc Content-Type)))
 
