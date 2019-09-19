@@ -10959,6 +10959,12 @@
     (use-package company-fuzzy
       :ensure t)
   #+end_src
+* EVAL awscli-capf
+  #+begin_src emacs-lisp
+    (use-package awscli-capf
+      :commands (awscli-add-to-capf)
+      :hook (shell-mode . awscli-capf-add))
+  #+end_src
 * INTERESTING
 ** blog/presentation
   - org-present using a cell phone to switch pages
