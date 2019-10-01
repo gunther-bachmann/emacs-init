@@ -10988,7 +10988,8 @@
     (defvar message-filter-regexp-list '("^Starting new Ispell process \\[.+\\] \\.\\.\\.$"
                                          "^Ispell process killed$"
                                          "^Omitting...$"
-                                         "^Omitted \\[.+\\] lines\\.$"
+                                         "^Omitted .+ lines?\\.$"
+                                         "\\(.*mitt.*\\)"
                                          "^\\(Shell command succeeded with no output\\)$"
                                          "^Invalid face .*$")
       "filter formatted message string to remove noisy messages")
@@ -11000,8 +11001,10 @@
                    (some (lambda (re) (string-match re formatted-string)) message-filter-regexp-list))
               (save-excursion
                 (set-buffer "*Messages*")
+                (toggle-read-only)
                 (goto-char (point-max))
-                (insert formatted-string "\n"))
+                (insert formatted-string "\n")
+                (toggle-read-only))
             (progn
               (ad-set-args 0 `("%s" ,formatted-string))
               ad-do-it)))))
