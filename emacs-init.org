@@ -11037,6 +11037,12 @@
        '(proced-format (quote long))
        ))
   #+end_src
+* tramp
+  #+begin_src emacs-lisp
+    (use-package tramp-term
+      :ensure t
+      :commands (tramp-term))
+  #+end_src
 * INTERESTING
 ** blog/presentation
   - org-present using a cell phone to switch pages
