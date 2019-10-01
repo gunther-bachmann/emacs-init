@@ -5377,6 +5377,11 @@
      (setq ensime-search-interface 'helm)
      (setq ensime-eldoc-hints 'all))
    (use-package flycheck-ensime)
+   (use-package ammonite-term-repl
+     :config (add-hook 'scala-mode-hook
+             (lambda ()
+               (ammonite-term-repl-minor-mode t))))
+   (use-package ob-ammonite)
  #+END_SRC
 ** xml
    #+BEGIN_SRC emacs-lisp :tangle no
