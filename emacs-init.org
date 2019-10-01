@@ -2077,16 +2077,16 @@
        ;; TODO ibuffer mode map not known yet
        ;; (bind-key "C-g" 'quit-window ibuffer-mode-map)
 
-       (bind-key "<s-up>" 'scroll-up-line)
-       (bind-key "<s-down>" 'scroll-down-line)
-       (bind-key "<M-s-up>" 'scroll-up-line-7)
-       (bind-key "<M-s-down>" 'scroll-down-line-7)
+       ;; (bind-key "<s-up>" 'scroll-up-line)
+       ;; (bind-key "<s-down>" 'scroll-down-line)
+       ;; (bind-key "<M-s-up>" 'scroll-up-line-7)
+       ;; (bind-key "<M-s-down>" 'scroll-down-line-7)
 
-       (bind-key "<s-C-up>" 'scroll-up-line-and-move-cursor)
-       (bind-key "<s-C-down>" 'scroll-down-line-and-move-cursor)
+       ;; (bind-key "<s-C-up>" 'scroll-up-line-and-move-cursor)
+       ;; (bind-key "<s-C-down>" 'scroll-down-line-and-move-cursor)
 
-       (bind-key "<s-C-M-up>" 'scroll-up-line-and-move-cursor-7)
-       (bind-key "<s-C-M-down>" 'scroll-down-line-and-move-cursor-7)
+       ;; (bind-key "<s-C-M-up>" 'scroll-up-line-and-move-cursor-7)
+       ;; (bind-key "<s-C-M-down>" 'scroll-down-line-and-move-cursor-7)
 
        (bind-key "C-h C-m" 'discover-my-major)))
    #+END_SRC
