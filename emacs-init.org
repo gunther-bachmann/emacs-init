@@ -11028,6 +11028,15 @@
           :commands csv-mode
           :load-path "~/.emacs.d/additionals"))
   #+end_src
+* proced
+  #+begin_src emacs-lisp
+    (use-package proced
+      :config
+      (custom-set-variables
+       '(proced-auto-update-flag t)
+       '(proced-format (quote long))
+       ))
+  #+end_src
 * INTERESTING
 ** blog/presentation
   - org-present using a cell phone to switch pages
