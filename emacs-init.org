@@ -1450,7 +1450,9 @@
      (setq command-log-mode-auto-show t))
    #+END_SRC
 ** inline docs
-   #+BEGIN_SRC emacs-lisp
+   - enable e.g. through: (setq eldoc-message-function #'inline-docs)
+   - shows help inline, above the current line (scrolling down, which is a bit annoying)
+   #+BEGIN_SRC emacs-lisp :tangle no
    (use-package inline-docs
      :config
      (progn
@@ -4650,13 +4652,13 @@
     - displays eldoc in an overlay right before cursor
     - does this all the time, after some delay.
     - this may become anoying
-    #+BEGIN_SRC emacs-lisp
-    (use-package quick-peek
-      :ensure t)
-    (use-package eldoc-overlay
-      :ensure t
-      :after (inline-docs quick-peek)
-      :commands eldoc-overlay-mode)
+    #+BEGIN_SRC emacs-lisp :tangle no
+      (use-package quick-peek
+        :ensure t)
+      (use-package eldoc-overlay
+        :ensure t
+        ;; :after (inline-docs quick-peek)
+        :commands eldoc-overlay-mode)
     #+END_SRC
 *** paredit
     #+BEGIN_SRC emacs-lisp
@@ -5913,7 +5915,7 @@
    #+BEGIN_SRC emacs-lisp
    ;; open a shell at the current directory
    (use-package shell-here
-     :after (eldoc-overlay)
+     ;; :after (eldoc-overlay)
      :config
      (defun gb/install-proc-listener (&rest r)
        "install process listener to close window ofter exited or finished message"
@@ -9599,7 +9601,7 @@
    #+BEGIN_SRC emacs-lisp
      (use-package flycheck-inline
        :ensure t
-       :after ( flycheck inline-docs)
+       ;; :after ( flycheck inline-docs)
        :config
        (flycheck-inline-mode 1) ;; see readme
        )
