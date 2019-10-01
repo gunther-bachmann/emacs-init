@@ -5359,7 +5359,7 @@
      (add-hook 'python-mode-hook #'elpy-enable)
      (add-hook 'python-mode-hook #'flycheck-mode))
  #+END_SRC
-** scala ensime (enhanced scala mode for emacs, currntely disabled)
+** scala:  ensime (enhanced scala mode for emacs)
  #+BEGIN_SRC emacs-lisp
    (use-package sbt-mode)
    (use-package scala-mode)
@@ -10967,7 +10967,8 @@
 * EVAL awscli-capf
   #+begin_src emacs-lisp
     (use-package awscli-capf
-      :commands (awscli-add-to-capf)
+      :commands (awscli-add-to-capf awscli-capf-refresh-data-from-cli)
+      :ensure t
       :hook (shell-mode . awscli-capf-add))
   #+end_src
 * EVAL filter annoying messages
@@ -11018,6 +11019,8 @@
   - company-prescient (ordering and filtering of candidates)
   - company-fuzzy (fuzzy matchin in company mode)
   - helm-fuzzy
+  - compdef define completion local to a mode (not globally like company does)
+    - see  https://gitlab.com/jjzmajic/compdef
 ** configuration
   - use-package-ensure-system-package
     - require binaries / packages of the underlying system for installation of package
@@ -11078,7 +11081,6 @@
   - nix-haskell-mode
   - elpl (emacs lisp repl)
 ** mail
-  - gnus-summary-repo
 ** navigation
   - smart-jump (smart go to definition)
 ** org
@@ -11110,19 +11112,19 @@
     - provide an interface for rpm package open (extends archive-mode)
   - counsel-tramp
   - proced-narrow - Live-narrowing of search results for proced.
+  - syslog-mode - mode to view syslogs (filter etc.)
 ** searching/replace
   - zop-to-char (more options during zap to char)
   - mark-thing-at (mark certain things at point, e.g. words, s-exp, url, filename ...)
   - deadgrep - ripgrep front end
   - projectile-codesearch (use codesearch to query projects)
   - isearch-project
-  - swiper-helm (helm interface for swipter)
   - color-rg: search and refactoring tool based in ripgrep (see [[https://github.com/manateelazycat/color-rg][here]])
+  - helm-fd: like helm find, using fd instead
 ** utilities
   - shrink-path
     - do fish like reduciton of paths (e.g. for modeline)
 ** windowmanager/x-integration
-  - exwm-edit (allow to edit any editable field within exwm into a separate buffer just as atomic-chrome)
   - edwin (dynamic window manager)
   - zoom
     - keeps balanced windows, zooming the one currently having the focus
@@ -11133,7 +11135,7 @@
   - sx (elaborate stack exchange interface for emacs)
   - powerthesaurus - interface to powerthesaurus.org
   - pickle - Major mode for editing cucumber gherkin files.
-  - aio
+  - aio - async execution and await for elisp (lambda and functions)
   - live-preview
   - howdoyou - A stackoverflow and its sisters' sites reader
 ** development
@@ -11320,23 +11322,24 @@
  #+END_SRC
 * finish - up
   #+BEGIN_SRC emacs-lisp
-  (report-elapsed "enter finish - up")
+    (report-elapsed "enter finish - up")
 
-  (require 'server)
-  ;; start a server to allow reuse of this server when opening other files from within the os
-  (unless (server-running-p)
-    (server-start))
-  ;; (maximize-frame)
-  (gb/do-after-display-system-init
-   (toggle-frame-fullscreen)
-   (ido-mode 0)
-   (midnight-mode 1)
-   (set-fringe-mode 10)
-   (eldoc-overlay-mode t))
-  (setq gc-cons-threshold 80000000)
-  (ido-mode 0)
-  (midnight-mode 1)
-  (report-elapsed "exit finish - up")
+    (require 'server)
+    ;; start a server to allow reuse of this server when opening other files from within the os
+    (unless (server-running-p)
+      (server-start))
+    ;; (maximize-frame)
+    (gb/do-after-display-system-init
+     (toggle-frame-fullscreen)
+     (ido-mode 0)
+     (midnight-mode 1)
+     (set-fringe-mode 10)
+     ;; (eldoc-overlay-mode t)
+     )
+    (setq gc-cons-threshold 80000000)
+    (ido-mode 0)
+    (midnight-mode 1)
+    (report-elapsed "exit finish - up")
   #+END_SRC
 
 #  LocalWords:  flyspell
