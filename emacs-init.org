@@ -11009,6 +11009,18 @@
               (ad-set-args 0 `("%s" ,formatted-string))
               ad-do-it)))))
   #+end_src
+* EVAL fast scroll
+  - disable font lock during C-v and M-v pagewise scrolling (if doing it fast)
+  #+begin_src emacs-lisp
+    (use-package fast-scroll
+      :ensure t
+      :config
+      (fast-scroll-config)
+      (fast-scroll-mode 1)
+      ;; (add-hook 'fast-scroll-start-hook (lambda () (flycheck-mode -1)))
+      ;; (add-hook 'fast-scroll-end-hook (lambda () (flycheck-mode 1)))
+      (setq fast-scroll-throttle 0.5))
+  #+end_src
 * INTERESTING
 ** blog/presentation
   - org-present using a cell phone to switch pages
