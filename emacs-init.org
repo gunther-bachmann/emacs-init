@@ -8119,6 +8119,10 @@
       ;; :defer 40
       )
     #+END_SRC
+*** org sidebar
+    #+begin_src emacs-lisp
+      (use-package org-sidebar)
+    #+end_src
 ** slack (disabled)
  #+BEGIN_SRC emacs-lisp :tangle no
 
