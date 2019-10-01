@@ -11021,6 +11021,13 @@
       ;; (add-hook 'fast-scroll-end-hook (lambda () (flycheck-mode 1)))
       (setq fast-scroll-throttle 0.5))
   #+end_src
+* EVAL csv mode
+  #+begin_src emacs-lisp
+    (if (file-exists-p "~/.emacs.d/additionals/csv-mode.el")
+        (use-package csv-mode
+          :commands csv-mode
+          :load-path "~/.emacs.d/additionals"))
+  #+end_src
 * INTERESTING
 ** blog/presentation
   - org-present using a cell phone to switch pages
