@@ -4541,12 +4541,15 @@
    #+END_SRC
 ** swiper
    #+BEGIN_SRC emacs-lisp
-   (use-package ivy
-     :after (easy-escape)
-     :ensure t)
-   (use-package swiper
-     :ensure t
-     :after ( ivy))
+     (use-package ivy
+       :after (easy-escape)
+       :ensure t)
+     (use-package swiper
+       :ensure t
+       :after ( ivy))
+     (use-package swiper-helm
+       :bind (("s-s" . swiper-helm))
+       :ensure t)
    #+END_SRC
 ** counsel
    #+BEGIN_SRC emacs-lisp
