@@ -6944,13 +6944,13 @@
       (progn
         (add-hook 'after-change-major-mode-hook #'gb/activate-properties-in-org-mode)
         (add-hook 'org-mode-hook #'gb/enable-auto-fill-mode)
-        (add-hook 'org-mode-hook
-                  (lambda ()
-                    "beautify checkbox symbols"
-                    (push '("[ ]" . " ☐ ") prettify-symbols-alist)
-                    (push '("[X]" . " ⌧ ") prettify-symbols-alist)
-                    (push '("[-]" . " ◼ ") prettify-symbols-alist)
-                    (prettify-symbols-mode)))
+        ;; (add-hook 'org-mode-hook
+        ;;           (lambda ()
+        ;;             "beautify checkbox symbols"
+        ;;             (push '("[ ]" . " ☐ ") prettify-symbols-alist)
+        ;;             (push '("[X]" . " ⌧ ") prettify-symbols-alist)
+        ;;             (push '("[-]" . " ◼ ") prettify-symbols-alist)
+        ;;             (prettify-symbols-mode)))
         (setq org-image-actual-width nil)
         (setq org-hide-emphasis-markers t) ;; hides ** and // surrounding text that is bold or intalics
         ;; (add-hook 'org-mode-hook #'org-sticky-header)
