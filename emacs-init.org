@@ -2886,15 +2886,16 @@
 ** cursor blinking / beacon
    - see https://github.com/Malabarba/beacon
    #+BEGIN_SRC emacs-lisp
-   ;; mark cursor when switching buffers/windows/frames
-   (use-package beacon
-     :config
-     (setq beacon-blink-when-window-scrolls nil)
-     (setq beacon-blink-when-window-changes t)
-     (setq beacon-blink-when-point-moves nil)
-     (setq beacon-push-mark nil)
-     (beacon-mode 1)
-     )
+     ;; mark cursor when switching buffers/windows/frames
+     (use-package beacon
+       :config
+       (setq beacon-blink-when-window-scrolls nil)
+       (setq beacon-blink-when-window-changes t)
+       (setq beacon-blink-when-point-moves nil)
+       (setq beacon-push-mark nil)
+       (beacon-mode 1)
+       (bind-key "s-/" #'beacon-blink)
+       )
    #+END_SRC
    #+BEGIN_SRC emacs-lisp :tangle no
    (use-package crosshairs
