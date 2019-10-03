@@ -1440,6 +1440,15 @@
            (setq w3m-toggle-inline-images t))))
    #+END_SRC
 * ui related stuff
+** clear windows in frame
+   #+begin_src emacs-lisp
+     (defun gb/clear-frame ()
+       "switch to scratch window and maximize"
+       (interactive)
+       (switch-to-buffer "*scratch*")
+       (delete-other-windows))
+     (bind-key "s-c" #'gb/clear-frame)
+   #+end_src
 ** command logging
    - 'M-x command-log-mode' opens a buffer that logs all commands used
    - other functions use prefix 'clm/'
