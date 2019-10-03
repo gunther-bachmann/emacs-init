@@ -2444,15 +2444,17 @@
           )))
     #+END_SRC
 *** doom modeline
-    - adjusted file doom-modeline.el:770, changed "save" to "details" (icon)
+    - adjusted file doom-modeline-segments.el:272, changed "save" to "edit" (icon)
     #+BEGIN_SRC emacs-lisp
-    (use-package doom-modeline
-      :ensure t
-      :after (all-the-icons)
-      :pin melpa-stable
-      :config
-      (setq doom-modeline-buffer-file-name-style 'relative-to-project)
-      :hook (after-init . doom-modeline-init))
+      (use-package doom-modeline
+        :ensure t
+        :after (all-the-icons)
+        :pin melpa-stable
+        :config
+        (setq doom-modeline-buffer-file-name-style 'relative-to-project)
+        (setq  doom-modeline-vcs-max-length 40)
+        (setq inhibit-compacting-font-caches t)
+        :hook (after-init . doom-modeline-init))
     #+END_SRC
 *** spinner (busy indicator for modeline)
     - (spinner-start 'vertical-breathing 10)
