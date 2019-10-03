@@ -10802,6 +10802,7 @@
             (progn
               (exwm-input-release-keyboard (exwm--buffer->id (window-buffer)))
               (setq exwm-input-set-local-simulation-keys nil)))
+          (ido-mode 0)
           )
 
         ))
@@ -11013,10 +11014,10 @@
                    (some (lambda (re) (string-match re formatted-string)) message-filter-regexp-list))
               (save-excursion
                 (set-buffer "*Messages*")
-                (toggle-read-only)
+                (read-only-mode 0)
                 (goto-char (point-max))
                 (insert formatted-string "\n")
-                (toggle-read-only))
+                (read-only-mode 1))
             (progn
               (ad-set-args 0 `("%s" ,formatted-string))
               ad-do-it)))))
