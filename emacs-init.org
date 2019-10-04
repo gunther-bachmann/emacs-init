@@ -2894,7 +2894,7 @@
        (setq beacon-blink-when-point-moves nil)
        (setq beacon-push-mark nil)
        (beacon-mode 1)
-       (bind-key "s-/" #'beacon-blink)
+       (bind-key "s-." #'beacon-blink)
        )
    #+END_SRC
    #+BEGIN_SRC emacs-lisp :tangle no
