@@ -5967,6 +5967,7 @@
    #+BEGIN_SRC emacs-lisp
      (use-package xterm-color
        :init (add-hook 'comint-preoutput-filter-functions 'xterm-color-filter)
+       :ensure t
        :config
        ;; eterm-color-256 expects existence of this function
        ;; detected in: eterm-color-256: 0.3.12, xterm-color 1.7
