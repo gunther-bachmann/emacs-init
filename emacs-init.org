@@ -8345,6 +8345,11 @@
            '((left-fringe . 0)
              (right-fringe . 0))))
    #+end_src
+** helm org
+   #+begin_src emacs-lisp
+     (use-package helm-org
+       :ensure t)
+   #+end_src
 ** helm cmd t
    #+begin_src emacs-lisp
    (use-package helm-cmd-t
