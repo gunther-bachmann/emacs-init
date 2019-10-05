@@ -6032,7 +6032,7 @@
 
                   ;; copied from http://babbagefiles.blogspot.de/2017/11/more-pdf-tools-tricks.html
                   ;; automatically turns on midnight-mode for pdfs
-                  (add-hook 'pdf-view-mode-hook (lambda () (pdf-view-midnight-minor-mode)))
+                  (add-hook 'pdf-view-mode-hook (lambda () (pdf-view-midnight-minor-mode) (pdf-isearch-minor-mode)))
 
                   (setq pdf-view-midnight-colors '("#ff9900" . "#0a0a12" )) ; set the amber profile as default (see below)
 
