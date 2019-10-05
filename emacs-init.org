@@ -6955,7 +6955,7 @@
       :after ( hydra helm)
       :bind (:map  org-mode-map
                    ("<f1>" . hydra-org-mode/body)
-                   ("s-i" . helm-org-in-buffer-headings)
+
                    ("RET" . gb/org-return-dwim)
                    ("S-<return>" . org-return-indent)
                    ("C-<return>" . gb/org-control-return)
@@ -8352,6 +8352,7 @@
 ** helm org
    #+begin_src emacs-lisp
      (use-package helm-org
+       :bind (:map org-mode-map ("s-i" . helm-org-in-buffer-headings))
        :ensure t)
    #+end_src
 ** helm cmd t
