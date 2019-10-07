@@ -8172,40 +8172,39 @@
 * ido (disabled, now using helm)
 ** ido itself (configured to being not used, since it is started anyways)
    #+BEGIN_SRC emacs-lisp
-   (use-package ido
-     :config
-     ;; ido-mode allows you to more easily navigate choices. For example,
-     ;; when you want to switch buffers, ido presents you with a list
-     ;; of buffers in the the mini-buffer. As you start to type a buffer's
-     ;; name, ido will narrow down the list of buffers to match the text
-     ;; you've typed in
-     ;; http://www.emacswiki.org/emacs/InteractivelyDoThings
-     (ido-mode 0)
-     (setq ido-mode nil)
+     (use-package ido
+       :config
+       ;; ido-mode allows you to more easily navigate choices. For example,
+       ;; when you want to switch buffers, ido presents you with a list
+       ;; of buffers in the the mini-buffer. As you start to type a buffer's
+       ;; name, ido will narrow down the list of buffers to match the text
+       ;; you've typed in
+       ;; http://www.emacswiki.org/emacs/InteractivelyDoThings
+       (ido-mode -1)
+       (setq ido-mode nil)
+       ;; This allows partial matches, e.g. "tl" will match "Tyrion Lannister"
+       (setq ido-enable-flex-matching t)
 
-     ;; This allows partial matches, e.g. "tl" will match "Tyrion Lannister"
-     (setq ido-enable-flex-matching t)
+       ;; Turn this behavior off because it's annoying
+       (setq ido-use-filename-at-point nil)
 
-     ;; Turn this behavior off because it's annoying
-     (setq ido-use-filename-at-point nil)
+       ;; Don't try to match file across all "work" directories; only match files
+       ;; in the current directory displayed in the minibuffer
+       (setq ido-auto-merge-work-directories-length -1)
 
-     ;; Don't try to match file across all "work" directories; only match files
-     ;; in the current directory displayed in the minibuffer
-     (setq ido-auto-merge-work-directories-length -1)
+       ;; Includes buffer names of recently open files, even if they're not
+       ;; open now
+       (setq ido-use-virtual-buffers t)
 
-     ;; Includes buffer names of recently open files, even if they're not
-     ;; open now
-     (setq ido-use-virtual-buffers t)
+       (defface ivy-current-match
+         '((((class color) (background light))
+            :background "#1a4b77" :foreground "white")
+           (((class color) (background dark))
+            :background "#65a7e2" :foreground "black"))
+         "Face used by Ivy for highlighting first match.")
 
-     (defface ivy-current-match
-       '((((class color) (background light))
-          :background "#1a4b77" :foreground "white")
-         (((class color) (background dark))
-          :background "#65a7e2" :foreground "black"))
-       "Face used by Ivy for highlighting first match.")
-
-     (setq ivy-display-style 'fancy)
-     )
+       (setq ivy-display-style 'fancy)
+       )
    #+END_SRC
 ** ido grid (disabled)
 #+BEGIN_SRC emacs-lisp :tangle no
@@ -8260,73 +8259,72 @@
    #+END_SRC
 * helm
 ** helm
-#+BEGIN_SRC emacs-lisp
-  (use-package async
-    :ensure t) ;; TODO: add all async requirements, otherwise this will not work
-  (use-package popup
-    :ensure t)
-;;  (use-package helm-core
-;;    :ensure t
-;;    :after ( async)
-;;    )
-  (use-package helm
-    :ensure t
-    :after ( async popup rainbow-delimiters ido)
-    :bind (("M-x" . helm-M-x)
-           ("C-x C-f" . helm-find-files)
-           ("s-f" . helm-for-files)
-           ("C-x s-f" . helm-for-files)
-           ("C-x C-b" . helm-mini) ;;helm-buffers-list
-           ("C-s-i" . helm-semantic-or-imenu)
-           ;; resume previous helm session whatever it was, with the selection that was active then
-           ;; helm-resume
-           )
-    :init (progn
-      ;; register new function
-      (add-hook 'helm-minibuffer-set-up-hook
-                'gb/helm-hide-minibuffer-maybe)
-    )
-    :config
-    (progn
-      ;; ignore files in boring file rexp list
-      ;; make sure keyboard entry is displayed in header line of helm buffer
-      (setq helm-echo-input-in-header-line t)
+   #+BEGIN_SRC emacs-lisp
+     (use-package async
+       :ensure t) ;; TODO: add all async requirements, otherwise this will not work
+     (use-package popup
+       :ensure t)
+     ;;  (use-package helm-core
+     ;;    :ensure t
+     ;;    :after ( async)
+     ;;    )
+     (use-package helm
+       :ensure t
+       ;; :after ( async popup rainbow-delimiters ido)
+       :bind (("M-x" . helm-M-x)
+              ("C-x C-f" . helm-find-files)
+              ("s-f" . helm-for-files)
+              ("C-x s-f" . helm-for-files)
+              ("C-x C-b" . helm-mini) ;;helm-buffers-list
+              ("C-s-i" . helm-semantic-or-imenu)
+              ;; resume previous helm session whatever it was, with the selection that was active then
+              ;; helm-resume
+              )
+       :init (progn
+               ;; register new function
+               (add-hook 'helm-minibuffer-set-up-hook
+                         'gb/helm-hide-minibuffer-maybe))
+       :config
+       (progn
+         ;; ignore files in boring file rexp list
+         ;; make sure keyboard entry is displayed in header line of helm buffer
+         (setq helm-echo-input-in-header-line t)
 
-      ;; make sure that minibuffer stays untouched if entry is displayed in top of helm buffer
-      (defun gb/helm-hide-minibuffer-maybe ()
-        "Hide minibuffer in Helm session if we use the header line as input field."
-        (when (with-helm-buffer helm-echo-input-in-header-line)
-          (let ((ov (make-overlay (point-min) (point-max) nil nil t)))
-            (overlay-put ov 'window (selected-window))
-            (overlay-put ov 'face
-                         (let ((bg-color (face-background 'default nil)))
-                           `(:background ,bg-color :foreground ,bg-color)))
-            (setq-local cursor-type nil))))
+         ;; make sure that minibuffer stays untouched if entry is displayed in top of helm buffer
+         (defun gb/helm-hide-minibuffer-maybe ()
+           "Hide minibuffer in Helm session if we use the header line as input field."
+           (when (with-helm-buffer helm-echo-input-in-header-line)
+             (let ((ov (make-overlay (point-min) (point-max) nil nil t)))
+               (overlay-put ov 'window (selected-window))
+               (overlay-put ov 'face
+                            (let ((bg-color (face-background 'default nil)))
+                              `(:background ,bg-color :foreground ,bg-color)))
+               (setq-local cursor-type nil))))
 
 
-      (helm-mode 1)
-      (setq helm-display-function 'pop-to-buffer)
-      (require 'helm-locate)
-      (setq helm-locate-command "locate %s %s")
-      (custom-set-faces
-       '(match ((t (:background "#1d1f21" :foreground "DarkGoldenrod1" :inverse-video nil)))))
-      (setq helm-split-window-default-side 'right)
-      (setq helm-buffer-max-length nil)
-      (setq helm-ff-skip-boring-files t)
-      (require 'helm-files)
-      (add-to-list 'helm-boring-file-regexp-list ".*/\.emacs\.d/elpa/.*")
-      (add-to-list 'helm-boring-file-regexp-list ".*/\.emacs\.d/.*autoloads\.elc?$")
-      (add-to-list 'helm-boring-file-regexp-list "TAGS$")
-      (add-to-list 'helm-boring-file-regexp-list "ido\.last$")
-      (add-to-list 'helm-boring-file-regexp-list "\.emacs\.d/.*cache\.elc?$")
-      (add-to-list 'helm-boring-file-regexp-list "\.emacs\.d/.*bookmarks$")
-      (add-to-list 'helm-boring-file-regexp-list "News/KILL$")
-      (add-to-list 'helm-boring-file-regexp-list "\.emacs\.d/\.session$")
-      (add-to-list 'helm-boring-file-regexp-list "\.newsrc$")
-      (add-to-list 'helm-boring-file-regexp-list "\.newsrc\.eld$")
-      (add-to-list 'helm-boring-file-regexp-list "\.elfeed/index$")
-      (setq helm-M-x-always-save-history t)))
-#+END_SRC
+         (helm-mode 1)
+         (setq helm-display-function 'pop-to-buffer)
+         (require 'helm-locate)
+         (setq helm-locate-command "locate %s %s")
+         (custom-set-faces
+          '(match ((t (:background "#1d1f21" :foreground "DarkGoldenrod1" :inverse-video nil)))))
+         (setq helm-split-window-default-side 'right)
+         (setq helm-buffer-max-length nil)
+         (setq helm-ff-skip-boring-files t)
+         (require 'helm-files)
+         (add-to-list 'helm-boring-file-regexp-list ".*/\.emacs\.d/elpa/.*")
+         (add-to-list 'helm-boring-file-regexp-list ".*/\.emacs\.d/.*autoloads\.elc?$")
+         (add-to-list 'helm-boring-file-regexp-list "TAGS$")
+         (add-to-list 'helm-boring-file-regexp-list "ido\.last$")
+         (add-to-list 'helm-boring-file-regexp-list "\.emacs\.d/.*cache\.elc?$")
+         (add-to-list 'helm-boring-file-regexp-list "\.emacs\.d/.*bookmarks$")
+         (add-to-list 'helm-boring-file-regexp-list "News/KILL$")
+         (add-to-list 'helm-boring-file-regexp-list "\.emacs\.d/\.session$")
+         (add-to-list 'helm-boring-file-regexp-list "\.newsrc$")
+         (add-to-list 'helm-boring-file-regexp-list "\.newsrc\.eld$")
+         (add-to-list 'helm-boring-file-regexp-list "\.elfeed/index$")
+         (setq helm-M-x-always-save-history t)))
+   #+END_SRC
 ** helm posframe
    - problems, when used with xapp in frame
    - problems, when using it in a shell buffer
@@ -10788,7 +10786,7 @@
                   (lambda ()
                     (gb/start-if-not-running (s-trim (shell-command-to-string "command -v pasystray")))
                     ;; (start-process "yabar" nil  "/usr/bin/yabar") ;; see here: https://github.com/geommer/yabar
-                    (ido-mode nil)
+                    (ido-mode -1)
                     (set-fringe-mode 10)
                     (toggle-truncate-lines 1)
                     (gb/disable-ligatures)
@@ -10811,11 +10809,7 @@
                          ))
             (progn
               (exwm-input-release-keyboard (exwm--buffer->id (window-buffer)))
-              (setq exwm-input-set-local-simulation-keys nil)))
-          (ido-mode 0)
-          )
-
-        ))
+              (setq exwm-input-set-local-simulation-keys nil))))))
 
     (use-package exwm-edit
       ;; C-c C-' to edit any text field within a x-window program in a separate emacs buffer
@@ -11402,13 +11396,13 @@
     ;; (maximize-frame)
     (gb/do-after-display-system-init
      (toggle-frame-fullscreen)
-     (ido-mode 0)
+     (ido-mode -1)
+     (ido-unload-function)
      (midnight-mode 1)
      (set-fringe-mode 10)
      ;; (eldoc-overlay-mode t)
      )
     (setq gc-cons-threshold 80000000)
-    (ido-mode 0)
     (midnight-mode 1)
     (report-elapsed "exit finish - up")
   #+END_SRC
