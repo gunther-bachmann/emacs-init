@@ -5568,6 +5568,12 @@
           (add-hook 'magit-mode-hook 'gb/disable-smartscan))
         :config
         (require 'magit-mode)
+        ;; use magit-describe-section-briefly to find out section name (first element in square brackets [])
+        (setq magit-section-initial-visibility-alist
+              (quote
+               ((staged . show)
+                (unpushed . show)
+                (stashes . show))))
         (setq magit-repository-directories '(( "~/repo" . 3)))
         (setq magit-completing-read-function 'helm--completing-read-default)  ;; magit-ido-completing-read)
         (setq magit-fetch-arguments (quote ("--prune")))
