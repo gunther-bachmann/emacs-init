@@ -6003,6 +6003,7 @@
    #+BEGIN_SRC emacs-lisp :tangle no
      (use-package ansi-color
        :init (add-hook 'shell-mode-hook 'ansi-color-for-comint-mode-on)
+       :ensure t
        :config
        (setq ansi-color-names-vector
              ["black" "tomato" "PaleGreen2" "gold1"
@@ -6031,16 +6032,18 @@
    #+END_SRC
 ** bash completion
    #+BEGIN_SRC emacs-lisp
-   (use-package bash-completion
-     :config
-     (setq bash-completion-prog (s-trim (shell-command-to-string "command -v bash")))
-     (bash-completion-setup))
+     (use-package bash-completion
+       :ensure t
+       :config
+       (setq bash-completion-prog (s-trim (shell-command-to-string "command -v bash")))
+       (bash-completion-setup))
    #+END_SRC
 ** shell (bash) checking
    - built in shell editing mode, explicitly initialized here to enable flycheck-mode
    #+BEGIN_SRC emacs-lisp
      (use-package sh-script
        :after ( flycheck)
+       :ensure t
        :init
        (add-hook 'sh-mode-hook 'flycheck-mode))
    #+END_SRC
