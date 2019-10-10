@@ -5543,29 +5543,68 @@
                ("C-c v l" . magit-list-repositories)
                :map magit-mode-map
                ("C-x f" . counsel-git)
+               ("C-c p" . gb/aws-pull-request)
                :map magit-repolist-mode-map
                ("s-i" . helm-imenu))
         :init
         (progn
 
+          (defun gb/shell-command-to-exit-code-and-string (command)
+            "Run COMMAND and return the exit code (as int) and output (as string) in a pair ( exit-code . output-string )"
+            (with-temp-buffer
+              `(,(apply 'call-process shell-file-name nil (current-buffer) nil (list shell-command-switch command)) .
+                    ,(s-trim (buffer-string)))))
+
+          (defun gb/translate-slack-name-to-id (member)
+            ""
+            (let ((slack-team-ids '(("Lukas" . "U5WGHU048")
+                                 ("Roman" . "UHBBUGGJK")
+                                 ("Aram" . "UH1GRNW65")
+                                 ("Andreas" . "UHDEEH5D4")
+                                 ("Damian" . "UHA9Y42KW")
+                                 ("Philipp" . "U70T5PS6T")
+                                 ("Olaf" . "U5DF9SC57"))))
+              (cdr (--first (s-equals? member (car it)) slack-team-ids))))
+
+          (defun gb/aws-pull-request (uni)
+            "create pull request based on the current repo, put the url into the kill ring and (if NOT called with universial arg) browse the url"
+            (interactive "P")
+            (direnv-allow)
+            (let* ((history '("Aram Roman Lukas" "Andreas Phillip Damian"))
+                   (members (helm-read-string "slack-members:" (first history) 'history))
+                   (memberlist (s-split " " members))
+                   (memberids (--map (gb/translate-slack-name-to-id it) memberlist))
+                   (member-parameters (--map (s-concat "-m \"" it "\"") memberids ))
+                   (command (s-concat "aws-create-pullrequest -s \"#otto_eins_pr\" " (s-join " " member-parameters)))
+                   (result (gb/shell-command-to-exit-code-and-string command))
+                   (exit-code (car result))
+                   (result-string (cdr result)))
+              (message (s-concat "CALL: " command))
+              (message (s-concat "AWS PullRequest Result String: " result-string))
+              (message (s-concat "AWS PullRequest Result Code  : " (number-to-string exit-code)))
+              (when (eq exit-code 0)
+                (kill-new result-string)
+                (unless uni
+                  (browse-url result-string)))))
+
           (defun gb/magit-log-trace-definition ()
             "Show log for the definition marked."
             (interactive)
             (let ((fname  (or (magit-file-relative-name)
-                              (user-error "Buffer isn't visiting a file")))
+                             (user-error "Buffer isn't visiting a file")))
                   (fn (or (buffer-substring-no-properties (region-beginning) (region-end))
-                          (user-error "function not marked")))
-                  (rev (or magit-buffer-refname
-                           (magit-get-current-branch)
-                           "HEAD")))
+                         (user-error "function not marked")))
+                    (rev (or magit-buffer-refname
+                            (magit-get-current-branch)
+                            "HEAD")))
               (magit-log-trace-definition fname fn rev)))
 
           (defun gb/disable-smartscan ()
             ""
             (if (fboundp #'smartscan-mode)
-              (smartscan-mode -1)))
+              (smartscan-mode -1))))
 
-          (add-hook 'magit-mode-hook 'gb/disable-smartscan))
+        (add-hook 'magit-mode-hook 'gb/disable-smartscan)
         :config
         (require 'magit-mode)
         ;; use magit-describe-section-briefly to find out section name (first element in square brackets [])
