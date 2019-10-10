@@ -8967,7 +8967,7 @@
                                             ("\\.mkv\\'\\|\\.mpe?g\\'\\|\\.avi\\'\\|\\.mp4\\'" "cvlc")
                                             ("\\.sid\\'" "sidplayfp")
                                             ("\\.html?\\'" "firefox")
-                                            ("\\.docx?\\'" "soffice")
+                                            ("\\.docx?\\'\\|\\.xlsx?\\'\\|\\.pptx?\\'" "soffice")
                                             ))
 
        ;; see https://oremacs.com/2016/02/24/dired-rsync/
