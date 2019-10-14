@@ -9107,11 +9107,15 @@
      (use-package dired-sidebar
        :ensure t
        :bind (( "s-A" . dired-sidebar-toggle-sidebar)
-              ( "s-a" . gb/dired-sidebar-follow-file))
+              ( "s-a" . gb/dired-sidebar-follow-file)
+              :map dired-sidebar-mode-map
+              ( "c-s" . nonincremental-search-forward))
        ;; :after (dired all-the-icons vscode-icon)
        :config
        ;; make sure that long lines are truncated in sidebar
        (advice-add 'dired-sidebar-toggle-sidebar :after #'(lambda (&rest args) (toggle-truncate-lines '(1))))
+
+
 
        (defun gb/dired-sidebar-follow-file ()
          "ensure sidebar is open and position cursor on file from which this function was called"
