@@ -10346,13 +10346,17 @@
                 (defun gb/hibernate-laptop ()
                   "put laptop into hibernation (complete off, store memory onto disc)"
                   (interactive)
-                  (shell-command-to-string "xfce4-power-manager") ;; make sure the power manager is running
-                  (shell-command-to-string "systemctl hibernate"))
+                  (if (not (string-empty-p (shell-command-to-string "pgrep duplicity")))
+                      (message "Running duplicity (backup), hibernate aborted.")
+                    (shell-command-to-string "xfce4-power-manager") ;; make sure the power manager is running
+                    (shell-command-to-string "systemctl hibernate")))
                 (defun gb/suspend-laptop ()
                   "put laptop into suspension (soft off, still uses power to keep memory up to date)"
                   (interactive)
-                  (shell-command-to-string "xfce4-power-manager") ;; make sure the power manager is running
-                  (shell-command-to-string "systemctl suspend"))
+                  (if (not (string-empty-p (shell-command-to-string "pgrep duplicity")))
+                      (message "Running duplicity (backup), suspend aborted.")
+                    (shell-command-to-string "xfce4-power-manager") ;; make sure the power manager is running
+                    (shell-command-to-string "systemctl suspend")))
                 (defun gb/reboot--immediately ()
                   "immediately execute reboot, without running hooks nor asking questions"
                   (shell-command "reboot"))
@@ -10360,9 +10364,11 @@
                   "reboot pc"
                   (interactive)
                   (when (yes-or-no-p "Reboot PC?")
-                    (progn
-                      (add-hook 'kill-emacs-hook #'gb/reboot--immediately t)
-                      (save-buffers-kill-emacs))))
+                    (if (not (string-empty-p (shell-command-to-string "pgrep duplicity")))
+                        (message "Running duplicity (backup), reboot aborted.")
+                      (progn
+                        (add-hook 'kill-emacs-hook #'gb/reboot--immediately t)
+                        (save-buffers-kill-emacs)))))
                 (defun gb/reset-direnv ()
                   "restart direnv mode, restart tide server and bash-completion"
                   (interactive)
@@ -10379,8 +10385,10 @@
                   (interactive)
                   (when (yes-or-no-p "Shutdown PC?")
                     (progn
-                      (add-hook 'kill-emacs-hook #'gb/shutdown--immediately t)
-                      (save-buffers-kill-emacs))))
+                      (if (not (string-empty-p (shell-command-to-string "pgrep duplicity")))
+                          (message "Running duplicity (backup), shutdown aborted.")
+                        (add-hook 'kill-emacs-hook #'gb/shutdown--immediately t)
+                        (save-buffers-kill-emacs)))))
                 (defun gb/exwm-visualize-workspace-switch (newidx length display-width)
                   "visualize the switched to workspace by a foreground ascii art"
                   (interactive)
