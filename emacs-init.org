@@ -840,25 +840,39 @@
    #+END_SRC
 ** ui
    #+BEGIN_SRC emacs-lisp
-   (defun gb/kill-a-buffer-and-delete-window (askp)
-     "kill the current buffer and remove the window"
-     (interactive "P")
-     (gb/kill-a-buffer askp)
-     ;; only called without prefix argument and not the root window of the frame
-     (if (not (or askp (frame-root-window-p (get-buffer-window))))
-         (delete-window)))
+     (setq gb/posframe-offset 0)
+     (defun gb/posframe-poshandler-frame-center (info)
+       "Posframe's position handler.
 
-   (defun gb/kill-a-buffer (askp)
-     "kill the current buffer (ask if prefix argument is given)"
-     (interactive "P")
-     (if askp
-         (kill-buffer (ivy-read "Kill buffer: " (mapcar #'buffer-name (buffer-list))))
-       (if (string= (buffer-name) "*scratch*")
-           (message "scratch buffer must be killed explicitly (with prefix argument, then selecting the buffer)")
-         (kill-buffer (current-buffer)))))
+          Get a position which let posframe stay onto its
+          parent-frame's center.  The structure of INFO can
+          be found in docstring of `posframe-show'."
+       (cons (+ gb/posframe-offset (/ (- (plist-get info :parent-frame-width)
+                                         (plist-get info :posframe-width))
+                                      2))
+             (/ (- (plist-get info :parent-frame-height)
+                   (plist-get info :posframe-height))
+                2)))
 
-   (global-set-key (kbd "C-x k") 'gb/kill-a-buffer)
-   (global-set-key (kbd "C-x C-k") 'gb/kill-a-buffer-and-delete-window)
+     (defun gb/kill-a-buffer-and-delete-window (askp)
+       "kill the current buffer and remove the window"
+       (interactive "P")
+       (gb/kill-a-buffer askp)
+       ;; only called without prefix argument and not the root window of the frame
+       (if (not (or askp (frame-root-window-p (get-buffer-window))))
+           (delete-window)))
+
+     (defun gb/kill-a-buffer (askp)
+       "kill the current buffer (ask if prefix argument is given)"
+       (interactive "P")
+       (if askp
+           (kill-buffer (ivy-read "Kill buffer: " (mapcar #'buffer-name (buffer-list))))
+         (if (string= (buffer-name) "*scratch*")
+             (message "scratch buffer must be killed explicitly (with prefix argument, then selecting the buffer)")
+           (kill-buffer (current-buffer)))))
+
+     (global-set-key (kbd "C-x k") 'gb/kill-a-buffer)
+     (global-set-key (kbd "C-x C-k") 'gb/kill-a-buffer-and-delete-window)
    #+END_SRC
 ** printer
    extensions
@@ -4017,20 +4031,22 @@
      (use-package which-key-posframe
        :ensure t
        :config
-       (setq which-key-posframe-poshandler 'posframe-poshandler-frame-center)
+       (setq which-key-posframe-poshandler 'gb/posframe-poshandler-frame-center)
        (setq which-key-posframe-min-width 60)
        (setq which-key-posframe-min-height 50)
        (setq which-key-posframe-width 60)
        (setq which-key-posframe-height 50)
        (defun gb/which-key-set-posframe-parameters ()
          "set helm-posframe parameters. run previous to display, to ensure right display in multimonitor environments"
+         (setq gb/posframe-offset (cdr (assoc 'left (frame-parameters (selected-frame)))))
          (setq which-key-posframe-parameters
                `((parent-frame . nil)                                                    ;; (works only on single monitor)
                  (display . ,(cdr (assoc 'display (frame-parameters (selected-frame))))) ;; (hopefully holds display of current monitor)
-                 (left-fringe . 0)
-                 (right-fringe . 0))))
+                 (left-fringe . 10)
+                 (right-fringe . 10))))
        (advice-add 'which-key-posframe--show-buffer :before #'(lambda (orig-func &rest args) (gb/which-key-set-posframe-parameters)))
-       (which-key-posframe-mode))
+       (which-key-posframe-mode)
+       )
    #+END_SRC
 ** keyfreq
    #+BEGIN_SRC emacs-lisp
@@ -8402,18 +8418,18 @@
      (use-package helm-posframe
        :ensure t
        :config
-       (setq helm-posframe-poshandler #'posframe-poshandler-frame-center)
-       ; (setq helm-posframe-height 60)
-       ; (setq helm-posframe-width 200)
+       (setq helm-posframe-poshandler #'gb/posframe-poshandler-frame-center)
        (defun gb/helm-set-posframe-parameters ()
          "set helm-posframe parameters. run previous to display, to ensure right display in multimonitor environments"
+         (setq gb/posframe-offset (cdr (assoc 'left (frame-parameters (selected-frame)))))
          (setq helm-posframe-parameters
-               `((parent-frame . nil)                                                    ;; (works only on single monitor)
+               `((parent-frame)                                                          ;; (works only on single monitor)
                  (display . ,(cdr (assoc 'display (frame-parameters (selected-frame))))) ;; (hopefully holds display of current monitor)
-                 (left-fringe . 0)
-                 (right-fringe . 0))))
+                 (left-fringe . 10)
+                 (right-fringe . 10))))
        (advice-add 'helm-posframe-display :before #'(lambda (orig-func &rest args) (gb/helm-set-posframe-parameters)))
-       (helm-posframe-enable))
+       (helm-posframe-enable)
+       )
    #+end_src
 ** helm org
    #+begin_src emacs-lisp
