@@ -8429,18 +8429,42 @@
      (use-package helm-posframe
        :ensure t
        :config
+       (setq gb/helm-posframe-min-height 50)
+       (setq gb/helm-posframe-min-width 120)
+       (defun helm-posframe-display (buffer &optional _resume)
+         "The display function which is used by `helm-display-function'.
+     Argument BUFFER."
+         (setq helm-posframe-buffer buffer)
+         (posframe-show
+          buffer
+          :position (point)
+          :poshandler helm-posframe-poshandler
+          :width (or helm-posframe-width (+ (window-width) 2))
+          :height (or helm-posframe-height helm-display-buffer-height)
+          :min-height gb/helm-posframe-min-height
+          :min-width gb/helm-posframe-min-width
+          :font helm-posframe-font
+          :override-parameters helm-posframe-parameters
+          :respect-header-line t))
        (setq helm-posframe-poshandler #'gb/posframe-poshandler-frame-center)
        (defun gb/helm-set-posframe-parameters ()
          "set helm-posframe parameters. run previous to display, to ensure right display in multimonitor environments"
-         (setq gb/posframe-offset (cdr (assoc 'left (frame-parameters (selected-frame)))))
-         (setq helm-posframe-parameters
-               `((parent-frame)                                                          ;; (works only on single monitor)
-                 (display . ,(cdr (assoc 'display (frame-parameters (selected-frame))))) ;; (hopefully holds display of current monitor)
-                 (left-fringe . 10)
-                 (right-fringe . 10))))
+         (let ((xfac (cond ((eq 'helm-for-files (helm-this-command)) 0.8)
+                           ((eq 'helm-mini (helm-this-command)) 0.8)
+                           (t 0.5)))
+               (yfac (cond ((eq 'helm-for-files (helm-this-command)) 0.8)
+                           ((eq 'helm-mini (helm-this-command)) 0.8)
+                           (t 0.5))))
+           (setq gb/helm-posframe-min-height (round (* yfac (cdr (assoc 'height (frame-parameters (selected-frame)))))))
+           (setq gb/helm-posframe-min-width (round (* xfac (cdr (assoc 'width (frame-parameters (selected-frame)))))))
+           (setq gb/posframe-offset (cdr (assoc 'left (frame-parameters (selected-frame)))))
+           (setq helm-posframe-parameters
+                 `((parent-frame)                                                          ;; (works only on single monitor)
+                   (display . ,(cdr (assoc 'display (frame-parameters (selected-frame))))) ;; (hopefully holds display of current monitor)
+                   (left-fringe . 10)
+                   (right-fringe . 10)))))
        (advice-add 'helm-posframe-display :before #'(lambda (orig-func &rest args) (gb/helm-set-posframe-parameters)))
-       (helm-posframe-enable)
-       )
+       (helm-posframe-enable))
    #+end_src
 ** helm org
    #+begin_src emacs-lisp
