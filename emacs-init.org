@@ -6048,7 +6048,14 @@
    #+BEGIN_SRC emacs-lisp :tangle no
      (use-package ansi-color
        :init (add-hook 'shell-mode-hook 'ansi-color-for-comint-mode-on)
+       (add-hook 'comint-preoutput-filter-functions 'ansi-color-filter-apply)
        :ensure t
+       :hook (compilation-filter . colorize-compilation-buffer)
+       :preface
+       (autoload 'ansi-color-apply-on-region "ansi-color")
+       (defun colorize-compilation-buffer ()
+         (let ((inhibit-read-only t))
+           (ansi-color-apply-on-region (point-min) (point-max))))
        :config
        (setq ansi-color-names-vector
              ["black" "tomato" "PaleGreen2" "gold1"
@@ -6060,9 +6067,9 @@
 ** xterm color
    #+BEGIN_SRC emacs-lisp
      (use-package xterm-color
-       :init (add-hook 'comint-preoutput-filter-functions 'xterm-color-filter)
        :ensure t
        :config
+       (add-hook 'comint-preoutput-filter-functions 'xterm-color-filter)
        ;; eterm-color-256 expects existence of this function
        ;; detected in: eterm-color-256: 0.3.12, xterm-color 1.7
        (defalias 'xterm-color--256 'xterm-color-256)
