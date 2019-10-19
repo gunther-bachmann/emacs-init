@@ -5406,26 +5406,37 @@
  #+END_SRC
 ** scala:  ensime (enhanced scala mode for emacs)
  #+BEGIN_SRC emacs-lisp
-   (use-package sbt-mode)
-   (use-package scala-mode)
-   (use-package scalariform)
-   (use-package ensime
-     :ensure t
-     ;; :after ( sbt-mode)
-     :commands ensime
-     :init
-     (add-hook 'scala-mode-hook 'ensime-mode)
+   (use-package sbt-mode
+     :commands sbt-start sbt-command
      :config
-     (custom-set-faces '(ensime-implicit-highlight ((t (:underline "#404040"))))
-                       '(ensime-breakpoint-face ((t (:overline "light gray" :underline "light gray")))))
-     (setq ensime-sbt-perform-on-save "compile")
-     (setq ensime-search-interface 'helm)
-     (setq ensime-eldoc-hints 'all))
-   (use-package flycheck-ensime)
+     ;; WORKAROUND: https://github.com/ensime/emacs-sbt-mode/issues/31
+     ;; allows using SPACE when in the minibuffer
+     (substitute-key-definition
+      'minibuffer-complete-word
+      'self-insert-command
+      minibuffer-local-completion-map))
+
+   (use-package scala-mode
+     :mode "\\.s\\(cala\\|bt\\)$")
+
+   (use-package scalariform)
+   ;; (use-package ensime
+   ;;   :ensure t
+   ;;   ;; :after ( sbt-mode)
+   ;;   :commands ensime
+   ;;   :init
+   ;;   (add-hook 'scala-mode-hook 'ensime-mode)
+   ;;   :config
+   ;;   (custom-set-faces '(ensime-implicit-highlight ((t (:underline "#404040"))))
+   ;;                     '(ensime-breakpoint-face ((t (:overline "light gray" :underline "light gray")))))
+   ;;   (setq ensime-sbt-perform-on-save "compile")
+   ;;   (setq ensime-search-interface 'helm)
+   ;;   (setq ensime-eldoc-hints 'all))
+   ;; (use-package flycheck-ensime)
    (use-package ammonite-term-repl
      :config (add-hook 'scala-mode-hook
-             (lambda ()
-               (ammonite-term-repl-minor-mode t))))
+                       (lambda ()
+                         (ammonite-term-repl-minor-mode t))))
    (use-package ob-ammonite)
  #+END_SRC
 ** xml
@@ -9266,8 +9277,10 @@
 (report-elapsed "check point language server protocol mode")
 #+END_SRC
   #+BEGIN_SRC emacs-lisp
-  (use-package lsp-mode
-    :commands lsp-mode)
+    (use-package lsp-mode
+      :commands lsp-mode
+      :hook (scala-mode . lsp)
+      :config (setq lsp-prefer-flymake nil))
   #+END_SRC
 * nix specifics
 #+BEGIN_SRC emacs-lisp
