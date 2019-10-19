@@ -4205,8 +4205,8 @@
      :after (company)
      :config (add-to-list 'company-backends 'company-shell))
    #+END_SRC
-** helm-company
-   #+BEGIN_SRC emacs-lisp
+** helm-company (disabled)
+   #+BEGIN_SRC emacs-lisp :tangle no
    (use-package helm-company
      :ensure t
      :after ( helm company)
@@ -6009,6 +6009,7 @@
      (bind-key "<M-up>" #'helm-comint-input-ring comint-mode-map)
      (bind-key "<M-S-up>" #'counsel-shell-history comint-mode-map)
      (bind-key "<C-S-up>" #'helm-comint-prompts comint-mode-map)
+     (bind-key "<tab>" #'company-try-hard comint-mode-map)
    #+END_SRC
 ** tmux (disabled for now)
    - enables interaction with tmux sessions
