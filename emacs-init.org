@@ -9954,27 +9954,15 @@
    #+END_SRC
 ** yaml
    #+BEGIN_SRC emacs-lisp
-   (use-package yaml-mode
-     :ensure t
-     :mode (("\\.?yml\\(\\.tpl\\)?\\'" . yaml-mode)
-            ("\\.?yaml\\(\\.tpl\\)?\\'" . yaml-mode))
-     :bind (:map yaml-mode-map
-                 ("<tab>" . 'gb/toggle-fold-by-indentation))
-     :config
-     (defun gb/toggle-fold-by-indentation ()
-       "Toggle fold all lines larger than indentation on current line"
-       (interactive)
-       (let ((col 1))
-         (save-excursion
-           (back-to-indentation)
-           (setq col (+ 1 (current-column)))
-           (set-selective-display
-            (if selective-display nil (or col 1)))))))
+     (use-package yaml-mode
+       :ensure t
+       :mode (("\\.?yml\\(\\.tpl\\)?\\'" . yaml-mode)
+              ("\\.?yaml\\(\\.tpl\\)?\\'" . yaml-mode)))
 
-   (use-package yaml-tomato
-     :ensure t
-     :after ( yaml-mode)
-     :commands (yaml-tomato-show-current-path yaml-tomato-copy))
+     (use-package yaml-tomato
+       :ensure t
+       :after ( yaml-mode)
+       :commands (yaml-tomato-show-current-path yaml-tomato-copy))
    #+END_SRC
 ** agda (deactivated)
    - 'agda-mode locate' will provide the path to agda.el which in turn holds all code to actually implement the agda mode.
@@ -11175,6 +11163,26 @@
         (use-package csv-mode
           :commands csv-mode
           :load-path "~/.emacs.d/additionals"))
+  #+end_src
+* EVAL indent-tools (navigate, fold and (de-indent))
+  - see https://github.com/vindarel/indent-tools
+  #+begin_src emacs-lisp
+    (use-package indent-tools
+      :bind (:map indent-tools-mode-map
+                  ("C-c >" . indent-tools-indent)
+                  ("C-c <" . indent-tools-demote)
+                  ("C-c n" . indent-tools-goto-next-sibling)
+                  ("C-c p" . indent-tools-goto-previous-sibling)
+                  ("C-c u" . indent-tools-goto-parent)
+                  ("C-c d" . indent-tools-goto-child)
+                  ("<tab>" . yafolding-toggle-element)
+                  ;; ("" . indent-tools-goto-end-of-tree)
+                  ;; ("" . indent-tools-end-of-level)
+                  )
+      :config
+      (add-hook 'python-mode-hook (lambda () (indent-tools-minor-mode)))
+      (add-hook 'yaml-mode-hook (lambda () (indent-tools-minor-mode)))
+      )
   #+end_src
 * proced
   #+begin_src emacs-lisp
