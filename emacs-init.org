@@ -11135,6 +11135,9 @@
                                          "^Omitting...$"
                                          "^Omitted .+ lines?\\.$"
                                          "\\(.*mitt.*\\)"
+                                         "^SUBTREE.*$"
+                                         "^FOLDED"
+                                         "^CHILDREN.*$"
                                          "^\\(Shell command succeeded with no output\\)$"
                                          "^Invalid face .*$")
       "filter formatted message string to remove noisy messages")
