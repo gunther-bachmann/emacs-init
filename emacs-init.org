@@ -8459,9 +8459,12 @@
          "set helm-posframe parameters. run previous to display, to ensure right display in multimonitor environments"
          (let ((xfac (cond ((eq 'helm-for-files (helm-this-command)) 0.8)
                            ((eq 'helm-mini (helm-this-command)) 0.8)
+                           ((eq 'gb/exwm-program-select (helm-this-command)) 0.2)
+                           ((eq 'helm-M-x (helm-this-command)) 0.3)
                            (t 0.5)))
                (yfac (cond ((eq 'helm-for-files (helm-this-command)) 0.8)
                            ((eq 'helm-mini (helm-this-command)) 0.8)
+                           ((eq 'helm-M-x (helm-this-command)) 0.9)
                            (t 0.5))))
            (setq gb/helm-posframe-min-height (round (* yfac (cdr (assoc 'height (frame-parameters (selected-frame)))))))
            (setq gb/helm-posframe-min-width (round (* xfac (cdr (assoc 'width (frame-parameters (selected-frame)))))))
@@ -8469,6 +8472,7 @@
            (setq helm-posframe-parameters
                  `((parent-frame)                                                          ;; (works only on single monitor)
                    (display . ,(cdr (assoc 'display (frame-parameters (selected-frame))))) ;; (hopefully holds display of current monitor)
+                   (alpha 90 90)
                    (left-fringe . 10)
                    (right-fringe . 10)))))
        (advice-add 'helm-posframe-display :before #'(lambda (orig-func &rest args) (gb/helm-set-posframe-parameters)))
