@@ -9208,7 +9208,7 @@
          (setq dired-sidebar-follow-file-at-point-on-toggle-open t)
          (setq dired-sidebar-should-follow-file nil) ;; follow file in dired sidebar tree, put that on a hotkey
          (setq dired-sidebar-use-term-integration nil) ;; get workdir by dired root (direnv is called a bit too often)
-         (setq dired-sidebar-use-custom-font t)))
+         ))
    #+END_SRC
 ** dired-du (size calc in dired)
    #+BEGIN_SRC emacs-lisp
