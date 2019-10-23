@@ -1647,6 +1647,7 @@
        ;; (set-frame-font (s-concat gb/default-font "-12") t t)
        ;; (add-to-list 'initial-frame-alist `(font . ,gb/default-font))
        ;; (add-to-list 'default-frame-alist `(font . ,gb/default-font))
+       ;; (add-to-list 'frame-initial-frame-alist `(font . ,gb/default-font))
        )
 
      (when (not (member gb/default-font (font-family-list)))
@@ -1679,11 +1680,14 @@
 
        Use DEFAULT-HEIGHT for default face and VARIABLE-PITCH-HEIGHT
        for variable-pitch face."
-       (if gb/setup-main-fonts-needs-execution
+       (when gb/setup-main-fonts-needs-execution
            (let* ((attr-map (ht-merge (gb/get-font-heights (x-display-pixel-width) window-system)
                                       (gb/get-font-weights window-system))))
              (message "setting up default fonts")
              (message (format "display pixel width %d" (x-display-pixel-width)))
+             ;; (set-default-font gb/default-font)
+             ;; (set-frame-font gb/default-font t nil)
+             ;; (set-face-font 'default gb/default-font nil)
              (set-face-attribute 'default nil
                                  ;; :family gb/default-font
                                  :font gb/default-font
@@ -6009,7 +6013,7 @@
      (bind-key "<M-up>" #'helm-comint-input-ring comint-mode-map)
      (bind-key "<M-S-up>" #'counsel-shell-history comint-mode-map)
      (bind-key "<C-S-up>" #'helm-comint-prompts comint-mode-map)
-     (bind-key "<tab>" #'company-try-hard comint-mode-map)
+     (bind-key "<tab>" #'company-complete comint-mode-map)
    #+END_SRC
 ** tmux (disabled for now)
    - enables interaction with tmux sessions
@@ -6073,7 +6077,8 @@
        ;; eterm-color-256 expects existence of this function
        ;; detected in: eterm-color-256: 0.3.12, xterm-color 1.7
        (defalias 'xterm-color--256 'xterm-color-256)
-       (progn (setq comint-output-filter-functions (remove 'ansi-color-process-output comint-output-filter-functions))))
+       ;; (progn (setq comint-output-filter-functions (remove 'ansi-color-process-output comint-output-filter-functions)))
+       )
    #+END_SRC
 ** friendly iteractive shell
    #+BEGIN_SRC emacs-lisp
@@ -10682,7 +10687,8 @@
                      (or (string= exwm-class-name "X64")
                          (string= (downcase exwm-class-name) "eclipse")
                          (string= (downcase exwm-class-name) "dosbox")
-                         (string= (downcase exwm-class-name) "jetbrains-idea-ce")))
+                         (string= (downcase exwm-class-name) "jetbrains-idea-ce")
+                         ))
             (exwm-reset))
           (funcall interactive-function))
 
