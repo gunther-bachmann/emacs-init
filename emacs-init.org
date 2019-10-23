@@ -2470,9 +2470,13 @@
         :pin melpa-stable
         :config
         (setq doom-modeline-buffer-file-name-style 'relative-to-project)
-        (setq  doom-modeline-vcs-max-length 40)
+        (setq doom-modeline-vcs-max-length 40)
         (setq inhibit-compacting-font-caches t)
-        :hook (after-init . doom-modeline-init))
+        (setq doom-modeline-height 1)
+        (set-face-attribute 'mode-line nil :height 120)
+        (set-face-attribute 'mode-line-inactive nil :height 120)
+        (setq inhibit-compacting-font-caches t)
+        (doom-modeline-mode 1))
     #+END_SRC
 *** spinner (busy indicator for modeline)
     - (spinner-start 'vertical-breathing 10)
