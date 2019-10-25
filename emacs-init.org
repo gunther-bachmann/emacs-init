@@ -8473,13 +8473,13 @@
          "set helm-posframe parameters. run previous to display, to ensure right display in multimonitor environments"
          (let ((xfac (cond ((eq 'helm-for-files (helm-this-command)) 0.8)
                            ((eq 'helm-mini (helm-this-command)) 0.8)
-                           ((eq 'gb/exwm-program-select (helm-this-command)) 0.2)
-                           ((eq 'helm-M-x (helm-this-command)) 0.3)
-                           (t 0.5)))
+                           ((eq 'gb/exwm-program-select (helm-this-command)) (if gb/presentation-mode 0.8 0.2))
+                           ((eq 'helm-M-x (helm-this-command)) (if gb/presentation-mode 0.8 0.3))
+                           (t (if gb/presentation-mode 0.8 0.5))))
                (yfac (cond ((eq 'helm-for-files (helm-this-command)) 0.8)
                            ((eq 'helm-mini (helm-this-command)) 0.8)
                            ((eq 'helm-M-x (helm-this-command)) 0.9)
-                           (t 0.5))))
+                           (t (if gb/presentation-mode 0.8 0.5)))))
            (setq gb/helm-posframe-min-height (round (* yfac (cdr (assoc 'height (frame-parameters (selected-frame)))))))
            (setq gb/helm-posframe-min-width (round (* xfac (cdr (assoc 'width (frame-parameters (selected-frame)))))))
            (setq gb/posframe-offset (cdr (assoc 'left (frame-parameters (selected-frame)))))
@@ -10601,7 +10601,7 @@
 
         (setq gb/presentation-mode nil)
 
-        (defun gb/switch-to-presentation-monitor-setup ()
+        (defun gb/toggle-presentation-monitor-setup ()
           ""
           (interactive)
           ;; (setq gb/setup-main-fonts-needs-execution t)
@@ -10618,7 +10618,8 @@
             (message "exwm change hook")
             (message (s-trim (shell-command-to-string "xrandr --listmonitors | grep \"Monitors\" | awk '{ print $2; }'")))
             (if dual-monitor
-                (let* ((second-monitor (gb/get-second-monitor)))
+                (let* ((second-monitor (gb/get-second-monitor))
+                       (sm-resolution (s-trim (shell-command-to-string (s-concat "xrandr | grep -e \"" second-monitor "\" -A 1 | tail -n 1 | tr -s \" \" | cut -d' ' -f2")))))
                   (message "dual-monitor setup")
                   (message primary-monitor)
                   (message second-monitor)
@@ -10635,6 +10636,7 @@
                         (message "dual monitor")
                         (setq  exwm-randr-workspace-monitor-plist (append `(0 ,primary-monitor) (-interleave (number-sequence 1 (-  (exwm-workspace--count) 1)) (-repeat (- (exwm-workspace--count) 1) second-monitor)))) ;; 0 "DP-2"
                         (shell-command (s-concat "xrandr --output " primary-monitor " --left-of "  second-monitor " --auto"))
+                        (shell-command (s-concat "xrandr --output " second-monitor " --mode " sm-resolution))
                         (if (s-equals? second-monitor "DP-0")
                             (let* ((xrandrmode (s-trim (shell-command-to-string (s-concat "xrandr -q | grep " second-monitor " -A 1 | tail -n 1 | awk '{ print $1; }'")))))
                               (message xrandrmode)
