@@ -10667,22 +10667,7 @@
          "SPC" 'avy-goto-char-timer)
         (define-key exwm-mode-map [?\C-q] #'exwm-input-send-next-key)
 
-        ;; changes via exwm-input-set-key become active after restart of exwm only!
-        (exwm-input-set-key (kbd "<XF86MonBrightnessUp>") #'gb/brightness-up)
-        (exwm-input-set-key (kbd "<XF86MonBrightnessDown>") #'gb/brightness-down)
-        (exwm-input-set-key (kbd "<XF86AudioLowerVolume>") #'gb/audio-lower-volume)
-        (exwm-input-set-key (kbd "<XF86AudioRaiseVolume>") #'gb/audio-raise-volume)
-        (exwm-input-set-key (kbd "<XF86AudioMute>") #'gb/audio-mute-volume)
-        (exwm-input-set-key (kbd "<s-f6>") #'gb/brightness-up)
-        (exwm-input-set-key (kbd "<s-f5>") #'gb/brightness-down)
-        (exwm-input-set-key (kbd "<s-f2>") #'gb/audio-lower-volume)
-        (exwm-input-set-key (kbd "<s-f3>") #'gb/audio-raise-volume)
-        (exwm-input-set-key (kbd "<s-f1>") #'gb/audio-mute-volume)
-        (exwm-input-set-key (kbd "<s-f12>") #'exwm-floating-toggle-floating)
-        (exwm-input-set-key (kbd "s-l") #'gb/lock-screen)
-        (exwm-input-set-key (kbd "s-'") #'gb/exwm-workspace-up)
-        (exwm-input-set-key (kbd "s-/") #'gb/exwm-workspace-down)
-        (exwm-input-set-key (kbd "s-e") #'buffer-expose)
+
 
         ;; globally set keys that will not be routed to the respective xwindow (some keys set by exwm-input-set-key are swallowed by x-applications)
         (setq exwm-input-global-keys
@@ -10706,6 +10691,7 @@
 
         (defun gb/windmove-left ()
           ""
+          (interactive)
           (if (windmove-find-other-window 'left)
               (windmove-left)
             (if (gb/exwm-workspace-left)
@@ -10714,30 +10700,12 @@
 
         (defun gb/windmove-right ()
           ""
+          (interactive)
           (if (windmove-find-other-window 'right)
               (windmove-right)
             (if (gb/exwm-workspace-right)
                 (while (windmove-find-other-window 'left)
                   (windmove-left)))))
-
-        ;; switch buffers
-        (exwm-input-set-key (kbd "s-b") (lambda () (interactive) (gb/wrap-in-exwm-reset #'helm-mini)))
-        ;; (exwm-input-set-key (kbd "s-b") #'helm-mini)
-        ;; open files
-        (exwm-input-set-key (kbd "s-f") (lambda () (interactive) (gb/wrap-in-exwm-reset #'helm-for-files)))
-        ;; (exwm-input-set-key (kbd "s-f") #'helm-for-files)
-        ;; select window via ace
-        (exwm-input-set-key (kbd "s-o") (lambda () (interactive) (gb/wrap-in-exwm-reset #'ace-select-window)))
-        ;; (exwm-input-set-key (kbd "s-o") #'ace-select-window)
-        ;; helm-M-x
-        (exwm-input-set-key (kbd "s-SPC") #'helm-M-x) ;; may have problems jumping off from eclipse
-
-        (exwm-input-set-key (kbd "s-<left>") (lambda () (interactive) (gb/wrap-in-exwm-reset #'gb/windmove-left)))
-        (exwm-input-set-key (kbd "s-<right>") (lambda () (interactive) (gb/wrap-in-exwm-reset #'gb/windmove-right)))
-        (exwm-input-set-key (kbd "s-<up>") (lambda () (interactive) (gb/wrap-in-exwm-reset #'windmove-up)))
-        (exwm-input-set-key (kbd "s-<down>") (lambda () (interactive) (gb/wrap-in-exwm-reset #'windmove-down)))
-
-        (exwm-input-set-key (kbd "H-c") #'gb/mouse-pointer-to-cursor)
 
         (defun gb/remove-upper-window ()
           ""
@@ -10751,9 +10719,6 @@
           (if-let (lower-window (windmove-find-other-window 'down))
               (delete-window lower-window)))
 
-        (exwm-input-set-key (kbd "s-S-<up>") (lambda () (interactive) (gb/wrap-in-exwm-reset #'gb/remove-upper-window)))
-        (exwm-input-set-key (kbd "s-S-<down>") (lambda () (interactive) (gb/wrap-in-exwm-reset #'gb/remove-lower-window)))
-
         (defun gb/remove-left-window ()
           ""
           (interactive)
@@ -10765,9 +10730,6 @@
           (interactive)
           (if-let (right-window (windmove-find-other-window 'right))
               (delete-window right-window)))
-
-        (exwm-input-set-key (kbd "s-S-<left>") (lambda () (interactive) (gb/wrap-in-exwm-reset #'gb/remove-left-window)))
-        (exwm-input-set-key (kbd "s-S-<right>") (lambda () (interactive) (gb/wrap-in-exwm-reset #'gb/remove-right-window)))
 
         (defun gb/exwm-distinct-exwm-buffer-names ()
           "list of distinct running exwm buffers/programs"
@@ -10809,6 +10771,49 @@
                          :history helm-external-command-history)))
           (gb/exwm--switch-or-run program)
           )
+
+        ;; changes via exwm-input-set-key become active after restart of exwm only!
+        (exwm-input-set-key (kbd "<XF86MonBrightnessUp>") #'gb/brightness-up)
+        (exwm-input-set-key (kbd "<XF86MonBrightnessDown>") #'gb/brightness-down)
+        (exwm-input-set-key (kbd "<XF86AudioLowerVolume>") #'gb/audio-lower-volume)
+        (exwm-input-set-key (kbd "<XF86AudioRaiseVolume>") #'gb/audio-raise-volume)
+        (exwm-input-set-key (kbd "<XF86AudioMute>") #'gb/audio-mute-volume)
+        (exwm-input-set-key (kbd "<s-f6>") #'gb/brightness-up)
+        (exwm-input-set-key (kbd "<s-f5>") #'gb/brightness-down)
+        (exwm-input-set-key (kbd "<s-f2>") #'gb/audio-lower-volume)
+        (exwm-input-set-key (kbd "<s-f3>") #'gb/audio-raise-volume)
+        (exwm-input-set-key (kbd "<s-f1>") #'gb/audio-mute-volume)
+        (exwm-input-set-key (kbd "<s-f12>") #'exwm-floating-toggle-floating)
+        (exwm-input-set-key (kbd "s-l") #'gb/lock-screen)
+        (exwm-input-set-key (kbd "s-'") #'gb/exwm-workspace-up)
+        (exwm-input-set-key (kbd "s-/") #'gb/exwm-workspace-down)
+        (exwm-input-set-key (kbd "s-e") #'buffer-expose)
+        (exwm-input-set-key (kbd "C-s-<left>") #'shrink-window-horizontally-effect)
+        (exwm-input-set-key (kbd "C-s-<right>") #'enlarge-window-horizontally-effect)
+        ;; switch buffers
+        (exwm-input-set-key (kbd "s-b") #'helm-mini)
+        ;; open files
+        (exwm-input-set-key (kbd "s-f") #'helm-for-files)
+        ;; select window via ace
+        (exwm-input-set-key (kbd "s-o") #'ace-select-window)
+        ;; helm-M-x
+        (exwm-input-set-key (kbd "s-SPC") #'helm-M-x) ;; may have problems jumping off from eclipse
+
+        (exwm-input-set-key (kbd "s-<left>") #'gb/windmove-left)
+        (exwm-input-set-key (kbd "s-<right>") #'gb/windmove-right)
+        (exwm-input-set-key (kbd "s-<up>") #'windmove-up)
+        (exwm-input-set-key (kbd "s-<down>") #'windmove-down)
+
+        (exwm-input-set-key (kbd "H-c") #'gb/mouse-pointer-to-cursor)
+
+        (exwm-input-set-key (kbd "S-s-<up>") #'gb/remove-upper-window)
+        (exwm-input-set-key (kbd "S-s-<down>") #'gb/remove-lower-window)
+
+        (exwm-input-set-key (kbd "S-s-<left>") #'gb/remove-left-window)
+        (exwm-input-set-key (kbd "S-s-<right>") #'gb/remove-right-window)
+
+        (exwm-input-set-key (kbd "s-3") #'(lambda () (interactive) (split-window-right-and-select-scratch)))
+        (exwm-input-set-key (kbd "s-2") #'(lambda () (interactive) (split-window-below-and-select-scratch)))
 
         ;; start programs
         (exwm-input-set-key (kbd "s-1") #'gb/exwm-program-select) ;; do not wrap, since it already resets exwm
