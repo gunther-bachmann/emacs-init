@@ -2463,19 +2463,22 @@
     #+END_SRC
 *** doom modeline
     - adjusted file doom-modeline-segments.el:272, changed "save" to "edit" (icon)
+    - adjusted file doom-modeline-core.el doom-modeline--font-height, change heigth to 120 (instead of calculating font height)
+    - adjusted file doom-modeline-core.el doom-modeline-def-modeline, change (if (number-or-marker-p 120)...) (instead of calculation font
+      stuff here)
     #+BEGIN_SRC emacs-lisp
       (use-package doom-modeline
         :ensure t
         :after (all-the-icons)
         :pin melpa-stable
         :config
+        (defun doom-modeline--window-font-width () 9)
         (setq doom-modeline-buffer-file-name-style 'relative-to-project)
         (setq doom-modeline-vcs-max-length 40)
         (setq inhibit-compacting-font-caches t)
         (setq doom-modeline-height 1)
         (set-face-attribute 'mode-line nil :height 120)
         (set-face-attribute 'mode-line-inactive nil :height 120)
-        (setq inhibit-compacting-font-caches t)
         (doom-modeline-mode 1))
     #+END_SRC
 *** spinner (busy indicator for modeline)
@@ -4554,11 +4557,13 @@
    #+END_SRC
 ** anzu (searching regexp with hit count)
    #+BEGIN_SRC emacs-lisp
-   ;; display # of matches in modeline when searching
-   (use-package anzu
-     :ensure t
-     :config
-     (global-anzu-mode +1))
+     ;; display # of matches in modeline when searching
+     (use-package anzu
+       :ensure t
+       :config
+       (global-anzu-mode +1)
+       (setq anzu-search-threshold 1000)
+       (setq anzu-minimum-input-length 3))
    #+END_SRC
 ** other (recentf, uniquify)
    #+BEGIN_SRC emacs-lisp
@@ -9641,9 +9646,9 @@
      :ensure t
      :after ( company))
    #+END_SRC
-** dimmer
+** dimmer (deactivated, slowing things down)
    - dim non selected buffers (slightly)
-   #+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp :tangle no
      (use-package dimmer
        :ensure t
        :config (dimmer-activate)
