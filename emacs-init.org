@@ -10654,6 +10654,19 @@
           (add-hook 'exwm-randr-screen-change-hook #'gb/refresh-exwm-monitor-setup)
           (exwm-randr-enable))
 
+
+        ;; patch function (wrap in when) such that this function will do nothing if not in an x-window
+        ;; eglot help display in minibuffer puts focus elsewhere, resulting in repeated timed calls to this function which
+        ;; will put a lot of strain on the cpu
+        (defun exwm-input--update-focus-commit (window)
+          "Commit updating input focus."
+          (when exwm-class-name
+            (progn
+              (setq exwm-input--update-focus-lock t)
+              (unwind-protect
+                  (exwm-input--update-focus window)
+                (setq exwm-input--update-focus-lock nil)))))
+
         ;; The following example demonstrates how to set a key binding only available
         ;; in line mode. It's simply done by first push the prefix key to
         ;; `exwm-input-prefix-keys' and then add the key sequence to `exwm-mode-map'.
@@ -11189,6 +11202,16 @@
         (use-package csv-mode
           :commands csv-mode
           :load-path "~/.emacs.d/additionals"))
+  #+end_src
+* EVAL eglot
+  #+begin_src emacs-lisp
+    (use-package jsonrpc
+      :ensure t)
+    (use-package flymake
+      :ensure t)
+    (use-package eglot
+      :commands eglot
+      :ensure t)
   #+end_src
 * EVAL indent-tools (navigate, fold and (de-indent))
   - see https://github.com/vindarel/indent-tools
