@@ -11213,6 +11213,17 @@
       :commands eglot
       :ensure t)
   #+end_src
+* EVAL terraform-lsp
+  #+begin_src emacs-lisp
+    (add-to-list 'lsp-language-id-configuration '(terraform-mode . "terraform"))
+
+    (lsp-register-client
+     (make-lsp-client :new-connection (lsp-stdio-connection `(,(s-trim (shell-command-to-string "command -v terraform-lsp")) "-enable-log-file"))
+                      :major-modes '(terraform-mode)
+                      :server-id 'terraform-ls))
+
+    (add-hook 'terraform-mode-hook #'lsp)
+  #+end_src
 * EVAL indent-tools (navigate, fold and (de-indent))
   - see https://github.com/vindarel/indent-tools
   #+begin_src emacs-lisp
