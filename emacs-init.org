@@ -11395,6 +11395,13 @@
       (add-hook 'yaml-mode-hook (lambda () (indent-tools-minor-mode)))
       )
   #+end_src
+* EVAL fancy narrow
+  - narrow to (function, block ...) while keeping other text visible r/o and faded out
+  - this works currently best for elisp
+  #+begin_src emacs-lisp
+    (use-package fancy-narrow
+      :ensure t)
+  #+end_src
 * proced
   #+begin_src emacs-lisp
     (use-package proced
