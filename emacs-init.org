@@ -11402,6 +11402,13 @@
     (use-package fancy-narrow
       :ensure t)
   #+end_src
+* EVAL wttrin
+  #+begin_src emacs-lisp
+    (use-package wttrin
+      :config
+      (setq wttrin-default-cities '("Hamburg" "Darmstadt" "Coburg"))
+      (setq wttrin-default-accept-language '("Accept-Language" . "de-DE")))
+  #+end_src
 * proced
   #+begin_src emacs-lisp
     (use-package proced
