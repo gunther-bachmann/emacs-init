@@ -11755,6 +11755,26 @@
      :ensure t
      :commands clear-text-mode)
  #+END_SRC
+** emacs maple minibuffer
+   - collides with helm posframe and all the other posframe stuff
+   #+begin_src emacs-lisp :tangle no
+     (use-package maple-minibuffer
+       :load-path "~/.emacs.d/additionals/emacs-maple-minibuffer"
+       ;; :hook (after-init . maple-minibuffer-mode)
+       :config
+       (setq maple-minibuffer:position-type 'window-bottom-left
+             maple-minibuffer:height nil
+             maple-minibuffer:border-color "gray50"
+             maple-minibuffer:width 100)
+
+       ;; more custom parameters for frame
+       (defun maple-minibuffer:parameters ()
+         "Maple minibuffer parameters."
+         `((height . ,(or maple-minibuffer:height 10))
+           (width . ,(or maple-minibuffer:width (window-pixel-width)))
+           (left-fringe . 5)
+           (right-fringe . 5))))
+   #+end_src
 * finish - up
   #+BEGIN_SRC emacs-lisp
     (report-elapsed "enter finish - up")
