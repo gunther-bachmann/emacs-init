@@ -2472,6 +2472,13 @@
         :after (all-the-icons)
         :pin melpa-stable
         :config
+        ;; overwrite this function
+        (defun doom-modeline--font-height ()
+          "Calculate the actual char height of the mode-line."
+          (let ((height 100))
+            (round (* 1.68 (cond ((integerp height) (/ height 10))
+                                 ((floatp height) (* height (frame-char-height)))
+                                 (t (frame-char-height)))))))
         (defun doom-modeline--window-font-width () 9)
         (setq doom-modeline-buffer-file-name-style 'relative-to-project)
         (setq doom-modeline-vcs-max-length 40)
