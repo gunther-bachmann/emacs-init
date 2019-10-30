@@ -11366,7 +11366,9 @@
       :ensure t)
     (use-package eglot
       :commands eglot
-      :ensure t)
+      :ensure t
+      :bind (:map kotlin-mode-map
+             ("C-x `" . flymake-goto-next-error)))
   #+end_src
 * EVAL terraform-lsp
   #+begin_src emacs-lisp
