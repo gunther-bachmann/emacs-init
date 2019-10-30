@@ -10655,13 +10655,17 @@
           (exwm-randr-enable))
 
 
+        (set gb/previous-window-focus-exwm-class-name nil)
         ;; patch function (wrap in when) such that this function will do nothing if not in an x-window
         ;; eglot help display in minibuffer puts focus elsewhere, resulting in repeated timed calls to this function which
         ;; will put a lot of strain on the cpu
+        ;; execute complete function if coming from or going to an x window!
         (defun exwm-input--update-focus-commit (window)
           "Commit updating input focus."
-          (when exwm-class-name
+          (when (or exwm-class-name
+                  gb/previous-window-focus-exwm-class-name)
             (progn
+              (setq gb/previous-window-focus-exwm-class-name exwm-class-name)
               (setq exwm-input--update-focus-lock t)
               (unwind-protect
                   (exwm-input--update-focus window)
