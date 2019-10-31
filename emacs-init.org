@@ -10662,7 +10662,7 @@
           (exwm-randr-enable))
 
 
-        (set gb/previous-window-focus-exwm-class-name nil)
+        (setq gb/previous-window-focus-exwm-class-name nil)
         ;; patch function (wrap in when) such that this function will do nothing if not in an x-window
         ;; eglot help display in minibuffer puts focus elsewhere, resulting in repeated timed calls to this function which
         ;; will put a lot of strain on the cpu
