@@ -11422,6 +11422,12 @@
       (setq wttrin-default-cities '("Hamburg" "Darmstadt" "Coburg"))
       (setq wttrin-default-accept-language '("Accept-Language" . "de-DE")))
   #+end_src
+* EAVL helm-rg
+  #+begin_src emacs-lisp
+    (use-package helm-rg
+      :commands helm-rg
+      :ensure t)
+  #+end_src
 * proced
   #+begin_src emacs-lisp
     (use-package proced
