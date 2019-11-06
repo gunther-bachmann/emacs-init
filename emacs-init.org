@@ -1282,17 +1282,17 @@
 
       (check-_nix-program-status proselint-installed "proselint" "proselint" "proselint not found") ;; proselint is a linter for english prose
 
+      (if chromium-installed
+          (progn
+            (setq browse-url-browser-function 'browse-url-chromium)
+            (setq browse-url-chromium-program (s-trim (shell-command-to-string "command -v chromium")))))
 
+      ;; firefox takes precedence (over chromium)
       (if firefox-installed
           (progn
             (setq browse-url-browser-function 'browse-url-firefox)
             (setq browse-url-firefox-program (s-trim (shell-command-to-string "command -v firefox")))))
 
-      ;; chromium takes precedence (over firefox)
-      (if chromium-installed
-          (progn
-            (setq browse-url-browser-function 'browse-url-chromium)
-            (setq browse-url-chromium-program (s-trim (shell-command-to-string "command -v chromium")))))
 
       ;; icecat takes precedence (over firefox)
       ;; (if icecat-installed
