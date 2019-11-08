@@ -3687,21 +3687,21 @@
    #+END_SRC
 ** key-chord
    #+BEGIN_SRC emacs-lisp
-   (use-package key-chord
-     :config
-     (progn
-       (setq key-chord-two-keys-delay 0.10)
-       (setq key-chord-one-key-delay 0.20)
-       (key-chord-mode 1)
+     (use-package key-chord
+       :config
+       (progn
+         (setq key-chord-two-keys-delay 0.07)
+         (setq key-chord-one-key-delay 0.07)
+         (key-chord-mode 1)
 
-       ;; (key-chord-define-global "hj"   'undo)
+         ;; (key-chord-define-global "hj"   'undo)
 
-       ;; (key-chord-define-global "12"   'delete-other-windows) ;; key 12 is too often typed directly after each other => function is triggered unwanted
-       ;; (key-chord-define-global "23"   'split-window-below)
-       ;; (key-chord-define-global "34"   'split-window-right)
-       ;; (key-chord-define-global "0ß"   'delete-window)
+         ;; (key-chord-define-global "12"   'delete-other-windows) ;; key 12 is too often typed directly after each other => function is triggered unwanted
+         ;; (key-chord-define-global "23"   'split-window-below)
+         ;; (key-chord-define-global "34"   'split-window-right)
+         ;; (key-chord-define-global "0ß"   'delete-window)
 
-       ))
+         ))
    #+END_SRC
 ** space-chord (currently disabled)
    #+BEGIN_SRC emacs-lisp :tangle no
