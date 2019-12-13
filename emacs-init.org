@@ -5735,7 +5735,8 @@
               (quote
                ((staged . show)
                 (unpushed . show)
-                (stashes . show))))
+                (stashes . show)
+                (unpulled . show))))
         (setq magit-repository-directories '(( "~/repo" . 3)))
         (setq magit-completing-read-function 'helm--completing-read-default)  ;; magit-ido-completing-read)
         (setq magit-fetch-arguments (quote ("--prune")))
