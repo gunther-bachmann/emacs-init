@@ -2529,7 +2529,8 @@
         (setq inhibit-compacting-font-caches t)
         (setq doom-modeline-height 1)
         (set-face-attribute 'mode-line nil :height 120)
-        (set-face-attribute 'mode-line-inactive nil :height 120)
+        (set-face-attribute 'mode-line-inactive nil :height 110)
+        (custom-set-faces '(mode-line ((t (:background "#403040" :foreground "#d5d8d6" :weight normal :height 110)))))
         (doom-modeline-mode 1))
     #+END_SRC
 *** spinner (busy indicator for modeline)
