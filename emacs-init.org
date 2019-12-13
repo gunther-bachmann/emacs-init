@@ -6101,6 +6101,21 @@
        (custom-set-variables
         '(emamux:completing-read-type 'helm)))
    #+END_SRC
+** dirtrack mode
+   - needs some experimentation
+   - currently working local (if 'export PS1="[\$PWD]$ "' is set in shell!)
+   #+begin_src emacs-lisp
+     (use-package dirtrack
+       :ensure t
+       :config
+       (add-hook 'shell-mode-hook
+                 (lambda ()
+                   (shell-dirtrack-mode 0) ;stop the usual shell-dirtrack mode
+                                             ;(setq ssh-directory-tracking-mode 'ftp)
+                   (setq dirtrack-list (quote ("^.*\\[\\(.*:\\)?\\(.*\\)\\]" 2)))
+                   ;; (dirtrack-debug-mode) ;this shows any change in directory that dirtrack mode sees
+                   (dirtrack-mode))))
+   #+end_src
 ** shell here
    #+BEGIN_SRC emacs-lisp
    ;; open a shell at the current directory
