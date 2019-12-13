@@ -4754,6 +4754,7 @@
 *** eldoc mode
     - is automatically turned on in emacs 25.x
     #+BEGIN_SRC emacs-lisp
+    ;; (global-eldoc-mode -1) ;; switch eldoc off globally 
     ;; eldoc-mode shows documentation in the minibuffer when writing code
     ;; http://www.emacswiki.org/emacs/ElDoc
     ;; (add-hook 'emacs-lisp-mode-hook 'turn-on-eldoc-mode)
@@ -10657,7 +10658,8 @@
       (use-package exwm-config
         :after ( exwm )
         :config
-        (exwm-config-default)
+        (exwm-config-default) ;; enables ido mode !
+        (ido-mode -1)
 
         ;; (if (shell-command-to-string "ps -A | grep VBoxClient")
         ;;     (message "OK: VBoxClient seems to be running, thus clipboard sharing is probably active")
@@ -10844,9 +10846,8 @@
 
         (require 'helm-external)
 
-        (defun gb/exwm--switch-or-run (program &optional alias)
-          "switch to this program if already open or start it"
-          ;; (exwm-reset)
+        (defun gb/exwm--switch (program &optional alias)
+          "try to switch to a running program (nil on failure"
           (let* ((browser-alias (s-concat program "-browser"))
                  (stable-removed (s-replace "-stable" "" program)))
             (if (-contains? (gb/exwm-distinct-exwm-buffer-names) program)
@@ -10854,9 +10855,15 @@
               (if (-contains? (gb/exwm-distinct-exwm-buffer-names) browser-alias)
                   (exwm-workspace-switch-to-buffer (s-capitalize browser-alias))
                 ;; (exwm-reset) ;; make sure that keyboard is no longer captured
-                (if (-contains? (gb/exwm-distinct-exwm-buffer-names) stable-removed)
-                    (exwm-workspace-switch-to-buffer (s-capitalize stable-removed))
-                  (helm-run-external-command program))))))
+                (when (-contains? (gb/exwm-distinct-exwm-buffer-names) stable-removed)
+                  (exwm-workspace-switch-to-buffer (s-capitalize stable-removed)))))))
+
+        (defun gb/exwm--switch-or-run (program &optional alias)
+          "switch to this program if already open or start it"
+          ;; (exwm-reset)
+          (unless (gb/exwm--switch program alias)
+            (helm-run-external-command program)
+            (run-at-time 1 nil `(lambda () (gb/exwm--switch ,program)))))
 
         (defun gb/exwm-program-select (program)
           "select a native (unix) program to execute, select the buffer named as
@@ -11041,6 +11048,8 @@
         ;; and does not use simulation keys, since i have emacs binding enabled in eclipse
         (add-hook 'exwm-manage-finish-hook #'gb/exwm-after-switch)
 
+        ;; (defadvice exwm-layout--on-echo-area-change (after exwm-layout--on-echo-area-change--debug-jitter activate)
+        ;;   (message "exwm-layout--on-echo-area-change executed"))
         (defadvice switch-to-buffer (after switch-to-buffer-check-exwm-buffer activate)
           "switch to char mode if target buffer is eclipse (or any other buffer that should be in char mode)"
           (when (and exwm-class-name
