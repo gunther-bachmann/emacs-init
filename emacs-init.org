@@ -6084,8 +6084,10 @@
 
      (setq-default sh-basic-offset 2)
      (setq-default sh-indentation 2)
-
-     (setq warning-suppress-types '((undo discard-info)))
+     ;; (setq comint-scroll-show-maximum-output nil)
+     ;; (setq term-scroll-show-maximum-output nil)
+     ;; (setq eshell-scroll-show-maximum-output nil)
+     ;; (setq warning-suppress-types '((undo discard-info)))
      (bind-key "<M-up>" #'helm-comint-input-ring comint-mode-map)
      (bind-key "<M-S-up>" #'counsel-shell-history comint-mode-map)
      (bind-key "<C-S-up>" #'helm-comint-prompts comint-mode-map)
