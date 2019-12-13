@@ -11481,6 +11481,16 @@
       :commands helm-rg
       :ensure t)
   #+end_src
+* EVAL keycast (incomplete) disabled
+  #+begin_src emacs-lisp :tangle no
+    (use-package keycast
+      :config
+      (add-hook 'keycast-mode #'(lambda () (setq mode-line-format '("%e" mode-line-front-space (:eval (doom-modeline-format--main))))))
+      (setq keycast-insert-after 'mode-line-front-space)
+      (setq keycast-separator-width 0)
+      (setq keycast-remove-tail-elements nil)
+      (setq mode-line-format '("%e" (:eval (doom-modeline-format--main)))))
+  #+end_src
 * proced
   #+begin_src emacs-lisp
     (use-package proced
