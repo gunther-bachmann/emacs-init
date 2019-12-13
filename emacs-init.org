@@ -11498,6 +11498,11 @@
       :commands piper
       :load-path "/home/pe/.emacs.d/additionals/emacs-piper/")
   #+end_src
+* EVAL camcorder (make recordings of emacs -> ogv|gif)
+  #+begin_src emacs-lisp
+    (use-package camcorder
+      :commands camcorder-record)
+  #+end_src
 * proced
   #+begin_src emacs-lisp
     (use-package proced
