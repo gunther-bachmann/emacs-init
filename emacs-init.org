@@ -252,6 +252,8 @@
   ;; must be set before loading use-package in order to work
   (setq use-package-enable-imenu-support t) ;; enable locating package loaded by use-package within init.el
   (setq running-nixos nil)
+
+  (put 'list-timers 'disabled nil)
   #+END_SRC
 * initial function setup
   #+BEGIN_SRC emacs-lisp
@@ -1305,6 +1307,20 @@
           (setq gnu-ls-bin-path (car (split-string (shell-command-to-string "command -v ls")))))
       ))
   #+END_SRC
+* project specific settings
+** allowed dir locals
+   - look into [[file:~/.emacs.d/init.el]] search for 'safe-local-variable-values' and set these here accordingly
+   #+begin_src emacs-lisp
+     (custom-set-variables
+      '(safe-local-variable-values
+        (quote
+         ((eval org-display-inline-images)
+          (eval gb/set-dictionary "de")
+          (tide-format-options quote
+                               (:insertSpaceAfterFunctionKeywordForAnonymousFunctions t :placeOpenBraceOnNewLineForFunctions nil))
+          (json-reformat:indent-width . 4)
+          (typescript-indent-level . 4)))))
+   #+end_src
 * check emacs capabilities
   #+BEGIN_SRC emacs-lisp
   ;; check on png support
@@ -1538,8 +1554,9 @@
 ** interaction log
    - start via ilog-log-buffer-mode, creates a buffer called *Emacs log*, just open it
    #+BEGIN_SRC emacs-lisp
-   (use-package interaction-log
-     :commands ilog-log-buffer-mode)
+     (use-package interaction-log
+       :ensure
+       :commands ilog-log-buffer-mode)
    #+END_SRC
 ** copy of window init from spacemacs
    #+BEGIN_SRC emacs-lisp
@@ -1915,8 +1932,8 @@
        ;;   (gb/setup-ligatures))
 
      #+END_SRC
-** sublimity (smooth scrolling)
-   #+BEGIN_SRC emacs-lisp
+** sublimity (smooth scrolling, disabled)
+   #+BEGIN_SRC emacs-lisp :tangle no
    (use-package sublimity
      :config
      (progn
@@ -2471,7 +2488,8 @@
           )))
     #+END_SRC
 *** doom modeline
-    - adjusted file doom-modeline-segments.el:272, changed "save" to "change_history" (icon)⃤∆
+    - adjusted file doom-modeline-segments.el:276, changed "save" to "change_history" (icon)⃤∆
+    - adjusted file doom-modeline-segments.el:732, changed "block" to "sim_card_alert"
     - adjusted file doom-modeline-core.el doom-modeline--font-height, change heigth to 120 (instead of calculating font height)
     - adjusted file doom-modeline-core.el doom-modeline-def-modeline, change (if (number-or-marker-p 120)...) (instead of calculation font
       stuff here)
@@ -3985,6 +4003,17 @@
                  (if (boundp 'langtool-default-language) (setq langtool-default-language newLangtool))
                  (message "Dictionary switched from `%s' to `%s'" oldLang newLang)))
 
+             (defun gb/set-dictionary (lang)
+               "set language used for spell checking, lang = {de|en}"
+               (ispell-change-dictionary (cond ((string= lang "de") "deutsch8")
+                                               ((string= lang "en") "english")
+                                               (t "english")))
+               (if (boundp 'langtool-default-language)
+                   (setq langtool-default-language
+                         (cond ((string= lang "de") "de")
+                               ((string= lang "en") "en-US")
+                               (t "en-US")))))
+
              (add-hook 'message-mode-hook 'turn-on-flyspell)
              (add-hook 'org-mode-hook 'gb/activate-ispell-in-org-mode)
              )
@@ -5186,7 +5215,7 @@
       (add-hook 'haskell-mode-hook 'dante-mode)
       (add-hook 'haskell-mode-hook 'flycheck-mode))
     #+END_SRC
-*** intero (complete development environment for haskell)
+*** intero (disabled) (complete development environment for haskell)
     - see [[https://commercialhaskell.github.io/intero/][here]]
     #+BEGIN_SRC emacs-lisp :tangle no
     (use-package intero
@@ -8678,7 +8707,7 @@
   (use-package flycheck-tip
     :ensure t)
 #+END_SRC
-* hydra
+ * hydra
 #+BEGIN_SRC emacs-lisp
   (use-package hydra
     :ensure t
@@ -8890,15 +8919,16 @@
 #+BEGIN_SRC emacs-lisp
   (use-package gnuplot
     :mode ( "\\.gp\\'" . gnuplot-mode)
+    :ensure t
     :commands gnuplot-mode
     :config
     (autoload 'gnuplot-mode "gnuplot" "gnuplot major mode" t)
     (autoload 'gnuplot-make-buffer "gnuplot" "open a buffer in gnuplot-mode" t))
 #+END_SRC
-** alternative (disabled)
-#+BEGIN_SRC emacs-lisp :tangle no
+** alternative
+#+BEGIN_SRC emacs-lisp
   (use-package gnuplot-mode
-    :disabled t)
+    :ensure t)
 #+END_SRC
 * graphviz dot
 #+BEGIN_SRC emacs-lisp
@@ -9490,6 +9520,13 @@
    #+END_SRC
 ** posframe
    - posframe allows floating frames to be displayed at point position
+   - needed patching posframe.el:492
+     #+begin_src emacs-lisp :tangle no
+         (font-height (with-current-buffer (window-buffer parent-window)
+                        (posframe--get-font-height position-info
+                                                   ;; position
+                                                   )))
+     #+end_src
    #+BEGIN_SRC emacs-lisp
    (use-package posframe)
    #+END_SRC
@@ -9607,19 +9644,6 @@
      :after ( flycheck)
      :config (flycheck-gradle-setup))
    #+END_SRC
-** atomic chrome - allow text edit are within browser to be edited with emacs
-   - M-x atomic-chrome-start-server must be started within emacs
-   - atomic-chrome extension must be installed within chrome
-   - when within a text area of the browser, press the atomic-chrome button in the button bar, evoila, you are no in an emacs buffer editing
-     the text area with life update!
-   #+BEGIN_SRC emacs-lisp
-     (use-package atomic-chrome
-       :ensure t
-       :config (atomic-chrome-start-server))
-   #+END_SRC
-#+BEGIN_SRC emacs-lisp
-(report-elapsed "check point - atomic chrome")
-#+END_SRC
 ** cakecrumbs (show hierarchy in header for css and html)
    #+BEGIN_SRC emacs-lisp
    (use-package cakecrumbs
@@ -9725,11 +9749,13 @@
 ** lsp-ui
    - emacs ui integration for lsp (like flycheck etc.)
    #+BEGIN_SRC emacs-lisp
-   (when (locate-library "lsp-ui")
-     (use-package lsp-ui
-       :ensure t
-       :init
-       (add-hook 'lsp-mode-hook 'lsp-ui-mode)))
+     (when (locate-library "lsp-ui")
+       (use-package lsp-ui
+         :ensure t
+         :init
+         (add-hook 'lsp-mode-hook 'lsp-ui-mode)
+         (setq lsp-ui-doc-max-width 100)
+         (setq lsp-ui-doc-position 'bottom)))
    #+END_SRC
 #+BEGIN_SRC emacs-lisp
 (report-elapsed "check point - lsp-ui")
@@ -10150,7 +10176,7 @@
          (setq org-pomodoro-play-sounds nil)
          ))
    #+END_SRC
-** comint (shell extensions)
+** comint (shell extensions) (disabled)
    - see [[https://github.com/riscy/shx-for-emacs/blob/master/README.org][homepage]]
    - e.g. additional highlighting
    - given on the home page:
@@ -10159,7 +10185,7 @@
      - Open any filename or URL by arrowing up to it and pressing <enter>
      - Yank any line to the prompt by arrowing up to it and pressing C-<enter>
      - Check the time a command was run by mousing over its prompt
-   #+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp :tangle no
    (use-package shx
      :ensure t
      :init (progn
@@ -10272,8 +10298,8 @@
   (use-package kubernetes-tramp
     :ensure t)
   #+end_src
-* vue
-  #+begin_src emacs-lisp
+* vue (disabled)
+  #+begin_src emacs-lisp :tangle no
   (use-package vue-html-mode
     :ensure t)
   (use-package vue-mode
@@ -11325,8 +11351,8 @@
       :ensure t
       :hook (shell-mode . awscli-capf-add))
   #+end_src
-* EVAL filter annoying messages
-  #+begin_src emacs-lisp
+* EVAL filter annoying messages (disabled)
+  #+begin_src emacs-lisp :tangle no
     ;; filter annoying messages
     (defvar message-filter-regexp-list '("^Starting new Ispell process \\[.+\\] \\.\\.\\.$"
                                          "^Ispell process killed$"
@@ -11355,9 +11381,9 @@
               (ad-set-args 0 `("%s" ,formatted-string))
               ad-do-it)))))
   #+end_src
-* EVAL fast scroll
+* EVAL fast scroll (currently disabled)
   - disable font lock during C-v and M-v pagewise scrolling (if doing it fast)
-  #+begin_src emacs-lisp
+  #+begin_src emacs-lisp :tangle no
     (use-package fast-scroll
       :ensure t
       :config
@@ -11417,10 +11443,10 @@
       (add-hook 'yaml-mode-hook (lambda () (indent-tools-minor-mode)))
       )
   #+end_src
-* EVAL fancy narrow
+* EVAL fancy narrow (disabled)
   - narrow to (function, block ...) while keeping other text visible r/o and faded out
   - this works currently best for elisp
-  #+begin_src emacs-lisp
+  #+begin_src emacs-lisp :tangle no
     (use-package fancy-narrow
       :ensure t)
   #+end_src
@@ -11579,8 +11605,8 @@
   - color-rg: search and refactoring tool based in ripgrep (see [[https://github.com/manateelazycat/color-rg][here]])
   - helm-fd: like helm find, using fd instead
 ** utilities
-  - shrink-path
-    - do fish like reduciton of paths (e.g. for modeline)
+  - shrink-path: do fish like reduciton of paths (e.g. for modeline)
+  - counsel-jq: interactively use jq on json buffer
 ** windowmanager/x-integration
   - edwin (dynamic window manager)
   - zoom
@@ -11797,6 +11823,33 @@
            (left-fringe . 5)
            (right-fringe . 5))))
    #+end_src
+** common-header (put one shared modeline into a frame, collides with treemacs and dired side bar, disrupts doom modeline colors/fonts)
+   - see https://github.com/Bad-ptr/common-header-mode-line.el
+   #+begin_src emacs-lisp :tangle no
+     (if (file-exists-p "~/.emacs.d/additionals/common-header-mode-line-0.5.6")
+             (use-package common-header-mode-line
+     ;;          :commands
+               :load-path "~/.emacs.d/additionals/common-header-mode-line-0.5.6"
+               :config
+               (require 'per-frame-header-mode-line)
+               (require 'per-window-header-mode-line)
+               (setq per-frame-mode-line-window-side 'top)
+               (common-mode-line-mode 0)))
+   #+end_src
+** atomic chrome - allow text edit are within browser to be edited with emacs
+   - no longer needed, since exwm-edit is in use
+   - M-x atomic-chrome-start-server must be started within emacs
+   - atomic-chrome extension must be installed within chrome
+   - when within a text area of the browser, press the atomic-chrome button in the button bar, evoila, you are no in an emacs buffer editing
+     the text area with life update!
+   #+BEGIN_SRC emacs-lisp :tangle no
+     (use-package atomic-chrome
+       :ensure t
+       :config (atomic-chrome-start-server))
+   #+END_SRC
+#+BEGIN_SRC emacs-lisp
+(report-elapsed "check point - atomic chrome")
+#+END_SRC
 * finish - up
   #+BEGIN_SRC emacs-lisp
     (report-elapsed "enter finish - up")
@@ -11812,7 +11865,10 @@
      (ido-unload-function)
      (midnight-mode 1)
      (set-fringe-mode 10)
-     ;; (eldoc-overlay-mode t)
+     (display-time-mode -1)
+     (setq global-mode-string '("" appt-mode-string emms-mode-line-string emms-playing-time-string " "
+                                (:eval (s-concat "[" (number-to-string (exwm-workspace--position exwm-workspace--current)) "]" ))))
+    ;; (eldoc-overlay-mode t)
      )
     (setq gc-cons-threshold 80000000)
     (midnight-mode 1)
