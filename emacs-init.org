@@ -11491,6 +11491,13 @@
       (setq keycast-remove-tail-elements nil)
       (setq mode-line-format '("%e" (:eval (doom-modeline-format--main)))))
   #+end_src
+* EVAL emacs-piper (interactively work on os pipe commands)
+  - see https://gitlab.com/howardabrams/emacs-piper/
+  #+begin_src emacs-lisp
+    (use-package piper
+      :commands piper
+      :load-path "/home/pe/.emacs.d/additionals/emacs-piper/")
+  #+end_src
 * proced
   #+begin_src emacs-lisp
     (use-package proced
