@@ -1607,16 +1607,28 @@
 ** jumpy scrolling
    - some settings that makes scrolling a bit more what is actually wanted
    #+BEGIN_SRC emacs-lisp
-   (progn
-     (setq-default scroll-up-aggressively 0.01
-                   scroll-down-aggressively 0.01)
-     (setq scroll-up-aggressively 0.01
-           scroll-down-aggressively 0.01)
-     (setq scroll-margin 0)
-     ;; (setq scroll-step 1)
-     (setq scroll-conservatively 10000)
-     (setq auto-window-vscroll nil))
-   (setq smooth-scroll/vscroll-step-size 3)
+     (progn
+
+       ;; make sure to surround cursor movement with messages, preventing jumpy scrolling if on first or last line
+       ;; (defadvice previous-line (before previous-line-before activate) (message "+"))
+       ;; (defadvice previous-line (after previous-line-after activate) (message "-"))
+       ;; (defadvice next-line (before previous-line-before activate) (message "-"))
+       ;; (defadvice next-line (after previous-line-after activate) (message "+"))
+
+       (setq-default scroll-up-aggressively 1e-12
+                     scroll-down-aggressively 1e-12)
+       (setq scroll-up-aggressively 1e-12
+             scroll-down-aggressively 1e-12)
+       (setq beacon-blink-when-window-scrolls nil)
+       (setq fast-but-imprecise-scrolling t)
+       (setq scroll-margin 0)
+       (setq scroll-step 1)
+       (setq scroll-conservatively 10000)
+       (setq scroll-preserve-screen-position t)
+       (setq maximum-scroll-margin nil)
+       (setq auto-window-vscroll t)
+       (setq auto-window-hscroll t))
+     ;; (setq smooth-scroll/vscroll-step-size 3)
    #+END_SRC
 ** display symbols (pretty-mode, prettify-greek)
    #+BEGIN_SRC emacs-lisp
