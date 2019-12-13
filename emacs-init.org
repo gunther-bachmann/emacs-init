@@ -1669,7 +1669,10 @@
      ;;   )
      (setq-default font-lock-multiline t)
 
-     (setq gb/default-font "Source Code Pro")
+     (setq-default line-spacing 4) ;; depends a bit on the type of font selected
+
+     (setq gb/default-font "Hack")
+     ;; (setq gb/default-font "Source Code Pro")
      ;; (setq gb/default-font "Fira Code")
      ;; (setq gb/default-font "Cousine")
      ;; (setq gb/default-font "Lucida")
@@ -1975,8 +1978,6 @@
    #+BEGIN_SRC emacs-lisp
    ;; Changes all yes/no questions to y/n type
    (defalias 'yes-or-no-p 'y-or-n-p)
-
-   (setq-default line-spacing 1)
 
    ;; These settings relate to how emacs interacts with your operating system
    (setq ;; makes killing/yanking interact with the clipboard
