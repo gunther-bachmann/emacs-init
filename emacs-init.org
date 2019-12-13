@@ -1660,9 +1660,13 @@
    #+BEGIN_SRC emacs-lisp
      (setq gb/presentation-mode nil)
      (setq font-lock-support-mode 'jit-lock-mode)
-     (setq jit-lock-stealth-time 8
-           jit-lock-defer-contextually t
-           jit-lock-stealth-nice 1)
+     ;; (setq jit-lock-defer-contextually t ;; 'syntax-driven
+     ;;       jit-lock-context-time 0.5
+     ;;       jit-lock-defer-time 0
+     ;;       jit-lock-stealth-load 50 ;; 200
+     ;;       jit-lock-stealth-nice 0.5
+     ;;       jit-lock-stealth-time nil ;; 0.2
+     ;;   )
      (setq-default font-lock-multiline t)
 
      (setq gb/default-font "Source Code Pro")
