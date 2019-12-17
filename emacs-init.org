@@ -721,20 +721,64 @@
     fi
     #+end_src
     #+BEGIN_SRC emacs-lisp
-    (defun gb/switch-alt-win ()
-      "switch alt and windows key mapping"
-      (interactive)
-      (message (shell-command-to-string "switchAltWin")))
+      (defun gb/-kmonad-running-pid (keyboard)
+        "kmonad is running the given keyboard configuration file"
+        (s-trim (shell-command-to-string (s-concat "pgrep -a kmonad | grep " keyboard " | awk '{print $1 }'"))))
 
-    (defun gb/keyboard-space-to-ctrl ()
-      "map space to work as control"
-      (interactive)
-      (message (shell-command-to-string "space2ctrl")))
+      (defvar kmonad-filco-device-name "FILCO Bluetooth Keyboard" "device name for filco keyboard")
+      (setq kmonad-event-input-connected nil)
+      (defvar kmonad-executable "kmonad-0.3.0-linux" "executable for kmonad keyboard driver")
+      (defvar kmonad-config-location "~/.kmonad" "folder for configuration file for kmonad keyboard driver")
+      (defun gb/-kmonad-start (keyboard)
+        "start kmonad with filco configuration (stopping any instance already running)"
+        (let ((pid (gb/-kmonad-running-pid keyboard)))
+          (unless (string-empty-p pid)
+            (gb/-kill-pid pid)
+            (sleep-for 0 500) ;; wait for the kill to settle
+            (message (format "killed running kmonad with pid %s" pid)))
+          (async-shell-command (s-concat kmonad-executable " " kmonad-config-location "/" keyboard ".kbd"))))
 
-    (defun gb/keyboard-space-to-space ()
-      "map space to work as space again"
-      (interactive)
-      (message (shell-command-to-string "space2ctrl -k")))
+      (setq async-shell-command-buffer 'rename-buffer)
+      ;; TODO: make sure async buffer is put into the background
+
+      (defun gb/-get-event-device (full-device-name)
+       "provide a string of the event device (or nil if not found)"
+       (let ((input-device (s-trim (shell-command-to-string (s-concat "cat /proc/bus/input/devices | grep -B 1 -A 10 'Name=\"" full-device-name "' | grep \"H: Handlers\" | awk '{ print$5; }'" )))))
+         (unless (string-empty-p input-device)
+           (s-concat "/dev/input/" input-device))))
+
+      (defun gb/-kmonad-generate-config-from-template (template device-name config-name)
+        (shell-command-to-string (s-concat "cat " kmonad-config-location "/" template ".kbd | sed \"s|DEV_INPUT_DEVICE|" device-name "|g\" > " kmonad-config-location "/" config-name ".kbd")))
+
+      (defun gb/-kill-pid (pid)
+        "kill process given by PID string"
+        (shell-command (s-concat "kill " pid)))
+
+      ;; (defun gb/-reconnect-filco-on-change ()
+      ;;   "(re)connect (if event input changed)"
+      ;;   (let ((input-device (gb/-get-event-device kmonad-filco-device-name)))
+      ;;     (when (and input-device (not (string= input-device kmonad-event-input-connected)))
+      ;;       (gb/kmonad-start-filco)
+      ;;       (message "reconnected filco"))))
+
+      (defun gb/filco-udev-event (action)
+        (message (format "filco-udev-event, action: %s" action))
+        (let ((pid (gb/-kmonad-running-pid "filco"))
+              (input-device (gb/-get-event-device kmonad-filco-device-name)))
+          (unless (string-empty-p pid)
+            (gb/-kill-pid pid)
+            (sleep-for 0 500) ;; wait for the kill to settle
+            (message (format "killed running kmonad with pid %s" pid)))
+          (when input-device
+            (gb/-kmonad-generate-config-from-template "template" input-device "filco")
+            (gb/-kmonad-start "filco")
+            (setq kmonad-event-input-connected input-device)
+            (message (format "started kmonad on %s" input-device)))))
+
+      (defun gb/kmonad-start-filco ()
+        "start bluetooth filco kmonad definition"
+        (interactive)
+        (gb/filco-udev-event "UNKNOWN"))
     #+END_SRC
 *** comment toggle
     #+BEGIN_SRC emacs-lisp
