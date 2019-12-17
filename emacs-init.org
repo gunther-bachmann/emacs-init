@@ -11187,7 +11187,7 @@
       :hook (shell-mode . awscli-capf-add))
   #+end_src
 * EVAL filter annoying messages (disabled)
-  #+begin_src emacs-lisp :tangle no
+  #+begin_src emacs-lisp
     ;; filter annoying messages
     (defvar message-filter-regexp-list '("^Starting new Ispell process \\[.+\\] \\.\\.\\.$"
                                          "^Ispell process killed$"
@@ -11198,7 +11198,8 @@
                                          "^FOLDED"
                                          "^CHILDREN.*$"
                                          "^\\(Shell command succeeded with no output\\)$"
-                                         "^Invalid face .*$")
+                                         "^Invalid face .*$"
+                                         "^no exwm keyboard modification applied.*$")
       "filter formatted message string to remove noisy messages")
     (defadvice message (around message-filter-by-regexp activate)
       (if (not (ad-get-arg 0))
