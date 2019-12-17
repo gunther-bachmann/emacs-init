@@ -584,8 +584,8 @@
                                 " RAM SYSTEM"
                                 (make-string (max 2 (- len-avail-for-memory len-needed-for-memory)) ? )
                                 free-ram-str
-                                " EMACS LISP BYTES FREE\n;; READY\n;;\n"
-                                nix-total
+                                " EMACS LISP BYTES FREE\n;; READY\n"
+                                ;; ";;\n" nix-total
                                 )
                         ;; properties do not work here, since they are overwritten/not used
                         )))
