@@ -11404,6 +11404,7 @@
   - magit-circleci: magit extension for circleci (see last build result ...)
   - magit-vcsh, vcsh (vcsh allow separation of .git tree and actual files -> easy way to add file, like dot files from your home directory
     into a version controlled repository)
+  - gerrit - interface to gerrit, code reviews
 ** java/kotlin/scala
   - lsp-javacomp
     - lsp support for java using [[https://github.com/tigersoldier/JavaComp][java-comp]]
@@ -11461,6 +11462,7 @@
       (use-package org-category-capture
         :after ( org))
       #+END_SRC
+  - treefactor - organize org-headers and dired files of org files (see https://treefactor-docs.nfshost.com)
 ** os/system
   - network-watch (allows hooks to run when network is goiing down/up)
   - scp (use scp to transfer files)
@@ -11470,6 +11472,9 @@
   - counsel-tramp
   - proced-narrow - Live-narrowing of search results for proced.
   - syslog-mode - mode to view syslogs (filter etc.)
+  - nix-env-install - install packages through nix-env (currently npm packages only), see https://github.com/akirak/nix-env-install
+** project
+   - treemacs-persp - integration of perspective into treemacs buffer visibility
 ** searching/replace
   - zop-to-char (more options during zap to char)
   - mark-thing-at (mark certain things at point, e.g. words, s-exp, url, filename ...)
