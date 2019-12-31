@@ -8401,7 +8401,8 @@
      (progn
        (helm-flx-mode +1)
        ;; optional fuzzy matching for helm-M-x
-       (setq helm-M-x-fuzzy-match t) 
+       (setq helm-M-x-fuzzy-match t)
+       (setq completion-styles `(basic partial-completion emacs22 initials ,(if (version<= emacs-version "27.0") 'helm-flex 'flex)))
 
        (setq helm-bookmark-show-location t)
        (setq helm-completion-in-region-fuzzy-match t)
