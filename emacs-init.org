@@ -11325,6 +11325,12 @@
     (use-package camcorder
       :commands camcorder-record)
   #+end_src
+* EVAL helm-switch-shell
+  #+begin_src emacs-lisp
+    (use-package helm-switch-shell
+      :bind (("s-n" . helm-switch-shell))
+      :ensure t)
+  #+end_src
 * proced
   #+begin_src emacs-lisp
     (use-package proced
