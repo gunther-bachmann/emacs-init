@@ -4934,11 +4934,14 @@
    #+END_SRC
 ** kotlin
    #+BEGIN_SRC emacs-lisp
-   (use-package kotlin-mode)
-   (use-package flycheck-kotlin
-     :after (kotlin-mode))
-   (use-package ob-kotlin
-     :after (kotlin-mode org))
+     (use-package kotlin-mode
+       :ensure t)
+     (use-package flycheck-kotlin
+       :ensure t
+       :after (kotlin-mode))
+     (use-package ob-kotlin
+       :ensure t
+       :after (kotlin-mode org))
    #+END_SRC
 ** haskell
    #+BEGIN_SRC emacs-lisp
