@@ -770,7 +770,7 @@
             (sleep-for 0 500) ;; wait for the kill to settle
             (message (format "killed running kmonad with pid %s" pid)))
           (when input-device
-            (gb/-kmonad-generate-config-from-template "template" input-device "filco")
+            ; (gb/-kmonad-generate-config-from-template "template" input-device "filco")
             (gb/-kmonad-start "filco")
             (setq kmonad-event-input-connected input-device)
             (message (format "started kmonad on %s" input-device)))))
