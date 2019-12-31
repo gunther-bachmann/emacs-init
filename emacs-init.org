@@ -11331,6 +11331,12 @@
       :bind (("s-n" . helm-switch-shell))
       :ensure t)
   #+end_src
+* EVAL fzf
+  #+begin_src emacs-lisp
+    (use-package fzf
+      :commands (fzf fzf-git)
+      :ensure t)
+  #+end_src
 * proced
   #+begin_src emacs-lisp
     (use-package proced
