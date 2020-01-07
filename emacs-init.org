@@ -10761,6 +10761,7 @@
 
           ;; enable system tray which is displayed in the message area all the way to the right
           (require 'exwm-systemtray)
+          (setq exwm-systemtray-height 17)
           (exwm-systemtray-enable)
 
           ;; somehow the switch of workspace fails if some graphic program (like eclipse or chromium) is running
@@ -10848,10 +10849,13 @@
               (progn
                 (exwm-input-release-keyboard (exwm--buffer->id (window-buffer)))
                 (setq exwm-input-set-local-simulation-keys nil))))))
-
-      (use-package exwm-edit
-        ;; C-c C-' to edit any text field within a x-window program in a separate emacs buffer
-        :ensure t)
+    #+END_SRC
+  - exwm-edit
+    #+BEGIN_SRC emacs-lisp
+      (when gb/use-exwm
+        (use-package exwm-edit
+          ;; C-c C-' to edit any text field within a x-window program in a separate emacs buffer
+          :ensure t))
     #+END_SRC
 * org tree slide (presenting org mode files as slides)
   #+begin_src emacs-lisp
