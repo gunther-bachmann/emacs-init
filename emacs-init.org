@@ -7109,6 +7109,8 @@
             (add-hook 'after-save-hook 'gb/tangle-on-save-org-mode-file)
             res))
 
+
+        (setq org-clock-clocked-in-display nil)
         (defun gb/org-clock-in-switch-to-state-fn (state)
           "switch TODO to IMPLEMENT if clocking in!"
           (if (equal state "TODO")
@@ -10822,15 +10824,17 @@
                       (set-fringe-mode 10)
                       (toggle-truncate-lines 1)
                       (gb/disable-ligatures)
+                      (setq pomodoro-mode-line-string nil)
                       ;; (exwm-mff-mode)
                       (setq global-mode-string '("" appt-mode-string emms-mode-line-string emms-playing-time-string " "
-                                                 (:eval (s-concat "[" (number-to-string (exwm-workspace--position exwm-workspace--current)) "]" ))))
+                                                 (:eval (s-concat "[" (number-to-string (exwm-workspace--position exwm-workspace--current)) "]" ))
+                                           (:eval (unless (string-empty-p pomodoro-mode-line-string) " ") pomodoro-mode-line-string)))
                       ))
 
           ;; ensure that eclipse switches to char line mode
           ;; and does not use simulation keys, since i have emacs binding enabled in eclipse
           (add-hook 'exwm-manage-finish-hook #'gb/exwm-after-switch)
-
+          (add-hook 'exwm-workspace-switch-hook #'gb/exwm-after-switch)
           ;; (defadvice exwm-layout--on-echo-area-change (after exwm-layout--on-echo-area-change--debug-jitter activate)
           ;;   (message "exwm-layout--on-echo-area-change executed"))
           (defadvice switch-to-buffer (after switch-to-buffer-check-exwm-buffer activate)
@@ -11336,6 +11340,12 @@
     (use-package fzf
       :commands (fzf fzf-git)
       :ensure t)
+  #+end_src
+* EVAL pomodoro
+  #+begin_src emacs-lisp
+    (use-package pomodoro
+      :ensure t
+      :config (setq pomodoro-desktop-notification t))
   #+end_src
 * proced
   #+begin_src emacs-lisp
