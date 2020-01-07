@@ -11345,6 +11345,11 @@
       :commands (fzf fzf-git)
       :ensure t)
   #+end_src
+* EVAL helm-fish-completion (disabled)
+  - interferes with programs started from the shell (mame looses keyboard control, dosbox too)
+  #+begin_src emacs-lisp
+    ;; (use-package helm-fish-completion)
+  #+end_src
 * EVAL pomodoro
   #+begin_src emacs-lisp
     (use-package pomodoro
@@ -11434,6 +11439,9 @@
   - ccls (c++ language server for lsp ui), see here https://github.com/MaskRay/emacs-ccls
   - eglot - lsp client (for multiple languages)
   - dash-docs
+  - ob-elm
+  - ob-graphql
+  - flycheck-indent
 *** javascript/json/yaml/html
     - indium (java script development environment) [[https://github.com/NicolasPetton/Indium][home page]]
     - lsp-html - lsp frontend for html serving
@@ -11487,6 +11495,7 @@
   - proced-narrow - Live-narrowing of search results for proced.
   - syslog-mode - mode to view syslogs (filter etc.)
   - nix-env-install - install packages through nix-env (currently npm packages only), see https://github.com/akirak/nix-env-install
+  - kubel - inspect pods in kubernetes (with limited rights)
 ** project
    - treemacs-persp - integration of perspective into treemacs buffer visibility
 ** searching/replace
