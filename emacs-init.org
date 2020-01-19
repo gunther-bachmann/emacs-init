@@ -10720,6 +10720,16 @@
             (gb/exwm--switch-or-run program)
             )
 
+          (defun gb/exwm-insert-string-anywhere (string)
+            "insert given string in exwm x window, or any other emacs buffer"
+            (if exwm-class-name
+                (progn
+                  (kill-new string)
+                  (sleep-for 0.2)
+                  (dolist (key (string-to-list (kbd "C-v")))
+                    (exwm-input--fake-key key)))
+              (insert string)))
+
           ;; changes via exwm-input-set-key become active after restart of exwm only!
           (exwm-input-set-key (kbd "<XF86MonBrightnessUp>") #'gb/brightness-up)
           (exwm-input-set-key (kbd "<XF86MonBrightnessDown>") #'gb/brightness-down)
@@ -10762,6 +10772,10 @@
 
           (exwm-input-set-key (kbd "s-3") #'(lambda () (interactive) (split-window-right-and-select-scratch)))
           (exwm-input-set-key (kbd "s-2") #'(lambda () (interactive) (split-window-below-and-select-scratch)))
+          (exwm-input-set-key (kbd "C-s-o") #'(lambda () (interactive) (gb/exwm-insert-string-anywhere "ö")))
+          (exwm-input-set-key (kbd "C-s-a") #'(lambda () (interactive) (gb/exwm-insert-string-anywhere "ä")))
+          (exwm-input-set-key (kbd "C-s-u") #'(lambda () (interactive) (gb/exwm-insert-string-anywhere "ü")))
+          (exwm-input-set-key (kbd "C-s-s") #'(lambda () (interactive) (gb/exwm-insert-string-anywhere "ß")))
 
           ;; start programs
           (exwm-input-set-key (kbd "s-1") #'gb/exwm-program-select) ;; do not wrap, since it already resets exwm
