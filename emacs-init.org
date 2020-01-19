@@ -132,8 +132,6 @@
 *** java
 *** java script
 *** docker
-** TODO elfeed: filter news depending on title/feed/url etc.
-   - state "test"       from "todo"       [2016-04-08 fri 15:55]
 ** TEST amplify org-mode
    #+BEGIN_SRC emacs-lisp :tangle no
    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -221,12 +219,15 @@
    - State "DONE"       from "TODO"       [2016-11-28 Mon 08:06]
 ** DONE put this file into version control
    - State "DONE"       from "TODO"       [2016-11-06 So 18:20]
+** OBSOLETE elfeed: filter news depending on title/feed/url etc.
+   - state "test"       from "todo"       [2016-04-08 fri 15:55]
 ** OBSOLETE todo accepting invitations go into agenda, syncing google calendar goes into gcal
    - State "OBSOLETE"   from              [2017-06-26 Mon 16:45]
    it seems that accepted invitations (accepted within emacs from mail) does not correctly sync with google calendar
 ** OBSOLETE todo move diminish at the end of file to the respective packages
    - State "OBSOLETE"   from              [2017-06-26 Mon 16:44]
 * initial unsetting of global keys
+  - these keys are either used (remapped) in other packages / own code
   #+BEGIN_SRC emacs-lisp
   (global-unset-key "\C-z")     ;; (now mapped to prefix -- dash)
   (global-unset-key "\C-x\C-k") ;; keyboard makros prefix (now mapped to kill buffer)
@@ -331,13 +332,14 @@
               '(("myelpa" . "https://raw.githubusercontent.com/gunther-bachmann/myelpa/master/")))        ;; (setq package-archives '(("myelpa" . "~/repo/myelpa/")))
       (progn
         (if secure-package-access
-            (setq package-archives '(;; ("gnu" . "https://elpa.gnu.org/packages/")
+            (setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
                                      ("myelpa" . "https://raw.githubusercontent.com/gunther-bachmann/myelpa/master/")
                                      ("melpa-stable" . "https://stable.melpa.org/packages/")
                                      ("org" . "https://orgmode.org/elpa/")
                                      ("melpa" . "https://melpa.org/packages/")
                                      ))
-          (setq package-archives '(;; ("gnu" . "http://elpa.gnu.org/packages/")
+          (message "INSECURE PACKAGE ACCESS, BEWARE!")
+          (setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
                                    ("myelpa" . "https://raw.githubusercontent.com/gunther-bachmann/myelpa/master/")
                                    ("melpa-stable" . "http://stable.melpa.org/packages/")
                                    ("org" . "http://orgmode.org/elpa/")
@@ -1307,7 +1309,7 @@
 
       ;; gpg (for file encryption)
       (check-_nix-program-status gpg-installed "gpg" "gpg" "gpg is necessary for file encryption.")
-      (if gpg-installed
+      (when gpg-installed
           (setq epg-gpg-program "gpg"))
 
       (check-_nix-program-status w3m-installed '("w3m") "w3m" "html messages in gnus will not be displayed, helm dash browsing will not use w3m.")
@@ -4935,7 +4937,8 @@
 ** kotlin
    #+BEGIN_SRC emacs-lisp
      (use-package kotlin-mode
-       :ensure t)
+       :ensure t
+       :hook (kotlin-mode . gb/enable-ligatures))
      (use-package flycheck-kotlin
        :ensure t
        :after (kotlin-mode))
@@ -5209,7 +5212,7 @@
      (use-package javap-mode
        :ensure t)
     #+END_SRC
-** php 
+** php (disabled)
  #+BEGIN_SRC emacs-lisp :tangle no
    (use-package php-mode
      
@@ -5241,7 +5244,7 @@
      (add-hook 'python-mode-hook #'elpy-enable)
      (add-hook 'python-mode-hook #'flycheck-mode))
  #+END_SRC
-** scala:  ensime (enhanced scala mode for emacs)
+** scala  (ensime disabled in favor of metals, an lsp server)
  #+BEGIN_SRC emacs-lisp
    (use-package sbt-mode
      :commands sbt-start sbt-command
@@ -6928,6 +6931,7 @@
         ;;             (push '("[X]" . " ⌧ ") prettify-symbols-alist)
         ;;             (push '("[-]" . " ◼ ") prettify-symbols-alist)
         ;;             (prettify-symbols-mode)))
+        (custom-set-faces '(header-line ((t (:inherit org-table-face :foreground "#8abeb7"))))) ;; set (non scrolling) header to inhiert font from org mode tables (not mode line, which is to small on multi monitor w/ current config)
         (setq org-image-actual-width nil)
         (setq org-hide-emphasis-markers t) ;; hides ** and // surrounding text that is bold or intalics
         ;; (add-hook 'org-mode-hook #'org-sticky-header)
@@ -7159,9 +7163,10 @@
 
         ;; make sure latex is highlighted in org mode buffers
         ;; `latex'    Highlight LaTeX snippets and environments.
-        ;;  `script'   Highlight subscript and superscript.
-        ;;  `entities' Highlight entities.
-        (setq org-highlight-latex-and-related '(latex script entities))
+        ;; `script'   Highlight subscript and superscript.
+        ;; `entities' Highlight entities.
+        ;; `native`   Use native highlighting
+        (setq org-highlight-latex-and-related '(native))
 
         ;; make sure that regular font in src block within org is 'white'
         (custom-set-faces '(org-block ((t (:foreground "gray75")))))
@@ -7396,18 +7401,18 @@
         ;; customize todo lists
         (setq org-todo-keywords
               '((sequence "TODO"               ;; currently to do task
-                          "IMPLEMENT(i!)"      ;; currently implementing this to do
-                          "TEST(t@/!)"         ;; currently testing this to do
-                          "ACCEPT(a@/!)"       ;; accepted by tester
+                          "IMPLEMENT(i)"       ;; currently implementing this to do
+                          "TEST(t@)"           ;; currently testing this to do
+                          "ACCEPT(a@)"         ;; accepted by tester
                           "PLANNED"            ;; planned as future task
                           "|"                  ;; separates todo from done state
-                          "OBSOLETE(o!)"       ;; now obosolete 
-                          "CARRY OVER(c!)"     ;; carried over to new to do
+                          "OBSOLETE(o)"        ;; now obosolete
+                          "CARRY OVER(c)"      ;; carried over to new to do
                           "DONE(d!)"           ;; finally done
                           )))
         (setq org-todo-keyword-faces
               '(("PLANNED" . "lightblue")
-                ("TODO" . "red") 
+                ("TODO" . "red")
                 ("IMPLEMENT" . (:foreground "orange" :weight bold))
                 ("TEST" . "yellow")
                 ("ACCEPT" . (:foreground "gray" :weight bold))
@@ -9487,8 +9492,9 @@
 ** auto-sudoedit
    - opens tramp sudo if file is readonly automatically (see [[https://github.com/ncaq/auto-sudoedit][here]])
    #+BEGIN_SRC emacs-lisp
-   (use-package auto-sudoedit
-     :ensure t)
+     (use-package auto-sudoedit
+       :ensure t
+       :config (auto-sudoedit-mode 1))
    #+END_SRC
 ** eshell auto suggestion
    #+BEGIN_SRC emacs-lisp
@@ -10550,20 +10556,31 @@
 
 
           (setq gb/previous-window-focus-exwm-class-name nil)
+          (setq gb/previous-window-focus nil)
+          (setq gb/previous-window-focus-commit-count 0)
           ;; patch function (wrap in when) such that this function will do nothing if not in an x-window
           ;; eglot help display in minibuffer puts focus elsewhere, resulting in repeated timed calls to this function which
           ;; will put a lot of strain on the cpu
           ;; execute complete function if coming from or going to an x window!
           ;; (defun exwm-input--update-focus-commit (window)
           ;;   "Commit updating input focus."
-          ;;   (when (or exwm-class-name
-          ;;           gb/previous-window-focus-exwm-class-name)
-          ;;     (progn
-          ;;       (setq gb/previous-window-focus-exwm-class-name exwm-class-name)
-          ;;       (setq exwm-input--update-focus-lock t)
-          ;;       (unwind-protect
-          ;;           (exwm-input--update-focus window)
-          ;;         (setq exwm-input--update-focus-lock nil)))))
+          ;;   (let ((new-window (not (eq window gb/previous-window-focus))))
+          ;;     (when new-window
+          ;;       (setq gb/previous-window-focus-commit-count 0)
+          ;;       (message "exwm focus counter reset (new window)"))
+
+          ;;     (when (< gb/previous-window-focus-commit-count 100) ;; do this focusing a couple of times even if the window does not change
+          ;;       ;; (or exwm-class-name
+          ;;       ;;   gb/previous-window-focus-exwm-class-name)
+          ;;       (progn
+          ;;         (message "exwm focus update commit")
+          ;;         (setq gb/previous-window-focus-commit-count (+ 1 gb/previous-window-focus-commit-count))
+          ;;         (setq gb/previous-window-focus-exwm-class-name exwm-class-name)
+          ;;         (setq gb/previous-window-focus window)
+          ;;         (setq exwm-input--update-focus-lock t)
+          ;;         (unwind-protect
+          ;;             (exwm-input--update-focus window)
+          ;;           (setq exwm-input--update-focus-lock nil))))))
 
           ;; The following example demonstrates how to set a key binding only available
           ;; in line mode. It's simply done by first push the prefix key to
@@ -10710,37 +10727,38 @@
           ;; start programs
           (exwm-input-set-key (kbd "s-1") #'gb/exwm-program-select) ;; do not wrap, since it already resets exwm
 
-          (setq gb/simulation-keys `(
-                                     ;; see http://ergoemacs.org/emacs/keystroke_rep.html for syntax of key definition
-                                     ;; movement
-                                     ;; read-key-sequence-vector can be used to get key-sequences as used as first element
-                                     (,(kbd "C-b") . left)
-                                     (,(kbd "M-b") . C-left)
-                                     (,(kbd "C-f") . right)
-                                     (,(kbd "M-f") . C-right)
-                                     (,(kbd "C-p") . up)
-                                     (,(kbd "C-n") . down)
-                                     (,(kbd "C-a") . home)
-                                     (,(kbd "C-e") . end)
-                                     (,(kbd "M-v") . prior)
-                                     (,(kbd "C-v") . next)
-                                     (,(kbd "C-d") . delete)
-                                     (,(kbd "M-d") . (S-C-right delete))
-                                     (,(kbd "<M-DEL>") . (S-C-left delete))
-                                     (,(kbd "C-k") . (S-end delete))
-                                     (,(kbd "M->") . (C-end))
-                                     (,(kbd "M-<") . (C-home))
-                                     (,(kbd "C-j") . (S-return))
-                                     ;; cut/paste.
-                                     (,(kbd "C-w") . ?\C-x)
-                                     (,(kbd "M-w") . ?\C-c)
-                                     (,(kbd "C-y") . ?\C-v)
-                                     ;; marking
-                                     (,(kbd "C-x h") . ?\C-a) ;; will work in emacs 27 first time [?\C-x ?h]
-                                     ;; other
-                                     (,(kbd "C-g") . escape)
-                                     ;; search
-                                     (,(kbd "C-s") . ?\C-f)))
+          (setq gb/simulation-keys
+                `(
+                  ;; see http://ergoemacs.org/emacs/keystroke_rep.html for syntax of key definition
+                  ;; movement
+                  ;; read-key-sequence-vector can be used to get key-sequences as used as first element
+                  (,(kbd "C-b") . left)
+                  (,(kbd "M-b") . C-left)
+                  (,(kbd "C-f") . right)
+                  (,(kbd "M-f") . C-right)
+                  (,(kbd "C-p") . up)
+                  (,(kbd "C-n") . down)
+                  (,(kbd "C-a") . home)
+                  (,(kbd "C-e") . end)
+                  (,(kbd "M-v") . prior)
+                  (,(kbd "C-v") . next)
+                  (,(kbd "C-d") . delete)
+                  (,(kbd "M-d") . (S-C-right delete))
+                  (,(kbd "<M-DEL>") . (S-C-left delete))
+                  (,(kbd "C-k") . (S-end delete))
+                  (,(kbd "M->") . (C-end))
+                  (,(kbd "M-<") . (C-home))
+                  (,(kbd "C-j") . (S-return))
+                  ;; cut/paste.
+                  (,(kbd "C-w") . ?\C-x)
+                  (,(kbd "M-w") . ?\C-c)
+                  (,(kbd "C-y") . ?\C-v)
+                  ;; marking
+                  (,(kbd "C-x h") . ?\C-a) ;; will work in emacs 27 first time [?\C-x ?h]
+                  ;; other
+                  (,(kbd "C-g") . escape)
+                  ;; search
+                  (,(kbd "C-s") . ?\C-f)))
           (setq exwm-input-simulation-keys gb/simulation-keys)
 
           ;; You can hide the mode-line of floating X windows by uncommenting the
@@ -10804,10 +10822,10 @@
                 (progn
                   (message "local-sim-keys set for browser")
                   (let ((sim-keys (append gb/simulation-keys
-                                          `((,(kbd "C-S-s") . C-k)                         ;; search with search engine (C-S-s)
-                                            (,(kbd "C-M-s") . f6)                          ;; jump into adresse bar (C-M-s)
-                                            (,(kbd "<C-left>") . C-S-tab)                  ;; switch to previous tab
-                                            (,(kbd "<C-right>") . C-tab)                   ;; switch to next tab
+                                          `((,(kbd "C-S-s") . C-k) ;; search with search engine (C-S-s)
+                                            (,(kbd "C-M-s") . f6)  ;; jump into adresse bar (C-M-s)
+                                            (,(kbd "<C-left>") . C-S-tab) ;; switch to previous tab
+                                            (,(kbd "<C-right>") . C-tab)  ;; switch to next tab
                                             ))))
                     (exwm-input-set-local-simulation-keys sim-keys))))
               (when (not exwm-class-name)
@@ -10829,7 +10847,7 @@
                       ;; (exwm-mff-mode)
                       (setq global-mode-string '("" appt-mode-string emms-mode-line-string emms-playing-time-string " "
                                                  (:eval (s-concat "[" (number-to-string (exwm-workspace--position exwm-workspace--current)) "]" ))
-                                           (:eval (unless (string-empty-p pomodoro-mode-line-string) " ") pomodoro-mode-line-string)))
+                                                 (:eval (unless (string-empty-p pomodoro-mode-line-string) " ") pomodoro-mode-line-string)))
                       ))
 
           ;; ensure that eclipse switches to char line mode
@@ -11526,6 +11544,8 @@
 ** development
    - navigel (develop modes based on tablist more efficiently)
    - helm-taskrunner (select from tasks the build system of the current project provides (e.g. gradle tasks)) https://github.com/emacs-taskrunner/helm-taskrunner
+   - eldev (gradle for elisp projects)
+   - verb (organize http requests from emacs to ...)
 * discarded
 ** pinentry (obsolete as of emacs 26)
    #+BEGIN_SRC emacs-lisp :tangle no
