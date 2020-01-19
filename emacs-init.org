@@ -11331,7 +11331,12 @@
       :commands eglot
       :ensure t
       :bind (:map kotlin-mode-map
-             ("C-x `" . flymake-goto-next-error)))
+             ("C-x `" . flymake-goto-next-error))
+      :config
+      (setq eglot-connect-timeout 240) ;; eglot takes some time to start if the project is complex
+      ;; (flymake-mode-off)
+      ;; (flycheck-mode 1)
+      )
   #+end_src
 * EVAL terraform-lsp
   #+begin_src emacs-lisp
