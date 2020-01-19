@@ -903,6 +903,17 @@
                    (plist-get info :posframe-height))
                 2)))
 
+     (defun gb/posframe-poshandler-frame-center-top (info)
+       "Posframe's position handler.
+
+          Get a position which let posframe stay onto its
+          parent-frame's center top.  The structure of INFO can
+          be found in docstring of `posframe-show'."
+       (cons (+ gb/posframe-offset (/ (- (plist-get info :parent-frame-width)
+                                         (plist-get info :posframe-width))
+                                      2))
+             0))
+
      (defun gb/kill-a-buffer-and-delete-window (askp)
        "kill the current buffer and remove the window"
        (interactive "P")
@@ -8326,7 +8337,8 @@
           ;; :font gb/default-font
           :override-parameters helm-posframe-parameters
           :respect-header-line t))
-       (setq helm-posframe-poshandler #'gb/posframe-poshandler-frame-center)
+       ;; (setq helm-posframe-poshandler #'gb/posframe-poshandler-frame-center)
+       (setq helm-posframe-poshandler #'gb/posframe-poshandler-frame-center-top)
        (defun gb/helm-set-posframe-parameters ()
          "set helm-posframe parameters. run previous to display, to ensure right display in multimonitor environments"
          (let ((xfac (cond ((eq 'helm-for-files (helm-this-command)) 0.8)
@@ -9343,7 +9355,16 @@
                                                    )))
      #+end_src
    #+BEGIN_SRC emacs-lisp
-   (use-package posframe)
+     (use-package posframe
+       :init
+       (defun gb/delete-all-open-posframes ()
+         "Delete all open posframes"
+         (interactive)
+         (dolist (frame (frame-list))
+           (let ((buffer-info (frame-parameter frame 'posframe-buffer)))
+             (when buffer-info
+               (posframe-delete-frame (car buffer-info))
+               (message (format "delete %s" (car buffer-info))))))))
    #+END_SRC
 #+BEGIN_SRC emacs-lisp
 (report-elapsed "check point - posframe")
