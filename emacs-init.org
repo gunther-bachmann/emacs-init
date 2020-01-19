@@ -5962,6 +5962,15 @@
        (ansi-term (executable-find "fish")))
    #+END_SRC
 ** bash completion
+   - native completion
+     #+begin_src emacs-lisp
+       (use-package native-complete
+         :load-path "~/.emacs.d/additionals"
+         :bind (:map shell-mode-map
+                ("M-/" . company-native-complete))
+         :config (native-complete-setup-bash))
+     #+end_src
+   - bash completion
    #+BEGIN_SRC emacs-lisp
      (use-package bash-completion
        :ensure t
