@@ -2265,7 +2265,7 @@
     #+END_SRC
 *** doom modeline
     - adjusted file doom-modeline-segments.el:276, changed "save" to "change_history" (icon)⃤∆
-    - adjusted file doom-modeline-segments.el:732, changed "block" to "sim_card_alert"
+    - adjusted file doom-modeline-segments.el:856, changed "block" to "sim_card_alert"
     - adjusted file doom-modeline-core.el doom-modeline--font-height, change heigth to 120 (instead of calculating font height)
     - adjusted file doom-modeline-core.el doom-modeline-def-modeline, change (if (number-or-marker-p 120)...) (instead of calculation font
       stuff here)
@@ -2728,6 +2728,7 @@
        (setq beacon-blink-when-window-scrolls nil)
        (setq beacon-blink-when-window-changes t)
        (setq beacon-blink-when-point-moves nil)
+       (setq beacon-blink-when-point-moves-vertically 10)
        (setq beacon-push-mark nil)
        (beacon-mode 1)
        (bind-key "s-." #'beacon-blink)
@@ -2837,71 +2838,99 @@
    #+END_SRC
 ** toggle serif font
    #+BEGIN_SRC emacs-lisp
-   (defvar serif-preserve-default-list nil
-     "A list holding the faces that preserve the default family and
-     height when TOGGLE-SERIF is used.")
+     (defvar serif-preserve-default-list nil
+       "A list holding the faces that preserve the default family and
+       height when TOGGLE-SERIF is used.")
 
-   (setq serif-preserve-default-list
-         '(;; LaTeX markup
-           font-latex-math-face
-           font-latex-sedate-face
-           font-latex-warning-face
-           ;; org markup
-           org-latex-and-related
-           org-meta-line
-           org-verbatim
-           org-block-begin-line
-           ;; syntax highlighting using font-lock
-           font-lock-builtin-face
-           font-lock-comment-delimiter-face
-           font-lock-comment-face
-           font-lock-constant-face
-           font-lock-doc-face
-           font-lock-function-name-face
-           font-lock-keyword-face
-           font-lock-negation-char-face
-           font-lock-preprocessor-face
-           font-lock-regexp-grouping-backslash
-           font-lock-regexp-grouping-construct
-           font-lock-string-face
-           font-lock-type-face
-           font-lock-variable-name-face
-           font-lock-warning-face))
+     (setq serif-preserve-default-list
+           '(;; LaTeX markup
+             font-latex-math-face
+             font-latex-sedate-face
+             font-latex-warning-face
+             ;; org markup
+             org-latex-and-related
+             org-meta-line
+             org-verbatim
+             org-block-begin-line
+             org-block-end-line
+             org-block
+             ;;
+             rainbow-identifiers-identifier-1
+             rainbow-identifiers-identifier-2
+             rainbow-identifiers-identifier-3
+             rainbow-identifiers-identifier-4
+             rainbow-identifiers-identifier-5
+             rainbow-identifiers-identifier-6
+             rainbow-identifiers-identifier-7
+             rainbow-identifiers-identifier-8
+             rainbow-identifiers-identifier-9
+             rainbow-identifiers-identifier-10
+             rainbow-identifiers-identifier-11
+             rainbow-identifiers-identifier-12
+             rainbow-identifiers-identifier-13
+             rainbow-identifiers-identifier-14
+             rainbow-identifiers-identifier-15
 
-   (defun toggle-serif ()
-     "Change the default face of the current buffer to use a serif family."
-     (interactive)
-     (when (display-graphic-p)  ;; this is only for graphical emacs
-       ;; the serif font familiy and height, save the default attributes
-       (let ((serif-fam "Source Serif Pro")
-             (serif-height 120)
-             (default-fam (face-attribute 'default :family))
-             (default-height (face-attribute 'default :height)))
-         (if (not (bound-and-true-p default-cookie))
-             (progn (make-local-variable 'default-cookie)
-                    (make-local-variable 'preserve-default-cookies-list)
+             rainbow-delimiters-depth-1-face
+             rainbow-delimiters-depth-2-face
+             rainbow-delimiters-depth-3-face
+             rainbow-delimiters-depth-4-face
+             rainbow-delimiters-depth-5-face
+             rainbow-delimiters-depth-6-face
+             rainbow-delimiters-depth-7-face
+             rainbow-delimiters-depth-8-face
+             rainbow-delimiters-depth-9-face
+             ;; syntax highlighting using font-lock
+             font-lock-builtin-face
+             font-lock-comment-delimiter-face
+             font-lock-comment-face
+             font-lock-constant-face
+             font-lock-doc-face
+             font-lock-function-name-face
+             font-lock-keyword-face
+             font-lock-negation-char-face
+             font-lock-preprocessor-face
+             font-lock-regexp-grouping-backslash
+             font-lock-regexp-grouping-construct
+             font-lock-string-face
+             font-lock-type-face
+             font-lock-variable-name-face
+             font-lock-warning-face))
+
+     (defun toggle-serif ()
+       "Change the default face of the current buffer to use a serif family."
+       (interactive)
+       (when (display-graphic-p)  ;; this is only for graphical emacs
+         ;; the serif font familiy and height, save the default attributes
+         (let ((serif-fam "Liberation Serif")
+               (serif-height 120)
+               (default-fam (face-attribute 'default :family))
+               (default-height (face-attribute 'default :height)))
+           (if (not (bound-and-true-p default-cookie))
+               (progn (make-local-variable 'default-cookie)
+                      (make-local-variable 'preserve-default-cookies-list)
+                      (setq preserve-default-cookies-list nil)
+                      ;; remap default face to serif
+                      (setq default-cookie
+                            (face-remap-add-relative
+                             'default :family serif-fam :height serif-height
+                             :weight 'light
+                             ))
+                      ;; keep previously defined monospace fonts the same
+                      (dolist (face serif-preserve-default-list)
+                        (add-to-list 'preserve-default-cookies-list
+                                     (face-remap-add-relative
+                                      face :family default-fam :height default-height)))
+                      (text-scale-increase 2)
+                      (message "Turned on serif writing font."))
+             ;; undo changes
+             (progn (face-remap-remove-relative default-cookie)
+                    (dolist (cookie preserve-default-cookies-list)
+                      (face-remap-remove-relative cookie))
+                    (setq default-cookie nil)
                     (setq preserve-default-cookies-list nil)
-                    ;; remap default face to serif
-                    (setq default-cookie
-                          (face-remap-add-relative
-                           'default :family serif-fam :height serif-height
-                           :weight 'light
-                           ))
-                    ;; keep previously defined monospace fonts the same
-                    (dolist (face serif-preserve-default-list)
-                      (add-to-list 'preserve-default-cookies-list
-                                   (face-remap-add-relative
-                                    face :family default-fam :height default-height)))
-                    (text-scale-increase 2)
-                    (message "Turned on serif writing font."))
-           ;; undo changes
-           (progn (face-remap-remove-relative default-cookie)
-                  (dolist (cookie preserve-default-cookies-list)
-                    (face-remap-remove-relative cookie))
-                  (setq default-cookie nil)
-                  (setq preserve-default-cookies-list nil)
-                  (text-scale-decrease 2)
-                  (message "Restored default fonts."))))))
+                    (text-scale-decrease 2)
+                    (message "Restored default fonts."))))))
    #+END_SRC
 ** form feed
    - display ^L as h-bar
@@ -2967,39 +2996,89 @@
 
    #+END_SRC
 * editing related stuff
-** selfinsertion on readonly modes
+** COMMENT selfinsertion on readonly modes
    #+BEGIN_SRC emacs-lisp
-   ;; TODO: refactor macro to a normal function
-   (defvar gb/selfinsert-modification-mode-ignore-list '(".*magit.*" ".*Magit.*")
-     "list of mode regexes to ignore")
-   (defvar gb/read-only-navigation-mode-exception-list '( "*eww*" )
-     "list of buffer names that should not execute navigation commands in read only buffers!")
+     ;; TODO: refactor macro to a normal function
+     (defvar gb/selfinsert-modification-mode-ignore-list '(".*magit.*" ".*Magit.*")
+       "list of mode regexes to ignore")
+     (defvar gb/read-only-navigation-mode-exception-list '( "*eww*" )
+       "list of buffer names that should not execute navigation commands in read only buffers!")
 
-   (defmacro gb/selfinsertOrFunction (func)
-     "execute selfinserting if buffer is r/w, else execute function passed"
-     `(if (and buffer-read-only
-               (not (-first (lambda (reg) (string-match reg mode-name)) gb/selfinsert-modification-mode-ignore-list)))
-          (,func)
-        (self-insert-command 1)))
+     (defmacro gb/selfinsertOrFunction (func)
+       "execute selfinserting if buffer is r/w, else execute function passed"
+       `(if (and buffer-read-only
+                 (not (-first (lambda (reg) (string-match reg mode-name)) gb/selfinsert-modification-mode-ignore-list)))
+            (,func)
+          (self-insert-command 1)))
 
-   (defmacro gb/selfInsertOrFunctionFiltered (func)
-     "insert n if in a buffer that allows changes, else move down"
-     `(if (-first (lambda (el) (string= el (buffer-name))) gb/read-only-navigation-mode-exception-list)
-         (self-insert-command 1)
-        (gb/selfinsertOrFunction ,func)))
+     (defmacro gb/selfInsertOrFunctionFiltered (func)
+       "insert n if in a buffer that allows changes, else move down"
+       `(if (-first (lambda (el) (string= el (buffer-name))) gb/read-only-navigation-mode-exception-list)
+            (self-insert-command 1)
+          (gb/selfinsertOrFunction ,func)))
 
-   (defun gb/selfInsertOrNextLine ()
-     "insert n if in a buffer that allows changes, else move down"
-     (interactive)
-     (gb/selfInsertOrFunctionFiltered next-line))
+     (defun gb/selfInsertOrNextLine ()
+       "insert n if in a buffer that allows changes, else move down"
+       (interactive)
+       (gb/selfInsertOrFunctionFiltered next-line))
 
-   (defun gb/selfInsertOrPreviousLine ()
-     "insert n if in a buffer that allows changes, else move down"
-     (interactive)
-     (gb/selfInsertOrFunctionFiltered previous-line))
+     (defun gb/selfInsertOrPreviousLine ()
+       "insert n if in a buffer that allows changes, else move down"
+       (interactive)
+       (gb/selfInsertOrFunctionFiltered previous-line))
 
-   (bind-key "p" 'gb/selfInsertOrPreviousLine text-mode-map)
-   (bind-key "n" 'gb/selfInsertOrNextLine text-mode-map)
+     ;; (bind-key "p" 'gb/selfInsertOrPreviousLine text-mode-map)
+     ;; (bind-key "n" 'gb/selfInsertOrNextLine text-mode-map)
+     (defun keymap-symbol (keymap)
+       "Return the symbol to which KEYMAP is bound, or nil if no such symbol exists."
+       (catch 'gotit
+         (mapatoms (lambda (sym)
+                     (and (boundp sym)
+                          (eq (symbol-value sym) keymap)
+                          (not (eq sym 'keymap))
+                          (throw 'gotit sym))))))
+     (setq last-five-characters '(0 0 0 0 0 0))
+     (setq old-ret-binding nil)
+     (defun gb/filtered-insert-char (char window-class)
+       (interactive)
+       (if window-class
+           (exwm-input--fake-key char)
+         (when (not buffer-read-only)
+           (self-insert-command 1)))
+       (setq last-five-characters (cons char last-five-characters))
+       (setq last-five-characters (-take 6 last-five-characters))
+       ;; (message "lf: %s" last-five-characters)
+       (when (or (equal '(110 101 104 99 117 107) last-five-characters)
+                 (equal '(110 101 104 99 117 75) last-five-characters))
+         (gb/lock-screen)))
+
+
+     (defun gb/un-register-key-filter ()
+       ;; (message "unregister filter key")
+       (setq last-buffer-instrumented-key-filter nil)
+       (bind-key "k" #'self-insert-command)
+       (bind-key "K" #'self-insert-command)
+       (bind-key "u" #'self-insert-command)
+       (bind-key "c" #'self-insert-command)
+       (bind-key "h" #'self-insert-command)
+       (bind-key "e" #'self-insert-command)
+       (bind-key "n" #'self-insert-command))
+
+     (setq last-buffer-instrumented-key-filter nil)
+     (defun gb/register-key-filter ()
+       (if (and (not buffer-read-only) (not (s-contains? "magit" (buffer-name))) (not (string-prefix-p "magit" (symbol-name major-mode))))
+           (when (not (string= (buffer-name) last-buffer-instrumented-key-filter))
+             ;;(message "register filter key")
+             (setq last-buffer-instrumented-key-filter (buffer-name))
+             (bind-key "k" #'(lambda () (interactive) (gb/filtered-insert-char ?k nil)))
+             (bind-key "K" #'(lambda () (interactive) (gb/filtered-insert-char ?K nil)))
+             (bind-key "u" #'(lambda () (interactive) (gb/filtered-insert-char ?u nil)))
+             (bind-key "c" #'(lambda () (interactive) (gb/filtered-insert-char ?c nil)))
+             (bind-key "h" #'(lambda () (interactive) (gb/filtered-insert-char ?h nil)))
+             (bind-key "e" #'(lambda () (interactive) (gb/filtered-insert-char ?e nil)))
+             (bind-key "n" #'(lambda () (interactive) (gb/filtered-insert-char ?n nil))))
+         (gb/un-register-key-filter)))
+
 
    #+END_SRC
 ** auto-fill-mode configuration
@@ -3124,95 +3203,97 @@
    #+END_SRC
 ** editing
    #+BEGIN_SRC emacs-lisp
-   ;; No need for ~ files when editing
-   (setq create-lockfiles nil)
+     ;; No need for ~ files when editing
+     (setq create-lockfiles nil)
 
-   ;; Customizations relating to editing a buffer.
-   ;; enable C-x C-u to do upcase on region (which is disabled by default)
-   (put 'upcase-region 'disabled nil)
-   (put 'downcase-region 'disabled nil)
+     (bind-key "M-j" #'join-line)
 
-   ;; display tabs as four spaces
-   (setq default-tab-width 4)
-   (setq tab-width 4)
+     ;; Customizations relating to editing a buffer.
+     ;; enable C-x C-u to do upcase on region (which is disabled by default)
+     (put 'upcase-region 'disabled nil)
+     (put 'downcase-region 'disabled nil)
 
-   ;; indent all c and derived sources (java, groovy) with the basic 4 indent
-   (defun gb/c-mode-hook ()
-     (setq indent-tabs-mode nil
-           c-basic-offset 4))
-   (add-hook 'c-mode-common-hook 'gb/c-mode-hook)
+     ;; display tabs as four spaces
+     (setq default-tab-width 4)
+     (setq tab-width 4)
 
-
-   ;; make sure that C-k kills to the end of line and the whole line if cursor is at the start of the line
-   (setq-default kill-whole-line t)
-
-   ;; automatically reload open buffers if they changed on disk
-   (global-auto-revert-mode 1)
-
-   ;; overwrite selected text
-   (delete-selection-mode t)
-
-   ;; Lisp-friendly hippie expand
-   (setq hippie-expand-try-functions-list
-         '(try-expand-dabbrev
-           try-expand-dabbrev-all-buffers
-           try-expand-dabbrev-from-kill
-           try-complete-lisp-symbol-partially
-           try-complete-lisp-symbol))
-
-   ;; Highlights matching parenthesis
-   (show-paren-mode 1)
-   (custom-set-faces '(show-paren-match
-                       ((t (:background "black"
-                                        :foreground "yellow"
-                                        :weight ultra-bold
-                                        :width ultraexpanded)))))
-
-   ;; Highlight current line
-   (global-hl-line-mode 1)
-   (custom-set-faces
-    '(hl-line ((t (:background "gray18"))))
-    '(highlight ((t (:background "gray18"))))
-    '(font-lock-doc-face ((t (:foreground "gray52"))))
-    '(font-lock-comment-face ((t (:foreground "gray38"))))
-    '(font-lock-comment-delimiter-face ((t (:foreground "gray38"))))
-    '(font-lock-string-face ((t (:foreground "#4080b0")))))
-
-   ;; Don't use hard tabs
-   (setq-default indent-tabs-mode nil)
-
-   ;; after indent is ok, try to complete
-   (setq tab-always-indent 'complete)
-   (add-to-list 'completion-styles 'initials t)
-   ;; Emacs can automatically create backup files. This tells Emacs to
-   ;; put all backups in ~/.emacs.d/backups. More info:
-   ;; http://www.gnu.org/software/emacs/manual/html_node/elisp/Backup-Files.html
-   (setq backup-directory-alist `(("." . ,(concat user-emacs-directory
-                                                  "backups"))))
-   (setq auto-save-default nil)
+     ;; indent all c and derived sources (java, groovy) with the basic 4 indent
+     (defun gb/c-mode-hook ()
+       (setq indent-tabs-mode nil
+             c-basic-offset 4))
+     (add-hook 'c-mode-common-hook 'gb/c-mode-hook)
 
 
-   (use-package rainbow-delimiters
-     :ensure t
-     :init
-     (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
+     ;; make sure that C-k kills to the end of line and the whole line if cursor is at the start of the line
+     (setq-default kill-whole-line t)
 
-   (defun die-tabs ()
-     "remove all tabs within this buffer using spaces, interpreting a tab as 8 spaces"
-     (interactive)
-     (set-variable 'tab-width 8)
-     (mark-whole-buffer)
-     (untabify (region-beginning) (region-end))
-     (keyboard-quit))
+     ;; automatically reload open buffers if they changed on disk
+     (global-auto-revert-mode 1)
 
-   ;; fix weird os x kill error
-   (defun ns-get-pasteboard ()
-     "Returns the value of the pasteboard, or nil for unsupported formats."
-     (condition-case nil
-         (ns-get-selection-internal 'CLIPBOARD)
-       (quit nil)))
+     ;; overwrite selected text
+     (delete-selection-mode t)
 
-   (setq electric-indent-mode nil)
+     ;; Lisp-friendly hippie expand
+     (setq hippie-expand-try-functions-list
+           '(try-expand-dabbrev
+             try-expand-dabbrev-all-buffers
+             try-expand-dabbrev-from-kill
+             try-complete-lisp-symbol-partially
+             try-complete-lisp-symbol))
+
+     ;; Highlights matching parenthesis
+     (show-paren-mode 1)
+     (custom-set-faces '(show-paren-match
+                         ((t (:background "black"
+                                          :foreground "yellow"
+                                          :weight ultra-bold
+                                          :width ultraexpanded)))))
+
+     ;; Highlight current line
+     (global-hl-line-mode 1)
+     (custom-set-faces
+      '(hl-line ((t (:background "gray18"))))
+      '(highlight ((t (:background "gray18"))))
+      '(font-lock-doc-face ((t (:foreground "gray52"))))
+      '(font-lock-comment-face ((t (:foreground "gray38"))))
+      '(font-lock-comment-delimiter-face ((t (:foreground "gray38"))))
+      '(font-lock-string-face ((t (:foreground "#4080b0")))))
+
+     ;; Don't use hard tabs
+     (setq-default indent-tabs-mode nil)
+
+     ;; after indent is ok, try to complete
+     (setq tab-always-indent 'complete)
+     (add-to-list 'completion-styles 'initials t)
+     ;; Emacs can automatically create backup files. This tells Emacs to
+     ;; put all backups in ~/.emacs.d/backups. More info:
+     ;; http://www.gnu.org/software/emacs/manual/html_node/elisp/Backup-Files.html
+     (setq backup-directory-alist `(("." . ,(concat user-emacs-directory
+                                                    "backups"))))
+     (setq auto-save-default nil)
+
+
+     (use-package rainbow-delimiters
+       :ensure t
+       :init
+       (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
+
+     (defun die-tabs ()
+       "remove all tabs within this buffer using spaces, interpreting a tab as 8 spaces"
+       (interactive)
+       (set-variable 'tab-width 8)
+       (mark-whole-buffer)
+       (untabify (region-beginning) (region-end))
+       (keyboard-quit))
+
+     ;; fix weird os x kill error
+     (defun ns-get-pasteboard ()
+       "Returns the value of the pasteboard, or nil for unsupported formats."
+       (condition-case nil
+           (ns-get-selection-internal 'CLIPBOARD)
+         (quit nil)))
+
+     (setq electric-indent-mode nil)
 
    #+END_SRC
 ** toggle commands (C-x t ...)
@@ -3689,6 +3770,10 @@
                          ("OE" ?Ö) ("oe" ?ö) ("OEE" ["OE"]) ("oee" ["oe"])
                          ("UE" ?Ü) ("ue" ?ü) ("UEE" ["UE"]) ("uee" ["ue"])
                          ("sz" ?ß) ("szz" ["sz"]))
+   #+end_src
+** common insert commands
+   #+begin_src emacs-lisp
+     (bind-key "C-c i t" #'org-time-stamp-inactive)
    #+end_src
 * language specific stuff
 ** langtool (very! elaborate spellchecking)
@@ -4482,6 +4567,11 @@
        (custom-set-faces '(minimap-active-region-background ((t (:background "gray23")))))))
    #+END_SRC
 * programming language related
+** all
+   #+begin_src emacs-lisp
+     (custom-set-faces
+      '(font-lock-comment-face ((t (:foreground "gray50" :slant italic)))))
+   #+end_src
 ** functional-editing
 *** OBSOLETE parinfer (currently disabled)
     - State "OBSOLETE"   from "TODO"       [2016-12-18 Sun 09:47]
@@ -5316,6 +5406,11 @@
         :ensure t
        :config (editorconfig-mode 1))
    #+END_SRC
+** yafolding
+   #+begin_src emacs-lisp
+     (use-package yafolding
+       :hook (prog-mode . yafolding-mode))
+   #+end_src
 ** flymake
    #+BEGIN_SRC emacs-lisp
    (use-package flymake
@@ -6011,7 +6106,7 @@
     (if (and make-installed (or running-nixos poppler-installed) imagemagick-installed)
         (use-package pdf-tools
           :ensure t
-          :mode ("\\.pdf$" . pdf-view-mode)
+          :mode ("\\.[pP][dD][fF]$" . pdf-view-mode)
           :init (progn
                   ;; (add-hook 'after-init-hook 'pdf-tools-install)
                   ;; (add-hook 'pdf-tools-mode-hook 'pdf-isearch-minor-mode)
@@ -7287,7 +7382,7 @@
                                 ;;                          `(org-level-5 ((t (,@headline ,@variable-tuple))))
                                 ;;                          `(org-level-4 ((t (:foreground "#a97167"))))
                                 ;;                          `(org-level-3 ((t (:foreground "#4fa8a8" ,@headline))))
-                                ;;                          `(org-level-2 ((t (:foreground "#989848" ,@headline :height 1.1))))
+                                `(org-level-2 ((t (:foreground "burlywood"))))
                                 `(org-level-1 ((t (:foreground "#de935f")))))
 
 
@@ -7437,6 +7532,7 @@
                           "|"                  ;; separates todo from done state
                           "OBSOLETE(o)"        ;; now obosolete
                           "CARRY OVER(c)"      ;; carried over to new to do
+                          "BRAIN(b!)"          ;; done and keep information as part of your brain
                           "DONE(d!)"           ;; finally done
                           )))
         (setq org-todo-keyword-faces
@@ -7447,6 +7543,7 @@
                 ("ACCEPT" . (:foreground "gray" :weight bold))
                 ("OBSOLETE" . "darkgreen")
                 ("CARRY OVER" . "brown")
+                ("BRAIN". (:foreground "green" :weight bold))
                 ("DONE" . "green")))))
 
   #+END_SRC
@@ -7642,7 +7739,7 @@
    :init
    (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
    :config
-   (setq org-bullets-bullet-list '("●" "￮" "◉" "◦" "∙" "⚬" "◯" "◎" "○" "◌" "◎" "○" "☉" "⚪" "⊙" "❍" "⊚" "⊛" "⚫" "∘"))
+   (setq org-bullets-bullet-list '("●" "⚫" "⚪" "⚬" "∘" "◦" "∙" "◉" "◯" "◎" "○" "◌" "◎" "○" "☉" "￮" "⊙" "❍" "⊚" "⊛"))
    ;; override fontify buffer of org-bullets, since it forces fontifying again, which was already done => waste of time
    (defun org-bullets--fontify-buffer ()
      (when font-lock-mode
@@ -8083,7 +8180,7 @@
     #+BEGIN_SRC emacs-lisp
       (use-package org-easy-img-insert
         :after ( org)
-        :bind ("C-c i" . org-easy-img-insert)
+        :bind ("C-c i i" . org-easy-img-insert)
         :config (progn))
     #+END_SRC
 *** org reveal (presentation)
@@ -8801,8 +8898,6 @@
 #+BEGIN_SRC emacs-lisp
   (use-package helm-backup
     :ensure t
-    :defer 30
-    :after (helm)
     :init
     (add-hook 'after-save-hook 'helm-backup-versioning))
 #+END_SRC
@@ -8828,6 +8923,7 @@
          (setq TeX-auto-save t)
          (setq TeX-parse-self t)
          (setq TeX-save-query nil)
+         (setq org-preview-latex-default-process 'imagemagick)
 
          (global-prettify-symbols-mode)
 
@@ -9365,7 +9461,7 @@
    #+END_SRC
 ** posframe
    - posframe allows floating frames to be displayed at point position
-   - needed patching posframe.el:492
+   - needed patching posframe.el:494
      #+begin_src emacs-lisp :tangle no
          (font-height (with-current-buffer (window-buffer parent-window)
                         (posframe--get-font-height position-info
@@ -10051,6 +10147,12 @@
         ;;(shx-global-mode 1) ;; global shx mode resulted in "text read only" error in ielm when pressing return
      )
    #+END_SRC
+** comint settings
+   #+begin_src emacs-lisp
+     (custom-set-faces '(comint-highlight-prompt ((t (:foreground "peru")))))
+     (setq comint-input-ring-file-name "~/.comint_hist")
+     (setq comint-input-ring-size 8192)
+   #+end_src
 ** ob-rust
    #+BEGIN_SRC emacs-lisp
    (use-package ob-rust
@@ -10446,7 +10548,7 @@
                               (string-empty-p (gb/get-second-monitor)))
                           (progn (message "no workspace left of this.") (beacon-blink) nil)
                         (setq gb/exwm--previous-workspace workspaceIdx)
-                        (exwm-workspace-switch 0)
+                        (exwm-workspace-switch 0 t)
                         (doom-modeline-set-selected-window)
                         t)))
                   (defun gb/exwm-workspace-right ()
@@ -10457,7 +10559,7 @@
                            (monitor (nth (+ 1 (* 2 workspaceIdx)) exwm-randr-workspace-monitor-plist)))
                       (if (and (s-equals? (gb/get-primary-monitor) monitor)
                                (not (string-empty-p (gb/get-second-monitor))))
-                          (progn (exwm-workspace-switch gb/exwm--previous-workspace) t)
+                          (progn (exwm-workspace-switch gb/exwm--previous-workspace t) t)
                         (message "no workspace right of this.")
                         (beacon-blink)
                         nil)))
@@ -10472,7 +10574,7 @@
                                    (< workspaceIdx lastIndex))
                               (and single-mon-p
                                    (< workspaceIdx lastIndex)))
-                          (progn (exwm-workspace-switch (+ 1 workspaceIdx))
+                          (progn (exwm-workspace-switch (+ 1 workspaceIdx) t)
                                  (gb/exwm-visualize-workspace-switch (+ workspaceIdx (if single-mon-p 1 0)) (- (length exwm-workspace--list) (if single-mon-p 0 1)) 10)
                                  (doom-modeline-set-selected-window))
                         (message "no workspace below this.")
@@ -10487,7 +10589,7 @@
                                    (> workspaceIdx 1))
                               (and single-mon-p
                                    (> workspaceIdx 0)))
-                          (progn (exwm-workspace-switch (- workspaceIdx 1))
+                          (progn (exwm-workspace-switch (- workspaceIdx 1) t)
                                  (gb/exwm-visualize-workspace-switch (- workspaceIdx (if single-mon-p 1 2)) (- (length exwm-workspace--list) (if single-mon-p 0 1)) 10)
                                  (doom-modeline-set-selected-window))
                         (message "no workspace above this")
@@ -10501,7 +10603,7 @@
                       (exwm-workspace-switch (cond
                                               ((< index 0) (+ index len))
                                               ((< index len) index)
-                                              (t (- index len))))))
+                                              (t (- index len))))) t)
                   (defun gb/exwm-previous-workspace (&optional inc)
                     "jump to the previous (inc) workspace"
                     (interactive)
@@ -10647,11 +10749,11 @@
             "run exwm reset right before calling the given function"
             (interactive)
             (when (and exwm-class-name
-                       (or (string= exwm-class-name "X64")
-                           (string= (downcase exwm-class-name) "eclipse")
-                           (string= (downcase exwm-class-name) "dosbox")
-                           ;; (string= (downcase exwm-class-name) "jetbrains-idea-ce")
-                           ))
+                     (or (string= exwm-class-name "X64")
+                        (string= (downcase exwm-class-name) "eclipse")
+                        (string= (downcase exwm-class-name) "dosbox")
+                        ;; (string= (downcase exwm-class-name) "jetbrains-idea-ce")
+                        ))
               (exwm-reset))
             (funcall interactive-function))
 
@@ -10776,9 +10878,75 @@
           (exwm-input-set-key (kbd "C-s-a") #'(lambda () (interactive) (gb/exwm-insert-string-anywhere "ä")))
           (exwm-input-set-key (kbd "C-s-u") #'(lambda () (interactive) (gb/exwm-insert-string-anywhere "ü")))
           (exwm-input-set-key (kbd "C-s-s") #'(lambda () (interactive) (gb/exwm-insert-string-anywhere "ß")))
+          (exwm-input-set-key (kbd "C-S-s-o") #'(lambda () (interactive) (gb/exwm-insert-string-anywhere "Ö")))
+          (exwm-input-set-key (kbd "C-S-s-a") #'(lambda () (interactive) (gb/exwm-insert-string-anywhere "Ä")))
+          (exwm-input-set-key (kbd "C-S-s-u") #'(lambda () (interactive) (gb/exwm-insert-string-anywhere "Ü")))
+
+
+          ;; set some specifics
+          ;; kuchen
+          ;; (define-key exwm-mode-map (kbd "k") #'(lambda () (interactive) (gb/filtered-insert-char ?k exwm-class-name)))
+          ;; (define-key exwm-mode-map (kbd "K") #'(lambda () (interactive) (gb/filtered-insert-char ?K exwm-class-name)))
+          ;; (define-key exwm-mode-map (kbd "u") #'(lambda () (interactive) (gb/filtered-insert-char ?u exwm-class-name)))
+          ;; (define-key exwm-mode-map (kbd "c") #'(lambda () (interactive) (gb/filtered-insert-char ?c exwm-class-name)))
+          ;; (define-key exwm-mode-map (kbd "h") #'(lambda () (interactive) (gb/filtered-insert-char ?h exwm-class-name)))
+          ;; (define-key exwm-mode-map (kbd "e") #'(lambda () (interactive) (gb/filtered-insert-char ?e exwm-class-name)))
+          ;; (define-key exwm-mode-map (kbd "n") #'(lambda () (interactive) (gb/filtered-insert-char ?n exwm-class-name)))
 
           ;; start programs
           (exwm-input-set-key (kbd "s-1") #'gb/exwm-program-select) ;; do not wrap, since it already resets exwm
+
+          ;; itemis browsing
+          (exwm-input-set-key (kbd "C-c a i b") #'gb/itemis-blue-ant-browse)
+          (exwm-input-set-key (kbd "C-c a i c") #'gb/itemis-google-cal-browse)
+          (exwm-input-set-key (kbd "C-c a i d") #'gb/itemis-google-drive-browse)
+          (exwm-input-set-key (kbd "C-c a i l") #'gb/itemis-launchpad-browse)
+          (defun gb/itemis-blue-ant-browse ()
+            "browse to aws service console for code commit"
+            (interactive)
+            (browse-url "https://blueantasp32.proventis.net/itemis/psap"))
+          (defun gb/itemis-google-cal-browse ()
+            "browse to aws service console for code commit"
+            (interactive)
+            (browse-url "https://calendar.google.com"))
+          (defun gb/itemis-google-drive-browse ()
+            "browse to aws service console for code commit"
+            (interactive)
+            (browse-url "https://drive.google.com/drive/my-drive"))
+          (defun gb/itemis-launchpad-browse ()
+            "browse to aws service console for code commit"
+            (interactive)
+            (browse-url "https://intern.itemis.de/launchpad/"))
+
+          (exwm-input-set-key (kbd "C-c a o j") #'gb/otto-jira-browse)
+          (defun gb/otto-jira-browse ()
+            "browse to aws service console for code commit"
+            (interactive)
+            (browse-url "https://jira.scm.otto.de"))
+
+          ;; aws browsing
+          (exwm-input-set-key (kbd "C-c a a c") #'gb/aws-code-commit-browse)
+          (exwm-input-set-key (kbd "C-c a a e") #'gb/aws-ec2-browse)
+          (exwm-input-set-key (kbd "C-c a a p") #'gb/aws-pipeline-browse)
+          (exwm-input-set-key (kbd "C-c a a s") #'gb/aws-s3-browse)
+          (setq gb/aws-region "eu-central-1")
+          (defun gb/aws-code-commit-browse ()
+            "browse to aws service console for code commit"
+            (interactive)
+            (browse-url (format "https://eu-central-1.console.aws.amazon.com/codesuite/codecommit/repositories?region=%s" gb/aws-region)))
+          (defun gb/aws-ec2-browse ()
+            "browse to aws service console for ec2"
+            (interactive)
+            (browse-url (format "https://eu-central-1.console.aws.amazon.com/ec2/v2/home?region=%s" gb/aws-region)))
+          (defun gb/aws-pipeline-browse ()
+            "browse to aws service console for code pipline"
+            (interactive)
+            (browse-url (format "https://eu-central-1.console.aws.amazon.com/codesuite/codepipeline/pipelines?region=%s" gb/aws-region)))
+          (defun gb/aws-s3-browse ()
+            "browse to aws service console for s3"
+            (interactive)
+            (browse-url (format "https://s3.console.aws.amazon.com/s3/home?region=%s" gb/aws-region)))
+
 
           (setq gb/simulation-keys
                 `(
@@ -10846,6 +11014,7 @@
 
           (exwm-input-set-key (kbd "H-r") #'gb/exwm-release-keyboard)
 
+
           (defun gb/exwm-grab-keyboard ()
             (interactive)
             (message "grab exwm keyboard binding.")
@@ -10857,12 +11026,12 @@
             "do some adjustments due to exwm switches with char/line mode"
             (progn
               (when (and exwm-class-name
-                         (or (string= exwm-class-name "X64")
-                             (string= (downcase exwm-class-name) "eclipse")
-                             (string= exwm-class-name "qutebrowser")
-                             (string= exwm-class-name "dosbox")
-                             ;; (string= (downcase exwm-class-name) "jetbrains-idea-ce")
-                             ))
+                       (or (string= exwm-class-name "X64")
+                          (string= (downcase exwm-class-name) "eclipse")
+                          (string= exwm-class-name "qutebrowser")
+                          (string= exwm-class-name "dosbox")
+                          ;; (string= (downcase exwm-class-name) "jetbrains-idea-ce")
+                          ))
                 (progn
                   ;; (setq-local exwm-input-prefix-keys '(?\C-l))
                   (message "native keyboard exwm settings applied.")
@@ -10910,18 +11079,19 @@
           (add-hook 'exwm-workspace-switch-hook #'gb/exwm-after-switch)
           ;; (defadvice exwm-layout--on-echo-area-change (after exwm-layout--on-echo-area-change--debug-jitter activate)
           ;;   (message "exwm-layout--on-echo-area-change executed"))
-          (defadvice switch-to-buffer (after switch-to-buffer-check-exwm-buffer activate)
-            "switch to char mode if target buffer is eclipse (or any other buffer that should be in char mode)"
-            (when (and exwm-class-name
-                       (or (string= exwm-class-name "X64")
-                           (string= (downcase exwm-class-name) "eclipse")
-                           (string= (downcase exwm-class-name) "dosbox")
-                           ;; (string= (downcase exwm-class-name) "jetbrains-idea-ce")
-                           ))
-              (progn
-                (message "native keyboard exwm settings applied (after switch to buffer).")
-                ;; (exwm-input-release-keyboard (exwm--buffer->id (window-buffer)))
-                (setq exwm-input-set-local-simulation-keys nil))))))
+          )
+        (defadvice switch-to-buffer (after switch-to-buffer-check-exwm-buffer activate)
+          "switch to char mode if target buffer is eclipse (or any other buffer that should be in char mode)"
+          (when (and exwm-class-name
+                     (or (string= exwm-class-name "X64")
+                         (string= (downcase exwm-class-name) "eclipse")
+                         (string= (downcase exwm-class-name) "dosbox")
+                         ;; (string= (downcase exwm-class-name) "jetbrains-idea-ce")
+                         ))
+            (progn
+              (message "native keyboard exwm settings applied (after switch to buffer).")
+              ;; (exwm-input-release-keyboard (exwm--buffer->id (window-buffer)))
+              (setq exwm-input-set-local-simulation-keys nil)))))
     #+END_SRC
   - exwm-edit
     #+BEGIN_SRC emacs-lisp
@@ -10931,10 +11101,50 @@
           :ensure t))
     #+END_SRC
 * org tree slide (presenting org mode files as slides)
-  #+begin_src emacs-lisp
+  - did some modifications to allow for timers during presentation
+    #+begin_src emacs-lisp :tangle no
+      ;; org-tree-slide-move-next-tree was adjusted:
+      ;; at head
+      (when (org-tree-slide--active-p)
+        (unless gb/slides-started
+          (setq gb/slides-started (org-time-add nil 0)))
+        (when org-timer-start-time
+          (org-timer-stop))  ;; ...
+      )
+      ;; at the tail
+
+      (unless (equal org-tree-slide-modeline-display 'outside)
+        (setq gb/current-slide (org-tree-slide--count-slide (point)))
+        (message (format "   %s Next >>" gb/current-slide))
+        (gb/org-tree-slide--update-slide-timer))
+      ;; and this was added completely
+      (setq gb/current-slide 0)
+
+      (defun gb/org-tree-slide--update-slide-timer ()
+        ""
+        (let* ((slide    (string-to-number (nth 1 (s-match "\\[\\(.*\\)/\\(.*\\)\\]" gb/current-slide))))
+               (rem-secs (floor
+                          (float-time (org-time-subtract (org-time-add gb/slides-started (* 90 slide))
+                                                         (org-time-add nil 0))))))
+          (if (> rem-secs 0)
+              (org-timer-set-timer (org-timer-secs-to-hms rem-secs))
+            (message (format "hurry up, got to catch up %s seconds" (- 0 rem-secs))))))
+    #+end_src
+  - package
+    #+begin_src emacs-lisp
+      (use-package org-tree-slide
+        :load-path "~/repo/org-tree-slide"
+        :config
+        (setq org-tree-slide-header nil)
+        (setq org-tree-slide-heading-emphasis t))
+    #+end_src
+  #+begin_src emacs-lisp :tangle no
     (use-package org-tree-slide
-      :command org-tree-slide-mode
-      :ensure t)
+      :commands org-tree-slide-mode
+      :ensure t
+      :config
+      (setq org-tree-slide-header nil)
+      (setq org-tree-slide-heading-emphasis t))
   #+end_src
 * EVAL winum (select windows by number, which is shown in the modeline)
   - is useful for native applications in exwm, since ace-window cannot overlay those with the key to select those
@@ -11194,7 +11404,7 @@
   #+begin_src emacs-lisp
   (when (file-exists-p "~/.emacs.d/additionals/emacs-surround/emacs-surround.el")
     (use-package emacs-surround
-      :load-path "/home/pe/.emacs.d/additionals/emacs-surround"
+      :load-path "~/.emacs.d/additionals/emacs-surround"
       :bind (("s-q c s" . emacs-surround))))
   #+end_src
 * EVAL browse-kill-ring
@@ -11233,7 +11443,9 @@
     (when (file-exists-p "~/.emacs.d/additionals/tempbuf.el")
       (use-package tempbuf
         :load-path "~/.emacs.d/additionals/"
-        :config (add-hook 'dired-mode-hook 'turn-on-tempbuf-mode)))
+        :config
+        (custom-set-variables '(tempbuf-minimum-timeout (* 60 60 4)))
+        (add-hook 'after-change-major-mode-hook 'turn-on-tempbuf-mode)))
   #+end_src
 * EVAL hercules
   - see https://gitlab.com/jjzmajic/hercules.el
@@ -11271,7 +11483,7 @@
       :ensure t
       :hook (shell-mode . awscli-capf-add))
   #+end_src
-* EVAL filter annoying messages (disabled)
+* EVAL filter annoying messages
   #+begin_src emacs-lisp
     ;; filter annoying messages
     (defvar message-filter-regexp-list '("^Starting new Ispell process \\[.+\\] \\.\\.\\.$"
@@ -11404,7 +11616,7 @@
   #+begin_src emacs-lisp
     (use-package piper
       :commands piper
-      :load-path "/home/pe/.emacs.d/additionals/emacs-piper/")
+      :load-path "~/.emacs.d/additionals/emacs-piper/")
   #+end_src
 * EVAL camcorder (make recordings of emacs -> ogv|gif)
   #+begin_src emacs-lisp
@@ -11433,6 +11645,46 @@
     (use-package pomodoro
       :ensure t
       :config (setq pomodoro-desktop-notification t))
+  #+end_src
+* EVAL org roam
+  #+begin_src emacs-lisp :tangle no
+    (if (file-exists-p "~/.emacs.d/additionals/org-roam/")
+        (use-package org-roam
+          :load-path "~/.emacs.d/additionals/org-roam"
+          :after org
+          :hook (org-mode . org-roam-mode)
+          :custom
+          (org-roam-directory "~/temp")
+          :bind
+          ("C-c n l" . org-roam)
+          ("C-c n t" . org-roam-today)
+          ("C-c n f" . org-roam-find-file)
+          ("C-c n i" . org-roam-insert)
+          ("C-c n g" . org-roam-show-graph)))
+  #+end_src
+* EVAL emacs-mini-frame
+  #+begin_src emacs-lisp
+    (use-package mini-frame
+      :load-path "~/.emacs.d/additionals/mini-frame.el"
+      :config
+      (custom-set-variables
+       '(mini-frame-show-parameters
+         '((top . 10)
+           (width . 0.5)
+           (left . 0.5)
+           (height . 2))))
+      (setq mini-frame-do-commands '(exwm-workspace-switch))
+      (setq mini-frame-ignore-commands
+            '(eval-expression
+              helm-for-files
+              helm-M-x
+              helm-find-files
+              helm-mini
+              describe-function
+              describe-variable
+              helm-imenu-anywhere
+              byte-compile-file))
+      (mini-frame-mode 1))
   #+end_src
 * proced
   #+begin_src emacs-lisp
@@ -11485,6 +11737,7 @@
   - texfrag
     - allow tex fragments preview in (almost) any buffer
     - see [[https://github.com/TobiasZawada/texfrag][here]]
+  - virtual-auto-fill (line break without modifying underlying buffer)
 ** (function) selection
   - helm-selected
   - helm-org - Helm for org headlines and keywords completion
@@ -11502,6 +11755,7 @@
   - magit-vcsh, vcsh (vcsh allow separation of .git tree and actual files -> easy way to add file, like dot files from your home directory
     into a version controlled repository)
   - gerrit - interface to gerrit, code reviews
+  - magit-patch-changelog: Generate a patch according to emacs-mirror/CONTRIBUTE
 ** java/kotlin/scala
   - lsp-javacomp
     - lsp support for java using [[https://github.com/tigersoldier/JavaComp][java-comp]]
@@ -11541,6 +11795,7 @@
 ** mail
 ** navigation
   - smart-jump (smart go to definition)
+  - all-the-icons-ibuffer (icons in ibuffers)
 ** org
   - org-wild-notifier, customizable notifier for org agenda entries (global or per entry)
   - orca (org-capture configuration)
@@ -11563,6 +11818,8 @@
         :after ( org))
       #+END_SRC
   - treefactor - organize org-headers and dired files of org files (see https://treefactor-docs.nfshost.com)
+  - doct: Declarative Org capture templates
+  - walkman: write http requests within org
 ** os/system
   - network-watch (allows hooks to run when network is goiing down/up)
   - scp (use scp to transfer files)
@@ -11606,6 +11863,7 @@
    - helm-taskrunner (select from tasks the build system of the current project provides (e.g. gradle tasks)) https://github.com/emacs-taskrunner/helm-taskrunner
    - eldev (gradle for elisp projects)
    - verb (organize http requests from emacs to ...)
+   - with-shell-interpreter (helper for cli apis)
 * discarded
 ** pinentry (obsolete as of emacs 26)
    #+BEGIN_SRC emacs-lisp :tangle no
@@ -11774,9 +12032,9 @@
 ** frog-jump-buffer, allows avy selection in popup frame  (discarded)
    #+begin_src emacs-lisp :tangle no
    (use-package frog-menu
-     :load-path "/home/pe/.emacs.d/additionals/frog-menu/")
+     :load-path "~/.emacs.d/additionals/frog-menu/")
    (use-package frog-jump-buffer
-     :load-path "/home/pe/.emacs.d/additionals/frog-jump-buffer/"
+     :load-path "~/.emacs.d/additionals/frog-jump-buffer/"
      :after frog-menu)
    #+end_src
 ** clear-text (mode that makes you use only the 1000 most common english words)
@@ -11850,7 +12108,11 @@
      (display-time-mode -1)
      (setq global-mode-string '("" appt-mode-string emms-mode-line-string emms-playing-time-string " "
                                 (:eval (s-concat "[" (number-to-string (exwm-workspace--position exwm-workspace--current)) "]" ))))
-    ;; (eldoc-overlay-mode t)
+     ;; (eldoc-overlay-mode t)
+     ;; for kuchen checks:
+     ;; (add-hook 'buffer-list-update-hook #'gb/register-key-filter)
+     ;; (add-hook 'magit-popup-mode-hook #'gb/un-register-key-filter)
+
      )
     (setq gc-cons-threshold 80000000)
     (midnight-mode 1)
