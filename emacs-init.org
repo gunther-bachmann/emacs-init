@@ -11653,7 +11653,12 @@
   #+begin_src emacs-lisp
     (use-package pomodoro
       :ensure t
-      :config (setq pomodoro-desktop-notification t))
+      :config
+      (setq pomodoro-desktop-notification nil)
+      (setq pomodoro-play-sounds nil)
+      (setq pomodoro-sound-player "mpg123")
+      (setq pomodoro-time-format "%.2m ")
+      (pomodoro-add-to-mode-line))
   #+end_src
 * EVAL org roam
   #+begin_src emacs-lisp :tangle no
