@@ -11700,6 +11700,13 @@
               byte-compile-file))
       (mini-frame-mode 1))
   #+end_src
+* EVAL company in terminal
+  #+begin_src emacs-lisp
+    (use-package company-quickhelp-terminal
+      :ensure t
+      :config
+      (company-quickhelp-terminal-mode 1))
+  #+end_src
 * proced
   #+begin_src emacs-lisp
     (use-package proced
