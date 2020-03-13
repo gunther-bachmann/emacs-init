@@ -3255,8 +3255,8 @@
       '(hl-line ((t (:background "gray18"))))
       '(highlight ((t (:background "gray18"))))
       '(font-lock-doc-face ((t (:foreground "gray52"))))
-      '(font-lock-comment-face ((t (:foreground "gray38"))))
-      '(font-lock-comment-delimiter-face ((t (:foreground "gray38"))))
+      '(font-lock-comment-face ((t (:foreground "gray50"))))
+      '(font-lock-comment-delimiter-face ((t (:foreground "gray50"))))
       '(font-lock-string-face ((t (:foreground "#4080b0")))))
 
      ;; Don't use hard tabs
@@ -5256,7 +5256,8 @@
 ** java
 *** other
     #+BEGIN_SRC emacs-lisp
-    (add-to-list 'auto-mode-alist '("\\.xtend\\'" . java-mode))
+      (add-to-list 'auto-mode-alist '("\\.xtend\\'" . java-mode))
+      (add-hook 'java-mode #'gb/enable-ligatures)
     #+END_SRC
 *** jde (disabled)
     #+BEGIN_SRC emacs-lisp :tangle no
@@ -7383,7 +7384,9 @@
                                 ;;                          `(org-level-4 ((t (:foreground "#a97167"))))
                                 ;;                          `(org-level-3 ((t (:foreground "#4fa8a8" ,@headline))))
                                 `(org-level-2 ((t (:foreground "burlywood"))))
-                                `(org-level-1 ((t (:foreground "#de935f")))))
+                                `(outline-2 ((t (:foreground "burlywood")))) ;; change both org-level and outline, since org-tree-slide uses them
+                                `(org-level-1 ((t (:foreground "#de935f"))))
+                                `(outline-1 ((t (:foreground "#de935f")))))
 
 
         ))
@@ -7903,7 +7906,7 @@
 
      (custom-set-faces
       `(org-block-begin-line ((t ( ;;:underline "#A7A6AA"
-                                  :height 0.8 :foreground "#606060"))))
+                                  :height 0.8 :foreground "gray50"))))
       `(org-block-end-line ((t (
       ;; :overline "#A7A6AA"
       :height 0.8 :foreground "#606060"))))
