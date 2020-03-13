@@ -11759,6 +11759,7 @@
     - allow tex fragments preview in (almost) any buffer
     - see [[https://github.com/TobiasZawada/texfrag][here]]
   - virtual-auto-fill (line break without modifying underlying buffer)
+  - auctex-cluttex - interface to ClutTeX is a program to automatically process your LaTeX document. If necessary, it re-runs (La)TeX program to resolve cross-references and everything.
 ** (function) selection
   - helm-selected
   - helm-org - Helm for org headlines and keywords completion
