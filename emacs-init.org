@@ -11103,6 +11103,12 @@
           ;; C-c C-' to edit any text field within a x-window program in a separate emacs buffer
           :ensure t))
     #+END_SRC
+  - exwm-xmi (disabled, dosbox not working)
+    #+begin_src emacs-lisp :tangle no
+      (when (gb/use-exwm)
+        (require 'exwm-xim)
+        (exwm-xim-enable))
+    #+end_src
 * org tree slide (presenting org mode files as slides)
   - did some modifications to allow for timers during presentation
     #+begin_src emacs-lisp :tangle no
