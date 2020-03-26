@@ -11111,6 +11111,37 @@
         (require 'exwm-xim)
         (exwm-xim-enable))
     #+end_src
+* fritz nas
+  - tested with cifs-utils-6.9
+  #+begin_src emacs-lisp
+    (defvar gb/fritz-mount-point
+      "/home/pe/temp/fp2_mountpoint"
+      "mount fritz nas to this folder")
+
+    (defvar gb/fritz-mount-point-check-folder
+      "INTENSO"
+      "folder expected to exist on fritz nas")
+
+    (defvar gb/fritz-nas-ip
+      "192.168.0.2"
+      "ip address of the fritz nas")
+
+    (defun gb/umount-fritz-nas ()
+      "unmount the fritz nas"
+      (interactive)
+      (if (file-directory-p (s-concat gb/fritz-mount-point "/" gb/fritz-mount-point-check-folder))
+          (message (s-trim (shell-command-to-string (s-concat "sudo umount -v " gb/fritz-mount-point "/"))))
+        (message "not mounted or mount empty")))
+
+    (defun gb/mount-fritz-nas ()
+      "mount the fritz nas"
+      (interactive)
+      (if (file-directory-p (s-concat gb/fritz-mount-point "/" gb/fritz-mount-point-check-folder))
+          (message "already mounted or mountpoint not empty.")
+        (let* ((pass (read-passwd "password for fritz nas: ")))
+          (message (s-trim (shell-command-to-string (format "sudo mount.cifs --verbose \\\\\\\\%s\\\\FRITZ.NAS %s/ -o user=gunther.bachmann,pass=%s,dom=WORKGROUP,vers=1.0" gb/fritz-nas-ip gb/fritz-mount-point pass))))
+          (dired gb/fritz-mount-point))))
+  #+end_src
 * org tree slide (presenting org mode files as slides)
   - did some modifications to allow for timers during presentation
     #+begin_src emacs-lisp :tangle no
