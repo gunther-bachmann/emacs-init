@@ -11757,12 +11757,17 @@
               byte-compile-file))
       (mini-frame-mode 1))
   #+end_src
-* EVAL company in terminal
+* EVAL share2computer
+  - allow easy download from handy by simply starting 'M-x share2computer'
   #+begin_src emacs-lisp
-    (use-package company-quickhelp-terminal
+    (use-package share2computer
       :ensure t
-      :config
-      (company-quickhelp-terminal-mode 1))
+      :commands (share2computer))
+  #+end_src
+* EVAL bufler see
+  #+begin_src emacs-lisp
+    (use-package bufler
+      :config)
   #+end_src
 * proced
   #+begin_src emacs-lisp
@@ -11972,6 +11977,13 @@
            ;; (setq company-quickhelp-color-foreground "black")
            ))
    #+END_SRC
+** company quickhelp in terminal - company-quickhelp is replaced by company-box
+   #+begin_src emacs-lisp :tangle no
+     (use-package company-quickhelp-terminal
+       :ensure t
+       :config
+       (company-quickhelp-terminal-mode 1))
+   #+end_src
 ** exwm-surf
    - allows to control surf within exwm
    - surf is a webkit based browser that works as embedded x application and can thus be embedded into emacs directly
