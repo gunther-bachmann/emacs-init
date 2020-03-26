@@ -8930,9 +8930,7 @@
          (setq TeX-save-query nil)
          (setq org-preview-latex-default-process 'imagemagick)
 
-         (global-prettify-symbols-mode)
-
-         ))
+         (global-prettify-symbols-mode)))
    #+END_SRC
 ** company for auctex
    - see [[https://github.com/alexeyr/company-auctex/][here]]
@@ -11679,6 +11677,8 @@
           ("C-c n g" . org-roam-show-graph)))
   #+end_src
 * EVAL emacs-mini-frame
+  - now available as melpa package (but not patched yet)
+  - mini-frame-do-commands was added by me
   #+begin_src emacs-lisp
     (use-package mini-frame
       :load-path "~/.emacs.d/additionals/mini-frame.el"
@@ -11750,6 +11750,8 @@
   - helm-fuzzy
   - compdef define completion local to a mode (not globally like company does)
     - see  https://gitlab.com/jjzmajic/compdef
+  - company-native-complete - Company completion using native-complete
+  - native-complete - Shell completion using native complete mechanisms
 ** configuration
   - use-package-ensure-system-package
     - require binaries / packages of the underlying system for installation of package
@@ -11820,6 +11822,7 @@
 ** navigation
   - smart-jump (smart go to definition)
   - all-the-icons-ibuffer (icons in ibuffers)
+  - bufler - buffer selection based on groups (see )
 ** org
   - org-wild-notifier, customizable notifier for org agenda entries (global or per entry)
   - orca (org-capture configuration)
@@ -11857,6 +11860,7 @@
   - kubel - inspect pods in kubernetes (with limited rights)
 ** project
    - treemacs-persp - integration of perspective into treemacs buffer visibility
+   - browse-at-remote - Open github/gitlab/bitbucket/stash/gist/phab/sourcehut page from Emacs
 ** searching/replace
   - zop-to-char (more options during zap to char)
   - mark-thing-at (mark certain things at point, e.g. words, s-exp, url, filename ...)
@@ -11888,6 +11892,8 @@
    - eldev (gradle for elisp projects)
    - verb (organize http requests from emacs to ...)
    - with-shell-interpreter (helper for cli apis)
+** ui
+   - modern-fringes - Replaces default fringe bitmaps with better looking ones
 * discarded
 ** pinentry (obsolete as of emacs 26)
    #+BEGIN_SRC emacs-lisp :tangle no
