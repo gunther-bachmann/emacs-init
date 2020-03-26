@@ -6637,6 +6637,7 @@
     #+END_SRC
 *** vars
     #+BEGIN_SRC emacs-lisp
+      (setq gnus-summary-save-parts-default-mime ".*/.*") ;; default to save all mime parts ('X m' in summary buffer)
       (setq gnus-cache-enter-articles nil)
       (setq gnus-cache-remove-articles (quote (dormant)))
       (setq gnus-extra-headers (quote (To Cc Keywords Gcc Newsgroups Content-Type)))
