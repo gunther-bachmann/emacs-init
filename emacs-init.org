@@ -10755,8 +10755,8 @@
             (interactive)
             (when (and exwm-class-name
                      (or (string= exwm-class-name "X64")
-                        (string= (downcase exwm-class-name) "eclipse")
-                        (string= (downcase exwm-class-name) "dosbox")
+                        ;; (string= (downcase exwm-class-name) "eclipse")
+                        ;; (string= (downcase exwm-class-name) "dosbox")
                         ;; (string= (downcase exwm-class-name) "jetbrains-idea-ce")
                         ))
               (exwm-reset))
@@ -11032,7 +11032,7 @@
             (progn
               (when (and exwm-class-name
                        (or (string= exwm-class-name "X64")
-                          (string= (downcase exwm-class-name) "eclipse")
+                          ;; (string= (downcase exwm-class-name) "eclipse")
                           (string= exwm-class-name "qutebrowser")
                           (string= exwm-class-name "dosbox")
                           ;; (string= (downcase exwm-class-name) "jetbrains-idea-ce")
@@ -11040,7 +11040,7 @@
                 (progn
                   ;; (setq-local exwm-input-prefix-keys '(?\C-l))
                   (message "native keyboard exwm settings applied.")
-                  ;; (exwm-input-release-keyboard (exwm--buffer->id (window-buffer)))
+                  (exwm-input-release-keyboard (exwm--buffer->id (window-buffer)))
                   (exwm-input-set-local-simulation-keys nil)))
               (when (and exwm-class-name
                          (or (string= (downcase exwm-class-name) "google-chrome")
@@ -11090,7 +11090,7 @@
           (when (and exwm-class-name
                      (or (string= exwm-class-name "X64")
                          (string= (downcase exwm-class-name) "eclipse")
-                         (string= (downcase exwm-class-name) "dosbox")
+                         ;; (string= (downcase exwm-class-name) "dosbox")
                          ;; (string= (downcase exwm-class-name) "jetbrains-idea-ce")
                          ))
             (progn
