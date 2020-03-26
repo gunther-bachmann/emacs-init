@@ -10270,7 +10270,9 @@
     (use-package racket-mode
       :ensure t
       :bind (:map racket-mode-map
-                  ("C-c r" . #'racket-run))
+                  ("C-c r" . #'racket-run)
+                  ("C-c C-." . #'racket-repl-describe)
+                  ("M-." . #'racket-repl-visit-definition))
       :init
       (when (fboundp 'paredit-mode)
         (add-hook 'racket-mode-hook 'paredit-mode))
