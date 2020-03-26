@@ -7059,6 +7059,7 @@
         ;;             (prettify-symbols-mode)))
         (custom-set-faces '(header-line ((t (:inherit org-table-face :foreground "#8abeb7"))))) ;; set (non scrolling) header to inhiert font from org mode tables (not mode line, which is to small on multi monitor w/ current config)
         (setq org-image-actual-width nil)
+        (setq org-format-latex-options (plist-put org-format-latex-options :scale 2.0))
         (setq org-hide-emphasis-markers t) ;; hides ** and // surrounding text that is bold or intalics
         ;; (add-hook 'org-mode-hook #'org-sticky-header)
         ;; make sure source blocks are collapsed at first
