@@ -5543,7 +5543,6 @@
                ("C-c v l" . magit-list-repositories)
                :map magit-mode-map
                ("C-x f" . counsel-git)
-               ("C-c p" . gb/aws-pull-request)
                :map magit-repolist-mode-map
                ("s-i" . helm-imenu))
         :init
@@ -5554,38 +5553,6 @@
             (with-temp-buffer
               `(,(apply 'call-process shell-file-name nil (current-buffer) nil (list shell-command-switch command)) .
                     ,(s-trim (buffer-string)))))
-
-          (defun gb/translate-slack-name-to-id (member)
-            ""
-            (let ((slack-team-ids '(("Lukas" . "U5WGHU048")
-                                 ("Roman" . "UHBBUGGJK")
-                                 ("Aram" . "UH1GRNW65")
-                                 ("Andreas" . "UHDEEH5D4")
-                                 ("Damian" . "UHA9Y42KW")
-                                 ("Philipp" . "U70T5PS6T")
-                                 ("Olaf" . "U5DF9SC57"))))
-              (cdr (--first (s-equals? member (car it)) slack-team-ids))))
-
-          (defun gb/aws-pull-request (uni)
-            "create pull request based on the current repo, put the url into the kill ring and (if NOT called with universial arg) browse the url"
-            (interactive "P")
-            (direnv-allow)
-            (let* ((history '("Aram Roman Lukas" "Andreas Phillip Damian"))
-                   (members (helm-read-string "slack-members:" (first history) 'history))
-                   (memberlist (s-split " " members))
-                   (memberids (--map (gb/translate-slack-name-to-id it) memberlist))
-                   (member-parameters (--map (s-concat "-m \"" it "\"") memberids ))
-                   (command (s-concat "aws-create-pullrequest -s \"#otto_eins_pr\" " (s-join " " member-parameters)))
-                   (result (gb/shell-command-to-exit-code-and-string command))
-                   (exit-code (car result))
-                   (result-string (cdr result)))
-              (message (s-concat "CALL: " command))
-              (message (s-concat "AWS PullRequest Result String: " result-string))
-              (message (s-concat "AWS PullRequest Result Code  : " (number-to-string exit-code)))
-              (when (eq exit-code 0)
-                (kill-new result-string)
-                (unless uni
-                  (browse-url result-string)))))
 
           (defun gb/magit-log-trace-definition ()
             "Show log for the definition marked."
@@ -7784,6 +7751,7 @@
 *** hide passwords in org files
     - loaded from [[https://raw.githubusercontent.com/jekor/hidepw/master/hidepw.el][here]]
     - hides passwords in password manager (any entry with ':PASSWORD:')
+    - TODO: now in melpa (use-package hidepw)
     #+BEGIN_SRC emacs-lisp
       (if (file-exists-p "~/.emacs.d/additionals/hidepw.el")
           (use-package hidepw
@@ -10638,7 +10606,13 @@
                   (defun gb/exwm-previous-workspace (&optional inc)
                     "jump to the previous (inc) workspace"
                     (interactive)
-                    (gb/exwm-next-workspace (- (or inc 1)))))
+                    (gb/exwm-next-workspace (- (or inc 1))))
+
+
+                  (use-package otto
+                    :load-path "~/.emacs.d/work/")
+                  (use-package itemis
+                    :load-path "~/.emacs.d/work/"))
 
           :ensure t))
     #+END_SRC
@@ -10790,11 +10764,11 @@
             "run exwm reset right before calling the given function"
             (interactive)
             (when (and exwm-class-name
-                     (or (string= exwm-class-name "X64")
-                        ;; (string= (downcase exwm-class-name) "eclipse")
-                        ;; (string= (downcase exwm-class-name) "dosbox")
-                        ;; (string= (downcase exwm-class-name) "jetbrains-idea-ce")
-                        ))
+                       (or (string= exwm-class-name "X64")
+                           ;; (string= (downcase exwm-class-name) "eclipse")
+                           ;; (string= (downcase exwm-class-name) "dosbox")
+                           ;; (string= (downcase exwm-class-name) "jetbrains-idea-ce")
+                           ))
               (exwm-reset))
             (funcall interactive-function))
 
@@ -10937,34 +10911,6 @@
           ;; start programs
           (exwm-input-set-key (kbd "s-1") #'gb/exwm-program-select) ;; do not wrap, since it already resets exwm
 
-          ;; itemis browsing
-          (exwm-input-set-key (kbd "C-c a i b") #'gb/itemis-blue-ant-browse)
-          (exwm-input-set-key (kbd "C-c a i c") #'gb/itemis-google-cal-browse)
-          (exwm-input-set-key (kbd "C-c a i d") #'gb/itemis-google-drive-browse)
-          (exwm-input-set-key (kbd "C-c a i l") #'gb/itemis-launchpad-browse)
-          (defun gb/itemis-blue-ant-browse ()
-            "browse to aws service console for code commit"
-            (interactive)
-            (browse-url "https://blueantasp32.proventis.net/itemis/psap"))
-          (defun gb/itemis-google-cal-browse ()
-            "browse to aws service console for code commit"
-            (interactive)
-            (browse-url "https://calendar.google.com"))
-          (defun gb/itemis-google-drive-browse ()
-            "browse to aws service console for code commit"
-            (interactive)
-            (browse-url "https://drive.google.com/drive/my-drive"))
-          (defun gb/itemis-launchpad-browse ()
-            "browse to aws service console for code commit"
-            (interactive)
-            (browse-url "https://intern.itemis.de/launchpad/"))
-
-          (exwm-input-set-key (kbd "C-c a o j") #'gb/otto-jira-browse)
-          (defun gb/otto-jira-browse ()
-            "browse to aws service console for code commit"
-            (interactive)
-            (browse-url "https://jira.scm.otto.de"))
-
           ;; aws browsing
           (exwm-input-set-key (kbd "C-c a a c") #'gb/aws-code-commit-browse)
           (exwm-input-set-key (kbd "C-c a a e") #'gb/aws-ec2-browse)
@@ -10987,7 +10933,6 @@
             "browse to aws service console for s3"
             (interactive)
             (browse-url (format "https://s3.console.aws.amazon.com/s3/home?region=%s" gb/aws-region)))
-
 
           (setq gb/simulation-keys
                 `(
@@ -11067,12 +11012,12 @@
             "do some adjustments due to exwm switches with char/line mode"
             (progn
               (when (and exwm-class-name
-                       (or (string= exwm-class-name "X64")
-                          ;; (string= (downcase exwm-class-name) "eclipse")
-                          (string= exwm-class-name "qutebrowser")
-                          (string= exwm-class-name "dosbox")
-                          ;; (string= (downcase exwm-class-name) "jetbrains-idea-ce")
-                          ))
+                         (or (string= exwm-class-name "X64")
+                             ;; (string= (downcase exwm-class-name) "eclipse")
+                             (string= exwm-class-name "qutebrowser")
+                             (string= exwm-class-name "dosbox")
+                             ;; (string= (downcase exwm-class-name) "jetbrains-idea-ce")
+                             ))
                 (progn
                   ;; (setq-local exwm-input-prefix-keys '(?\C-l))
                   (message "native keyboard exwm settings applied.")
@@ -11853,6 +11798,8 @@
     - require binaries / packages of the underlying system for installation of package
     - if provided with installation script might even execute the appropriate installation
     - see [[https://github.com/waymondo/use-package-ensure-system-package][here]]
+  - leaf - drop in replacement for use-package
+  - leaf-convert - convert configuration to leaf syntax (automatic optimization)
 ** document
   - latexdiff (diff between two latex files)
   - texfrag
@@ -11889,6 +11836,7 @@
   - taskrunner - Retrieve build system/taskrunner tasks  (e.g. gradle tasks ....)
 ** languages
   - karma test runner integration (upbo)
+  - jest-test-mode - running node.js tests using jest
   - rustic (major mode for rust)
   - ccls (c++ language server for lsp ui), see here https://github.com/MaskRay/emacs-ccls
   - eglot - lsp client (for multiple languages)
@@ -11915,6 +11863,7 @@
   - nix-haskell-mode
   - elpl (emacs lisp repl)
 ** mail
+   - autocrypt - automatically encrypts and distributes encrypted emails (usable in gnus) https://git.sr.ht/~zge/autocrypt
 ** navigation
   - smart-jump (smart go to definition)
   - all-the-icons-ibuffer (icons in ibuffers)
@@ -11943,6 +11892,9 @@
   - treefactor - organize org-headers and dired files of org files (see https://treefactor-docs.nfshost.com)
   - doct: Declarative Org capture templates
   - walkman: write http requests within org
+  - org-pdftools - links to documents in pdfmode
+  - company-org-roam - Company backend for Org-roam
+  - org-roam - Roam Research replica with Org-mode, allows something like zettelkasten  (see https://blog.jethro.dev/posts/introducing_org_roam/)
 ** os/system
   - network-watch (allows hooks to run when network is goiing down/up)
   - scp (use scp to transfer files)
@@ -11954,6 +11906,7 @@
   - syslog-mode - mode to view syslogs (filter etc.)
   - nix-env-install - install packages through nix-env (currently npm packages only), see https://github.com/akirak/nix-env-install
   - kubel - inspect pods in kubernetes (with limited rights)
+  - nixpkgs-fmt - format nix using nixpkgs-fmt
 ** project
    - treemacs-persp - integration of perspective into treemacs buffer visibility
    - browse-at-remote - Open github/gitlab/bitbucket/stash/gist/phab/sourcehut page from Emacs
@@ -11968,6 +11921,7 @@
 ** utilities
   - shrink-path: do fish like reduciton of paths (e.g. for modeline)
   - counsel-jq: interactively use jq on json buffer
+  - vlc - videoLAN VLC Media Player Control
 ** windowmanager/x-integration
   - edwin (dynamic window manager)
   - zoom
@@ -12223,6 +12177,13 @@
 #+BEGIN_SRC emacs-lisp
 (report-elapsed "check point - atomic chrome")
 #+END_SRC
+** fantom theme - org mode colors were white (mostly)
+   #+begin_src emacs-lisp :tangle no
+     (use-package fantom-theme
+       :ensure t
+       :config
+       (load-theme 'fantom-theme t))
+   #+end_src
 * finish - up
   #+BEGIN_SRC emacs-lisp
     (report-elapsed "enter finish - up")
