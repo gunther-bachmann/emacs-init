@@ -11767,6 +11767,28 @@
     (use-package bufler
       :config)
   #+end_src
+* EVAL maxima
+  #+begin_src emacs-lisp
+    (setq maxima-elisp-loadpath (s-concat (s-trim (shell-command-to-string "dirname $(readlink -f $(command -v maxima))")) "/../share/emacs/site-lisp"))
+
+    (use-package imaxima
+      :load-path maxima-elisp-loadpath
+      :commands (imaxima)
+      :config (setq imaxima-fnt-size "LARGE")
+      )
+    (use-package imath
+      :load-path maxima-elisp-loadpath)
+    (use-package maxima
+      :load-path maxima-elisp-loadpath)
+
+
+
+    ;; see http://maxima.sourceforge.net/documentation.html
+    ;;     http://maxima.sourceforge.net/docs/manual/maxima.html#SEC_Top
+    ;; http://www.hippasus.com/resources/symmath/maximacalc.html
+
+    ;; start by M-x imaxima
+  #+end_src
 * proced
   #+begin_src emacs-lisp
     (use-package proced
