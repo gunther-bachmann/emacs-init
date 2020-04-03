@@ -1724,7 +1724,7 @@
    #+END_SRC
 ** font related stuff
    #+BEGIN_SRC emacs-lisp
-     (setq gb/presentation-mode nil)
+     (setq gb/dual-screen-mode 'regular)
      (setq font-lock-support-mode 'jit-lock-mode)
      ;; (setq jit-lock-defer-contextually t ;; 'syntax-driven
      ;;       jit-lock-context-time 0.5
@@ -1763,7 +1763,7 @@
            (cond ((> display-width 3400)
                   (ht ('default-height 150) ('variable-pitch-height 140)))
                  ((ht ('default-height 130) ('variable-pitch-height 120))))
-         (cond (gb/presentation-mode
+         (cond ((eq gb/dual-screen-mode 'presentation)
                 (ht ('default-height 250) ('variable-pitch-height 250)))
                ((> display-width 5000)
                 (ht ('default-height 140) ('variable-pitch-height 140)))
@@ -8463,13 +8463,13 @@
          "set helm-posframe parameters. run previous to display, to ensure right display in multimonitor environments"
          (let ((xfac (cond ((eq 'helm-for-files (helm-this-command)) 0.8)
                            ((eq 'helm-mini (helm-this-command)) 0.8)
-                           ((eq 'gb/exwm-program-select (helm-this-command)) (if gb/presentation-mode 0.8 0.2))
-                           ((eq 'helm-M-x (helm-this-command)) (if gb/presentation-mode 0.8 0.3))
-                           (t (if gb/presentation-mode 0.8 0.5))))
+                           ((eq 'gb/exwm-program-select (helm-this-command)) (if (eq gb/dual-screen-mode 'presentation) 0.8 0.2))
+                           ((eq 'helm-M-x (helm-this-command)) (if (eq gb/dual-screen-mode 'presentation) 0.8 0.3))
+                           (t (if (eq gb/dual-screen-mode 'presentation) 0.8 0.5))))
                (yfac (cond ((eq 'helm-for-files (helm-this-command)) 0.8)
                            ((eq 'helm-mini (helm-this-command)) 0.8)
                            ((eq 'helm-M-x (helm-this-command)) 0.8)
-                           (t (if gb/presentation-mode 0.8 0.5)))))
+                           (t (if (eq gb/dual-screen-mode 'presentation) 0.8 0.5)))))
            (setq gb/helm-posframe-min-height (round (* yfac (cdr (assoc 'height (frame-parameters (selected-frame)))))))
            (setq gb/helm-posframe-min-width (round (* xfac (cdr (assoc 'width (frame-parameters (selected-frame)))))))
            (setq gb/posframe-offset (cdr (assoc 'left (frame-parameters (selected-frame)))))
@@ -10645,52 +10645,62 @@
           ;;     (message "OK: VBoxClient seems to be running, thus clipboard sharing is probably active")
           ;;   (message "ERROR: VBoxClient is not running! Clipboard sharing is not available"))
 
-          (setq gb/presentation-mode nil)
+          (setq gb/dual-screen-mode 'regular) ;; 'presentation 'shared-screen
 
           (defun gb/toggle-presentation-monitor-setup ()
             ""
             (interactive)
-            ;; (setq gb/setup-main-fonts-needs-execution t)
-            ;; (gb/setup-main-fonts) ;; restarts monitor setup
-            (setq gb/presentation-mode (not gb/presentation-mode))
-            (gb/refresh-exwm-monitor-setup)
-            (gb/reset-main-fonts))
+            (if (eq gb/dual-screen-mode 'presentation)
+                (setq gb/dual-screen-mode 'regular)
+              (setq gb/dual-screen-mode 'presentation))
+            (gb/refresh-exwm-monitor-setup))
+
+          (defun gb/toggle-shared-screen-monitor-setup ()
+            ""
+            (interactive)
+            (if (eq gb/dual-screen-mode 'shared-screen)
+                (setq gb/dual-screen-mode 'regular)
+              (setq gb/dual-screen-mode 'shared-screen))
+            (gb/refresh-exwm-monitor-setup))
 
           (defun gb/refresh-exwm-monitor-setup ()
             "refresh current multi monitor setup for exwm"
             (interactive)
             (let ((dual-monitor (string= "2" (s-trim (shell-command-to-string "xrandr -q | grep ' connected ' | wc -l"))))
-                  (primary-monitor (gb/get-primary-monitor)))
+                  (primary-monitor (car (exwm-randr--get-monitors))))
               (message "exwm change hook")
-              (message (s-trim (shell-command-to-string "xrandr --listmonitors | grep \"Monitors\" | awk '{ print $2; }'")))
               (if dual-monitor
-                  (let* ((second-monitor (gb/get-second-monitor))
-                         (sm-resolution (s-trim (shell-command-to-string (s-concat "xrandr | grep -e \"" second-monitor "\" -A 1 | tail -n 1 | tr -s \" \" | cut -d' ' -f2")))))
-                    (message "dual-monitor setup")
-                    (message primary-monitor)
-                    (message second-monitor)
-                    (if (string-empty-p second-monitor)
-                        (setq exwm-randr-workspace-monitor-plist (-interleave (number-sequence 0 (-  (exwm-workspace--count) 1)) (-repeat (exwm-workspace--count) primary-monitor)))
-                      (if gb/presentation-mode
-                          (progn
-                            (message "dual monitor presentation mode")
-                            (setq  exwm-randr-workspace-monitor-plist (append `(0 ,primary-monitor) (-interleave (number-sequence 1 (-  (exwm-workspace--count) 1)) (-repeat (- (exwm-workspace--count) 1) primary-monitor))))
-                            (shell-command (s-concat "xrandr --output " second-monitor " --same-as "  primary-monitor " --mode 1920x1080"))
-                            ;; (shell-command (s-concat "xrandr --output " second-monitor " --mode 1920x1080"))
-                            (exwm-randr-refresh))
-                        (progn
-                          (message "dual monitor")
-                          (setq  exwm-randr-workspace-monitor-plist (append `(0 ,primary-monitor) (-interleave (number-sequence 1 (-  (exwm-workspace--count) 1)) (-repeat (- (exwm-workspace--count) 1) second-monitor)))) ;; 0 "DP-2"
-                          (shell-command (s-concat "xrandr --output " primary-monitor " --left-of "  second-monitor " --auto"))
-                          (shell-command (s-concat "xrandr --output " second-monitor " --mode " sm-resolution))
-                          (if (s-equals? second-monitor "DP-0")
-                              (let* ((xrandrmode (s-trim (shell-command-to-string (s-concat "xrandr -q | grep " second-monitor " -A 1 | tail -n 1 | awk '{ print $1; }'")))))
-                                (message xrandrmode)
-                                (shell-command (s-concat "xrandr --output " second-monitor " --mode " xrandrmode))))
-                          (exwm-randr-refresh)))))
+                  (let* ((second-monitor (nth 2 (second (exwm-randr--get-monitors))))
+                         (geometry (nth 3 (second (exwm-randr--get-monitors))))
+                         (sm-resolution (format "%sx%s" (oref geometry :width)(oref geometry :height))))
+                    (message (format "dual-monitor setup (primary: %s, secondary: %s@%s)" primary-monitor second-monitor sm-resolution))
+                    (cond
+                     ((string-empty-p second-monitor)
+                      (setq exwm-randr-workspace-monitor-plist (-interleave (number-sequence 0 (-  (exwm-workspace--count) 1)) (-repeat (exwm-workspace--count) primary-monitor))))
+                     ((or (eq gb/dual-screen-mode 'presentation) (eq gb/dual-screen-mode 'shared-screen))
+                      (progn
+                        (message "dual monitor presentation/shared-screen mode")
+                        (setq  exwm-randr-workspace-monitor-plist (append `(0 ,primary-monitor) (-interleave (number-sequence 1 (-  (exwm-workspace--count) 1)) (-repeat (- (exwm-workspace--count) 1) primary-monitor))))
+                        (shell-command (s-concat "xrandr --output " second-monitor " --same-as "  primary-monitor " --mode 1920x1080"))
+                        (gb/reset-main-fonts)
+                        (exwm-randr-refresh)))
+                     (t
+                      (progn
+                        (message "dual monitor")
+                        (setq  exwm-randr-workspace-monitor-plist (append `(0 ,primary-monitor) (-interleave (number-sequence 1 (-  (exwm-workspace--count) 1)) (-repeat (- (exwm-workspace--count) 1) second-monitor))))
+                        (shell-command (s-concat "xrandr --output " primary-monitor " --left-of "  second-monitor " --auto"))
+                        (shell-command (s-concat "xrandr --output " second-monitor " --mode " sm-resolution))
+                        (if (s-equals? second-monitor "DP-0")
+                            (let* ((xrandrmode (s-trim (shell-command-to-string (s-concat "xrandr -q | grep " second-monitor " -A 1 | tail -n 1 | awk '{ print $1; }'")))))
+                              (message xrandrmode)
+                              (shell-command (s-concat "xrandr --output " second-monitor " --mode " xrandrmode))))
+                        (gb/reset-main-fonts)
+                        (exwm-randr-refresh)))))
                 (progn
                   (message "single monitor")
                   (setq exwm-randr-workspace-monitor-plist (-interleave (number-sequence 0 (-  (exwm-workspace--count) 1)) (-repeat (exwm-workspace--count) primary-monitor)))
+                  (shell-command-to-string "xrandr --auto")
+                  (gb/reset-main-fonts)
                   (exwm-randr-refresh)))))
 
           ;; make sure multi monitor support is active
