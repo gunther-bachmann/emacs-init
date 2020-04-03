@@ -11144,6 +11144,23 @@
       "switch wireless lan off"
       (interactive)
       (message (s-trim (shell-command-to-string "sudo systemctl stop wpa_supplicant.service"))))
+
+    (defun gb/get-vpns-available ()
+      "get a list of available vpns"
+      (split-string (s-trim (shell-command-to-string " systemctl --all list-unit-files openvpn*  | grep openvpn | cut -f1 -d' '"))))
+
+    (defun gb/net-vpn-switch-on ()
+      "switch vpn on"
+      (interactive)
+      (let ((vpn-id (ivy-read "vpn:" (gb/get-vpns-available) :require-match t)))
+        (message (s-trim (shell-command-to-string (format "sudo systemctl start %s" vpn-id))))))
+
+    (defun gb/net-vpn-switch-off ()
+      "switch vpn off"
+      (interactive)
+      (let ((vpn-id (ivy-read "vpn:" (gb/get-vpns-available) :require-match t)))
+        (message (s-trim (shell-command-to-string (format "sudo systemctl stop %s" vpn-id))))))
+
   #+end_src
 * org tree slide (presenting org mode files as slides)
   - did some modifications to allow for timers during presentation
