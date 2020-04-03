@@ -9107,6 +9107,18 @@
              (cd wanted-dir)
              (gb/terminal wanted-dir))))
 
+       (defun gb/dired-open-file-from-here ()
+         "Open an `ansi-term' that corresponds to current directory."
+         (interactive)
+         (let* ((current-dir (dired-current-directory))
+                (current-file (dired-get-filename))
+                (wanted-dir (if (file-directory-p current-file)
+                                current-file
+                              current-dir)))
+           (unless (file-remote-p wanted-dir)
+
+             (helm-find-files-1 wanted-dir))))
+
        (defun gb/terminal (&optional suffix)
          "Switch to terminal. Launch if nonexistent."
          (interactive)
@@ -9176,7 +9188,8 @@
        :bind (( "s-A" . dired-sidebar-toggle-sidebar)
               ( "s-a" . gb/dired-sidebar-follow-file)
               :map dired-sidebar-mode-map
-              ( "c-s" . nonincremental-search-forward))
+              ( "c-s" . nonincremental-search-forward)
+              ( "C-x C-f" . gb/dired-open-file-from-here))
        ;; :after (dired all-the-icons vscode-icon)
        :config
        ;; make sure that long lines are truncated in sidebar
