@@ -11767,6 +11767,11 @@
     (use-package bufler
       :config)
   #+end_src
+* EVAL vlc
+  #+begin_src emacs-lisp
+    (use-package vlc
+      :ensure t)
+  #+end_src
 * EVAL maxima
   #+begin_src emacs-lisp
     (setq maxima-elisp-loadpath (s-concat (s-trim (shell-command-to-string "dirname $(readlink -f $(command -v maxima))")) "/../share/emacs/site-lisp"))
