@@ -9069,12 +9069,6 @@
               ))))
       ))
   #+END_SRC
-* bookmark+
-   #+BEGIN_SRC emacs-lisp
-   ;; adds lots of functions all starting with bmkp
-   (when (locate-library "bookmark+")
-    (use-package bookmark+))
-   #+END_SRC
 * dired
 ** configuration
    #+BEGIN_SRC emacs-lisp
@@ -11875,6 +11869,33 @@
     ;; http://www.hippasus.com/resources/symmath/maximacalc.html
 
     ;; start by M-x imaxima
+  #+end_src
+* EVAL bookmark+
+  - for more info, see https://www.emacswiki.org/emacs/BookmarkPlus
+  #+begin_src emacs-lisp
+    (setq gb/bookmarkplus-dir "~/.emacs.d/custom/bookmark-plus/")
+
+    (defun gb/update-bookmark-plus ()
+      "since bookmark+ is no longer on melpa, manual update is needed"
+      (interactive)
+      (let ((bookmarkplus-dir gb/bookmarkplus-dir)
+            (emacswiki-base "https://www.emacswiki.org/emacs/download/")
+            (bookmark-files '("bookmark+.el" "bookmark+-mac.el" "bookmark+-bmu.el" "bookmark+-key.el" "bookmark+-lit.el" "bookmark+-1.el")))
+        (require 'url)
+        (add-to-list 'load-path bookmarkplus-dir)
+        (make-directory bookmarkplus-dir t)
+        (mapcar (lambda (arg)
+                  (let ((local-file (concat bookmarkplus-dir arg)))
+                    (url-copy-file (concat emacswiki-base arg) local-file t)))
+                bookmark-files)
+        (byte-recompile-directory bookmarkplus-dir 0)
+        (require 'bookmark+)))
+
+    (unless (file-exists-p (format "%sbookmark+.el" gb/bookmarkplus-dir))
+      (gb/update-bookmark-plus))
+
+    (use-package bookmark+
+      :load-path gb/bookmarkplus-dir)
   #+end_src
 * proced
   #+begin_src emacs-lisp
