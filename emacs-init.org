@@ -8501,6 +8501,8 @@
           :height (or helm-posframe-height helm-display-buffer-height)
           :min-height gb/helm-posframe-min-height
           :min-width gb/helm-posframe-min-width
+          :internal-border-width 2
+          :internal-border-color "#403040"
           ;; :font-height 14
           ;; :font gb/default-font
           :override-parameters helm-posframe-parameters
