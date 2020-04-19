@@ -11906,6 +11906,52 @@
 
     ;; start by M-x imaxima
   #+end_src
+* EVAL ctrlf
+  #+begin_src emacs-lisp
+    (use-package ctrlf
+      :ensure t)
+  #+end_src
+* EVAL selectrum
+  - idea: additional install selectrum-prescient
+  #+begin_src emacs-lisp
+    (use-package selectrum
+      :ensure t)
+  #+end_src
+* EVAL smtpmail-async
+  #+begin_src emacs-lisp
+    (use-package smtpmail-async
+      :load-path "~/.emacs.d/additionals/"
+      :config
+      (defun gb/gnus-mail-send-switch-to-safe-sync ()
+        "save to save sync mode of sending gnu mails"
+        (interactive)
+        (setq send-mail-function 'smtpmail-multi-send-it
+              message-send-mail-function 'smtpmail-multi-send-it)
+        (message "Now sending with safe (but blocking) sync"))
+
+      (defun gb/gnus-mail-send-switch-to-unsafe-async ()
+        "save to unsafe async mode - might fail, if additional certificate acknowledgment is necessary"
+        (interactive)
+        (setq send-mail-function 'async-smtpmail-send-it
+              message-send-mail-function 'async-smtpmail-send-it)
+        (message "Now sending with unsafe (but non-blocking) async, switch back with M-x gb/gnus-mail-send-switch-to-safe-sync")))
+  #+end_src
+* EVAL scanner
+  #+begin_src emacs-lisp
+    (use-package scanner
+      :commands (scanner-scan-image scanner-scan-document)
+      :ensure-system-package (sane-backends sane-frontends)
+      :config
+      (setq scanner-resolution '(:image 300 :doc 300) )
+      (setq scanner-scan-mode '(:image "Color" :doc "Gray"))
+      (setq scanner-tesseract-languages '("eng" "deu"))
+      (setq scanner-tesseract-program (s-trim (shell-command-to-string (s-concat "readlink -f " (s-trim  (shell-command-to-string "command -v tesseract"))))))
+      (setq scanner-tesseract-configdir (s-concat (s-trim (shell-command-to-string (s-concat "dirname " scanner-tesseract-program))) "/../share/tessdata/configs")))
+  #+end_src
+* EVAL cpu-sos - send invisible buffers SIGSTOP (to prevent background processing)
+  #+begin_src emacs-lisp
+    (use-package cpu-sos)
+  #+end_src
 * EVAL bookmark+
   - for more info, see https://www.emacswiki.org/emacs/BookmarkPlus
   #+begin_src emacs-lisp
