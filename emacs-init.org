@@ -250,11 +250,11 @@
   #+END_SRC
 * initial setting of vars
   #+BEGIN_SRC emacs-lisp
-  ;; must be set before loading use-package in order to work
-  (setq use-package-enable-imenu-support t) ;; enable locating package loaded by use-package within init.el
-  (setq running-nixos nil)
-
-  (put 'list-timers 'disabled nil)
+    ;; must be set before loading use-package in order to work
+    (setq use-package-enable-imenu-support t) ;; enable locating package loaded by use-package within init.el
+    (setq running-nixos nil)
+    (setq  frame-inhibit-implied-resize t) ;; inhibit font (or other) based resize of frames
+    (put 'list-timers 'disabled nil)
   #+END_SRC
 * initial function setup
   #+BEGIN_SRC emacs-lisp
@@ -9521,7 +9521,7 @@
    #+END_SRC
 ** posframe
    - posframe allows floating frames to be displayed at point position
-   - needed patching posframe.el:494
+   - needed patching posframe.el:499
      #+begin_src emacs-lisp :tangle no
          (font-height (with-current-buffer (window-buffer parent-window)
                         (posframe--get-font-height position-info
@@ -10739,6 +10739,16 @@
               (setq gb/dual-screen-mode 'shared-screen))
             (gb/refresh-exwm-monitor-setup))
 
+          (defun gb/xrandr-monitor-resolution (monitor)
+            "get the maximal resolution of the given monitor"
+            (s-trim (shell-command-to-string (s-concat "xrandr -q | grep " monitor " -A 1 | tail -n 1 | awk '{ print $1; }'"))))
+
+          (defun gb/reset-exwm-monitor-setup ()
+            "reset the (multi) monitor setup for exwm"
+            (interactive)
+            (shell-command-to-string "xrandr --auto")
+            (gb/refresh-exwm-monitor-setup))
+
           (defun gb/refresh-exwm-monitor-setup ()
             "refresh current multi monitor setup for exwm"
             (interactive)
@@ -10757,27 +10767,19 @@
                       (progn
                         (message "dual monitor presentation/shared-screen mode")
                         (setq  exwm-randr-workspace-monitor-plist (append `(0 ,primary-monitor) (-interleave (number-sequence 1 (-  (exwm-workspace--count) 1)) (-repeat (- (exwm-workspace--count) 1) primary-monitor))))
-                        (shell-command (s-concat "xrandr --output " second-monitor " --same-as "  primary-monitor " --mode 1920x1080"))
-                        (gb/reset-main-fonts)
-                        (exwm-randr-refresh)))
+                        (shell-command (s-concat "xrandr --output " second-monitor " --same-as "  primary-monitor " --mode " (gb/xrandr-monitor-resolution primary-monitor)))))
                      (t
                       (progn
                         (message "dual monitor")
                         (setq  exwm-randr-workspace-monitor-plist (append `(0 ,primary-monitor) (-interleave (number-sequence 1 (-  (exwm-workspace--count) 1)) (-repeat (- (exwm-workspace--count) 1) second-monitor))))
                         (shell-command (s-concat "xrandr --output " primary-monitor " --left-of "  second-monitor " --auto"))
-                        (shell-command (s-concat "xrandr --output " second-monitor " --mode " sm-resolution))
-                        (if (s-equals? second-monitor "DP-0")
-                            (let* ((xrandrmode (s-trim (shell-command-to-string (s-concat "xrandr -q | grep " second-monitor " -A 1 | tail -n 1 | awk '{ print $1; }'")))))
-                              (message xrandrmode)
-                              (shell-command (s-concat "xrandr --output " second-monitor " --mode " xrandrmode))))
-                        (gb/reset-main-fonts)
-                        (exwm-randr-refresh)))))
+                        (shell-command (s-concat "xrandr --output " second-monitor " --preferred"))))))
                 (progn
                   (message "single monitor")
                   (setq exwm-randr-workspace-monitor-plist (-interleave (number-sequence 0 (-  (exwm-workspace--count) 1)) (-repeat (exwm-workspace--count) primary-monitor)))
-                  (shell-command-to-string "xrandr --auto")
-                  (gb/reset-main-fonts)
-                  (exwm-randr-refresh)))))
+                  (shell-command-to-string "xrandr --auto")))
+              (gb/reset-main-fonts)
+              (exwm-randr-refresh)))
 
           ;; make sure multi monitor support is active
           (progn
@@ -11615,9 +11617,11 @@
       :ensure t)
   #+end_src
 * EVAL awscli-capf
+  - allow for awscli command line completion
   #+begin_src emacs-lisp
     (use-package awscli-capf
       :commands (awscli-add-to-capf awscli-capf-refresh-data-from-cli)
+      ;; :ensure-system-package awscli ;; reinstalls awscli all the time
       :ensure t
       :hook (shell-mode . awscli-capf-add))
   #+end_src
@@ -11733,10 +11737,11 @@
       (setq wttrin-default-cities '("Hamburg" "Darmstadt" "Coburg"))
       (setq wttrin-default-accept-language '("Accept-Language" . "de-DE")))
   #+end_src
-* EAVL helm-rg
+* EVAL helm-rg
   #+begin_src emacs-lisp
     (use-package helm-rg
       :commands helm-rg
+      :ensure-system-package rg
       :ensure t)
   #+end_src
 * EVAL keycast (incomplete) disabled
@@ -11759,6 +11764,7 @@
 * EVAL camcorder (make recordings of emacs -> ogv|gif)
   #+begin_src emacs-lisp
     (use-package camcorder
+      :ensure-system-package imagemagick
       :commands camcorder-record)
   #+end_src
 * EVAL helm-switch-shell
@@ -11771,6 +11777,7 @@
   #+begin_src emacs-lisp
     (use-package fzf
       :commands (fzf fzf-git)
+      :ensure-system-package fzf
       :ensure t)
   #+end_src
 * EVAL helm-fish-completion (disabled)
@@ -11846,6 +11853,7 @@
 * EVAL vlc
   #+begin_src emacs-lisp
     (use-package vlc
+      :ensure-system-package vlc
       :ensure t)
   #+end_src
 * EVAL maxima
@@ -11855,6 +11863,7 @@
     (use-package imaxima
       :load-path maxima-elisp-loadpath
       :commands (imaxima)
+      :ensure-system-package maxima
       :config (setq imaxima-fnt-size "LARGE")
       )
     (use-package imath
@@ -11940,12 +11949,15 @@
     - see  https://gitlab.com/jjzmajic/compdef
   - company-native-complete - Company completion using native-complete
   - native-complete - Shell completion using native complete mechanisms
+  - selectrum - emacs selection and narrowing framework
 ** configuration
   - use-package-ensure-system-package
     - require binaries / packages of the underlying system for installation of package
     - if provided with installation script might even execute the appropriate installation
     - see [[https://github.com/waymondo/use-package-ensure-system-package][here]]
   - leaf - drop in replacement for use-package
+  - leaf-manager - Configure manager for leaf based init.el
+  - leaf-tree - Interactive side-bar feature for init.el using leaf
   - leaf-convert - convert configuration to leaf syntax (automatic optimization)
 ** document
   - latexdiff (diff between two latex files)
@@ -11954,6 +11966,7 @@
     - see [[https://github.com/TobiasZawada/texfrag][here]]
   - virtual-auto-fill (line break without modifying underlying buffer)
   - auctex-cluttex - interface to ClutTeX is a program to automatically process your LaTeX document. If necessary, it re-runs (La)TeX program to resolve cross-references and everything.
+  - bibtex-completion - bibtex completion backend
 ** (function) selection
   - helm-selected
   - helm-org - Helm for org headlines and keywords completion
@@ -12009,6 +12022,7 @@
   - attrap - Attrap! provides a command to attempt to fix the flycheck error at point.(haskell and elisp currently)
   - nix-haskell-mode
   - elpl (emacs lisp repl)
+  - elisp-depmap - Generate an elisp dependency map in graphviz
 ** mail
    - autocrypt - automatically encrypts and distributes encrypted emails (usable in gnus) https://git.sr.ht/~zge/autocrypt
 ** navigation
@@ -12042,6 +12056,8 @@
   - org-pdftools - links to documents in pdfmode
   - company-org-roam - Company backend for Org-roam
   - org-roam - Roam Research replica with Org-mode, allows something like zettelkasten  (see https://blog.jethro.dev/posts/introducing_org_roam/)
+  - org-treeusage - Examine the usage of org headings in a tree-like manner
+  - org-noter-pdftools - integration of org-noter and pdftools
 ** os/system
   - network-watch (allows hooks to run when network is goiing down/up)
   - scp (use scp to transfer files)
@@ -12057,6 +12073,7 @@
 ** project
    - treemacs-persp - integration of perspective into treemacs buffer visibility
    - browse-at-remote - Open github/gitlab/bitbucket/stash/gist/phab/sourcehut page from Emacs
+   - org-runbook - define project commands (build run clean ...) project specific in some org file with command completion ...
 ** searching/replace
   - zop-to-char (more options during zap to char)
   - mark-thing-at (mark certain things at point, e.g. words, s-exp, url, filename ...)
@@ -12065,10 +12082,13 @@
   - isearch-project
   - color-rg: search and refactoring tool based in ripgrep (see [[https://github.com/manateelazycat/color-rg][here]])
   - helm-fd: like helm find, using fd instead
+  - ctrlf - search in emacs
 ** utilities
   - shrink-path: do fish like reduciton of paths (e.g. for modeline)
   - counsel-jq: interactively use jq on json buffer
   - vlc - videoLAN VLC Media Player Control
+  - transient-dwim - supposed to be useful to explore keybindings/functions in a major mode
+  - smart-input-source - Switch input source smartly
 ** windowmanager/x-integration
   - edwin (dynamic window manager)
   - zoom
@@ -12083,6 +12103,8 @@
   - aio - async execution and await for elisp (lambda and functions)
   - live-preview
   - howdoyou - A stackoverflow and its sisters' sites reader
+  - calc-at-point - do calculations on selections or at point
+  - basic-ide - c64 basic ide that allows for basic dev and execution in vice (see https://gitlab.com/sasanidas/emacs-c64-basic-ide)
 ** development
    - navigel (develop modes based on tablist more efficiently)
    - helm-taskrunner (select from tasks the build system of the current project provides (e.g. gradle tasks)) https://github.com/emacs-taskrunner/helm-taskrunner
@@ -12091,6 +12113,7 @@
    - with-shell-interpreter (helper for cli apis)
 ** ui
    - modern-fringes - Replaces default fringe bitmaps with better looking ones
+   - simple-modeline -
 * discarded
 ** pinentry (obsolete as of emacs 26)
    #+BEGIN_SRC emacs-lisp :tangle no
