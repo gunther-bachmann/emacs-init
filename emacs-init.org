@@ -11286,6 +11286,24 @@
       (setq org-tree-slide-header nil)
       (setq org-tree-slide-heading-emphasis t))
   #+end_src
+* eglot
+  #+begin_src emacs-lisp
+    (use-package jsonrpc
+      :ensure t)
+    (use-package flymake
+      :ensure t)
+    (use-package eglot
+      :commands eglot
+      :ensure t
+      :bind (:map kotlin-mode-map
+             ("C-x `" . flymake-goto-next-error))
+      :config
+      (setq eglot-connect-timeout 240) ;; eglot takes some time to start if the project is complex
+      (setq eglot-send-changes-idle-time 3) ;; wait 3s idle before contacting language server
+      ;; (flymake-mode-off)
+      ;; (flycheck-mode 1)
+      )
+  #+end_src
 * EVAL winum (select windows by number, which is shown in the modeline)
   - is useful for native applications in exwm, since ace-window cannot overlay those with the key to select those
   #+begin_src emacs-lisp
@@ -11674,23 +11692,6 @@
         (use-package csv-mode
           :commands csv-mode
           :load-path "~/.emacs.d/additionals"))
-  #+end_src
-* EVAL eglot
-  #+begin_src emacs-lisp
-    (use-package jsonrpc
-      :ensure t)
-    (use-package flymake
-      :ensure t)
-    (use-package eglot
-      :commands eglot
-      :ensure t
-      :bind (:map kotlin-mode-map
-             ("C-x `" . flymake-goto-next-error))
-      :config
-      (setq eglot-connect-timeout 240) ;; eglot takes some time to start if the project is complex
-      ;; (flymake-mode-off)
-      ;; (flycheck-mode 1)
-      )
   #+end_src
 * EVAL terraform-lsp
   #+begin_src emacs-lisp
