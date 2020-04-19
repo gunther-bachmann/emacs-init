@@ -5110,10 +5110,28 @@
    #+BEGIN_SRC emacs-lisp
      (use-package kotlin-mode
        :ensure t
-       :hook (kotlin-mode . gb/enable-ligatures))
+       :hook (kotlin-mode . gb/enable-ligatures)
+       :config
+       (defun gb/kotlin-get-full-qualified-class-name-at-point ()
+         "get the full qualified kotlin class name at point"
+         (save-excursion
+           (let ((class-name (substring-no-properties (word-at-point))))
+             (beginning-of-buffer)
+             (when (word-search-forward "package" nil t)
+               (let* ((package (s-match-strings-all "^package *\\(.*\\)" (thing-at-point 'line))))
+                 (format "%s.%s" (substring-no-properties (cadar package)) class-name))))))
+       (defun gb/kotlin-kill-full-qualified-class-name-at-point ()
+         "get the full qualified kotlin class name at point into the kill ring"
+         (interactive)
+         (let ((fqn (gb/kotlin-get-full-qualified-class-name-at-point)))
+           (message fqn)
+           (kill-new fqn)))
+       (bind-key "C-c M-w" #'gb/kotlin-kill-full-qualified-class-name-at-point kotlin-mode-map))
+
      (use-package flycheck-kotlin
        :ensure t
        :after (kotlin-mode))
+
      (use-package ob-kotlin
        :ensure t
        :after (kotlin-mode org))
