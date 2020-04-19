@@ -2264,33 +2264,95 @@
           )))
     #+END_SRC
 *** doom modeline
-    - adjusted file doom-modeline-segments.el:276, changed "save" to "change_history" (icon)⃤∆
-    - adjusted file doom-modeline-segments.el:856, changed "block" to "sim_card_alert"
-    - adjusted file doom-modeline-core.el doom-modeline--font-height, change heigth to 120 (instead of calculating font height)
-    - adjusted file doom-modeline-core.el doom-modeline-def-modeline, change (if (number-or-marker-p 120)...) (instead of calculation font
+    - adjusted file doom-modeline-segments.el:288, changed "save" to "change_history" (icon)⃤∆
+    - adjusted file doom-modeline-segments.el:697, changed "block" to "sim_card_alert"
+    - OBSOLETE: adjusted file doom-modeline-core.el doom-modeline--font-height, change heigth to 120 (instead of calculating font height)
+    - OBSOLETE: adjusted file doom-modeline-core.el doom-modeline-def-modeline, change (if (number-or-marker-p 120)...) (instead of calculation font
       stuff here)
+    - patched some functions, see below
+    #+begin_src emacs-lisp :tangle no
+        ;; patched doom-modeline-update-buffer-file-state-icon to use once created icons
+        (defvar doom-modeline--lock-icon
+          (doom-modeline-buffer-file-state-icon
+           "lock" "🔒" "%1*" `(:inherit doom-modeline-warning
+                                        :weight ,(if doom-modeline-icon
+                                                     'normal
+                                                   'bold)))
+          "icon for showing lock")
+
+        (defvar doom-modeline--changed-icon
+          (doom-modeline-buffer-file-state-icon
+           "change_history" "💾" "%1*" `(:inherit doom-modeline-buffer-modified
+                                                  :weight ,(if doom-modeline-icon
+                                                               'normal
+                                                             'bold)))
+          "icon for changed source")
+
+        (defvar doom-modeline--missing-file-icon
+          (doom-modeline-buffer-file-state-icon
+           "do_not_disturb_alt" "🚫" "!" 'doom-modeline-urgent)
+          "icon for non existing file")
+
+        (defun doom-modeline-update-buffer-file-state-icon (&rest _)
+          "Update the buffer or file state in mode-line."
+          (setq doom-modeline--buffer-file-state-icon
+                (when doom-modeline-buffer-state-icon
+                  (ignore-errors
+                    (concat
+                     (cond (buffer-read-only
+                            doom-modeline--lock-icon)
+                           ((and buffer-file-name (buffer-modified-p)
+                               doom-modeline-buffer-modification-icon)
+                            doom-modeline--changed-icon)
+                           ((and buffer-file-name
+                               (not (file-exists-p buffer-file-name)))
+                            doom-modeline--missing-file-icon)
+                           (t ""))
+                     (when (or (buffer-narrowed-p)
+                              (and (bound-and-true-p fancy-narrow-mode)
+                                 (fancy-narrow-active-p)))
+                       (doom-modeline-buffer-file-state-icon
+                        "vertical_align_center" "↕" "><" 'doom-modeline-warning)))))))
+    #+end_src
     #+BEGIN_SRC emacs-lisp
       (use-package doom-modeline
         :ensure t
         :after (all-the-icons)
         :pin melpa-stable
         :config
+        (setq gb/cached-file-remote-p-hash (make-hash-table :test 'equal))
+        (setq gb/original-file-remote-p #'file-remote-p)
+        ;; TODO: transform redefinition into surrounding advice!
+        ;; TODO: drop some / clear hash once in a while / e.g. if size > 1000
         ;; overwrite this function
-        (defun doom-modeline--font-height ()
-          "Calculate the actual char height of the mode-line."
-          (let ((height 100))
-            (round (* 1.68 (cond ((integerp height) (/ height 10))
-                                 ((floatp height) (* height (frame-char-height)))
-                                 (t (frame-char-height)))))))
-        (defun doom-modeline--window-font-width () 9)
+        (defun file-remote-p (file &optional identification connected)
+          "cached version"
+          (let ((result (gethash file gb/cached-file-remote-p-hash 'not-found)))
+            (if (equal result 'not-found)
+                (let ((o-result (let ((handler (find-file-name-handler file 'file-remote-p)))
+                                  (if handler
+                                      (funcall handler 'file-remote-p file identification connected)
+                                    nil))))
+                  (puthash file o-result gb/cached-file-remote-p-hash)
+                  o-result)
+              result)))
+        (defun doom-modeline--font-width ()
+          "Cache the font width."
+          (or doom-modeline--font-width-cache
+             (let ((width (window-font-width nil 'mode-line)))
+               (setq doom-modeline--font-width-cache width)
+               width)))
+
         (setq doom-modeline-buffer-file-name-style 'relative-to-project)
         (setq doom-modeline-vcs-max-length 40)
         (setq inhibit-compacting-font-caches t)
         (setq doom-modeline-height 1)
-        (set-face-attribute 'mode-line nil :height 120)
-        (set-face-attribute 'mode-line-inactive nil :height 110)
-        (custom-set-faces '(mode-line ((t (:background "#403040" :foreground "#d5d8d6" :weight normal :height 110)))))
-        (doom-modeline-mode 1))
+        (setq doom-modeline-project-detection 'ffip)
+        ;; (set-face-attribute 'mode-line nil :height 120)
+        ;; (set-face-attribute 'mode-line-inactive nil :height 110)
+        ;; (custom-set-faces '(mode-line ((t (:background "#403040" :foreground "#d5d8d6" :weight normal :height 110)))))
+        (doom-modeline-mode 1)
+        (setq doom-modeline--font-width-cache nil))
     #+END_SRC
 *** spinner (busy indicator for modeline)
     - (spinner-start 'vertical-breathing 10)
