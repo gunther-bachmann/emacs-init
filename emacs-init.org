@@ -11304,6 +11304,38 @@
       ;; (flycheck-mode 1)
       )
   #+end_src
+* filter annoying messages
+  #+begin_src emacs-lisp
+    ;; filter annoying messages
+    (defvar message-filter-regexp-list '("^Starting new Ispell process \\[.+\\] \\.\\.\\.$"
+                                         "^Ispell process killed$"
+                                         "^Omitting...$"
+                                         "^Omitted .+ lines?\\.$"
+                                         "\\(.*mitt.*\\)"
+                                         "^SUBTREE.*$"
+                                         "^FOLDED"
+                                         "^CHILDREN.*$"
+                                         "^\\(Shell command succeeded with no output\\)$"
+                                         "^Invalid face .*$"
+                                         "^no exwm keyboard modification applied.*$"
+                                         "^Error during redisplay:.*run-hook-with-args helm--delete-frame-function.*user-error \"No recursive edit is in progress\".*$")
+      "filter formatted message string to remove noisy messages")
+    (defadvice message (around message-filter-by-regexp activate)
+      (if (not (ad-get-arg 0))
+          ad-do-it
+        (let ((formatted-string (apply 'format (ad-get-args 0))))
+          (if (and (stringp formatted-string)
+                   (some (lambda (re) (string-match re formatted-string)) message-filter-regexp-list))
+              (save-excursion
+                (set-buffer "*Messages*")
+                (read-only-mode 0)
+                (goto-char (point-max))
+                (insert formatted-string "\n")
+                (read-only-mode 1))
+            (progn
+              (ad-set-args 0 `("%s" ,formatted-string))
+              ad-do-it)))))
+  #+end_src
 * EVAL winum (select windows by number, which is shown in the modeline)
   - is useful for native applications in exwm, since ace-window cannot overlay those with the key to select those
   #+begin_src emacs-lisp
@@ -11642,37 +11674,6 @@
       ;; :ensure-system-package awscli ;; reinstalls awscli all the time
       :ensure t
       :hook (shell-mode . awscli-capf-add))
-  #+end_src
-* EVAL filter annoying messages
-  #+begin_src emacs-lisp
-    ;; filter annoying messages
-    (defvar message-filter-regexp-list '("^Starting new Ispell process \\[.+\\] \\.\\.\\.$"
-                                         "^Ispell process killed$"
-                                         "^Omitting...$"
-                                         "^Omitted .+ lines?\\.$"
-                                         "\\(.*mitt.*\\)"
-                                         "^SUBTREE.*$"
-                                         "^FOLDED"
-                                         "^CHILDREN.*$"
-                                         "^\\(Shell command succeeded with no output\\)$"
-                                         "^Invalid face .*$"
-                                         "^no exwm keyboard modification applied.*$")
-      "filter formatted message string to remove noisy messages")
-    (defadvice message (around message-filter-by-regexp activate)
-      (if (not (ad-get-arg 0))
-          ad-do-it
-        (let ((formatted-string (apply 'format (ad-get-args 0))))
-          (if (and (stringp formatted-string)
-                   (some (lambda (re) (string-match re formatted-string)) message-filter-regexp-list))
-              (save-excursion
-                (set-buffer "*Messages*")
-                (read-only-mode 0)
-                (goto-char (point-max))
-                (insert formatted-string "\n")
-                (read-only-mode 1))
-            (progn
-              (ad-set-args 0 `("%s" ,formatted-string))
-              ad-do-it)))))
   #+end_src
 * EVAL fast scroll (currently disabled)
   - disable font lock during C-v and M-v pagewise scrolling (if doing it fast)
