@@ -11814,22 +11814,37 @@
           ("C-c n i" . org-roam-insert)
           ("C-c n g" . org-roam-show-graph)))
   #+end_src
-* EVAL emacs-mini-frame
+* EVAL emacs-mini-frame (disabled)
   - now available as melpa package (but not patched yet)
   - mini-frame-do-commands was added by me
-  #+begin_src emacs-lisp
+  - BUG: currently placing the popup window behind other xwindows
+  #+begin_src emacs-lisp :tangle no
     (use-package mini-frame
-      :load-path "~/.emacs.d/additionals/mini-frame.el"
+      ;; :load-path "~/.emacs.d/additionals/mini-frame.el"
+      ;; :ensure t
       :config
       (custom-set-variables
        '(mini-frame-show-parameters
          '((top . 10)
            (width . 0.5)
            (left . 0.5)
-           (height . 2))))
-      (setq mini-frame-do-commands '(exwm-workspace-switch))
+           (height . 15)
+           (background-color . "gray12"))))
+      ;; (setq mini-frame-do-commands
+      ;;       ;; '() ;; when using the empty list instead of the other, only the ones explicitly ignored will not use the mini frame
+      ;;       '(exwm-workspace-switch
+      ;;         gb/query-default-printer
+      ;;         gb/net-vpn-switch-on
+      ;;         gb/net-vpn-switch-off
+      ;;         eval-expression
+      ;;         selectrum-read-buffer
+      ;;         selectrum-read-file-name
+      ;;         selectrum-read
+      ;;         selectrum-read-library-name
+      ;;         selectrum-read-directory-name
+      ;;         selectrum-completing-read))
       (setq mini-frame-ignore-commands
-            '(eval-expression
+            '(;;eval-expression
               helm-for-files
               helm-M-x
               helm-find-files
@@ -11837,7 +11852,17 @@
               describe-function
               describe-variable
               helm-imenu-anywhere
-              byte-compile-file))
+              byte-compile-file
+              gb/helm-bufler-switch
+              helm-org-in-buffer-headings
+              helm-imenu-anywhere
+              gb/exwm-program-select
+              helm-swoop
+              helm-switch-shell
+              helm-multi-swoop
+              helm-multi-swoop-all
+              helm-cmd-t
+              helm-cmd-t-repos))
       (mini-frame-mode 1))
   #+end_src
 * EVAL share2computer
