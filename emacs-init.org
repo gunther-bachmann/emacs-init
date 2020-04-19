@@ -11875,7 +11875,11 @@
 * EVAL bufler see
   #+begin_src emacs-lisp
     (use-package bufler
-      :config)
+      :ensure t)
+    (use-package helm-bufler
+      :bind (("H-b" . #'gb/helm-bufler-switch))
+      :init (defun gb/helm-bufler-switch () "" (interactive)(helm :sources '(helm-bufler-source))) ;; assign this to a command
+      :ensure t)
   #+end_src
 * EVAL vlc
   #+begin_src emacs-lisp
