@@ -8445,6 +8445,17 @@
          ;; make sure keyboard entry is displayed in header line of helm buffer
          (setq helm-echo-input-in-header-line t)
 
+         ;; patch helm-keyboard-quit to only abort-recursive-edit if it is really in progress
+         (defun helm-keyboard-quit ()
+           "Quit minibuffer in helm.
+     If action buffer is displayed, kill it."
+           (interactive)
+           (with-helm-alive-p
+             (when (get-buffer-window helm-action-buffer 'visible)
+               (kill-buffer helm-action-buffer))
+             (setq helm-exit-status 1)
+             (when (> (recursion-depth) 0)
+               (abort-recursive-edit))))
          ;; make sure that minibuffer stays untouched if entry is displayed in top of helm buffer
          (defun gb/helm-hide-minibuffer-maybe ()
            "Hide minibuffer in Helm session if we use the header line as input field."
@@ -10639,6 +10650,8 @@
                           (progn (message "no workspace left of this.") (beacon-blink) nil)
                         (setq gb/exwm--previous-workspace workspaceIdx)
                         (exwm-workspace-switch 0 t)
+                        (message (format "<<     now %s" (exwm-workspace--position exwm-workspace--current)))
+                        (x-focus-frame (selected-frame))
                         (doom-modeline-set-selected-window)
                         t)))
                   (defun gb/exwm-workspace-right ()
@@ -10649,7 +10662,12 @@
                            (monitor (nth (+ 1 (* 2 workspaceIdx)) exwm-randr-workspace-monitor-plist)))
                       (if (and (s-equals? (gb/get-primary-monitor) monitor)
                                (not (string-empty-p (gb/get-second-monitor))))
-                          (progn (exwm-workspace-switch gb/exwm--previous-workspace t) t)
+                          (progn (setq gb/exwm--previous-workspace workspaceIdx)
+                                 (exwm-workspace-switch gb/exwm--previous-workspace t)
+                                 (message (format ">>     now %s" (exwm-workspace--position exwm-workspace--current)))
+                                 (x-focus-frame (selected-frame))
+                                 (doom-modeline-set-selected-window)
+                                 t)
                         (message "no workspace right of this.")
                         (beacon-blink)
                         nil)))
@@ -10666,6 +10684,8 @@
                                    (< workspaceIdx lastIndex)))
                           (progn (exwm-workspace-switch (+ 1 workspaceIdx) t)
                                  (gb/exwm-visualize-workspace-switch (+ workspaceIdx (if single-mon-p 1 0)) (- (length exwm-workspace--list) (if single-mon-p 0 1)) 10)
+                                 (message (format "\\/     now %s" (exwm-workspace--position exwm-workspace--current)))
+                                 (x-focus-frame (selected-frame))
                                  (doom-modeline-set-selected-window))
                         (message "no workspace below this.")
                         (beacon-blink))))
@@ -10681,6 +10701,8 @@
                                    (> workspaceIdx 0)))
                           (progn (exwm-workspace-switch (- workspaceIdx 1) t)
                                  (gb/exwm-visualize-workspace-switch (- workspaceIdx (if single-mon-p 1 2)) (- (length exwm-workspace--list) (if single-mon-p 0 1)) 10)
+                                 (message (format "/\\     now %s" (exwm-workspace--position exwm-workspace--current)))
+                                 (x-focus-frame (selected-frame))
                                  (doom-modeline-set-selected-window))
                         (message "no workspace above this")
                         (beacon-blink))))
