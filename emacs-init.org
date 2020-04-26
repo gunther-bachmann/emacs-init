@@ -2325,17 +2325,17 @@
         ;; TODO: transform redefinition into surrounding advice!
         ;; TODO: drop some / clear hash once in a while / e.g. if size > 1000
         ;; overwrite this function
-        (defun file-remote-p (file &optional identification connected)
-          "cached version"
-          (let ((result (gethash file gb/cached-file-remote-p-hash 'not-found)))
-            (if (equal result 'not-found)
-                (let ((o-result (let ((handler (find-file-name-handler file 'file-remote-p)))
-                                  (if handler
-                                      (funcall handler 'file-remote-p file identification connected)
-                                    nil))))
-                  (puthash file o-result gb/cached-file-remote-p-hash)
-                  o-result)
-              result)))
+        ;; (defun file-remote-p (file &optional identification connected)
+        ;;   "cached version"
+        ;;   (let ((result (gethash file gb/cached-file-remote-p-hash 'not-found)))
+        ;;     (if (equal result 'not-found)
+        ;;         (let ((o-result (let ((handler (find-file-name-handler file 'file-remote-p)))
+        ;;                           (if handler
+        ;;                               (funcall handler 'file-remote-p file identification connected)
+        ;;                             nil))))
+        ;;           (puthash file o-result gb/cached-file-remote-p-hash)
+        ;;           o-result)
+        ;;       result)))
         (defun doom-modeline--font-width ()
           "Cache the font width."
           (or doom-modeline--font-width-cache
