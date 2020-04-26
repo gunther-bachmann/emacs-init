@@ -5597,7 +5597,11 @@
         ;; make sure that ediff session does not open control window in separate frame, which mixes up exwm
         (setq ediff-window-setup-function (quote ediff-setup-windows-plain))
         (custom-set-faces '(diff-removed ((t (:background "red" :foreground "#663333"))))
-                          '(diff-refine-added ((t (:background "green" :foreground "#336633"))))))
+                          '(diff-refine-added ((t (:background "green" :foreground "#336633"))))
+                           '(ediff-current-diff-C ((t (:background "#444417"))))
+                           '(ediff-fine-diff-C ((t (:background "#555520"))))
+                           '(ediff-odd-diff-C ((t (:background "#555555"))))
+                           '(ediff-even-diff-C ((t (:background "#555555"))))))
 
       ;; TODO move this function to some general function pool
       (defun gb/display-buffer-fullframe (buffer alist)
