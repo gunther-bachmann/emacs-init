@@ -2336,6 +2336,7 @@
         ;;           (puthash file o-result gb/cached-file-remote-p-hash)
         ;;           o-result)
         ;;       result)))
+        (setq doom-modeline--font-width-cache nil)
         (defun doom-modeline--font-width ()
           "Cache the font width."
           (or doom-modeline--font-width-cache
@@ -2351,8 +2352,7 @@
         ;; (set-face-attribute 'mode-line nil :height 120)
         ;; (set-face-attribute 'mode-line-inactive nil :height 110)
         ;; (custom-set-faces '(mode-line ((t (:background "#403040" :foreground "#d5d8d6" :weight normal :height 110)))))
-        (doom-modeline-mode 1)
-        (setq doom-modeline--font-width-cache nil))
+        (doom-modeline-mode 1))
     #+END_SRC
 *** spinner (busy indicator for modeline)
     - (spinner-start 'vertical-breathing 10)
@@ -9440,6 +9440,7 @@
        :config
        (progn
          (setq nswbuff-buffer-list-function nil)
+         (setq nswbuff-status-window-at-top t)
          (setq nswbuff-exclude-buffer-regexps (quote ("^ " "^\\*helm")))
          (setq nswbuff-status-window-layout (quote adjust))
          (setq nswbuff-clear-delay 1.5)
@@ -10427,6 +10428,11 @@
         (shell-command "xbacklight -inc 10")
         (let ((brightness (s-trim (shell-command-to-string "xbacklight -get"))))
           (message (s-concat "brightness up, now: " brightness " %%"))))
+      (defun gb/brightness-set (percent)
+        ""
+        (shell-command (format "xbacklight -set %i" percent))
+        (let ((brightness (s-trim (shell-command-to-string "xbacklight -get"))))
+          (message (s-concat "brightness set, now: " brightness " %%"))))
       (defun gb/brightness-down ()
         ""
         (interactive)
@@ -10437,6 +10443,7 @@
         ""
         (interactive)
         ;; (emms-volume-lower)
+        (gb/audio-auto-select-sink)
         (shell-command (format "pactl set-sink-volume %s -5%%" gb/volume-sink))
         (message (s-concat "volume down, now " (gb/get-volume-lr-escaped))))
       (defun gb/get-volume-lr-escaped ()
@@ -10445,12 +10452,14 @@
       (defun gb/audio-raise-volume ()
         ""
         (interactive)
-        (emms-volume-raise)
+        ;; (emms-volume-raise)
+        (gb/audio-auto-select-sink)
         (shell-command (format "pactl set-sink-volume %s +5%%" gb/volume-sink))
         (message (s-concat "volume up, now " (gb/get-volume-lr-escaped))))
       (defun gb/lock-screen ()
         "lock screen"
         (interactive)
+        (gb/brightness-set 0)
         (shell-command "xset s activate"))
       (defun gb/screensaver-enable ()
         "enable screen saver"
@@ -10469,6 +10478,7 @@
       (defun gb/audio-mute-volume ()
         ""
         (interactive)
+        (gb/audio-auto-select-sink)
         (shell-command "amixer sset Master toggle")
         ;; (shell-command "pactl set-sink-mute 0 toggle")
         ;; (message (s-concat "now muted: " (s-trim (shell-command-to-string "pactl list sinks | grep -A 9 \"Sink #0\" | grep \"Mute:\" | awk '{ print $2 }'"))))
@@ -12049,6 +12059,7 @@
   - virtual-auto-fill (line break without modifying underlying buffer)
   - auctex-cluttex - interface to ClutTeX is a program to automatically process your LaTeX document. If necessary, it re-runs (La)TeX program to resolve cross-references and everything.
   - bibtex-completion - bibtex completion backend
+  - lsp-latex - lsp mode client for LaTeX
 ** (function) selection
   - helm-selected
   - helm-org - Helm for org headlines and keywords completion
@@ -12137,7 +12148,9 @@
   - walkman: write http requests within org
   - org-pdftools - links to documents in pdfmode
   - company-org-roam - Company backend for Org-roam
-  - org-roam - Roam Research replica with Org-mode, allows something like zettelkasten  (see https://blog.jethro.dev/posts/introducing_org_roam/)
+  - org-roam - Roam Research replica with Org-mode, allows something like zettelkasten  (see
+    https://blog.jethro.dev/posts/introducing_org_roam/)
+  - org-roam-bibtex - Connector between Org-roam, BibTeX-completion, and Org-ref
   - org-treeusage - Examine the usage of org headings in a tree-like manner
   - org-noter-pdftools - integration of org-noter and pdftools
 ** os/system
