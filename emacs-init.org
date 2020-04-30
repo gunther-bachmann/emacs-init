@@ -4059,58 +4059,56 @@
        ;; :after (company)
        :init
        (add-hook 'company-mode-hook 'company-box-mode)
-
-       ;; overwrite the following two functions with customized values for setting
-       ;; width and alignment of the scrollbar for company box
-       (defun company-box--update-scrollbar-buffer (height-blank height-scrollbar percent buffer)
-         (with-current-buffer buffer
-           (erase-buffer)
-           (setq header-line-format nil
-                 mode-line-format nil
-                 cursor-in-non-selected-windows nil)
-           (unless (zerop height-blank)
-             (insert (propertize " " 'display `(space :align-to right-fringe :height ,height-blank :width 2))
-                     (propertize "\n" 'face '(:height 1))))
-           (setq height-scrollbar (if (= percent 1)
-                                      ;; Due to float/int casting in the emacs code, there might 1 or 2
-                                      ;; remainings pixels
-                                      (+ height-scrollbar 10)
-                                    height-scrollbar))
-           (insert (propertize " " 'face (list :background (face-background 'company-box-scrollbar nil t))
-                               'display `(space :align-to left-fringe :height ,height-scrollbar :width 2)))
-           (current-buffer)))
-
-       (defun company-box--update-scrollbar (frame &optional first)
-         (let* ((selection company-selection)
-                (buffer (company-box--get-buffer "-scrollbar"))
-                (h-frame company-box--height)
-                (n-elements (min company-candidates-length company-box-max-candidates))
-                (percent (company-box--percent selection (1- n-elements)))
-                (percent-display (company-box--percent h-frame (* n-elements (frame-char-height frame))))
-                (scrollbar-pixels (* h-frame percent-display))
-                (height-scrollbar (/ scrollbar-pixels (frame-char-height frame)))
-                (blank-pixels (* (- h-frame scrollbar-pixels) percent))
-                (height-blank (/ blank-pixels (frame-char-height frame))))
-           (cond
-            ((and first (= percent-display 1) (window-live-p company-box--scrollbar-window))
-             (delete-window company-box--scrollbar-window))
-            ((window-live-p company-box--scrollbar-window)
-             (company-box--update-scrollbar-buffer height-blank height-scrollbar percent buffer))
-            ((/= percent-display 1)
-             (setq
-              company-box--scrollbar-window
-              (with-selected-frame (company-box--get-frame)
-                (display-buffer-in-side-window
-                 (company-box--update-scrollbar-buffer height-blank height-scrollbar percent buffer)
-                 '((side . left) (window-width . 2)))))
-             (set-frame-parameter frame 'company-box-scrollbar (window-buffer company-box--scrollbar-window))
-             (window-preserve-size company-box--scrollbar-window t t)))))
-
        :config
        (progn
-         (setq company-box-enable-icon nil)
+         (setq company-box-enable-icon t)
          (custom-set-faces
-          '(company-box-candidate ((t (:foreground "gray85")))))))
+          '(company-box-candidate ((t (:foreground "gray85")))))
+         ;; overwrite the following two functions with customized values for setting
+         ;; width and alignment of the scrollbar for company box
+         (defun company-box--update-scrollbar-buffer (height-blank height-scrollbar percent buffer)
+           (with-current-buffer buffer
+             (erase-buffer)
+             (setq header-line-format nil
+                   mode-line-format nil
+                   cursor-in-non-selected-windows nil)
+             (unless (zerop height-blank)
+               (insert (propertize " " 'display `(space :align-to left-fringe :height ,height-blank))
+                       (propertize "\n" 'face '(:height 1))))
+             (setq height-scrollbar (if (= percent 1)
+                                        ;; Due to float/int casting in the emacs code, there might 1 or 2
+                                        ;; remainings pixels
+                                        (+ height-scrollbar 10)
+                                      height-scrollbar))
+             (insert (propertize " " 'face (list :background (face-background 'company-box-scrollbar nil t))
+                                 'display `(space :align-to left-fringe :height ,height-scrollbar)))
+             (current-buffer)))
+
+         (defun company-box--update-scrollbar (frame &optional first)
+           (let* ((selection company-selection)
+                  (buffer (company-box--get-buffer "-scrollbar"))
+                  (h-frame company-box--height)
+                  (n-elements (min company-candidates-length company-box-max-candidates))
+                  (percent (company-box--percent selection (1- n-elements)))
+                  (percent-display (company-box--percent h-frame (* n-elements (frame-char-height frame))))
+                  (scrollbar-pixels (* h-frame percent-display))
+                  (height-scrollbar (/ scrollbar-pixels (frame-char-height frame)))
+                  (blank-pixels (* (- h-frame scrollbar-pixels) percent))
+                  (height-blank (/ blank-pixels (frame-char-height frame))))
+             (cond
+              ((and first (= percent-display 1) (window-live-p company-box--scrollbar-window))
+               (delete-window company-box--scrollbar-window))
+              ((window-live-p company-box--scrollbar-window)
+               (company-box--update-scrollbar-buffer height-blank height-scrollbar percent buffer))
+              ((/= percent-display 1)
+               (setq
+                company-box--scrollbar-window
+                (with-selected-frame (company-box--get-frame)
+                  (display-buffer-in-side-window
+                   (company-box--update-scrollbar-buffer height-blank height-scrollbar percent buffer)
+                   '((side . left) (window-width . 2)))))
+               (set-frame-parameter frame 'company-box-scrollbar (window-buffer company-box--scrollbar-window))
+               (window-preserve-size company-box--scrollbar-window t t)))))))
 
      (use-package company
        ;; :after (selected)
@@ -10423,172 +10421,221 @@
         switching via C-x C-b is not available. To switch back to line mode use s-r (which resets exwm for this application).
   - [[https://github.com/ch11ng/exwm/wiki/Configuration-example][example configuration]]
   - desktop functions
-    #+begin_src emacs-lisp
-      (defvar gb/volume-sink "0" "current audio output sink. list available ones with 'pactl list short sinks'.")
-      (defun gb/audio-auto-select-sink ()
-        "automatically select the most specific audio sink"
-        (interactive)
-        (let* ((usb-device (s-trim (shell-command-to-string "pactl list short sinks | grep -i usb- | cut -f1")))
-               (built-in (s-trim (shell-command-to-string "pactl list short sinks | grep -i pci- | cut -f1"))))
-          (setq gb/volume-sink (if (seq-empty-p usb-device)
-                                   built-in
-                                 usb-device))))
-      (defun gb/brightness-up ()
-        ""
-        (interactive)
-        (shell-command "xbacklight -inc 10")
-        (let ((brightness (s-trim (shell-command-to-string "xbacklight -get"))))
-          (message (s-concat "brightness up, now: " brightness " %%"))))
-      (defun gb/brightness-set (percent)
-        ""
-        (shell-command (format "xbacklight -set %i" percent))
-        (let ((brightness (s-trim (shell-command-to-string "xbacklight -get"))))
-          (message (s-concat "brightness set, now: " brightness " %%"))))
-      (defun gb/brightness-down ()
-        ""
-        (interactive)
-        (shell-command "xbacklight -dec 10")
-        (let ((brightness (s-trim (shell-command-to-string "xbacklight -get"))))
-          (message (s-concat "brightness down, now: " brightness " %%"))))
-      (defun gb/audio-lower-volume ()
-        ""
-        (interactive)
-        ;; (emms-volume-lower)
-        (gb/audio-auto-select-sink)
-        (shell-command (format "pactl set-sink-volume %s -5%%" gb/volume-sink))
-        (message (s-concat "volume down, now " (gb/get-volume-lr-escaped))))
-      (defun gb/get-volume-lr-escaped ()
-        ""
-        (s-replace "%" "%%" (s-trim (shell-command-to-string (format "pactl list sinks | grep -A 9 \"Sink #%s\" | grep \"Volume:\" | awk '{ print $5 \" / \" $12 }'" gb/volume-sink)))))
-      (defun gb/audio-raise-volume ()
-        ""
-        (interactive)
-        ;; (emms-volume-raise)
-        (gb/audio-auto-select-sink)
-        (shell-command (format "pactl set-sink-volume %s +5%%" gb/volume-sink))
-        (message (s-concat "volume up, now " (gb/get-volume-lr-escaped))))
-      (defun gb/lock-screen ()
-        "lock screen"
-        (interactive)
-        (gb/brightness-set 0)
-        (shell-command "xset s activate"))
-      (defun gb/screensaver-enable ()
-        "enable screen saver"
-        (interactive)
-        (shell-command "xset s default")
-        (shell-command "xset s on")
-        (shell-command "xset +dpms")
-        (message "enabled screensaver"))
-      (defun gb/screensaver-disable ()
-        "enable screen saver"
-        (interactive)
-        (shell-command "xset s noblank")
-        (shell-command "xset s off")
-        (shell-command "xset -dpms")
-        (message "disabled screensaver"))
-      (defun gb/audio-mute-volume ()
-        ""
-        (interactive)
-        (gb/audio-auto-select-sink)
-        (shell-command "amixer sset Master toggle")
-        ;; (shell-command "pactl set-sink-mute 0 toggle")
-        ;; (message (s-concat "now muted: " (s-trim (shell-command-to-string "pactl list sinks | grep -A 9 \"Sink #0\" | grep \"Mute:\" | awk '{ print $2 }'"))))
-        )
-      (defun gb/keyboard-switch-alt-win ()
-        ""
-        (interactive)
-        (shell-command "setxkbmap -option \"altwin:swap_alt_win\""))
-      (defun gb/hibernate-laptop ()
-        "put laptop into hibernation (complete off, store memory onto disc)"
-        (interactive)
-        (if (not (string-empty-p (shell-command-to-string "pgrep duplicity")))
-            (message "Running duplicity (backup), hibernate aborted.")
-          (shell-command-to-string "xfce4-power-manager") ;; make sure the power manager is running
-          (shell-command-to-string "systemctl hibernate")))
-      (defun gb/suspend-laptop ()
-        "put laptop into suspension (soft off, still uses power to keep memory up to date)"
-        (interactive)
-        (if (not (string-empty-p (shell-command-to-string "pgrep duplicity")))
-            (message "Running duplicity (backup), suspend aborted.")
-          (shell-command-to-string "xfce4-power-manager") ;; make sure the power manager is running
-          (shell-command-to-string "systemctl suspend")))
-      (defun gb/reboot--immediately ()
-        "immediately execute reboot, without running hooks nor asking questions"
-        (shell-command "reboot"))
-      (defun gb/reboot ()
-        "reboot pc"
-        (interactive)
-        (when (yes-or-no-p "Reboot PC?")
-          (if (not (string-empty-p (shell-command-to-string "pgrep duplicity")))
-              (message "Running duplicity (backup), reboot aborted.")
-            (progn
-              (add-hook 'kill-emacs-hook #'gb/reboot--immediately t)
-              (save-buffers-kill-emacs)))))
-      (defun gb/reset-direnv ()
-        "restart direnv mode, restart tide server and bash-completion"
-        (interactive)
-        (direnv-mode nil)
-        (direnv-mode 1)
-        (if (get-buffer "*tide-server*")
-            (tide-restart-server))
-        (bash-completion-reset))
-      (defun gb/shutdown--immediately ()
-        "immediately execute shutdown, without running hooks nor asking questions"
-        (shell-command "shutdown -h now"))
-      (defun gb/shutdown ()
-        "reboot pc"
-        (interactive)
-        (when (yes-or-no-p "Shutdown PC?")
-          (progn
-            (if (not (string-empty-p (shell-command-to-string "pgrep duplicity")))
-                (message "Running duplicity (backup), shutdown aborted.")
-              (add-hook 'kill-emacs-hook #'gb/shutdown--immediately t)
-              (save-buffers-kill-emacs)))))
-      (defun gb/start-if-not-running (filename)
-        "start this program if not already running"
-        (let* ((program (file-name-base filename))
-               (is-executable (file-executable-p filename))
-               (is-running (not (string-empty-p (shell-command-to-string (concat "ps -A | grep " program))))))
-          (cond ((and is-executable is-running) (message (format "OK: %s already running." program)))
-                (is-executable (progn (message (format "OK: starting %s." program))
-                                      (start-process-shell-command filename nil)))
-                (t (message (format "WARNING: program %s could not be run." filename))))
-          ))
+    - audio functions
+       #+begin_src emacs-lisp
+         (defun gb/audio-outputs-available ()
+           "read available audio outputs"
+           (split-string (s-trim (shell-command-to-string "pactl list short sinks | grep 'alsa_output' | awk '{ print $2 }'")) "\n"))
 
-      (defun gb/get-second-monitor ()
-        "get the second monitor if connected"
-        (s-trim (shell-command-to-string "xrandr | grep -v disconnected | grep connected | grep -v primary | awk '{ print $1 }'")))
+         (defun gb/audio-inputs-available ()
+           "read available audio inputs"
+           (split-string (s-trim (shell-command-to-string "pactl list short sources | grep 'alsa_input' | awk '{ print $2 }'")) "\n"))
 
-      (defun gb/get-primary-monitor ()
-        "get the second monitor if connected"
-        (s-trim (shell-command-to-string "xrandr | grep -v disconnected | grep connected | grep primary | awk '{ print $1 }'")))
+         (defun gb/audio-output-selected ()
+           "get the current audio output selected"
+           (s-trim (shell-command-to-string  "pactl info | grep -e \"^Default Sink:\" | awk '{ print $3 }'")))
 
-      (defun gb/remove-upper-window ()
-        ""
-        (interactive)
-        (if-let (upper-window (windmove-find-other-window 'up))
-            (delete-window upper-window)))
+         (defun gb/audio-input-selected ()
+           "get the current audio input selected"
+           (s-trim (shell-command-to-string  "pactl info | grep -e \"^Default Source:\" | awk '{ print $3 }'")))
 
-      (defun gb/remove-lower-window ()
-        ""
-        (interactive)
-        (if-let (lower-window (windmove-find-other-window 'down))
-            (delete-window lower-window)))
+         (defun gb/audio-auto-select-sink ()
+           "automatically select usb device, else pci device"
+           (interactive)
+           (let* ((usb-device (s-trim (shell-command-to-string "pactl list short sinks | grep -i usb- | cut -f2")))
+                  (built-in (s-trim (shell-command-to-string "pactl list short sinks | grep -i pci- | cut -f2"))))
+             (shell-command-to-string (format "pactl set-default-sink %s"
+                                              (if (seq-empty-p usb-device)
+                                                  built-in
+                                                usb-device)))))
 
-      (defun gb/remove-left-window ()
-        ""
-        (interactive)
-        (if-let (left-window (windmove-find-other-window 'left))
-            (delete-window left-window)))
+         (defun gb/audio-lower-volume ()
+           "lower volume by 5%"
+           (interactive)
+           (shell-command (format "pactl set-sink-volume %s -5%%" (gb/audio-output-selected)))
+           (message (format "volume down, now %s     (%s)" (gb/get-volume-lr-escaped) (gb/audio-output-selected))))
 
-      (defun gb/remove-right-window ()
-        ""
-        (interactive)
-        (if-let (right-window (windmove-find-other-window 'right))
-            (delete-window right-window)))
+         (defun gb/get-volume-lr-escaped ()
+           "get current volume as string"
+           (s-replace "%" "%%" (s-trim (shell-command-to-string (format "pactl list sinks | grep -A 9 \"Name: %s\" | grep -e \"^[[:space:]]*Volume:\" | awk '{ print $5 \" / \" $12 }'" (gb/audio-output-selected))))))
+
+         (defun gb/audio-raise-volume ()
+           "raise volume by 5%"
+           (interactive)
+           (shell-command (format "pactl set-sink-volume %s +5%%" (gb/audio-output-selected)))
+           (message (format "volume up, now %s     (%s)" (gb/get-volume-lr-escaped)(gb/audio-output-selected))))
+
+         (defun gb/audio-mute-volume ()
+           "mute volume master"
+           (interactive)
+           (shell-command "amixer sset Master toggle"))
+
+         (defun gb/audio-output-select ()
+           "select audio output "
+           (interactive)
+           (let ((sink-name (ivy-read "audio-output:" (gb/audio-outputs-available) :require-match t)))
+             (shell-command-to-string (format "pactl set-default-sink %s" sink-name))
+             (message (format "output: %s" (gb/audio-output-selected)))))
+
+         (defun gb/audio-input-select ()
+           "select audio input"
+           (interactive)
+           (let ((source-name (ivy-read "audio-input:" (gb/audio-input-available) :require-match t)))
+             (shell-command-to-string (format "pactl set-default-source %s" source-name))
+             (message (format "input: %s" (gb/audio-input-selected)))))
+
+         (defun gb/audio-restart-server ()
+           "restart audio server"
+           (interactive)
+           (shell-command-to-string "pulseaudio --check && pulseaudio -k")
+           (async-shell-command "pulseaudio" nil nil)
+           (message "audio server (re)started ..."))
+       #+end_src
+    - brightness functions
+       #+begin_src emacs-lisp
+         (defun gb/brightness-up ()
+           ""
+           (interactive)
+           (shell-command "xbacklight -inc 10")
+           (let ((brightness (s-trim (shell-command-to-string "xbacklight -get"))))
+             (message (s-concat "brightness up, now: " brightness " %%"))))
+         (defun gb/brightness-set (percent)
+           ""
+           (shell-command (format "xbacklight -set %i" percent))
+           (let ((brightness (s-trim (shell-command-to-string "xbacklight -get"))))
+             (message (s-concat "brightness set, now: " brightness " %%"))))
+         (defun gb/brightness-down ()
+           ""
+           (interactive)
+           (shell-command "xbacklight -dec 10")
+           (let ((brightness (s-trim (shell-command-to-string "xbacklight -get"))))
+             (message (s-concat "brightness down, now: " brightness " %%"))))
 
 
-    #+end_src
+       #+end_src
+    - lock, screen saver
+       #+begin_src emacs-lisp
+         (defun gb/lock-screen ()
+           "lock screen"
+           (interactive)
+           (gb/brightness-set 0)
+           (shell-command "xset s activate"))
+         (defun gb/screensaver-enable ()
+           "enable screen saver"
+           (interactive)
+           (shell-command "xset s default")
+           (shell-command "xset s on")
+           (shell-command "xset +dpms")
+           (message "enabled screensaver"))
+         (defun gb/screensaver-disable ()
+           "enable screen saver"
+           (interactive)
+           (shell-command "xset s noblank")
+           (shell-command "xset s off")
+           (shell-command "xset -dpms")
+           (message "disabled screensaver"))
+
+         (defun gb/keyboard-switch-alt-win ()
+           ""
+           (interactive)
+           (shell-command "setxkbmap -option \"altwin:swap_alt_win\""))
+         (defun gb/hibernate-laptop ()
+           "put laptop into hibernation (complete off, store memory onto disc)"
+           (interactive)
+           (if (not (string-empty-p (shell-command-to-string "pgrep duplicity")))
+               (message "Running duplicity (backup), hibernate aborted.")
+             (shell-command-to-string "xfce4-power-manager") ;; make sure the power manager is running
+             (shell-command-to-string "systemctl hibernate")))
+         (defun gb/suspend-laptop ()
+           "put laptop into suspension (soft off, still uses power to keep memory up to date)"
+           (interactive)
+           (if (not (string-empty-p (shell-command-to-string "pgrep duplicity")))
+               (message "Running duplicity (backup), suspend aborted.")
+             (shell-command-to-string "xfce4-power-manager") ;; make sure the power manager is running
+             (shell-command-to-string "systemctl suspend")))
+         (defun gb/reboot--immediately ()
+           "immediately execute reboot, without running hooks nor asking questions"
+           (shell-command "reboot"))
+         (defun gb/reboot ()
+           "reboot pc"
+           (interactive)
+           (when (yes-or-no-p "Reboot PC?")
+             (if (not (string-empty-p (shell-command-to-string "pgrep duplicity")))
+                 (message "Running duplicity (backup), reboot aborted.")
+               (progn
+                 (add-hook 'kill-emacs-hook #'gb/reboot--immediately t)
+                 (save-buffers-kill-emacs)))))
+         (defun gb/reset-direnv ()
+           "restart direnv mode, restart tide server and bash-completion"
+           (interactive)
+           (direnv-mode nil)
+           (direnv-mode 1)
+           (if (get-buffer "*tide-server*")
+               (tide-restart-server))
+           (bash-completion-reset))
+         (defun gb/shutdown--immediately ()
+           "immediately execute shutdown, without running hooks nor asking questions"
+           (shell-command "shutdown -h now"))
+         (defun gb/shutdown ()
+           "reboot pc"
+           (interactive)
+           (when (yes-or-no-p "Shutdown PC?")
+             (progn
+               (if (not (string-empty-p (shell-command-to-string "pgrep duplicity")))
+                   (message "Running duplicity (backup), shutdown aborted.")
+                 (add-hook 'kill-emacs-hook #'gb/shutdown--immediately t)
+                 (save-buffers-kill-emacs)))))
+         (defun gb/start-if-not-running (filename)
+           "start this program if not already running"
+           (let* ((program (file-name-base filename))
+                  (is-executable (file-executable-p filename))
+                  (is-running (not (string-empty-p (shell-command-to-string (concat "ps -A | grep " program))))))
+             (cond ((and is-executable is-running) (message (format "OK: %s already running." program)))
+                   (is-executable (progn (message (format "OK: starting %s." program))
+                                         (start-process-shell-command filename nil)))
+                   (t (message (format "WARNING: program %s could not be run." filename))))
+             ))
+
+       #+end_src
+    - monitor output functions
+       #+begin_src emacs-lisp
+         (defun gb/get-second-monitor ()
+           "get the second monitor if connected"
+           (s-trim (shell-command-to-string "xrandr | grep -v disconnected | grep connected | grep -v primary | awk '{ print $1 }'")))
+
+         (defun gb/get-primary-monitor ()
+           "get the second monitor if connected"
+           (s-trim (shell-command-to-string "xrandr | grep -v disconnected | grep connected | grep primary | awk '{ print $1 }'")))
+
+       #+end_src
+    - additional window functions
+       #+begin_src emacs-lisp
+         (defun gb/remove-upper-window ()
+           ""
+           (interactive)
+           (if-let (upper-window (windmove-find-other-window 'up))
+               (delete-window upper-window)))
+
+         (defun gb/remove-lower-window ()
+           ""
+           (interactive)
+           (if-let (lower-window (windmove-find-other-window 'down))
+               (delete-window lower-window)))
+
+         (defun gb/remove-left-window ()
+           ""
+           (interactive)
+           (if-let (left-window (windmove-find-other-window 'left))
+               (delete-window left-window)))
+
+         (defun gb/remove-right-window ()
+           ""
+           (interactive)
+           (if-let (right-window (windmove-find-other-window 'right))
+               (delete-window right-window)))
+
+
+       #+end_src
   - exwm configuration
     #+BEGIN_SRC emacs-lisp
     (when gb/use-exwm
@@ -10651,7 +10698,7 @@
                         (setq gb/exwm--previous-workspace workspaceIdx)
                         (exwm-workspace-switch 0 t)
                         (message (format "<<     now %s" (exwm-workspace--position exwm-workspace--current)))
-                        (x-focus-frame (selected-frame))
+                        ;; (x-focus-frame (selected-frame))
                         (doom-modeline-set-selected-window)
                         t)))
                   (defun gb/exwm-workspace-right ()
@@ -10662,10 +10709,10 @@
                            (monitor (nth (+ 1 (* 2 workspaceIdx)) exwm-randr-workspace-monitor-plist)))
                       (if (and (s-equals? (gb/get-primary-monitor) monitor)
                                (not (string-empty-p (gb/get-second-monitor))))
-                          (progn (setq gb/exwm--previous-workspace workspaceIdx)
+                          (progn ;; (setq gb/exwm--previous-workspace workspaceIdx)
                                  (exwm-workspace-switch gb/exwm--previous-workspace t)
-                                 (message (format ">>     now %s" (exwm-workspace--position exwm-workspace--current)))
-                                 (x-focus-frame (selected-frame))
+                                 ;; (message (format ">>     now %s" (exwm-workspace--position exwm-workspace--current)))
+                                 ;; (x-focus-frame (selected-frame))
                                  (doom-modeline-set-selected-window)
                                  t)
                         (message "no workspace right of this.")
@@ -10685,7 +10732,7 @@
                           (progn (exwm-workspace-switch (+ 1 workspaceIdx) t)
                                  (gb/exwm-visualize-workspace-switch (+ workspaceIdx (if single-mon-p 1 0)) (- (length exwm-workspace--list) (if single-mon-p 0 1)) 10)
                                  (message (format "\\/     now %s" (exwm-workspace--position exwm-workspace--current)))
-                                 (x-focus-frame (selected-frame))
+                                 ;; (x-focus-frame (selected-frame))
                                  (doom-modeline-set-selected-window))
                         (message "no workspace below this.")
                         (beacon-blink))))
@@ -10702,7 +10749,7 @@
                           (progn (exwm-workspace-switch (- workspaceIdx 1) t)
                                  (gb/exwm-visualize-workspace-switch (- workspaceIdx (if single-mon-p 1 2)) (- (length exwm-workspace--list) (if single-mon-p 0 1)) 10)
                                  (message (format "/\\     now %s" (exwm-workspace--position exwm-workspace--current)))
-                                 (x-focus-frame (selected-frame))
+                                 ;; (x-focus-frame (selected-frame))
                                  (doom-modeline-set-selected-window))
                         (message "no workspace above this")
                         (beacon-blink))))
@@ -10975,6 +11022,9 @@
           (exwm-input-set-key (kbd "<s-f1>") #'gb/audio-mute-volume)
           (exwm-input-set-key (kbd "<s-f12>") #'exwm-floating-toggle-floating)
           (exwm-input-set-key (kbd "s-l") #'gb/lock-screen)
+          (exwm-input-set-key (kbd "C-M-s-l") #'gb/suspend-laptop)
+          (exwm-input-set-key (kbd "C-M-s-s") #'gb/shutdown)
+          (exwm-input-set-key (kbd "C-M-s-r") #'gb/reboot)
           (exwm-input-set-key (kbd "s-'") #'gb/exwm-workspace-up)
           (exwm-input-set-key (kbd "s-/") #'gb/exwm-workspace-down)
           (exwm-input-set-key (kbd "s-e") #'buffer-expose)
@@ -11147,7 +11197,7 @@
                   (message "local-sim-keys set for browser")
                   (let ((sim-keys (append gb/simulation-keys
                                           `((,(kbd "C-S-s") . C-k) ;; search with search engine (C-S-s)
-                                            (,(kbd "C-M-s") . f6)  ;; jump into adresse bar (C-M-s)
+                                            (,(kbd "C-S-u") . f6)  ;; jump into adresse bar (C-S-u)
                                             (,(kbd "<C-left>") . C-S-tab) ;; switch to previous tab
                                             (,(kbd "<C-right>") . C-tab)  ;; switch to next tab
                                             ))))
