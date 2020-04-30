@@ -7111,6 +7111,7 @@
         (setq org-image-actual-width nil)
         (setq org-format-latex-options (plist-put org-format-latex-options :scale 2.0))
         (setq org-hide-emphasis-markers t) ;; hides ** and // surrounding text that is bold or intalics
+        (setq org-src-window-setup 'current-window) ;; make edit src block open in the same window as the org file itself
         ;; (add-hook 'org-mode-hook #'org-sticky-header)
         ;; make sure source blocks are collapsed at first
         ;; and C-x t b expands and recollapses them
@@ -11405,6 +11406,7 @@
                                          "^\\(Shell command succeeded with no output\\)$"
                                          "^Invalid face .*$"
                                          "^no exwm keyboard modification applied.*$"
+                                         "^\\(Shell command succeeded with no output\\)$"
                                          "^Error during redisplay:.*run-hook-with-args helm--delete-frame-function.*user-error \"No recursive edit is in progress\".*$")
       "filter formatted message string to remove noisy messages")
     (defadvice message (around message-filter-by-regexp activate)
