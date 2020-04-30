@@ -12029,11 +12029,11 @@
               message-send-mail-function 'async-smtpmail-send-it)
         (message "Now sending with unsafe (but non-blocking) async, switch back with M-x gb/gnus-mail-send-switch-to-safe-sync")))
   #+end_src
-* EVAL scanner
-  #+begin_src emacs-lisp
+* EVAL scanner (disabled, device not detected, scanimage cannot use -o parameter)
+  #+begin_src emacs-lisp :tangle no
     (use-package scanner
       :commands (scanner-scan-image scanner-scan-document)
-      :ensure-system-package (sane-backends sane-frontends)
+      ;; :ensure-system-package (sane-backends sane-frontends)
       :config
       (setq scanner-resolution '(:image 300 :doc 300) )
       (setq scanner-scan-mode '(:image "Color" :doc "Gray"))
