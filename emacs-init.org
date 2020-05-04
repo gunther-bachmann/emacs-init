@@ -12104,6 +12104,10 @@
   #+begin_src emacs-lisp :tangle no
     (use-package languagetool)
   #+end_src
+* EVAL shrface
+  #+begin_src emacs-lisp
+    (use-package shrface)
+  #+end_src
 * proced
   #+begin_src emacs-lisp
     (use-package proced
