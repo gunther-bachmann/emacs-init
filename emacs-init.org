@@ -12086,6 +12086,20 @@
     (use-package bookmark+
       :load-path gb/bookmarkplus-dir)
   #+end_src
+* EVAL keypression
+  #+begin_src emacs-lisp
+    (use-package keypression
+      :commands (keypression-mode)
+      :ensure t
+      :config
+      (setq keypression-use-child-frame t
+            keypression-fade-out-delay 1.0
+            keypression-frame-justify 'keypression-left-justified
+            keypression-cast-command-name t
+            keypression-cast-command-name-format "%s  %s"
+            keypression-combine-same-keystrokes t
+            keypression-font-face-attribute '(:width normal :height 200 :weight bold)))
+  #+end_src
 * proced
   #+begin_src emacs-lisp
     (use-package proced
