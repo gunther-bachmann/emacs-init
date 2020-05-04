@@ -941,50 +941,51 @@
      - (setq pdf-misc-print-programm-args '("-o" "media=A4" "-o" "sides=two-sided-long-edge"))
    - these could be set via function to allow duplex/non-duplex printing
    #+BEGIN_SRC emacs-lisp
-   (setq ps-font-size (quote (7 . 6.5)))
-   (setq ps-paper-type (quote a4))
-   (setq ps-print-header-frame nil)
-   (setq ps-print-header nil)
-   (defun gb/get-known-printers ()
-     "get all printers currently known to the system"
-     (let* ((result (shell-command-to-string "lpstat -a | cut -f1 -d ' '"))
-            (result-list (split-string result)))
-       result-list))
+     (setq ps-font-size (quote (7 . 6.5)))
+     (setq ps-paper-type (quote a4))
+     (setq ps-print-header-frame nil)
+     (setq ps-print-header nil)
+     (defun gb/get-known-printers ()
+       "get all printers currently known to the system"
+       (let* ((result (shell-command-to-string "lpstat -a | cut -f1 -d ' '"))
+              (result-list (split-string result)))
+         result-list))
 
-   (defun gb/get-standard-printer ()
-     "get the current standard printer"
-     (string-trim (shell-command-to-string "lpq | grep -v 'no entries' | awk '{ print $1; }'")))
+     (defun gb/get-standard-printer ()
+       "get the current standard printer"
+       (string-trim (shell-command-to-string "lpq | grep -v 'no entries' | awk '{ print $1; }'")))
 
-   (defun gb/set-default-printer (printer-str)
-     "set the given printer to the standard printer"
-     (shell-command (concat "lpoptions -d " printer-str " -o media=A4"))
-     (setq printer-name printer-str)
-     (setq ps-printer-name printer-str))
+     (defun gb/set-default-printer (printer-str)
+       "set the given printer to the standard printer"
+       (shell-command (concat "lpoptions -d " printer-str " -o media=A4"))
+       (setq printer-name printer-str)
+       (setq ps-printer-name printer-str))
 
-   (defun gb/query-default-printer ()
-     "interactively query for the printer that is then set to be the default printer"
-     (interactive)
-     (let ((printer-name (ivy-read "printer:" (gb/get-known-printers) :preselect (gb/get-standard-printer) :require-match t)))
-       (gb/set-default-printer printer-name)))
+     (defun gb/query-default-printer ()
+       "interactively query for the printer that is then set to be the default printer"
+       (interactive)
+       ;; (ivy-read "printer:" (gb/get-known-printers) :preselect (gb/get-standard-printer) :require-match t)
+       (let ((printer-name (helm-comp-read "printer:" (gb/get-known-printers) :default (gb/get-standard-printer) :must-match t)))
+         (gb/set-default-printer printer-name)))
 
-   (defun gb/print-buffer (x)
-     "Output a postscript file using the defaults.
+     (defun gb/print-buffer (x)
+       "Output a postscript file using the defaults.
 
-   When called with universal argument, use font lock.
-   Ligatures are disabled for printing."
-     (interactive "P")
-     (let* (reenable-ligatures ligatures-enabled)
-       (gb/disable-ligatures)
-       (redisplay t)
-       (setq ps-top-margin 80)
-       (if x
-           (ps-print-buffer-with-faces "~/temp.ps")
-         (ps-print-buffer "~/temp.ps"))
-       (cond
-        ((is-macos-p) (shell-command "open /Applications/Preview.app ~/temp.ps"))
-        ((executable-find "evince") (start-process "evince" nil "evince" (file-truename "~/temp.ps")))
-        (t (message "No viewer for postscript files known to display ~/temp.ps")))
-       (gb/enable-ligatures)))
+     When called with universal argument, use font lock.
+     Ligatures are disabled for printing."
+       (interactive "P")
+       (let* (reenable-ligatures ligatures-enabled)
+         (gb/disable-ligatures)
+         (redisplay t)
+         (setq ps-top-margin 80)
+         (if x
+             (ps-print-buffer-with-faces "~/temp.ps")
+           (ps-print-buffer "~/temp.ps"))
+         (cond
+          ((is-macos-p) (shell-command "open /Applications/Preview.app ~/temp.ps"))
+          ((executable-find "evince") (start-process "evince" nil "evince" (file-truename "~/temp.ps")))
+          (t (message "No viewer for postscript files known to display ~/temp.ps")))
+         (gb/enable-ligatures)))
    #+END_SRC
 ** other
    #+BEGIN_SRC emacs-lisp
