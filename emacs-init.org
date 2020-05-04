@@ -10471,14 +10471,15 @@
          (defun gb/audio-output-select ()
            "select audio output "
            (interactive)
-           (let ((sink-name (ivy-read "audio-output:" (gb/audio-outputs-available) :require-match t)))
+           ;; (ivy-read "audio-output:" (gb/audio-outputs-available) :require-match t)
+           (let ((sink-name (helm-comp-read "audio-output:" (gb/audio-outputs-available) :must-match t)))
              (shell-command-to-string (format "pactl set-default-sink %s" sink-name))
              (message (format "output: %s" (gb/audio-output-selected)))))
 
          (defun gb/audio-input-select ()
            "select audio input"
            (interactive)
-           (let ((source-name (ivy-read "audio-input:" (gb/audio-input-available) :require-match t)))
+           (let ((source-name (helm-comp-read "audio-input:" (gb/audio-input-available) :must-match t)))
              (shell-command-to-string (format "pactl set-default-source %s" source-name))
              (message (format "input: %s" (gb/audio-input-selected)))))
 
