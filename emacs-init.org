@@ -10551,6 +10551,7 @@
            (if (not (string-empty-p (shell-command-to-string "pgrep duplicity")))
                (message "Running duplicity (backup), suspend aborted.")
              (shell-command-to-string "xfce4-power-manager") ;; make sure the power manager is running
+             ;; if suspend does not work try switching off bluetooth service
              (shell-command-to-string "systemctl suspend")))
          (defun gb/reboot--immediately ()
            "immediately execute reboot, without running hooks nor asking questions"
