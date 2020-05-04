@@ -5110,22 +5110,7 @@
      (use-package kotlin-mode
        :ensure t
        :hook (kotlin-mode . gb/enable-ligatures)
-       :config
-       (defun gb/kotlin-get-full-qualified-class-name-at-point ()
-         "get the full qualified kotlin class name at point"
-         (save-excursion
-           (let ((class-name (substring-no-properties (word-at-point))))
-             (beginning-of-buffer)
-             (when (word-search-forward "package" nil t)
-               (let* ((package (s-match-strings-all "^package *\\(.*\\)" (thing-at-point 'line))))
-                 (format "%s.%s" (substring-no-properties (cadar package)) class-name))))))
-       (defun gb/kotlin-kill-full-qualified-class-name-at-point ()
-         "get the full qualified kotlin class name at point into the kill ring"
-         (interactive)
-         (let ((fqn (gb/kotlin-get-full-qualified-class-name-at-point)))
-           (message fqn)
-           (kill-new fqn)))
-       (bind-key "C-c M-w" #'gb/kotlin-kill-full-qualified-class-name-at-point kotlin-mode-map))
+       :config)
 
      (use-package flycheck-kotlin
        :ensure t
@@ -5134,6 +5119,17 @@
      (use-package ob-kotlin
        :ensure t
        :after (kotlin-mode org))
+
+     (use-package gb-kotlin
+       :load-path "~/.emacs.d/additionals/"
+       :after (kotlin-mode magit)
+       :config
+       (bind-key "C-c M-w"   #'gb/kotlin-kill-full-qualified-class-name-at-point kotlin-mode-map)
+       (bind-key "C-c / i i" #'gb/kotlin-import-at-point kotlin-mode-map) ;; insert
+       (bind-key "C-c / i t" #'gb/kotlin-import-test-insert kotlin-mode-map) ;; test
+       (bind-key "C-c / i s" #'gb/kotlin-import-stdlib-insert kotlin-mode-map) ;; stdlib
+       (bind-key "C-c / i r" #'gb/kotlin-rewrite-import-region kotlin-mode-map) ;; rewrite
+       (bind-key "C-c / i l" #'gb/kotlin-import-search-and-insert kotline-mode-map)) ;; lookup
    #+END_SRC
 ** haskell
    #+BEGIN_SRC emacs-lisp
