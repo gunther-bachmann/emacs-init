@@ -11332,13 +11332,13 @@
     (defun gb/net-vpn-switch-on ()
       "switch vpn on"
       (interactive)
-      (let ((vpn-id (ivy-read "vpn:" (gb/get-vpns-available) :require-match t)))
+      (let ((vpn-id (helm-comp-read "vpn:" (gb/get-vpns-available) :must-match t)))
         (message (s-trim (shell-command-to-string (format "sudo systemctl start %s" vpn-id))))))
 
     (defun gb/net-vpn-switch-off ()
       "switch vpn off"
       (interactive)
-      (let ((vpn-id (ivy-read "vpn:" (gb/get-vpns-available) :require-match t)))
+      (let ((vpn-id (helm-comp-read "vpn:" (gb/get-vpns-available) :must-match t)))
         (message (s-trim (shell-command-to-string (format "sudo systemctl stop %s" vpn-id))))))
 
   #+end_src
