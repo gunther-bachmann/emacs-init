@@ -12100,6 +12100,10 @@
             keypression-combine-same-keystrokes t
             keypression-font-face-attribute '(:width normal :height 200 :weight bold)))
   #+end_src
+* EVAl languagetool (see language-tool in other config) collides with langtool!, currently disabled
+  #+begin_src emacs-lisp :tangle no
+    (use-package languagetool)
+  #+end_src
 * proced
   #+begin_src emacs-lisp
     (use-package proced
