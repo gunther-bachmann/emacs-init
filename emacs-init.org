@@ -10832,16 +10832,32 @@
             (shell-command-to-string "xrandr --auto")
             (gb/refresh-exwm-monitor-setup))
 
+          (defun gb/exwm--get-connected-monitors ()
+            ""
+            (s-split "\n" (s-trim (shell-command-to-string "xrandr | grep ' connected' | cut -f1 -d' '"))))
+
+          (defun gb/exwm--get-primary-monitor ()
+            ""
+            (s-trim (shell-command-to-string "xrandr | grep ' connected' | grep 'primary' | cut -f1 -d' '")))
+
+          (defun gb/exwm--get-secondary-monitor ()
+            ""
+            (when-let ((other-monitors (remove (gb/exwm--get-primary-monitor) (gb/exwm--get-connected-monitors))))
+              (car other-monitors)))
+
+          (defun gb/exwm--get-geometry-str (monitor)
+            ""
+            (car (s-split "+" (s-trim (shell-command-to-string (format "xrandr | grep '%s connected' | cut -f3 -d' '" monitor))))))
+
           (defun gb/refresh-exwm-monitor-setup ()
             "refresh current multi monitor setup for exwm"
             (interactive)
-            (let ((dual-monitor (string= "2" (s-trim (shell-command-to-string "xrandr -q | grep ' connected ' | wc -l"))))
-                  (primary-monitor (car (exwm-randr--get-monitors))))
+            (let ((dual-monitor (<= 2 (length (gb/exwm--get-connected-monitors))))
+                  (primary-monitor (gb/exwm--get-primary-monitor)))
               (message "exwm change hook")
               (if dual-monitor
-                  (let* ((second-monitor (nth 2 (second (exwm-randr--get-monitors))))
-                         (geometry (nth 3 (second (exwm-randr--get-monitors))))
-                         (sm-resolution (format "%sx%s" (oref geometry :width)(oref geometry :height))))
+                  (let* ((second-monitor (gb/exwm--get-secondary-monitor))
+                         (sm-resolution (gb/exwm--get-geometry-str second-monitor)))
                     (message (format "dual-monitor setup (primary: %s, secondary: %s@%s)" primary-monitor second-monitor sm-resolution))
                     (cond
                      ((string-empty-p second-monitor)
