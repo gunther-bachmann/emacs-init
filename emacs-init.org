@@ -11876,20 +11876,19 @@
       (pomodoro-add-to-mode-line))
   #+end_src
 * EVAL org roam
-  #+begin_src emacs-lisp :tangle no
-    (if (file-exists-p "~/.emacs.d/additionals/org-roam/")
-        (use-package org-roam
-          :load-path "~/.emacs.d/additionals/org-roam"
-          :after org
-          :hook (org-mode . org-roam-mode)
-          :custom
-          (org-roam-directory "~/temp")
-          :bind
-          ("C-c n l" . org-roam)
-          ("C-c n t" . org-roam-today)
-          ("C-c n f" . org-roam-find-file)
-          ("C-c n i" . org-roam-insert)
-          ("C-c n g" . org-roam-show-graph)))
+  #+begin_src emacs-lisp
+    (use-package org-roam
+      :after org
+      :hook (after-init . org-roam-mode)
+      :ensure t
+      :custom
+      (org-roam-directory "~/temp")
+      :bind (:map org-roam-mode-map
+                  (("C-c n l" . org-roam)
+                   ("C-c n f" . org-roam-find-file)
+                   ("C-c n g" . org-roam-show-graph))
+                  :map org-mode-map
+                  (("C-c n i" . org-roam-insert))))
   #+end_src
 * EVAL emacs-mini-frame (disabled)
   - now available as melpa package (but not patched yet)
