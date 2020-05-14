@@ -12088,6 +12088,13 @@
       :config
       (magit-delta-mode))
   #+end_src
+* EVAL file grep and replace
+  #+begin_src emacs-lisp
+    (use-package helm-ag
+      :ensure t)
+    (use-package wgrep
+      :ensure t)
+  #+end_src
 * proced
   #+begin_src emacs-lisp
     (use-package proced
