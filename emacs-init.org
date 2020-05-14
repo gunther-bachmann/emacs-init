@@ -10624,10 +10624,12 @@
                  ("<XF86AudioLowerVolume>" . gb/audio-lower-volume)
                  ("<XF86AudioRaiseVolume>" . gb/audio-raise-volume)
                  ("<XF86AudioMute>" . gb/audio-mute-volume)
+                 ("<XF86AudioMicMute>" . gb/audio-mute-mic)
                  ("<s-f6>" . gb/brightness-up)
                  ("<s-f5>" . gb/brightness-down)
                  ("<s-f2>" . gb/audio-lower-volume)
                  ("<s-f3>" . gb/audio-raise-volume)
+                 ("<s-f4>" . gb/audio-mute-mic)
                  ("<s-f1>" . gb/audio-mute-volume))
           :init (progn
                   (defun gb/exwm-visualize-workspace-switch (newidx length display-width)
