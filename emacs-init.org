@@ -4060,6 +4060,7 @@
        ;; :after (company)
        :init
        (add-hook 'company-mode-hook 'company-box-mode)
+       (defun window-tab-line-height () 0) ;; currently not available (will be there on emacs 27)
        :config
        (progn
          (setq company-box-enable-icon t)
@@ -5121,7 +5122,7 @@
        :after (kotlin-mode org))
 
      (use-package gb-kotlin
-       :load-path "~/.emacs.d/additionals/"
+       :load-path "~/repo/gb-kotlin"
        :after (kotlin-mode magit)
        :config
        (bind-key "C-c M-w"   #'gb/kotlin-kill-full-qualified-class-name-at-point kotlin-mode-map)
@@ -5129,7 +5130,7 @@
        (bind-key "C-c / i t" #'gb/kotlin-import-test-insert kotlin-mode-map) ;; test
        (bind-key "C-c / i s" #'gb/kotlin-import-stdlib-insert kotlin-mode-map) ;; stdlib
        (bind-key "C-c / i r" #'gb/kotlin-rewrite-import-region kotlin-mode-map) ;; rewrite
-       (bind-key "C-c / i l" #'gb/kotlin-import-search-and-insert kotline-mode-map)) ;; lookup
+       (bind-key "C-c / i l" #'gb/kotlin-import-search-and-insert kotlin-mode-map)) ;; lookup
    #+END_SRC
 ** haskell
    #+BEGIN_SRC emacs-lisp
@@ -5273,25 +5274,24 @@
        :ensure t
        :commands prettier-js-command
        :init
-       ;; (eval-after-load 'web-mode
-       ;;   '(progn
-       ;;      (add-hook 'web-mode-hook #'add-node-modules-path)
-       ;;      (add-hook 'web-mode-hook #'prettier-js-mode)))
-       ;; (eval-after-load 'js2-mode-hook
-       ;;   '(progn
-       ;;      (add-hook 'web-mode-hook #'add-node-modules-path)
-       ;;      (add-hook 'web-mode-hook #'prettier-js-mode)))
-       ;; (eval-after-load 'typescript-mode-hook
-       ;;   '(progn
-       ;;      (add-hook 'web-mode-hook #'add-node-modules-path)
-       ;;      (add-hook 'web-mode-hook #'prettier-js-mode)))
-       )
+       (eval-after-load 'web-mode
+         '(progn
+            (add-hook 'web-mode-hook #'add-node-modules-path)
+            (add-hook 'web-mode-hook #'prettier-js-mode)))
+       (eval-after-load 'js2-mode-hook
+         '(progn
+            (add-hook 'web-mode-hook #'add-node-modules-path)
+            (add-hook 'web-mode-hook #'prettier-js-mode)))
+       (eval-after-load 'typescript-mode-hook
+         '(progn
+            (add-hook 'web-mode-hook #'add-node-modules-path)
+            (add-hook 'web-mode-hook #'prettier-js-mode))))
    #+end_src
 ** java script
    #+BEGIN_SRC emacs-lisp
      ;; (use-package tagedit)
-     ;; (use-package add-node-modules-path
-     ;;   :ensure t)
+     (use-package add-node-modules-path
+       :ensure t)
      (use-package js2-mode
        :ensure js2-mode
 
@@ -5596,7 +5596,9 @@
                            '(ediff-current-diff-C ((t (:background "#444417"))))
                            '(ediff-fine-diff-C ((t (:background "#555520"))))
                            '(ediff-odd-diff-C ((t (:background "#555555"))))
-                           '(ediff-even-diff-C ((t (:background "#555555"))))))
+                           '(ediff-even-diff-C ((t (:background "#555555"))))
+                           '(ediff-fine-diff-B ((t (:background "#176517"))))
+                           '(ediff-fine-diff-A ((t (:background "#751717"))))))
 
       ;; TODO move this function to some general function pool
       (defun gb/display-buffer-fullframe (buffer alist)
@@ -8965,8 +8967,7 @@
 #+BEGIN_SRC emacs-lisp
   (use-package helm-backup
     :ensure t
-    :init
-    (add-hook 'after-save-hook 'helm-backup-versioning))
+    :init (add-hook 'after-save-hook #'helm-backup-versioning)) ;; after-save-hook
 #+END_SRC
 * latex (auctex)
 ** auctex
@@ -9610,50 +9611,6 @@
               ("C-c C-v" . tda/rsync-multiple)
               ("C-c C-s" . tda/get-files-size)
               ("C-c C-q" . tda/download-to-current-dir)))))
-   #+END_SRC
-** sidebar and icons in terminal (additional icons)
-   - install font-lock+ into additionals https://raw.githubusercontent.com/emacsmirror/emacswiki.org/master/font-lock%2B.el
-   - install icons-in-terminal https://github.com/sebastiencs/icons-in-terminal#installation
-   - install sidebar into additionals https://github.com/sebastiencs/sidebar.el
-   - now on melpa: originally install frame-local into additionals https://github.com/sebastiencs/frame-local
-   #+BEGIN_SRC emacs-lisp :tangle no
-      (when (and (file-exists-p "~/.emacs.d/additionals/font-lock+.el")
-                 ;; (file-exists-p "~/.local/share/icons-in-terminal/icons-in-terminal.el")
-                 )
-        (progn
-          (use-package icons-in-terminal
-            :after ( font-lock+)
-            :load-path "~/.local/share/icons-in-terminal/")
-          (when (file-exists-p "~/.emacs.d/additionals/sidebar.el/sidebar.el")
-            (use-package ov)
-            (use-package frame-local)
-              ;; originally from here!
-              ;; :load-path "~/.emacs.d/additionals/frame-local/"
-            (use-package sidebar
-              :after (projectile s dash dash-functional ov frame-local icons-in-terminal)
-              :bind (("s-a" . gb/sidebar-toggle)
-                     :map sidebar-mode-map
-                     ("s-a" . sidebar-close))
-              :load-path "~/.emacs.d/additionals/sidebar.el/"
-              :config
-              (defun sidebar-buffers-pre-command ()) ;; override default implementation
-              (defun gb/sidebar-toggle ()
-                ""
-                (interactive)
-                (if (sidebar-get-window t)
-                    (sidebar-close)
-                  (sidebar-open)))
-              (custom-set-variables
-               ;; '(sidebar-icon-powerline "")
-               ;; '(sidebar-icon-modeline "")
-               ;; '(sidebar-icon-header-end "")
-               ;; '(sidebar-select-icon-right-header "")
-               '(sidebar-mode-line-height 1.0)
-               '(sidebar-width 50))
-              (custom-set-faces
-               '(sidebar-primary-color ((t (:background "dark goldenrod" :foreground "black"))))
-               '(sidebar-select-line ((t (:background "dark goldenrod" :foreground "black" :box nil))))
-               '(sidebar-suffix-path-header ((t (:foreground "#404040")))))))))
    #+END_SRC
 ** info colors
    #+BEGIN_SRC emacs-lisp
@@ -11793,7 +11750,7 @@
   #+end_src
 * EVAL csv mode
   #+begin_src emacs-lisp
-    (if (file-exists-p "~/.emacs.d/additionals/csv-mode.el")
+    (when (file-exists-p "~/.emacs.d/additionals/csv-mode.el")
         (use-package csv-mode
           :commands csv-mode
           :load-path "~/.emacs.d/additionals"))
@@ -12560,6 +12517,50 @@
        :config
        (load-theme 'fantom-theme t))
    #+end_src
+** sidebar and icons in terminal (additional icons)
+   - install font-lock+ into additionals https://raw.githubusercontent.com/emacsmirror/emacswiki.org/master/font-lock%2B.el
+   - install icons-in-terminal https://github.com/sebastiencs/icons-in-terminal#installation
+   - install sidebar into additionals https://github.com/sebastiencs/sidebar.el
+   - now on melpa: originally install frame-local into additionals https://github.com/sebastiencs/frame-local
+   #+BEGIN_SRC emacs-lisp :tangle no
+      (when (and (file-exists-p "~/.emacs.d/additionals/font-lock+.el")
+                 (file-exists-p "~/.local/share/icons-in-terminal/icons-in-terminal.el")
+                 )
+        (progn
+          (use-package icons-in-terminal
+            :after ( font-lock+)
+            :load-path "~/.local/share/icons-in-terminal/")
+          (when (file-exists-p "~/.emacs.d/additionals/sidebar.el/sidebar.el")
+            (use-package ov)
+            (use-package frame-local)
+              ;; originally from here!
+              ;; :load-path "~/.emacs.d/additionals/frame-local/"
+            (use-package sidebar
+              :after (projectile s dash dash-functional ov frame-local icons-in-terminal)
+              :bind (("s-a" . gb/sidebar-toggle)
+                     :map sidebar-mode-map
+                     ("s-a" . sidebar-close))
+              :load-path "~/.emacs.d/additionals/sidebar.el/"
+              :config
+              (defun sidebar-buffers-pre-command ()) ;; override default implementation
+              (defun gb/sidebar-toggle ()
+                ""
+                (interactive)
+                (if (sidebar-get-window t)
+                    (sidebar-close)
+                  (sidebar-open)))
+              (custom-set-variables
+               ;; '(sidebar-icon-powerline "")
+               ;; '(sidebar-icon-modeline "")
+               ;; '(sidebar-icon-header-end "")
+               ;; '(sidebar-select-icon-right-header "")
+               '(sidebar-mode-line-height 1.0)
+               '(sidebar-width 50))
+              (custom-set-faces
+               '(sidebar-primary-color ((t (:background "dark goldenrod" :foreground "black"))))
+               '(sidebar-select-line ((t (:background "dark goldenrod" :foreground "black" :box nil))))
+               '(sidebar-suffix-path-header ((t (:foreground "#404040")))))))))
+   #+END_SRC
 * finish - up
   #+BEGIN_SRC emacs-lisp
     (report-elapsed "enter finish - up")
