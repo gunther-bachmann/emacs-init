@@ -12303,6 +12303,9 @@
    - eldev (gradle for elisp projects)
    - verb (organize http requests from emacs to ...)
    - with-shell-interpreter (helper for cli apis)
+   - auth-source-xoauth2 - Integrate auth-source with XOAUTH2
+** graphics
+   - vega-view - allow preview of vega graphics (graphics described by json), see https://vega.github.io/vega/ and https://github.com/applied-science/emacs-vega-view
 ** ui
    - modern-fringes - Replaces default fringe bitmaps with better looking ones
    - simple-modeline -
