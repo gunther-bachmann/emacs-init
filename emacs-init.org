@@ -12081,6 +12081,13 @@
   #+begin_src emacs-lisp
     (use-package shrface)
   #+end_src
+* EVAL magit-delta
+  #+begin_src emacs-lisp
+    (use-package magit-delta
+      :load-path "~/.emacs.d/additionals/"
+      :config
+      (magit-delta-mode))
+  #+end_src
 * proced
   #+begin_src emacs-lisp
     (use-package proced
