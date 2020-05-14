@@ -10407,23 +10407,30 @@
          (defun gb/audio-lower-volume ()
            "lower volume by 5%"
            (interactive)
-           (shell-command (format "pactl set-sink-volume %s -5%%" (gb/audio-output-selected)))
-           (message (format "volume down, now %s     (%s)" (gb/get-volume-lr-escaped) (gb/audio-output-selected))))
+           (let ((output-selected (gb/audio-output-selected)))
+             (shell-command (format "pactl set-sink-volume %s -5%%" output-selected))
+             (message (format "volume down, now %s     (%s)" (gb/get-volume-lr-escaped output-selected) output-selected))))
 
-         (defun gb/get-volume-lr-escaped ()
+         (defun gb/get-volume-lr-escaped (element)
            "get current volume as string"
-           (s-replace "%" "%%" (s-trim (shell-command-to-string (format "pactl list sinks | grep -A 9 \"Name: %s\" | grep -e \"^[[:space:]]*Volume:\" | awk '{ print $5 \" / \" $12 }'" (gb/audio-output-selected))))))
+           (s-replace "%" "%%" (s-trim (shell-command-to-string (format "pactl list sinks | grep -A 9 \"Name: %s\" | grep -e \"^[[:space:]]*Volume:\" | awk '{ print $5 \" / \" $12 }'" element)))))
 
          (defun gb/audio-raise-volume ()
            "raise volume by 5%"
            (interactive)
-           (shell-command (format "pactl set-sink-volume %s +5%%" (gb/audio-output-selected)))
-           (message (format "volume up, now %s     (%s)" (gb/get-volume-lr-escaped)(gb/audio-output-selected))))
+           (let ((output-selected (gb/audio-output-selected)))
+             (shell-command (format "pactl set-sink-volume %s +5%%" output-selected))
+             (message (format "volume up, now %s     (%s)" (gb/get-volume-lr-escaped output-selected) output-selected))))
 
          (defun gb/audio-mute-volume ()
            "mute volume master"
            (interactive)
            (shell-command "amixer sset Master toggle"))
+
+         (defun gb/audio-mute-mic ()
+           "mute volume microphone"
+           (interactive)
+           (shell-command "amixer sset Capture toggle"))
 
          (defun gb/audio-output-select ()
            "select audio output "
@@ -10436,7 +10443,7 @@
          (defun gb/audio-input-select ()
            "select audio input"
            (interactive)
-           (let ((source-name (helm-comp-read "audio-input:" (gb/audio-input-available) :must-match t)))
+           (let ((source-name (helm-comp-read "audio-input:" (gb/audio-inputs-available) :must-match t)))
              (shell-command-to-string (format "pactl set-default-source %s" source-name))
              (message (format "input: %s" (gb/audio-input-selected)))))
 
