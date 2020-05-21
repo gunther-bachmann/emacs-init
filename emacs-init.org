@@ -1735,7 +1735,7 @@
      ;;       jit-lock-stealth-nice 0.5
      ;;       jit-lock-stealth-time nil ;; 0.2
      ;;   )
-     (setq-default font-lock-multiline t)
+     (setq-default font-lock-multiline nil)
 
      (setq-default line-spacing 4) ;; depends a bit on the type of font selected
 
