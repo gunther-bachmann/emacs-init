@@ -5593,12 +5593,19 @@
         (setq ediff-window-setup-function (quote ediff-setup-windows-plain))
         (custom-set-faces '(diff-removed ((t (:background "red" :foreground "#663333"))))
                           '(diff-refine-added ((t (:background "green" :foreground "#336633"))))
-                           '(ediff-current-diff-C ((t (:background "#444417"))))
-                           '(ediff-fine-diff-C ((t (:background "#555520"))))
-                           '(ediff-odd-diff-C ((t (:background "#555555"))))
-                           '(ediff-even-diff-C ((t (:background "#555555"))))
-                           '(ediff-fine-diff-B ((t (:background "#176517"))))
-                           '(ediff-fine-diff-A ((t (:background "#751717"))))))
+
+                          '(magit-diff-added ((t (:background "#223822" :foreground "#ddffdd"))))
+                          '(magit-diff-added-highlight ((t (:background "#223822" :foreground "#cceecc"))))
+                          '(magit-diff-removed ((t (:background "#442222" :foreground "#ffdddd"))))
+                          '(magit-diff-removed-highlight ((t (:background "#442222" :foreground "#eecccc"))))
+                          '(magit-diffstat-removed ((t (:foreground "#aa4444"))))
+
+                          '(ediff-current-diff-C ((t (:background "#444417"))))
+                          '(ediff-fine-diff-C ((t (:background "#555520"))))
+                          '(ediff-odd-diff-C ((t (:background "#555555"))))
+                          '(ediff-even-diff-C ((t (:background "#555555"))))
+                          '(ediff-fine-diff-B ((t (:background "#176517"))))
+                          '(ediff-fine-diff-A ((t (:background "#751717"))))))
 
       ;; TODO move this function to some general function pool
       (defun gb/display-buffer-fullframe (buffer alist)
