@@ -11875,20 +11875,100 @@
       (setq pomodoro-time-format "%.2m ")
       (pomodoro-add-to-mode-line))
   #+end_src
+* EVAL deft
+  #+begin_src emacs-lisp
+    (use-package deft
+      :commands deft
+      :ensure t
+      :bind ("s-d" . deft)
+      :init
+      (setq deft-default-extension "org"
+            ;; de-couples filename and note title:
+            deft-use-filename-as-title nil
+            deft-use-filter-string-for-filename t
+            ;; disable auto-save
+            deft-auto-save-interval -1.0
+            ;; search in subdirectories too
+            deft-recursive t
+            ;; converts the filter string into a readable file-name using kebab-case:
+            deft-file-naming-rules
+            '((noslash . "-")
+              (nospace . "-")
+              (case-fn . downcase)))
+      :config
+      (add-to-list 'deft-extensions "tex")
+      (deft-directory "~/documents/roam"))
+
+  #+end_src
 * EVAL org roam
+  - see https://rgoswami.me/posts/org-note-workflow/
+  - for org-roam-server browser to http://localhost:8080
+  - company-org-roam allows completion (company) of references other org-roam documents
+  - patched org-roam-buffer at line 195
+    #+begin_src emacs-lisp :tangle no
+      (run-hooks 'org-roam-buffer-prepare-hook)
+      (read-only-mode 1)
+      (org-mode) ;; added
+      (org-show-all) ;; added
+    #+end_src
   #+begin_src emacs-lisp
     (use-package org-roam
-      :after org
+      :commands (org-roam-buffer-toggle-display
+                 org-roam-find-file
+                 org-roam-graph
+                 org-roam-insert
+                 org-roam-switch-to-buffer
+                 org-roam-dailies-date
+                 org-roam-dailies-today
+                 org-roam-dailies-tomorrow
+                 org-roam-dailies-yesterday)
+      :after (org emacsql-sqlite)
       :hook (after-init . org-roam-mode)
       :ensure t
       :custom
-      (org-roam-directory "~/temp")
+      (org-roam-graph-viewer "emacsclient")
+      (org-notes "~/documents/roam")
+      (org-directory org-notes)
+      (deft-directory org-notes)
+      (org-roam-directory org-notes)
+      :config (require 'org-roam-protocol)
       :bind (:map org-roam-mode-map
                   (("C-c n l" . org-roam)
                    ("C-c n f" . org-roam-find-file)
                    ("C-c n g" . org-roam-show-graph))
                   :map org-mode-map
                   (("C-c n i" . org-roam-insert))))
+
+    (use-package org-roam-server
+      :commands (org-roam-server-mode)
+      :ensure t)
+
+    (use-package company-org-roam
+      :after (org-roam company)
+      :ensure t
+      :config
+      :config (add-to-list 'company-backends 'company-org-roam))
+
+    ;; failed with "run-hooks: Symbol’s value as variable is void: bibtex-completion-find-note-functions"
+    ;; (use-package org-roam-bibtex
+    ;;   :after (org-roam)
+    ;;   :hook (org-roam-mode . org-roam-bibtex-mode)
+    ;;   :ensure t
+    ;;   :config
+    ;;   (setq org-roam-bibtex-preformat-keywords
+    ;;         '("=key=" "title" "url" "file" "author-or-editor" "keywords"))
+    ;;   (setq orb-templates
+    ;;         '(("r" "ref" plain (function org-roam-capture--get-point)
+    ;;            ""
+    ;;            :file-name "${slug}"
+    ;;            :head "#+TITLE: ${=key=}: ${title}\n#+ROAM_KEY: ${ref}
+
+    ;; - tags ::
+    ;; - keywords :: ${keywords}
+
+    ;; \n* ${title}\n  :PROPERTIES:\n  :Custom_ID: ${=key=}\n  :URL: ${url}\n  :AUTHOR: ${author-or-editor}\n  :NOTER_DOCUMENT: %(orb-process-file-field \"${=key=}\")\n  :NOTER_PAGE: \n  :END:\n\n"
+
+    ;;            :unnarrowed t))))
   #+end_src
 * EVAL emacs-mini-frame (disabled)
   - now available as melpa package (but not patched yet)
