@@ -1509,13 +1509,14 @@
    - %h inserts host
    - keys are saved in ~/.gnutls/known_hosts
    #+BEGIN_SRC emacs-lisp
-     (use-package tls
-       :ensure t
-       :config
-       (when gnutls-cli-installed
-         (add-to-list 'tls-program "gnutls-cli -p %p %h")
-         (setq gnutls-log-level 0) ;; (0 = none, 1 = important, 2 = debug)
-         (custom-set-variables '(gnutls-verify-error t))))
+     (when (version< emacs-version "27.0")
+       (use-package tls
+         :ensure t
+         :config
+         (when gnutls-cli-installed
+           (add-to-list 'tls-program "gnutls-cli -p %p %h")
+           (setq gnutls-log-level 0) ;; (0 = none, 1 = important, 2 = debug)
+           (custom-set-variables '(gnutls-verify-error t)))))
    #+END_SRC
    - fetch a certificate and put it into known_hosts
    #+BEGIN_SRC sh :tangle no
