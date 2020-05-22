@@ -354,7 +354,8 @@
 
     (setq package-menu-async (is-_nix-p)) ;; defaulting operations to be async (is problematic on windows systems)
 
-    (package-initialize) ;; cannot use t as parameter since initialization is necessary for init file to work
+    (when (< emacs-major-version 27)
+      (package-initialize)) ;; cannot use t as parameter since initialization is necessary for init file to work
 
     (defun require-package (package)
       "refresh package archives, check package presence and install if it's not installed"
@@ -7343,8 +7344,8 @@
         (setq org-cycle-include-plain-lists 'integrate)
         ;; set org babel backgrounds for several languages
         (setq org-src-block-faces
-              '(("emacs-lisp" (:background "#1b1010"))
-                ("java" (:background "#1b1010"))))
+              '(("emacs-lisp" (:background "#1b1010" :extend t))
+                ("java" (:background "#1b1010" :extend t))))
 
         ;; make sure latex is highlighted in org mode buffers
         ;; `latex'    Highlight LaTeX snippets and environments.
@@ -11925,7 +11926,7 @@
   - see https://rgoswami.me/posts/org-note-workflow/
   - for org-roam-server browser to http://localhost:8080
   - company-org-roam allows completion (company) of references other org-roam documents
-  - patched org-roam-buffer at line 195
+  - patched org-roam-buffer at line 195 (only valid for emacs < 27)
     #+begin_src emacs-lisp :tangle no
       (run-hooks 'org-roam-buffer-prepare-hook)
       (read-only-mode 1)
