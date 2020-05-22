@@ -19,6 +19,10 @@
 #   - entries with 'preinstall' mark packages that are installed up front
 #   - entries with 'ok: ... installed' mark checks for external programs that are needed for some packages to work
 #
+* first
+#+begin_src emacs-lisp
+(set-background-color "black")
+#+end_src
 * elpa-mirror (see https://github.com/redguardtoo/elpa-mirror)
   #+begin_src emacs-lisp
     (add-to-list 'load-path "~/.emacs.d/additionals/")
@@ -499,37 +503,40 @@
   #+END_SRC
 * ui initialisation
 ** show menu bar (only in case of macos)
-   #+BEGIN_SRC emacs-lisp
-   (if (is-macos-p)
-       (menu-bar-mode 1)
-     (menu-bar-mode -1))
+   - part of early-init.el
+   #+BEGIN_SRC emacs-lisp :tangle no
+     (if (is-macos-p)
+         (menu-bar-mode 1)
+       (menu-bar-mode -1))
    #+END_SRC
 ** remove scroll bars
-   #+BEGIN_SRC emacs-lisp
+   - part of early-init.el
+   #+BEGIN_SRC emacs-lisp :tangle no
    (when (fboundp 'scroll-bar-mode)
      (scroll-bar-mode -1))
    #+END_SRC
 ** other
    #+BEGIN_SRC emacs-lisp
-   (custom-set-variables
-    ;; '(canlock-password "0e8b34f24c62bdf6cc5585ec93c62be865aee099")
-    '(custom-safe-themes
-      (quote
-       ("84d2f9eeb3f82d619ca4bfffe5f157282f4779732f48a5ac1484d94d5ff5b279" "4848f52f443b88525a4e2fe4f620a20c40fad90a66a953613be90556b9eb7880" "db790b6031dbc390c8b9318b077f5825302dad9d82925f4c70eaddd22825aafa" "141bdb2503f744acaa2bd8defb015f3c8e9e581ff40ec9ae4f3a27917256edaa" "516ef72a7861d71b39bdd8ae3d2c19628abb916a1456ea93a400cc222f87442a" "05b3ea2f5a8d1913eda3a209bb4bd0091c2aa15e4de64e0580f45d2534428568" "e93f05b3616b9e19a79c3ebd107252684bc88ecb77798617e72443b70aae86d5" "c74e83f8aa4c78a121b52146eadb792c9facc5b1f02c917e3dbb454fca931223" "a27c00821ccfd5a78b01e4f35dc056706dd9ede09a8b90c6955ae6a390eb1c1e" "26614652a4b3515b4bbbb9828d71e206cc249b67c9142c06239ed3418eff95e2" "3c83b3676d796422704082049fc38b6966bcad960f896669dfc21a7a37a748fa" default)))
-    '(tool-bar-mode nil))
+     (custom-set-variables
+      ;; '(canlock-password "0e8b34f24c62bdf6cc5585ec93c62be865aee099")
+      '(custom-safe-themes
+        (quote
+         ("84d2f9eeb3f82d619ca4bfffe5f157282f4779732f48a5ac1484d94d5ff5b279" "4848f52f443b88525a4e2fe4f620a20c40fad90a66a953613be90556b9eb7880" "db790b6031dbc390c8b9318b077f5825302dad9d82925f4c70eaddd22825aafa" "141bdb2503f744acaa2bd8defb015f3c8e9e581ff40ec9ae4f3a27917256edaa" "516ef72a7861d71b39bdd8ae3d2c19628abb916a1456ea93a400cc222f87442a" "05b3ea2f5a8d1913eda3a209bb4bd0091c2aa15e4de64e0580f45d2534428568" "e93f05b3616b9e19a79c3ebd107252684bc88ecb77798617e72443b70aae86d5" "c74e83f8aa4c78a121b52146eadb792c9facc5b1f02c917e3dbb454fca931223" "a27c00821ccfd5a78b01e4f35dc056706dd9ede09a8b90c6955ae6a390eb1c1e" "26614652a4b3515b4bbbb9828d71e206cc249b67c9142c06239ed3418eff95e2" "3c83b3676d796422704082049fc38b6966bcad960f896669dfc21a7a37a748fa" default)))
+      ;; '(tool-bar-mode nil) ;; part of early-init.el
+      )
 
    #+END_SRC
 ** add theme
    #+BEGIN_SRC emacs-lisp
-   (use-package color-theme-sanityinc-tomorrow
-     :ensure t
-     :config
-     (progn
-       (load-theme 'sanityinc-tomorrow-night t)
-       (toggle-frame-fullscreen)
-       (custom-set-faces '(link-face ((t (:foreground "#81a2be" :underline (:style line :color "#41526e"))))))
-       (custom-set-faces '(link ((t (:foreground "#81a2be" :underline (:style line :color "#41526e")))))))
-     )
+     (use-package color-theme-sanityinc-tomorrow
+       :ensure t
+       :config
+       (progn
+         (load-theme 'sanityinc-tomorrow-night t)
+         (toggle-frame-fullscreen)
+         (custom-set-faces '(link-face ((t (:foreground "#81a2be" :underline (:style line :color "#41526e"))))))
+         (custom-set-faces '(link ((t (:foreground "#81a2be" :underline (:style line :color "#41526e")))))))
+       )
 
    #+END_SRC
 * splash and initial buffer config
