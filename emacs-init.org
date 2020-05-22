@@ -7115,7 +7115,7 @@
              'font-lock-face 'calendar-iso-week-face))
 
  #+END_SRC
-** IMPLEMENT org
+** org
 *** org
   #+BEGIN_SRC emacs-lisp
     (use-package org
@@ -7436,15 +7436,15 @@
         ;; Change task state to IMPLEMENT when clocking in (only if in STATE TODO)
         (setq org-clock-in-switch-to-state (function  gb/org-clock-in-switch-to-state-fn))
 
-        ;; mark checked lists a bit differently
-        (font-lock-add-keywords
-         'org-mode
-         `(("^[ \t]*\\(?:[-+*]\\|[0-9]+[).]\\)[ \t]+\\(\\(?:\\[@\\(?:start:\\)?[0-9]+\\][ \t]*\\)?\\[\\(?:X\\|\\([0-9]+\\)/\\2\\)\\][^\n]*\n\\)" 1 'org-headline-done prepend))
-         'append)
+        ;; mark checked lists a bit differently (changed 27)
+        ;; (font-lock-add-keywords
+        ;;  'org-mode
+        ;;  `(("^[ \t]*\\(?:[-+*]\\|[0-9]+[).]\\)[ \t]+\\(\\(?:\\[@\\(?:start:\\)?[0-9]+\\][ \t]*\\)?\\[\\(?:X\\|\\([0-9]+\\)/\\2\\)\\][^\n]*\n\\)" 1 'org-headline-done prepend))
+        ;;  'append)
 
-        (setq org-ellipsis "…") ;; make the ... at the end (that indicates folding) be a bit less invasive
+        (setq org-ellipsis "…")         ;; make the ... at the end (that indicates folding) be a bit less invasive
         (setq org-hide-leading-stars t) ;; each level only one star
-        (setq org-special-ctrl-a/e t) ;; jump to the head text only (not to the star marking the head)
+        (setq org-special-ctrl-a/e t)   ;; jump to the head text only (not to the star marking the head)
 
         ;; replace dashes and bullets with utf-8 bullet
         ;; (font-lock-add-keywords 'org-mode
@@ -7471,10 +7471,7 @@
                                 `(org-level-2 ((t (:foreground "burlywood"))))
                                 `(outline-2 ((t (:foreground "burlywood")))) ;; change both org-level and outline, since org-tree-slide uses them
                                 `(org-level-1 ((t (:foreground "#de935f"))))
-                                `(outline-1 ((t (:foreground "#de935f")))))
-
-
-        ))
+                                `(outline-1 ((t (:foreground "#de935f")))))))
   #+END_SRC
 
   #+RESULTS:
@@ -7886,13 +7883,10 @@
           (use-package hidepw
             :load-path "~/.emacs.d/additionals/"
             :after ( org)
-            :init (progn
-              (add-hook 'org-mode-hook  'hidepw-mode)
-              )
+            :init (progn (add-hook 'org-mode-hook  'hidepw-mode))
             :config
             (progn
-              (setq hidepw-pattern ":.*PASS.*: \\(.*\\)")
-              ))
+              (setq hidepw-pattern ":.*PASS.*: \\(.*\\)")))
         (message "WARNING: hidepw.el not found. passwords will not be hidden in gpg files."))
     #+END_SRC
 *** export modules (e.g. ox-confluence)
@@ -7920,7 +7914,7 @@
     (use-package htmlize
       :ensure t)
  #+END_SRC
-*** IMPLEMENT helm org rifle
+*** helm org rifle
 **** find keybindings
   #+BEGIN_SRC emacs-lisp
     (use-package helm-org-rifle
