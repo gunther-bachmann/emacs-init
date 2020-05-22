@@ -2028,7 +2028,7 @@
 
      #+END_SRC
 ** sublimity (smooth scrolling, disabled)
-   #+BEGIN_SRC emacs-lisp :tangle no
+   #+BEGIN_SRC emacs-lisp
    (use-package sublimity
      :config
      (progn
@@ -2040,7 +2040,7 @@
          (if (memq major-mode (list 'ansi-term-mode 'term-mode 'shell-mode))
              (sublimity-mode -1)
            (sublimity-mode 1)))
-       ;; (add-hook 'after-change-major-mode-hook #'gb/enable-sublimity-mode)
+       (add-hook 'after-change-major-mode-hook #'gb/enable-sublimity-mode)
        (setq sublimity-scroll-drift-length 4)
        (setq sublimity-scroll-weight 4.0)
        ;; minimap is explicitly not enabled, since another minimap-mode is used for that
