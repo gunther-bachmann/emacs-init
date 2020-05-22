@@ -11916,10 +11916,10 @@
             deft-file-naming-rules
             '((noslash . "-")
               (nospace . "-")
-              (case-fn . downcase)))
+              (case-fn . downcase))
+            deft-directory "~/documents/roam")
       :config
-      (add-to-list 'deft-extensions "tex")
-      (deft-directory "~/documents/roam"))
+      (add-to-list 'deft-extensions "tex"))
 
   #+end_src
 * EVAL org roam
