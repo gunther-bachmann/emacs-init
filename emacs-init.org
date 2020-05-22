@@ -3331,6 +3331,23 @@
       '(font-lock-comment-delimiter-face ((t (:foreground "gray50"))))
       '(font-lock-string-face ((t (:foreground "#4080b0")))))
 
+     ;; make sure highlighting is extended to the eol even for emacs 27
+     ;; within helm and magit (see https://github.com/emacs-helm/helm/issues/2213)
+     (when (version< "26.3" emacs-version)
+       (defun tv/extend-faces-matching (regexp)
+         (cl-loop for f in (face-list)
+                  for face = (symbol-name f)
+                  when (and (string-match regexp face)
+                          (eq (face-attribute f :extend t 'default)
+                              'unspecified))
+                  do (set-face-attribute f nil :extend t)))
+
+       (when (fboundp 'set-face-extend)
+         (with-eval-after-load "magit"
+           (tv/extend-faces-matching "\\`magit"))
+         (with-eval-after-load "helm"
+           (tv/extend-faces-matching "\\`helm"))))
+
      ;; Don't use hard tabs
      (setq-default indent-tabs-mode nil)
 
