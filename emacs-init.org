@@ -12208,6 +12208,21 @@
       :config
       (magit-delta-mode))
   #+end_src
+* EVAL ytel (youtube interface via invidous) [disabled, needs youtube-dl as extractor, too]
+  #+begin_src emacs-lisp :tangle no
+    (use-package ytel
+      :config
+      (defun ytel-watch ()
+        "Stream video at point in mpv."
+        (interactive)
+        (let* ((video (ytel-get-current-video))
+               (id    (ytel-video-id video)))
+          (start-process "ytel cvlc" nil
+                         "cvlc"
+                         "--preferred-resolution" "720"
+                         (concat "https://www.youtube.com/watch?v=" id)))
+        (message "Starting streaming...")))
+  #+end_src
 * EVAL file grep and replace
   #+begin_src emacs-lisp
     (use-package helm-ag
