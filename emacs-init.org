@@ -10849,7 +10849,7 @@
 
           (defun gb/exwm--get-geometry-str (monitor)
             ""
-            (car (s-split "+" (s-trim (shell-command-to-string (format "xrandr | grep '%s connected' | cut -f3 -d' '" monitor))))))
+            (car (s-split "+" (s-trim (shell-command-to-string (format "xrandr | grep -e '%s connected' | sed \"s/%s connected \\\(primary \\\)*//g\" | cut -f1 -d' '" monitor monitor))))))
 
           (defun gb/refresh-exwm-monitor-setup ()
             "refresh current multi monitor setup for exwm"
