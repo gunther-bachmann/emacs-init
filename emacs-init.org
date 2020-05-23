@@ -487,13 +487,13 @@
    #+END_SRC
 ** use package hydra (use-package extension)
    #+begin_src emacs-lisp
-   (use-package use-package-hydra
-     :ensure t)
+     (use-package use-package-hydra
+       :ensure t)
    #+end_src
 ** use package chords (use-package extension)
    #+begin_src emacs-lisp
-   (use-package use-package-chords
-     :ensure t)
+     (use-package use-package-chords
+       :ensure t)
    #+end_src
 * workarounds for broken packages
   #+BEGIN_SRC emacs-lisp
@@ -7901,12 +7901,12 @@
     - expects ~/Document/blog/org-jekyll.el to exist
     - download from [[http://github.com/juanre/org-jekyll][here]]
     - documentation [[http://juanreyero.com/open/org-jekyll/index.html][here]]
- #+BEGIN_SRC emacs-lisp
-   (if (file-exists-p "~/Documents/blog/org-jekyll.el")
+ #+BEGIN_SRC emacs-lisp :tangle no
+   (if (file-exists-p "~/documents/blog/org-jekyll.el")
        (use-package org-jekyll
          :after ( org)
          ;; :defer 3
-         :load-path "~/Documents/blog"))
+         :load-path "~/documents/blog"))
  #+END_SRC
 *** make org export use better highlighting with htmlize
  #+BEGIN_SRC emacs-lisp
@@ -9078,7 +9078,7 @@
   #+BEGIN_SRC emacs-lisp
     (use-package latex-extra
       :after ( tex-mode)
-      :init (add-hook 'LaTeX-mode-hook #'latex-extra-mode))
+      :hook (LaTeX-mode-hook . latex-extra-mode))
   #+END_SRC
 ** do previewing with "M-x latex-preview-pane-mode"
    updates preview on every save
@@ -9265,20 +9265,7 @@
    #+BEGIN_SRC emacs-lisp
      (use-package vscode-icon
        :ensure t
-       :config
-       ;; override the given function
-       (defun vscode-icon-for-file (file)
-         "Return an vscode icon image given FILE.
-
-     Icon Source: https://github.com/vscode-icons/vscode-icons"
-         (let ((default-directory
-                 (if (image-type-available-p 'imagemagick)
-                     (concat vscode-icon-dir "23/") ;; <- originally 128 which is a bit large
-                   (concat vscode-icon-dir
-                           (number-to-string vscode-icon-size) "/"))))
-           (if (file-directory-p file)
-               (vscode-icon-dir file)
-             (vscode-icon-file file)))))
+       :config)
      (use-package dired-sidebar
        :ensure t
        :bind (( "s-A" . dired-sidebar-toggle-sidebar)
@@ -9297,7 +9284,7 @@
          "ensure sidebar is open and position cursor on file from which this function was called"
          (interactive)
          (if (and (dired-sidebar-showing-sidebar-p)
-                (string= (buffer-name) (buffer-name (dired-sidebar-buffer))))
+                  (string= (buffer-name) (buffer-name (dired-sidebar-buffer))))
              (dired-sidebar-hide-sidebar)
            (if (buffer-file-name)
                (unless (dired-sidebar-showing-sidebar-p)
@@ -10244,6 +10231,7 @@
 ** all the icons dired
    #+BEGIN_SRC emacs-lisp
      (use-package all-the-icons-dired
+       :ensure t
        :after ( all-the-icons dired))
    #+END_SRC
 ** all the icons gnus
@@ -10794,9 +10782,10 @@
         (use-package exwm-mff
           :ensure t
           :config
+          (require 'exwm-core)
           (defun gb/mouse-pointer-to-cursor ()
             (interactive)
-            (if exwm-class-name
+            (if (and (bound exwm-class-name) exwm-class-name)
                 (exwm-mff-warp-to-selected-window)
               (let ((position (window-absolute-pixel-position)))
                 (set-mouse-absolute-pixel-position
@@ -11258,19 +11247,19 @@
           (add-hook 'exwm-workspace-switch-hook #'gb/exwm-after-switch)
           ;; (defadvice exwm-layout--on-echo-area-change (after exwm-layout--on-echo-area-change--debug-jitter activate)
           ;;   (message "exwm-layout--on-echo-area-change executed"))
-          )
-        (defadvice switch-to-buffer (after switch-to-buffer-check-exwm-buffer activate)
-          "switch to char mode if target buffer is eclipse (or any other buffer that should be in char mode)"
-          (when (and exwm-class-name
+
+          (defadvice switch-to-buffer (after switch-to-buffer-check-exwm-buffer activate)
+            "switch to char mode if target buffer is eclipse (or any other buffer that should be in char mode)"
+            (when (and exwm-class-name
                      (or (string= exwm-class-name "X64")
-                         (string= (downcase exwm-class-name) "eclipse")
-                         ;; (string= (downcase exwm-class-name) "dosbox")
-                         ;; (string= (downcase exwm-class-name) "jetbrains-idea-ce")
-                         ))
-            (progn
-              (message "native keyboard exwm settings applied (after switch to buffer).")
-              ;; (exwm-input-release-keyboard (exwm--buffer->id (window-buffer)))
-              (setq exwm-input-set-local-simulation-keys nil)))))
+                        (string= (downcase exwm-class-name) "eclipse")
+                        ;; (string= (downcase exwm-class-name) "dosbox")
+                        ;; (string= (downcase exwm-class-name) "jetbrains-idea-ce")
+                        ))
+              (progn
+                (message "native keyboard exwm settings applied (after switch to buffer).")
+                ;; (exwm-input-release-keyboard (exwm--buffer->id (window-buffer)))
+                (exwm-input-set-local-simulation-keys nil))))))
     #+END_SRC
   - exwm-edit
     #+BEGIN_SRC emacs-lisp
@@ -11442,8 +11431,7 @@
         (let ((formatted-string (apply 'format (ad-get-args 0))))
           (if (and (stringp formatted-string)
                    (some (lambda (re) (string-match re formatted-string)) message-filter-regexp-list))
-              (save-excursion
-                (set-buffer "*Messages*")
+              (with-current-buffer "*Messages*"
                 (read-only-mode 0)
                 (goto-char (point-max))
                 (insert formatted-string "\n")
@@ -11778,7 +11766,7 @@
   - takes too long
   - does not allow for narrowing down
   - may interfer with company-hard
-  #+begin_src emacs-lisp :tangle to
+  #+begin_src emacs-lisp :tangle no
     (use-package company-fuzzy
       :ensure t)
   #+end_src
@@ -12010,13 +11998,11 @@
     ;;            :unnarrowed t))))
   #+end_src
 * EVAL emacs-mini-frame (disabled)
-  - now available as melpa package (but not patched yet)
-  - mini-frame-do-commands was added by me
   - BUG: currently placing the popup window behind other xwindows
   #+begin_src emacs-lisp :tangle no
     (use-package mini-frame
       ;; :load-path "~/.emacs.d/additionals/mini-frame.el"
-      ;; :ensure t
+      :ensure t
       :config
       (custom-set-variables
        '(mini-frame-show-parameters
@@ -12122,14 +12108,14 @@
       :load-path "~/.emacs.d/additionals/"
       :config
       (defun gb/gnus-mail-send-switch-to-safe-sync ()
-        "save to save sync mode of sending gnu mails"
+        "set to save sync mode of sending gnu mails"
         (interactive)
         (setq send-mail-function 'smtpmail-multi-send-it
               message-send-mail-function 'smtpmail-multi-send-it)
         (message "Now sending with safe (but blocking) sync"))
 
       (defun gb/gnus-mail-send-switch-to-unsafe-async ()
-        "save to unsafe async mode - might fail, if additional certificate acknowledgment is necessary"
+        "set to unsafe async mode - might fail, if additional certificate acknowledgment is necessary"
         (interactive)
         (setq send-mail-function 'async-smtpmail-send-it
               message-send-mail-function 'async-smtpmail-send-it)
