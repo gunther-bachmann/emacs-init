@@ -1696,7 +1696,9 @@
        (setq scroll-up-aggressively 1e-12
              scroll-down-aggressively 1e-12)
        (setq beacon-blink-when-window-scrolls nil)
-       (setq fast-but-imprecise-scrolling t)
+       (when (version<= "27.0" emacs-version)
+         (setq fast-but-imprecise-scrolling nil)
+         (pixel-scroll-mode 1))
        (setq scroll-margin 0)
        (setq scroll-step 1)
        (setq scroll-conservatively 10000)
@@ -9839,56 +9841,6 @@
                 (browse-url url)))
             (setq flymd-browser-open-function 'gb/flymd-browser-function))))
    #+END_SRC
-** pixel-scroll (pixel wise scrolling) currently disabled
-   #+BEGIN_SRC emacs-lisp :tangle no
-     ;; currently on the load path by .emacs.d/additionals
-     (if (not  (file-exists-p "~/.emacs.d/additionals/pixel-scroll.el"))
-         (message "WARNING: pixel-scroll.el does not exist, it will not be installed")
-       (progn
-         (message "OK: pixel-scroll.el locally found, will be installed")
-         (use-package pixel-scroll
-           :load-path "~/.emacs.d/additionals/"
-           :after ( sublimity-scroll)
-           :config
-           (progn
-             (require 'sublimity-scroll)
-             ;; redefine pre command for speed up of n no pre commands are present
-             (defun sublimity--pre-command ()
-               (save-excursion (goto-char (window-start)) (setq sublimity--prev-lin (string-to-number (format-mode-line "%l"))))
-               (setq
-                     sublimity--prev-col (window-hscroll)
-                     sublimity--prev-buf (current-buffer)
-                     sublimity--prev-wnd (selected-window)
-                     sublimity--prepared t)
-               (sublimity--run-hooks sublimity--pre-command-functions))
-             (setq gb/modeline-enabled t)
-             (defun gb/modeline ()
-               ""
-               (if gb/modeline-enabled
-                   (spaceline-ml-main)))
-             (defun sublimity-scroll--vscroll-effect (lins)
-               (save-excursion
-                 (let* ((pixel-scroll-last-line (and (not (equal major-mode 'org-mode)) (> (abs lins) 5)))
-                        (speeds (sublimity-scroll--gen-speeds (if pixel-scroll-last-line (* (signum lins) (- (abs lins) 1)) lins)))
-                        (cursor-type (and (not sublimity-scroll-hide-cursor) cursor-type)))
-                   ;; (message (concat "scroll: " (number-to-string lins) ", at: " (number-to-string (nlinum--line-number-at-pos))))
-                   ;; (message pixel-scroll-last-line)
-                   (sublimity-scroll--vscroll (- lins))
-                   (setq gb/modeline-enabled nil)
-                   ;; (if pixel-scroll-last-line (setq mode-line-format '("%e" (:eval (gb/modeline)))))
-                   (dolist (speed speeds)
-                     (progn
-                       (sublimity-scroll--vscroll speed)
-                       (force-window-update (selected-window))
-                       (redisplay)))
-                   (setq gb/modeline-enabled t)
-                   ;; (if pixel-scroll-last-line (setq mode-line-format '("%e" (:eval (spaceline-ml-main)))))
-                   (if  (and (> lins 0) pixel-scroll-last-line)
-                       (progn (pixel-scroll-up 1)))
-                   (if (and (< lins 0) pixel-scroll-last-line)
-                       (pixel-scroll-down 1))
-                   )))))))
-   #+END_SRC
 ** helm google
    #+BEGIN_SRC emacs-lisp
    (use-package helm-google
@@ -12430,6 +12382,56 @@
    - modern-fringes - Replaces default fringe bitmaps with better looking ones
    - simple-modeline -
 * discarded
+** pixel-scroll (pixel wise scrolling) currently disabled (part of emacs 27)
+   #+BEGIN_SRC emacs-lisp :tangle no
+     ;; currently on the load path by .emacs.d/additionals
+     (if (not  (file-exists-p "~/.emacs.d/additionals/pixel-scroll.el"))
+         (message "WARNING: pixel-scroll.el does not exist, it will not be installed")
+       (progn
+         (message "OK: pixel-scroll.el locally found, will be installed")
+         (use-package pixel-scroll
+           :load-path "~/.emacs.d/additionals/"
+           :after ( sublimity-scroll)
+           :config
+           (progn
+             (require 'sublimity-scroll)
+             ;; redefine pre command for speed up of n no pre commands are present
+             (defun sublimity--pre-command ()
+               (save-excursion (goto-char (window-start)) (setq sublimity--prev-lin (string-to-number (format-mode-line "%l"))))
+               (setq
+                     sublimity--prev-col (window-hscroll)
+                     sublimity--prev-buf (current-buffer)
+                     sublimity--prev-wnd (selected-window)
+                     sublimity--prepared t)
+               (sublimity--run-hooks sublimity--pre-command-functions))
+             (setq gb/modeline-enabled t)
+             (defun gb/modeline ()
+               ""
+               (if gb/modeline-enabled
+                   (spaceline-ml-main)))
+             (defun sublimity-scroll--vscroll-effect (lins)
+               (save-excursion
+                 (let* ((pixel-scroll-last-line (and (not (equal major-mode 'org-mode)) (> (abs lins) 5)))
+                        (speeds (sublimity-scroll--gen-speeds (if pixel-scroll-last-line (* (signum lins) (- (abs lins) 1)) lins)))
+                        (cursor-type (and (not sublimity-scroll-hide-cursor) cursor-type)))
+                   ;; (message (concat "scroll: " (number-to-string lins) ", at: " (number-to-string (nlinum--line-number-at-pos))))
+                   ;; (message pixel-scroll-last-line)
+                   (sublimity-scroll--vscroll (- lins))
+                   (setq gb/modeline-enabled nil)
+                   ;; (if pixel-scroll-last-line (setq mode-line-format '("%e" (:eval (gb/modeline)))))
+                   (dolist (speed speeds)
+                     (progn
+                       (sublimity-scroll--vscroll speed)
+                       (force-window-update (selected-window))
+                       (redisplay)))
+                   (setq gb/modeline-enabled t)
+                   ;; (if pixel-scroll-last-line (setq mode-line-format '("%e" (:eval (spaceline-ml-main)))))
+                   (if  (and (> lins 0) pixel-scroll-last-line)
+                       (progn (pixel-scroll-up 1)))
+                   (if (and (< lins 0) pixel-scroll-last-line)
+                       (pixel-scroll-down 1))
+                   )))))))
+   #+END_SRC
 ** pinentry (obsolete as of emacs 26)
    #+BEGIN_SRC emacs-lisp :tangle no
      (use-package pinentry
