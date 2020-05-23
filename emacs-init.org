@@ -862,7 +862,7 @@
      "find a key binding for the given function
      always returns a string (can be empty)"
      ;; (or (car (car (car (--filter (eq (car (cdr it)) fun-symbol) personal-keybindings)))) "")
-     (let ((result (substitute-command-keys (concat "\\[" (symbol-name fun-symbol) "]"))))
+     (let ((result (substitute-command-keys (concat "\\[" (symbol-name fun-symbol) "]"))))  ;;\] closing bracket in comment to satisfy font locking
        (if (equal (substring result 0 (min (length result) 3)) "M-x")
            ""
          result)))
@@ -1038,7 +1038,7 @@
    (defun dont-kill-emacs()
      "Disable C-x C-c binding execute kill-emacs."
      (interactive)
-     (error (substitute-command-keys "To exit emacs: \\[kill-emacs]")))
+     (error (substitute-command-keys "To exit emacs: \\[kill-emacs]"))) ;;\] closing bracket in comment to satisfy font locking
    (bind-key "C-x C-c" 'dont-kill-emacs)
 
    (defun ibuffer-list-buffers-and-switch ()
@@ -6035,7 +6035,6 @@
                   '("^\\*shell.*\\*$" . (display-buffer-same-window)))
      (require 'comint) ;; part of emacs
      (setq comint-password-prompt-regexp
-           ;; "\\(^ *\\|\\( SMB\\|'s\\|Bad\\|CVS\\|Enter\\(?: \\(?:\\(?:sam\\|th\\)e\\)\\)?\\|Kerberos\\|LDAP\\|New\\|Old\\|PEM\\|Re\\(?:peat\\|type\\)\\|SUDO\\|UNIX\\|\\[sudo]\\|enter\\(?: \\(?:\\(?:sam\\|th\\)e\\)\\)?\\|login\\|new\\|old\\) +\\)\\(?:\\(?:adgangskode\\|contrase\\(?:\\(?:ny\\|ñ\\)a\\)\\|geslo\\|h\\(?:\\(?:asł\\|esl\\)o\\)\\|iphasiwedi\\|jelszó\\|l\\(?:ozinka\\|ösenord\\)\\|m\\(?:ot de passe\\|ật khẩu\\)\\|pa\\(?:rola\\|s\\(?:ahitza\\|s\\(?: phrase\\|code\\|ord\\|phrase\\|wor[dt]\\)\\|vorto\\)\\)\\|s\\(?:alasana\\|enha\\|laptažodis\\)\\|wachtwoord\\|лозинка\\|пароль\\|ססמה\\|كلمة السر\\|गुप्तशब्द\\|शब्दकूट\\|গুপ্তশব্দ\\|পাসওয়ার্ড\\|ਪਾਸਵਰਡ\\|પાસવર્ડ\\|ପ୍ରବେଶ ସଙ୍କେତ\\|கடவுச்சொல்\\|సంకేతపదము\\|ಗುಪ್ತಪದ\\|അടയാളവാക്ക്\\|රහස්පදය\\|ពាក្យសម្ងាត់\\|パスワード\\|密[码碼]\\|암호\\)\\|Response\\)\\(?:\\(?:, try\\)? *again\\| (empty for no passphrase)\\| (again)\\)?\\(?: [[:alpha:]]+ .+\\)?[:：៖]\\s *\\'\\|^.*\\( passphrase\\|PIN\\).*\\'"
            ;; (concat comint-password-prompt-regexp
            "\\(passphrase: \\|PIN: \\|password: \\).*\\'" ;; [:blank:]?:[:blank:]*
            ;; )
