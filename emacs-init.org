@@ -920,7 +920,7 @@
        (cons (+ gb/posframe-offset (/ (- (plist-get info :parent-frame-width)
                                          (plist-get info :posframe-width))
                                       2))
-             0))
+             20))
 
      (defun gb/kill-a-buffer-and-delete-window (askp)
        "kill the current buffer and remove the window"
@@ -6298,143 +6298,144 @@
   #+END_SRC
 * rest
 #+BEGIN_SRC emacs-lisp
-  (custom-set-variables
-   ;; '(canlock-password "0e8b34f24c62bdf6cc5585ec93c62be865aee099")
-   '(coffee-tab-width 4)
-   '(cursor-in-non-selected-windows nil)
-   '(desktop-save nil)
-   '(desktop-save-mode nil)
-   ;; '(gnutls-verify-error nil)
-   '(iedit-toggle-key-default nil) ;; disable C-; binding of iedit that is loaded via lispy
-   '(ido-mode nil) ;; disable ido mode
-;;   '(initial-frame-alist (quote ((fullscreen . maximized))))
-   '(jde-jdk-doc-url "https://docs.oracle.com/javase/8/docs/api/")
-   '(malabar-repl-grooysh (s-trim (shell-command-to-string "command -v groovysh")))
-   '(recentf-max-saved-items 80)
-   '(region ((t (:background "gray45" :inverse-video nil))))
-   '(send-mail-function (quote smtpmail-multi-send-it))
-   '(truncate-lines nil)
-   '(xslt-process-registered-stylesheets nil))
+    (custom-set-variables
+     ;; '(canlock-password "0e8b34f24c62bdf6cc5585ec93c62be865aee099")
+     '(coffee-tab-width 4)
+     '(cursor-in-non-selected-windows nil)
+     '(desktop-save nil)
+     '(desktop-save-mode nil)
+     ;; '(gnutls-verify-error nil)
+     '(iedit-toggle-key-default nil) ;; disable C-; binding of iedit that is loaded via lispy
+     '(ido-mode nil) ;; disable ido mode
+  ;;   '(initial-frame-alist (quote ((fullscreen . maximized))))
+     '(jde-jdk-doc-url "https://docs.oracle.com/javase/8/docs/api/")
+     '(malabar-repl-grooysh (s-trim (shell-command-to-string "command -v groovysh")))
+     '(recentf-max-saved-items 80)
+     '(region ((t (:background "gray45" :inverse-video nil))))
+     '(send-mail-function (quote smtpmail-multi-send-it))
+     '(truncate-lines t)
+     '(default-truncate-lines t)
+     '(xslt-process-registered-stylesheets nil))
 
-  (custom-set-faces
-   ;; custom-set-faces was added by Custom.
-   ;; If you edit it by hand, you could mess it up, so be careful.
-   ;; Your init file should contain only one such instance.
-   ;; If there is more than one, they won't work right.
-   '(col-highlight ((t (:background "gray63"))))
-   '(hi-yellow ((t (:background "gray44"))))
-   '(region ((t (:background "gray45" :inverse-video nil))))
-   '(popup-isearch-match ((t (:background "RoyalBlue2"))))
-   '(term-color-yellow ((t (:background "DarkGoldenrod4" :foreground "#f0c674")))))
+    (custom-set-faces
+     ;; custom-set-faces was added by Custom.
+     ;; If you edit it by hand, you could mess it up, so be careful.
+     ;; Your init file should contain only one such instance.
+     ;; If there is more than one, they won't work right.
+     '(col-highlight ((t (:background "gray63"))))
+     '(hi-yellow ((t (:background "gray44"))))
+     '(region ((t (:background "gray45" :inverse-video nil))))
+     '(popup-isearch-match ((t (:background "RoyalBlue2"))))
+     '(term-color-yellow ((t (:background "DarkGoldenrod4" :foreground "#f0c674")))))
 
-  ;; load the color scheme similar to lighttable
-  ;; (load-theme 'noctilux t)
+    ;; load the color scheme similar to lighttable
+    ;; (load-theme 'noctilux t)
 
-  ;; (setq cheat-sheet-locations '("Emacs_Reference_Card.pdf"
-  ;;                               "calccard.pdf"
-  ;;                               "dired-ref.pdf"
-  ;;                               "dired-refcard.gnu.pdf"
-  ;;                               "gnus-booklet.pdf"
-  ;;                               "gnus-refcard.pdf"
-  ;;                               "magitCheatsheet.pdf"
-  ;;                               "orgcard.pdf"
-  ;;                               "paredit-cheatsheet.pdf"))
+    ;; (setq cheat-sheet-locations '("Emacs_Reference_Card.pdf"
+    ;;                               "calccard.pdf"
+    ;;                               "dired-ref.pdf"
+    ;;                               "dired-refcard.gnu.pdf"
+    ;;                               "gnus-booklet.pdf"
+    ;;                               "gnus-refcard.pdf"
+    ;;                               "magitCheatsheet.pdf"
+    ;;                               "orgcard.pdf"
+    ;;                               "paredit-cheatsheet.pdf"))
 
-  ;; ;; can be either 'right or 'below,
-  ;; (setq cheat-sheet-split-mode 'below)
+    ;; ;; can be either 'right or 'below,
+    ;; (setq cheat-sheet-split-mode 'below)
 
-  ;; (defun open-cheat-sheet (file-path)
-  ;;   "split depending on customization var cheat-sheet-split-mode and load file from file-path"
-  ;;   (cond
-  ;;    ((equal cheat-sheet-split-mode 'right) (split-window-right))
-  ;;    ((equal cheat-sheet-split-mode 'left) (split-window-left))
-  ;;    ;;     ((equal cheat-sheet-split-mode 'above) (split-window-below))
-  ;;    ((equal cheat-sheet-split-mode 'below) (split-window-below)))
-  ;;   (other-window 1)
-  ;;   (find-file file-path)
-  ;;   (cond
-  ;;    ((equal cheat-sheet-split-mode 'right) (pdf-view-fit-height-to-window))
-  ;;    ((equal cheat-sheet-split-mode 'left) (pdf-view-fit-height-to-window))
-  ;;    ;;     ((equal cheat-sheet-split-mode 'above) (progn (pdf-view-fit-width-to-window)))
-  ;;    ((equal cheat-sheet-split-mode 'below) (pdf-view-fit-width-to-window)))
-  ;;   (other-window -1))
+    ;; (defun open-cheat-sheet (file-path)
+    ;;   "split depending on customization var cheat-sheet-split-mode and load file from file-path"
+    ;;   (cond
+    ;;    ((equal cheat-sheet-split-mode 'right) (split-window-right))
+    ;;    ((equal cheat-sheet-split-mode 'left) (split-window-left))
+    ;;    ;;     ((equal cheat-sheet-split-mode 'above) (split-window-below))
+    ;;    ((equal cheat-sheet-split-mode 'below) (split-window-below)))
+    ;;   (other-window 1)
+    ;;   (find-file file-path)
+    ;;   (cond
+    ;;    ((equal cheat-sheet-split-mode 'right) (pdf-view-fit-height-to-window))
+    ;;    ((equal cheat-sheet-split-mode 'left) (pdf-view-fit-height-to-window))
+    ;;    ;;     ((equal cheat-sheet-split-mode 'above) (progn (pdf-view-fit-width-to-window)))
+    ;;    ((equal cheat-sheet-split-mode 'below) (pdf-view-fit-width-to-window)))
+    ;;   (other-window -1))
 
-  ;; (defun close-cheat-sheet (file-path)
-  ;;   "close the cheat sheet that is displayed, deleting the respective window"
-  ;;   (with-selected-window
-  ;;       (get-buffer-window (get-file-buffer file-path))
-  ;;     (delete-window)))
+    ;; (defun close-cheat-sheet (file-path)
+    ;;   "close the cheat sheet that is displayed, deleting the respective window"
+    ;;   (with-selected-window
+    ;;       (get-buffer-window (get-file-buffer file-path))
+    ;;     (delete-window)))
 
-  ;; (defun cheat-sheet-toggle (file-path)
-  ;;   "open the given cheatsheet (or close it, if already open)"
-  ;;   (let ((fbuf (get-file-buffer file-path)))
-  ;;     (if (and fbuf (get-buffer-window fbuf))
-  ;;         (close-cheat-sheet file-path)
-  ;;       (open-cheat-sheet file-path))))
+    ;; (defun cheat-sheet-toggle (file-path)
+    ;;   "open the given cheatsheet (or close it, if already open)"
+    ;;   (let ((fbuf (get-file-buffer file-path)))
+    ;;     (if (and fbuf (get-buffer-window fbuf))
+    ;;         (close-cheat-sheet file-path)
+    ;;       (open-cheat-sheet file-path))))
 
-  ;; (defun cheat-sheet-clojure-toggle ()
-  ;;   "open the clojure cheatsheet"
-  ;;   (interactive)
-  ;;   (cheat-sheet-toggle (expand-file-name "~/Documents/cheat-sheet/clojure/clojure-cheatsheet-usletter-color.pdf")))
+    ;; (defun cheat-sheet-clojure-toggle ()
+    ;;   "open the clojure cheatsheet"
+    ;;   (interactive)
+    ;;   (cheat-sheet-toggle (expand-file-name "~/Documents/cheat-sheet/clojure/clojure-cheatsheet-usletter-color.pdf")))
 
-  ;; (defun cheat-sheet-org-toggle ()
-  ;;   "open the org-mode cheatsheet"
-  ;;   (interactive)
-  ;;   (cheat-sheet-toggle (expand-file-name "~/Documents/cheat-sheet/emacs/orgcard.pdf")))
+    ;; (defun cheat-sheet-org-toggle ()
+    ;;   "open the org-mode cheatsheet"
+    ;;   (interactive)
+    ;;   (cheat-sheet-toggle (expand-file-name "~/Documents/cheat-sheet/emacs/orgcard.pdf")))
 
-  ;; (defun cheat-sheet-dired-toggle ()
-  ;;   "open the dired cheatsheet"
-  ;;   (interactive)
-  ;;   (cheat-sheet-toggle (expand-file-name "~/Documents/cheat-sheet/emacs/dired-refcard.gnu.pdf")))
+    ;; (defun cheat-sheet-dired-toggle ()
+    ;;   "open the dired cheatsheet"
+    ;;   (interactive)
+    ;;   (cheat-sheet-toggle (expand-file-name "~/Documents/cheat-sheet/emacs/dired-refcard.gnu.pdf")))
 
-  ;; (defun cheat-sheet-magit-toggle ()
-  ;;   "open the magit cheatsheet"
-  ;;   (interactive)
-  ;;   (cheat-sheet-toggle (expand-file-name "~/Documents/cheat-sheet/emacs/magitCheatsheet.pdf")))
+    ;; (defun cheat-sheet-magit-toggle ()
+    ;;   "open the magit cheatsheet"
+    ;;   (interactive)
+    ;;   (cheat-sheet-toggle (expand-file-name "~/Documents/cheat-sheet/emacs/magitCheatsheet.pdf")))
 
-  ;; clojure-cheatsheet
-  ;; runs with existing repl only:
-  ;; M-x clojure-cheatsheet opens a helm like search over severyl clojure concepts/functions etc.
+    ;; clojure-cheatsheet
+    ;; runs with existing repl only:
+    ;; M-x clojure-cheatsheet opens a helm like search over severyl clojure concepts/functions etc.
 
-  ;; focus
-  ;; M-x focus-mode toggles this mode that focusses only on the construct under the cursor
+    ;; focus
+    ;; M-x focus-mode toggles this mode that focusses only on the construct under the cursor
 
-  ;; helm-ag
-  ;; search multi key word with M-x helm-ag
-
-
-  ;; (add-to-list 'load-path "~/.emacs.d/clomacs/src/elisp/")
-  ;; (require 'clomacs)
-
-  ;; (clomacs-defun get-property System/getProperty)
-  ;; (message (get-property "java.version"))
-
-  ;; (use-package kanban)
-
-  ;; (add-to-list 'load-path "~/git/local/hoclgen/src/elisp")
-  ;; (require 'hoclgen)
+    ;; helm-ag
+    ;; search multi key word with M-x helm-ag
 
 
-  ;; (add-to-list 'load-path "~/.emacs.d/xml-customizations")
-  ;; (load "xml-extensions.el")
+    ;; (add-to-list 'load-path "~/.emacs.d/clomacs/src/elisp/")
+    ;; (require 'clomacs)
+
+    ;; (clomacs-defun get-property System/getProperty)
+    ;; (message (get-property "java.version"))
+
+    ;; (use-package kanban)
+
+    ;; (add-to-list 'load-path "~/git/local/hoclgen/src/elisp")
+    ;; (require 'hoclgen)
 
 
-  ;; C-c C-a annotate the marked region, or the word under point
-  ;; annotations are saved in ~/.annotations
+    ;; (add-to-list 'load-path "~/.emacs.d/xml-customizations")
+    ;; (load "xml-extensions.el")
+
+
+    ;; C-c C-a annotate the marked region, or the word under point
+    ;; annotations are saved in ~/.annotations
 
 
 
-  ;; Set the defcustom variables defined in jiralib.el (actually only the jiralib-url is required, as the other 2 are usually computed from it correctly and is the case in the video demo):
+    ;; Set the defcustom variables defined in jiralib.el (actually only the jiralib-url is required, as the other 2 are usually computed from it correctly and is the case in the video demo):
 
-  ;; 3 matches for "\bdefcustom\b" in buffer: jiralib.el
-  ;;      55:(defcustom jiralib-host ""
-  ;;     107:(defcustom jiralib-wsdl-descriptor-url
-  ;;     120:(defcustom jiralib-url
+    ;; 3 matches for "\bdefcustom\b" in buffer: jiralib.el
+    ;;      55:(defcustom jiralib-host ""
+    ;;     107:(defcustom jiralib-wsdl-descriptor-url
+    ;;     120:(defcustom jiralib-url
 
 
-  ;; Write your password in ~/.authinfo, with machine being the (computed) jiralib-host, and the port being 80 (even if you are using https for Jira):
+    ;; Write your password in ~/.authinfo, with machine being the (computed) jiralib-host, and the port being 80 (even if you are using https for Jira):
 
-  ;; machine JIRALIB-HOST login USERNAME password XXXXX port 80
+    ;; machine JIRALIB-HOST login USERNAME password XXXXX port 80
 
 
 
@@ -8478,11 +8479,11 @@
                ;; register new function
                (add-hook 'helm-minibuffer-set-up-hook
                          'gb/helm-hide-minibuffer-maybe))
+       :custom (helm-truncate-lines t "make sure lines are truncated in helm buffers")
+               (helm-echo-input-in-header-line t "make sure keyboard entry is displayed in header line of helm buffer")
        :config
        (progn
          ;; ignore files in boring file rexp list
-         ;; make sure keyboard entry is displayed in header line of helm buffer
-         (setq helm-echo-input-in-header-line t)
 
          ;; patch helm-keyboard-quit to only abort-recursive-edit if it is really in progress
          (defun helm-keyboard-quit ()
@@ -8561,7 +8562,9 @@
           ;; :font-height 14
           ;; :font gb/default-font
           :override-parameters helm-posframe-parameters
-          :respect-header-line t))
+          :respect-header-line t)
+         (with-current-buffer buffer
+           (setq-local truncate-lines helm-truncate-lines)))
        ;; (setq helm-posframe-poshandler #'gb/posframe-poshandler-frame-center)
        (setq helm-posframe-poshandler #'gb/posframe-poshandler-frame-center-top)
        (defun gb/helm-set-posframe-parameters ()
