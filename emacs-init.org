@@ -4647,14 +4647,14 @@
    #+END_SRC
 ** minimap
    #+BEGIN_SRC emacs-lisp
-   (use-package minimap
-     :ensure t
-     :bind (("s-m" . minimap-mode))
-     :config
-     (progn
-       (setq minimap-major-modes (quote (prog-mode org-mode nxml-mode)))
-       (setq minimap-window-location (quote right))
-       (custom-set-faces '(minimap-active-region-background ((t (:background "gray23")))))))
+     (use-package minimap
+       :ensure t
+       :bind (("s-m" . minimap-mode))
+       :config
+       (progn
+         (setq minimap-major-modes (quote (prog-mode org-mode nxml-mode)))
+         (setq minimap-window-location (quote right))
+         (custom-set-faces '(minimap-active-region-background ((t (:extend t :background "gray23")))))))
    #+END_SRC
 * programming language related
 ** all
