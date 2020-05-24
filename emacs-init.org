@@ -5515,7 +5515,10 @@
 ** yafolding
    #+begin_src emacs-lisp
      (use-package yafolding
-       :hook (prog-mode . yafolding-mode))
+       :hook (prog-mode . yafolding-mode)
+       :config
+       (advice-add 'yafolding-hide-region :after #'(lambda (&rest args) (when (and (fboundp 'minimap-mode) minimap-mode) (minimap-sync-overlays))))
+       (advice-add 'yafolding-show-region :after #'(lambda (&rest args) (when (and (fboundp 'minimap-mode) minimap-mode) (minimap-sync-overlays)))))
    #+end_src
 ** flymake
    #+BEGIN_SRC emacs-lisp
