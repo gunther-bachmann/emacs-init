@@ -12122,12 +12122,16 @@
       :commands (keypression-mode)
       :ensure t
       :config
-      (setq keypression-use-child-frame t
-            keypression-fade-out-delay 1.0
-            keypression-frame-justify 'keypression-left-justified
+      (setq keypression-use-child-frame nil
+            keypression-fade-out-delay 3.0
+            keypression-frame-justify 'keypression-right-justified
+            keypression-frames-maxnum 7
             keypression-cast-command-name t
             keypression-cast-command-name-format "%s  %s"
             keypression-combine-same-keystrokes t
+            keypression-concat-self-insert t
+            keypression-x-offset 8
+            keypression-y-offset 40
             keypression-font-face-attribute '(:width normal :height 200 :weight bold)))
   #+end_src
 * EVAl languagetool (see language-tool in other config) collides with langtool!, currently disabled
