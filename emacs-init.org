@@ -12174,6 +12174,12 @@
     (use-package wgrep
       :ensure t)
   #+end_src
+* EVAL scratch comment (insert eval s-expr into scratch buffer as comment)
+  #+begin_src emacs-lisp
+    (use-package scratch-comment
+      :bind ("C-x M-e" . scratch-comment-eval-sexp)
+      :ensure t)
+  #+end_src
 * proced
   #+begin_src emacs-lisp
     (use-package proced
