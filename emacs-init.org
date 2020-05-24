@@ -5151,14 +5151,16 @@
 
      (use-package gb-kotlin
        :load-path "~/repo/gb-kotlin"
-       :after (kotlin-mode magit)
-       :config
-       (bind-key "C-c M-w"   #'gb/kotlin-kill-full-qualified-class-name-at-point kotlin-mode-map)
-       (bind-key "C-c / i i" #'gb/kotlin-import-at-point kotlin-mode-map) ;; insert
-       (bind-key "C-c / i t" #'gb/kotlin-import-test-insert kotlin-mode-map) ;; test
-       (bind-key "C-c / i s" #'gb/kotlin-import-stdlib-insert kotlin-mode-map) ;; stdlib
-       (bind-key "C-c / i r" #'gb/kotlin-rewrite-import-region kotlin-mode-map) ;; rewrite
-       (bind-key "C-c / i l" #'gb/kotlin-import-search-and-insert kotlin-mode-map)) ;; lookup
+       :after (kotlin-mode magit yafolding)
+       :hook (kotlin-mode . gb/kotlin-run-hooks)
+       :bind (:map kotlin-mode-map
+              ( "C-c M-w" .   gb/kotlin-kill-full-qualified-class-name-at-point)
+              ( "C-c / t i" . gb/kotlin-toggle-fold-import-section) ;; toggle import
+              ( "C-c / i i" . gb/kotlin-import-at-point) ;; import insert
+              ( "C-c / i t" . gb/kotlin-import-test-insert) ;; import test
+              ( "C-c / i s" . gb/kotlin-import-stdlib-insert) ;; import stdlib
+              ( "C-c / i r" . gb/kotlin-rewrite-import-region) ;; import rewrite
+              ( "C-c / i l" . gb/kotlin-import-search-and-insert)))
    #+END_SRC
 ** haskell
    #+BEGIN_SRC emacs-lisp
