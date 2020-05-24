@@ -10754,6 +10754,7 @@
         (use-package exwm-config
           :after ( exwm )
           :config
+          (require 'exwm-core)
           (exwm-config-default) ;; enables ido mode !
           (ido-mode -1)
 
