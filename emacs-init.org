@@ -10536,6 +10536,12 @@
            (shell-command-to-string "sudo systemctl stop bluetooth.service") ;; just to make sure
            (if (not (string-empty-p (shell-command-to-string "pgrep duplicity")))
                (message "Running duplicity (backup), suspend aborted.")
+             (when (gnus-buffers)
+               (message "exiting gnus")
+               (let ((old-gie gnus-interactive-exit))
+                 (setq gnus-interactive-exit nil)
+                 (gnus-group-exit)
+                 (setq gnus-interactive-exit old-gie)))
              (shell-command-to-string "xfce4-power-manager") ;; make sure the power manager is running
              ;; if suspend does not work try switching off bluetooth service
              (shell-command-to-string "systemctl suspend")))
