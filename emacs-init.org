@@ -9262,11 +9262,39 @@
    #+BEGIN_SRC emacs-lisp
      (use-package dired-subtree
        :ensure t
-       :after ( dired)
        :bind (:map dired-mode-map
-              ("TAB" . dired-subtree-toggle)
-              ("[" . dired-subtree-up)
-              ("C-c C-u" . dired-subtree-up))) ;; toggle subtree open/close M-x dired-subtree-toggle
+                   ("TAB" . gb/dired-toggle-expanding-single-dirs)
+                   ("[" . dired-subtree-up)
+                   ("C-c C-u" . dired-subtree-up)))
+
+     (defun gb/dired--get-depth-at-point ()
+       "get the level (staring with 1) of the subdirectory at point (else nil)"
+       (when (dired-subtree--dired-line-is-directory-or-link-p)
+         (let* ((beg (point))
+                (self (dired-subtree--get-ov beg)))
+           (or (and self (1+ (overlay-get self 'dired-subtree-depth)))
+              1))))
+
+     (defun gb/dired-toggle-expanding-single-dirs ()
+       "toggle subdir folding, expanding subdirectories with single folders recursively"
+       (interactive)
+       (save-excursion
+         (when (dired-subtree--dired-line-is-directory-or-link-p)
+           (dired-subtree-toggle)
+           (when (dired-subtree--is-expanded-p)
+             (let* ((depth (gb/dired--get-depth-at-point)))
+               (forward-line)
+               (when (dired-subtree--dired-line-is-directory-or-link-p)
+                 (let* ((c-depth (gb/dired--get-depth-at-point)))
+                   (when (and (dired-subtree--dired-line-is-directory-or-link-p)
+                              (= c-depth (1+ depth)))
+                     (forward-line)
+                     (let* ((s-depth (gb/dired--get-depth-at-point)))
+                       (forward-line -1)
+                       (when (< (or s-depth 1) c-depth)
+                         (gb/dired-toggle-expanding-single-dirs)))))))))
+         (when (fboundp 'dired-sidebar-redisplay-icons)
+           (dired-sidebar-redisplay-icons))))
    #+END_SRC
 ** dired sidebar
    - patched line 605 in dired-sidebar.el with '(dirs (split-string (cadr (split-string name (regexp-quote root))) "/")))'
@@ -9280,7 +9308,8 @@
               ( "s-a" . gb/dired-sidebar-follow-file)
               :map dired-sidebar-mode-map
               ( "c-s" . nonincremental-search-forward)
-              ( "C-x C-f" . gb/dired-open-file-from-here))
+              ( "C-x C-f" . gb/dired-open-file-from-here)
+              ( "<tab>" . gb/dired-toggle-expanding-single-dirs))
        ;; :after (dired all-the-icons vscode-icon)
        :config
        ;; make sure that long lines are truncated in sidebar
