@@ -11953,7 +11953,7 @@
       (org-show-all) ;; added
     #+end_src
   #+begin_src emacs-lisp
-    (if (executable-find "sqlite3")
+    (if (not (executable-find "sqlite3"))
         (message "ERROR: could not find executable sqlite3")
       (progn
         (use-package emacsql-sqlite)
