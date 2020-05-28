@@ -7890,14 +7890,14 @@
           (use-package hidepw
             :load-path "~/.emacs.d/additionals/"
             :after ( org)
-            :init (progn (add-hook 'org-mode-hook  'hidepw-mode))
+            ;; :init (progn (add-hook 'org-mode-hook  'hidepw-mode))
             :config
             (progn
               (setq hidepw-pattern ":.*PASS.*: \\(.*\\)")))
         (message "WARNING: hidepw.el not found. passwords will not be hidden in gpg files."))
     #+END_SRC
 *** export modules (e.g. ox-confluence)
- #+BEGIN_SRC emacs-lisp
+ #+BEGIN_SRC emacs-lisp :tangle no
    ;;      (add-to-list 'load-path "~/.emacs.d/org-mode-exports/")
    ;;      (use-package ox-confluence
    ;;        :after ( org)
