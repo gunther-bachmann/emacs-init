@@ -11934,42 +11934,46 @@
       (org-show-all) ;; added
     #+end_src
   #+begin_src emacs-lisp
-    (use-package org-roam
-      :commands (org-roam-buffer-toggle-display
-                 org-roam-find-file
-                 org-roam-graph
-                 org-roam-insert
-                 org-roam-switch-to-buffer
-                 org-roam-dailies-date
-                 org-roam-dailies-today
-                 org-roam-dailies-tomorrow
-                 org-roam-dailies-yesterday)
-      :after (org emacsql-sqlite)
-      :hook (after-init . org-roam-mode)
-      :ensure t
-      :custom
-      (org-roam-graph-viewer "emacsclient")
-      (org-notes "~/documents/roam")
-      (org-directory org-notes)
-      (deft-directory org-notes)
-      (org-roam-directory org-notes)
-      :config (require 'org-roam-protocol)
-      :bind (:map org-roam-mode-map
-                  (("C-c n l" . org-roam)
-                   ("C-c n f" . org-roam-find-file)
-                   ("C-c n g" . org-roam-show-graph))
-                  :map org-mode-map
-                  (("C-c n i" . org-roam-insert))))
+    (if (executable-find "sqlite3")
+        (message "ERROR: could not find executable sqlite3")
+      (progn
+        (use-package emacsql-sqlite)
+        (use-package org-roam
+          :commands (org-roam-buffer-toggle-display
+                     org-roam-find-file
+                     org-roam-graph
+                     org-roam-insert
+                     org-roam-switch-to-buffer
+                     org-roam-dailies-date
+                     org-roam-dailies-today
+                     org-roam-dailies-tomorrow
+                     org-roam-dailies-yesterday)
+          :after (org emacsql-sqlite)
+          :hook (after-init . org-roam-mode)
+          :ensure t
+          :custom
+          (org-roam-graph-viewer "emacsclient")
+          (org-notes "~/documents/roam")
+          (org-directory org-notes)
+          (deft-directory org-notes)
+          (org-roam-directory org-notes)
+          :config (require 'org-roam-protocol)
+          :bind (:map org-roam-mode-map
+                      (("C-c n l" . org-roam)
+                       ("C-c n f" . org-roam-find-file)
+                       ("C-c n g" . org-roam-show-graph))
+                      :map org-mode-map
+                      (("C-c n i" . org-roam-insert))))
 
-    (use-package org-roam-server
-      :commands (org-roam-server-mode)
-      :ensure t)
+        (use-package org-roam-server
+          :commands (org-roam-server-mode)
+          :ensure t)
 
-    (use-package company-org-roam
-      :after (org-roam company)
-      :ensure t
-      :config
-      :config (add-to-list 'company-backends 'company-org-roam))
+        (use-package company-org-roam
+          :after (org-roam company)
+          :ensure t
+          :config
+          :config (add-to-list 'company-backends 'company-org-roam))))
 
     ;; failed with "run-hooks: Symbol’s value as variable is void: bibtex-completion-find-note-functions"
     ;; (use-package org-roam-bibtex
