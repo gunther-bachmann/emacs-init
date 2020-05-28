@@ -10762,9 +10762,6 @@
                     (interactive)
                     (gb/exwm-next-workspace (- (or inc 1))))
 
-
-                  (use-package otto
-                    :load-path "~/.emacs.d/work/")
                   (use-package itemis
                     :load-path "~/.emacs.d/work/"))
 
