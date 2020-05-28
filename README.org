@@ -1,2 +1,2 @@
 #+title: README
-Definition of init.el as org babel file
+Definition of early-init.el and init.el as org babel file
