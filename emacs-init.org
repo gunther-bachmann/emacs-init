@@ -1378,13 +1378,35 @@
    #+begin_src emacs-lisp
      (custom-set-variables
       '(safe-local-variable-values
-        (quote
-         ((eval org-display-inline-images)
+        '((eval gb/set-dictionary "en")
+          (eval org-show-all)
+          (eval progn
+                (setq current-prefix-arg
+                      '(16))
+                (call-interactively 'org-latex-preview))
+          (eval setq org-format-latex-options
+                (plist-put org-format-latex-options :scale 2.6))
+          (gb/slides-started)
+          (org-tree-slide-presentation-length . 30)
+          (org-tree-slide-presentation-length . 45)
+          (org-tree-slide-presentation-length . 60)
+          (eval setq org-show-notification-handler
+                #'(lambda
+                    (msg)
+                    (message msg)))
+          (eval org-tree-slide-content)
+          (eval goto-char
+                (point-min))
+          (eval org-toggle-inline-images)
+          (org-tree-slide-modeline-display quote lighter)
+          (org-tree-slide-heading-emphasis . t)
+          (org-tree-slide-header)
+          (eval org-display-inline-images)
           (eval gb/set-dictionary "de")
           (tide-format-options quote
                                (:insertSpaceAfterFunctionKeywordForAnonymousFunctions t :placeOpenBraceOnNewLineForFunctions nil))
           (json-reformat:indent-width . 4)
-          (typescript-indent-level . 4)))))
+          (typescript-indent-level . 4))))
    #+end_src
 * check emacs capabilities
   #+BEGIN_SRC emacs-lisp
