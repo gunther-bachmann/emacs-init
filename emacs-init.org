@@ -2831,7 +2831,14 @@
        (setq beacon-push-mark nil)
        (beacon-mode 1)
        (bind-key "s-." #'beacon-blink)
-       )
+
+       (defun gb/blink-if-not-shell (&rest args)
+         "user for blinking on recenter, which shell mode does constantly => only in other modes"
+         (unless (memq major-mode (list 'ansi-term-mode 'term-mode 'shell-mode 'comint-mode))
+           (beacon-blink)))
+
+       (advice-add 'recenter :after #'gb/blink-if-not-shell)
+       (advice-add 'move-to-window-line-top-bottom :after #'gb/blink-if-not-shell))
    #+END_SRC
    #+BEGIN_SRC emacs-lisp :tangle no
    (use-package crosshairs
