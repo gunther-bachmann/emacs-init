@@ -1380,6 +1380,7 @@
       '(safe-local-variable-values
         '((eval gb/set-dictionary "en")
           (eval org-show-all)
+          (eval org-hide-block-all)
           (eval progn
                 (setq current-prefix-arg
                       '(16))
@@ -1716,7 +1717,6 @@
                      scroll-down-aggressively 1e-12)
        (setq scroll-up-aggressively 1e-12
              scroll-down-aggressively 1e-12)
-       (setq beacon-blink-when-window-scrolls nil)
        (when (version<= "27.0" emacs-version)
          (setq fast-but-imprecise-scrolling nil)
          (pixel-scroll-mode 1))
@@ -3349,6 +3349,7 @@
      (custom-set-faces
       '(hl-line ((t (:background "gray18"))))
       '(highlight ((t (:background "gray18"))))
+      '(region ((t (:background "gray24"))))
       '(font-lock-doc-face ((t (:foreground "gray52"))))
       '(font-lock-comment-face ((t (:foreground "gray50"))))
       '(font-lock-comment-delimiter-face ((t (:foreground "gray50"))))
@@ -5648,7 +5649,7 @@
         (custom-set-faces '(diff-removed ((t (:background "red" :foreground "#663333"))))
                           '(diff-refine-added ((t (:background "green" :foreground "#336633"))))
 
-                          '(magit-diff-added ((t (:background "#223822" :foreground "#ddffdd"))))
+                          '(magit-diff-added ((t (:background "#273C26" :foreground "#ddffdd"))))
                           '(magit-diff-added-highlight ((t (:background "#223822" :foreground "#cceecc"))))
                           '(magit-diff-removed ((t (:background "#442222" :foreground "#ffdddd"))))
                           '(magit-diff-removed-highlight ((t (:background "#442222" :foreground "#eecccc"))))
@@ -6325,144 +6326,145 @@
   #+END_SRC
 * rest
 #+BEGIN_SRC emacs-lisp
-    (custom-set-variables
-     ;; '(canlock-password "0e8b34f24c62bdf6cc5585ec93c62be865aee099")
-     '(coffee-tab-width 4)
-     '(cursor-in-non-selected-windows nil)
-     '(desktop-save nil)
-     '(desktop-save-mode nil)
-     ;; '(gnutls-verify-error nil)
-     '(iedit-toggle-key-default nil) ;; disable C-; binding of iedit that is loaded via lispy
-     '(ido-mode nil) ;; disable ido mode
-  ;;   '(initial-frame-alist (quote ((fullscreen . maximized))))
-     '(jde-jdk-doc-url "https://docs.oracle.com/javase/8/docs/api/")
-     '(malabar-repl-grooysh (s-trim (shell-command-to-string "command -v groovysh")))
-     '(recentf-max-saved-items 80)
-     '(region ((t (:background "gray45" :inverse-video nil))))
-     '(send-mail-function (quote smtpmail-multi-send-it))
-     '(truncate-lines t)
-     '(default-truncate-lines t)
-     '(xslt-process-registered-stylesheets nil))
+  (custom-set-variables
+   ;; '(canlock-password "0e8b34f24c62bdf6cc5585ec93c62be865aee099")
+   '(auto-hscroll-mode t)
+   '(coffee-tab-width 4)
+   '(cursor-in-non-selected-windows nil)
+   '(desktop-save nil)
+   '(desktop-save-mode nil)
+   ;; '(gnutls-verify-error nil)
+   '(iedit-toggle-key-default nil) ;; disable C-; binding of iedit that is loaded via lispy
+   '(ido-mode nil) ;; disable ido mode
+   ;;   '(initial-frame-alist (quote ((fullscreen . maximized))))
+   '(jde-jdk-doc-url "https://docs.oracle.com/javase/8/docs/api/")
+   '(malabar-repl-grooysh (s-trim (shell-command-to-string "command -v groovysh")))
+   '(recentf-max-saved-items 80)
+   '(region ((t (:background "gray45" :inverse-video nil))))
+   '(send-mail-function (quote smtpmail-multi-send-it))
+   '(truncate-lines t)
+   '(default-truncate-lines t)
+   '(xslt-process-registered-stylesheets nil))
 
-    (custom-set-faces
-     ;; custom-set-faces was added by Custom.
-     ;; If you edit it by hand, you could mess it up, so be careful.
-     ;; Your init file should contain only one such instance.
-     ;; If there is more than one, they won't work right.
-     '(col-highlight ((t (:background "gray63"))))
-     '(hi-yellow ((t (:background "gray44"))))
-     '(region ((t (:background "gray45" :inverse-video nil))))
-     '(popup-isearch-match ((t (:background "RoyalBlue2"))))
-     '(term-color-yellow ((t (:background "DarkGoldenrod4" :foreground "#f0c674")))))
+  (custom-set-faces
+   ;; custom-set-faces was added by Custom.
+   ;; If you edit it by hand, you could mess it up, so be careful.
+   ;; Your init file should contain only one such instance.
+   ;; If there is more than one, they won't work right.
+   '(col-highlight ((t (:background "gray63"))))
+   '(hi-yellow ((t (:background "gray44"))))
+   '(region ((t (:background "gray45" :inverse-video nil))))
+   '(popup-isearch-match ((t (:background "RoyalBlue2"))))
+   '(term-color-yellow ((t (:background "DarkGoldenrod4" :foreground "#f0c674")))))
 
-    ;; load the color scheme similar to lighttable
-    ;; (load-theme 'noctilux t)
+  ;; load the color scheme similar to lighttable
+  ;; (load-theme 'noctilux t)
 
-    ;; (setq cheat-sheet-locations '("Emacs_Reference_Card.pdf"
-    ;;                               "calccard.pdf"
-    ;;                               "dired-ref.pdf"
-    ;;                               "dired-refcard.gnu.pdf"
-    ;;                               "gnus-booklet.pdf"
-    ;;                               "gnus-refcard.pdf"
-    ;;                               "magitCheatsheet.pdf"
-    ;;                               "orgcard.pdf"
-    ;;                               "paredit-cheatsheet.pdf"))
+  ;; (setq cheat-sheet-locations '("Emacs_Reference_Card.pdf"
+  ;;                               "calccard.pdf"
+  ;;                               "dired-ref.pdf"
+  ;;                               "dired-refcard.gnu.pdf"
+  ;;                               "gnus-booklet.pdf"
+  ;;                               "gnus-refcard.pdf"
+  ;;                               "magitCheatsheet.pdf"
+  ;;                               "orgcard.pdf"
+  ;;                               "paredit-cheatsheet.pdf"))
 
-    ;; ;; can be either 'right or 'below,
-    ;; (setq cheat-sheet-split-mode 'below)
+  ;; ;; can be either 'right or 'below,
+  ;; (setq cheat-sheet-split-mode 'below)
 
-    ;; (defun open-cheat-sheet (file-path)
-    ;;   "split depending on customization var cheat-sheet-split-mode and load file from file-path"
-    ;;   (cond
-    ;;    ((equal cheat-sheet-split-mode 'right) (split-window-right))
-    ;;    ((equal cheat-sheet-split-mode 'left) (split-window-left))
-    ;;    ;;     ((equal cheat-sheet-split-mode 'above) (split-window-below))
-    ;;    ((equal cheat-sheet-split-mode 'below) (split-window-below)))
-    ;;   (other-window 1)
-    ;;   (find-file file-path)
-    ;;   (cond
-    ;;    ((equal cheat-sheet-split-mode 'right) (pdf-view-fit-height-to-window))
-    ;;    ((equal cheat-sheet-split-mode 'left) (pdf-view-fit-height-to-window))
-    ;;    ;;     ((equal cheat-sheet-split-mode 'above) (progn (pdf-view-fit-width-to-window)))
-    ;;    ((equal cheat-sheet-split-mode 'below) (pdf-view-fit-width-to-window)))
-    ;;   (other-window -1))
+  ;; (defun open-cheat-sheet (file-path)
+  ;;   "split depending on customization var cheat-sheet-split-mode and load file from file-path"
+  ;;   (cond
+  ;;    ((equal cheat-sheet-split-mode 'right) (split-window-right))
+  ;;    ((equal cheat-sheet-split-mode 'left) (split-window-left))
+  ;;    ;;     ((equal cheat-sheet-split-mode 'above) (split-window-below))
+  ;;    ((equal cheat-sheet-split-mode 'below) (split-window-below)))
+  ;;   (other-window 1)
+  ;;   (find-file file-path)
+  ;;   (cond
+  ;;    ((equal cheat-sheet-split-mode 'right) (pdf-view-fit-height-to-window))
+  ;;    ((equal cheat-sheet-split-mode 'left) (pdf-view-fit-height-to-window))
+  ;;    ;;     ((equal cheat-sheet-split-mode 'above) (progn (pdf-view-fit-width-to-window)))
+  ;;    ((equal cheat-sheet-split-mode 'below) (pdf-view-fit-width-to-window)))
+  ;;   (other-window -1))
 
-    ;; (defun close-cheat-sheet (file-path)
-    ;;   "close the cheat sheet that is displayed, deleting the respective window"
-    ;;   (with-selected-window
-    ;;       (get-buffer-window (get-file-buffer file-path))
-    ;;     (delete-window)))
+  ;; (defun close-cheat-sheet (file-path)
+  ;;   "close the cheat sheet that is displayed, deleting the respective window"
+  ;;   (with-selected-window
+  ;;       (get-buffer-window (get-file-buffer file-path))
+  ;;     (delete-window)))
 
-    ;; (defun cheat-sheet-toggle (file-path)
-    ;;   "open the given cheatsheet (or close it, if already open)"
-    ;;   (let ((fbuf (get-file-buffer file-path)))
-    ;;     (if (and fbuf (get-buffer-window fbuf))
-    ;;         (close-cheat-sheet file-path)
-    ;;       (open-cheat-sheet file-path))))
+  ;; (defun cheat-sheet-toggle (file-path)
+  ;;   "open the given cheatsheet (or close it, if already open)"
+  ;;   (let ((fbuf (get-file-buffer file-path)))
+  ;;     (if (and fbuf (get-buffer-window fbuf))
+  ;;         (close-cheat-sheet file-path)
+  ;;       (open-cheat-sheet file-path))))
 
-    ;; (defun cheat-sheet-clojure-toggle ()
-    ;;   "open the clojure cheatsheet"
-    ;;   (interactive)
-    ;;   (cheat-sheet-toggle (expand-file-name "~/Documents/cheat-sheet/clojure/clojure-cheatsheet-usletter-color.pdf")))
+  ;; (defun cheat-sheet-clojure-toggle ()
+  ;;   "open the clojure cheatsheet"
+  ;;   (interactive)
+  ;;   (cheat-sheet-toggle (expand-file-name "~/Documents/cheat-sheet/clojure/clojure-cheatsheet-usletter-color.pdf")))
 
-    ;; (defun cheat-sheet-org-toggle ()
-    ;;   "open the org-mode cheatsheet"
-    ;;   (interactive)
-    ;;   (cheat-sheet-toggle (expand-file-name "~/Documents/cheat-sheet/emacs/orgcard.pdf")))
+  ;; (defun cheat-sheet-org-toggle ()
+  ;;   "open the org-mode cheatsheet"
+  ;;   (interactive)
+  ;;   (cheat-sheet-toggle (expand-file-name "~/Documents/cheat-sheet/emacs/orgcard.pdf")))
 
-    ;; (defun cheat-sheet-dired-toggle ()
-    ;;   "open the dired cheatsheet"
-    ;;   (interactive)
-    ;;   (cheat-sheet-toggle (expand-file-name "~/Documents/cheat-sheet/emacs/dired-refcard.gnu.pdf")))
+  ;; (defun cheat-sheet-dired-toggle ()
+  ;;   "open the dired cheatsheet"
+  ;;   (interactive)
+  ;;   (cheat-sheet-toggle (expand-file-name "~/Documents/cheat-sheet/emacs/dired-refcard.gnu.pdf")))
 
-    ;; (defun cheat-sheet-magit-toggle ()
-    ;;   "open the magit cheatsheet"
-    ;;   (interactive)
-    ;;   (cheat-sheet-toggle (expand-file-name "~/Documents/cheat-sheet/emacs/magitCheatsheet.pdf")))
+  ;; (defun cheat-sheet-magit-toggle ()
+  ;;   "open the magit cheatsheet"
+  ;;   (interactive)
+  ;;   (cheat-sheet-toggle (expand-file-name "~/Documents/cheat-sheet/emacs/magitCheatsheet.pdf")))
 
-    ;; clojure-cheatsheet
-    ;; runs with existing repl only:
-    ;; M-x clojure-cheatsheet opens a helm like search over severyl clojure concepts/functions etc.
+  ;; clojure-cheatsheet
+  ;; runs with existing repl only:
+  ;; M-x clojure-cheatsheet opens a helm like search over severyl clojure concepts/functions etc.
 
-    ;; focus
-    ;; M-x focus-mode toggles this mode that focusses only on the construct under the cursor
+  ;; focus
+  ;; M-x focus-mode toggles this mode that focusses only on the construct under the cursor
 
-    ;; helm-ag
-    ;; search multi key word with M-x helm-ag
-
-
-    ;; (add-to-list 'load-path "~/.emacs.d/clomacs/src/elisp/")
-    ;; (require 'clomacs)
-
-    ;; (clomacs-defun get-property System/getProperty)
-    ;; (message (get-property "java.version"))
-
-    ;; (use-package kanban)
-
-    ;; (add-to-list 'load-path "~/git/local/hoclgen/src/elisp")
-    ;; (require 'hoclgen)
+  ;; helm-ag
+  ;; search multi key word with M-x helm-ag
 
 
-    ;; (add-to-list 'load-path "~/.emacs.d/xml-customizations")
-    ;; (load "xml-extensions.el")
+  ;; (add-to-list 'load-path "~/.emacs.d/clomacs/src/elisp/")
+  ;; (require 'clomacs)
+
+  ;; (clomacs-defun get-property System/getProperty)
+  ;; (message (get-property "java.version"))
+
+  ;; (use-package kanban)
+
+  ;; (add-to-list 'load-path "~/git/local/hoclgen/src/elisp")
+  ;; (require 'hoclgen)
 
 
-    ;; C-c C-a annotate the marked region, or the word under point
-    ;; annotations are saved in ~/.annotations
+  ;; (add-to-list 'load-path "~/.emacs.d/xml-customizations")
+  ;; (load "xml-extensions.el")
+
+
+  ;; C-c C-a annotate the marked region, or the word under point
+  ;; annotations are saved in ~/.annotations
 
 
 
-    ;; Set the defcustom variables defined in jiralib.el (actually only the jiralib-url is required, as the other 2 are usually computed from it correctly and is the case in the video demo):
+  ;; Set the defcustom variables defined in jiralib.el (actually only the jiralib-url is required, as the other 2 are usually computed from it correctly and is the case in the video demo):
 
-    ;; 3 matches for "\bdefcustom\b" in buffer: jiralib.el
-    ;;      55:(defcustom jiralib-host ""
-    ;;     107:(defcustom jiralib-wsdl-descriptor-url
-    ;;     120:(defcustom jiralib-url
+  ;; 3 matches for "\bdefcustom\b" in buffer: jiralib.el
+  ;;      55:(defcustom jiralib-host ""
+  ;;     107:(defcustom jiralib-wsdl-descriptor-url
+  ;;     120:(defcustom jiralib-url
 
 
-    ;; Write your password in ~/.authinfo, with machine being the (computed) jiralib-host, and the port being 80 (even if you are using https for Jira):
+  ;; Write your password in ~/.authinfo, with machine being the (computed) jiralib-host, and the port being 80 (even if you are using https for Jira):
 
-    ;; machine JIRALIB-HOST login USERNAME password XXXXX port 80
+  ;; machine JIRALIB-HOST login USERNAME password XXXXX port 80
 
 
 
@@ -7171,7 +7173,7 @@
         (custom-set-faces '(header-line ((t (:inherit org-table-face :foreground "#8abeb7"))))) ;; set (non scrolling) header to inhiert font from org mode tables (not mode line, which is to small on multi monitor w/ current config)
         (setq org-image-actual-width nil)
         (setq org-format-latex-options (plist-put org-format-latex-options :scale 2.0))
-        (setq org-hide-emphasis-markers t) ;; hides ** and // surrounding text that is bold or intalics
+        (setq org-hide-emphasis-markers t)          ;; hides ** and // surrounding text that is bold or intalics
         (setq org-src-window-setup 'current-window) ;; make edit src block open in the same window as the org file itself
         ;; (add-hook 'org-mode-hook #'org-sticky-header)
         ;; make sure source blocks are collapsed at first
@@ -9181,7 +9183,7 @@
                                             ("\\.sid\\'" "sidplayfp")
                                             ("\\.html?\\'" "firefox")
                                             ("\\.docx?\\'\\|\\.xlsx?\\'\\|\\.pptx?\\'" "soffice")
-                                            ))
+                                            ("\\.eps\\'" "evince")))
 
        ;; see https://oremacs.com/2016/02/24/dired-rsync/
        (defun gb/dired-rsync (dest)
@@ -9621,6 +9623,7 @@
    #+END_SRC
 ** posframe
    - posframe allows floating frames to be displayed at point position
+   - to update the local repo, rebase to upstream/master!
    - needed patching posframe.el:499
      #+begin_src emacs-lisp :tangle no
          (font-height (with-current-buffer (window-buffer parent-window)
@@ -9630,6 +9633,8 @@
      #+end_src
    #+BEGIN_SRC emacs-lisp
      (use-package posframe
+       ;; :load-path "~/repo/posframe"
+       :ensure t
        :init
        (defun gb/delete-all-open-posframes ()
          "Delete all open posframes"
@@ -11392,6 +11397,7 @@
     #+begin_src emacs-lisp
       (use-package org-tree-slide
         :load-path "~/repo/org-tree-slide"
+        :commands org-tree-slide-mode
         :config
         (setq org-tree-slide-header nil)
         (setq org-tree-slide-heading-emphasis t))
@@ -12807,8 +12813,6 @@
      (midnight-mode 1)
      (set-fringe-mode 10)
      (display-time-mode -1)
-     (setq global-mode-string '("" appt-mode-string emms-mode-line-string emms-playing-time-string " "
-                                (:eval (s-concat "[" (number-to-string (exwm-workspace--position exwm-workspace--current)) "]" ))))
      ;; (eldoc-overlay-mode t)
      ;; for kuchen checks:
      ;; (add-hook 'buffer-list-update-hook #'gb/register-key-filter)
