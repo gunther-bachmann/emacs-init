@@ -7282,12 +7282,14 @@
               (org-hide-block-all)
             (org-show-block-all))
           (setq-local gb/org-block-visible (not gb/org-block-visible)))
-        (add-hook 'org-mode-hook #'gb/org-toggle-block-visibility)
+        ;; (add-hook 'org-mode-hook #'gb/org-toggle-block-visibility)
         (define-key gb/toggle-map "b" #'gb/org-toggle-block-visibility)
                                             ; ensure that adjusted save hook is not executed when org edit src save is executed
         (advice-add 'org-edit-src-save :around #'gb/wrap-org-edit-src-save)
         ;; ensure that read only mode is removed when org src edit is started
         (advice-add 'org-edit-special :before #'(lambda (orig-func &rest args) (read-only-mode -1))))
+
+
       (progn
         (require 'ob-clojure) ;; not found in packages (20180510)
         (require 'org-inlinetask)
@@ -10830,11 +10832,11 @@
                       (if (and (s-equals? (gb/get-primary-monitor) monitor)
                                (not (string-empty-p (gb/get-second-monitor))))
                           (progn ;; (setq gb/exwm--previous-workspace workspaceIdx)
-                                 (exwm-workspace-switch gb/exwm--previous-workspace t)
-                                 ;; (message (format ">>     now %s" (exwm-workspace--position exwm-workspace--current)))
-                                 ;; (x-focus-frame (selected-frame))
-                                 (doom-modeline-set-selected-window)
-                                 t)
+                            (exwm-workspace-switch gb/exwm--previous-workspace t)
+                            ;; (message (format ">>     now %s" (exwm-workspace--position exwm-workspace--current)))
+                            ;; (x-focus-frame (selected-frame))
+                            (doom-modeline-set-selected-window)
+                            t)
                         (message "no workspace right of this.")
                         (beacon-blink)
                         nil)))
@@ -11357,7 +11359,7 @@
                       (setq global-mode-string '("" appt-mode-string emms-mode-line-string emms-playing-time-string " "
                                                  (:eval (s-concat "[" (number-to-string (exwm-workspace--position exwm-workspace--current)) "]" ))
                                                  (:eval (unless (string-empty-p pomodoro-mode-line-string) " ") pomodoro-mode-line-string)))
-                      ))
+                      (setq auto-hscroll-mode t)))
 
           ;; ensure that eclipse switches to char line mode
           ;; and does not use simulation keys, since i have emacs binding enabled in eclipse
@@ -11369,11 +11371,11 @@
           (defadvice switch-to-buffer (after switch-to-buffer-check-exwm-buffer activate)
             "switch to char mode if target buffer is eclipse (or any other buffer that should be in char mode)"
             (when (and exwm-class-name
-                     (or (string= exwm-class-name "X64")
-                        (string= (downcase exwm-class-name) "eclipse")
-                        ;; (string= (downcase exwm-class-name) "dosbox")
-                        ;; (string= (downcase exwm-class-name) "jetbrains-idea-ce")
-                        ))
+                       (or (string= exwm-class-name "X64")
+                           (string= (downcase exwm-class-name) "eclipse")
+                           ;; (string= (downcase exwm-class-name) "dosbox")
+                           ;; (string= (downcase exwm-class-name) "jetbrains-idea-ce")
+                           ))
               (progn
                 (message "native keyboard exwm settings applied (after switch to buffer).")
                 ;; (exwm-input-release-keyboard (exwm--buffer->id (window-buffer)))
