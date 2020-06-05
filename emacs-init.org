@@ -8704,7 +8704,10 @@
                    (left-fringe . 10)
                    (right-fringe . 10)))))
        (advice-add 'helm-posframe-display :before #'(lambda (orig-func &rest args) (gb/helm-set-posframe-parameters)))
-       (helm-posframe-enable))
+       (helm-posframe-enable)
+       ;; make sure minibuffer does not use helm completion!
+       (bind-key "TAB" #'(lambda () (interactive) (setq inhibit-message t) (helm-posframe-disable) (helm-mode -1) (completion-at-point) (helm-mode 1) (helm-posframe-enable)(setq inhibit-message nil)) minibuffer-local-map)
+       (bind-key "<tab>" #'(lambda () (interactive) (setq inhibit-message t) (helm-posframe-disable) (helm-mode -1) (completion-at-point) (helm-mode 1) (helm-posframe-enable)(setq inhibit-message nil)) minibuffer-local-map))
    #+end_src
 ** helm org
    #+begin_src emacs-lisp
