@@ -11952,9 +11952,15 @@
 * EVAL wttrin
   #+begin_src emacs-lisp
     (use-package wttrin
+      :bind ("H-w" . wttrin)
+      :ensure t
       :config
       (setq wttrin-default-cities '("Hamburg" "Darmstadt" "Coburg"))
-      (setq wttrin-default-accept-language '("Accept-Language" . "de-DE")))
+      (setq wttrin-default-accept-language '("Accept-Language" . "de-DE"))
+      (defalias 'weather 'wttrin)
+      (defun wttrin-fetch-raw-string (query)
+        "Get the weather information based on your QUERY."
+        (shell-command-to-string (format "curl -s wttr.in/%s" query))))
   #+end_src
 * EVAL helm-rg
   #+begin_src emacs-lisp
