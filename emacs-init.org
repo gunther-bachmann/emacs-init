@@ -3357,14 +3357,6 @@
 
      ;; Highlight current line
      (global-hl-line-mode 1)
-     (custom-set-faces
-      '(hl-line ((t (:background "gray18"))))
-      '(highlight ((t (:background "gray18"))))
-      '(region ((t (:background "gray24"))))
-      '(font-lock-doc-face ((t (:foreground "gray52"))))
-      '(font-lock-comment-face ((t (:foreground "gray50"))))
-      '(font-lock-comment-delimiter-face ((t (:foreground "gray50"))))
-      '(font-lock-string-face ((t (:foreground "#4080b0")))))
 
      ;; make sure highlighting is extended to the eol even for emacs 27
      ;; within helm and magit (see https://github.com/emacs-helm/helm/issues/2213)
@@ -12918,8 +12910,14 @@
      ;; for kuchen checks:
      ;; (add-hook 'buffer-list-update-hook #'gb/register-key-filter)
      ;; (add-hook 'magit-popup-mode-hook #'gb/un-register-key-filter)
-
-     )
+     (custom-set-faces
+      '(hl-line ((t (:background "gray18"))))
+      '(highlight ((t (:background "gray18"))))
+      '(region ((t (:background "gray24"))))
+      '(font-lock-doc-face ((t (:foreground "gray52"))))
+      '(font-lock-comment-face ((t (:foreground "gray50"))))
+      '(font-lock-comment-delimiter-face ((t (:foreground "gray50"))))
+      '(font-lock-string-face ((t (:foreground "#4080b0"))))))
     (setq gc-cons-threshold 80000000)
     (midnight-mode 1)
     (report-elapsed "exit finish - up")
