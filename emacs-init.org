@@ -11183,6 +11183,7 @@
 
           (exwm-input-set-key (kbd "s-3") #'(lambda () (interactive) (split-window-right-and-select-scratch)))
           (exwm-input-set-key (kbd "s-2") #'(lambda () (interactive) (split-window-below-and-select-scratch)))
+          (exwm-input-set-key (kbd "s-0") #'(lambda () (interactive) (delete-window)))
           (exwm-input-set-key (kbd "C-s-o") #'(lambda () (interactive) (gb/exwm-insert-string-anywhere "ö")))
           (exwm-input-set-key (kbd "C-s-a") #'(lambda () (interactive) (gb/exwm-insert-string-anywhere "ä")))
           (exwm-input-set-key (kbd "C-s-u") #'(lambda () (interactive) (gb/exwm-insert-string-anywhere "ü")))
