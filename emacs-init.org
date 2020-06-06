@@ -12035,9 +12035,33 @@
             '((noslash . "-")
               (nospace . "-")
               (case-fn . downcase))
+            deft-strip-summary-regexp "\\([\n]\\|^#\\+[[:upper:]_]+:.*$\\|#\\+begin_src.*$\\|;; eval:.*$\\|#\\+end_src.*$\\|;; Local Variables.*$\\|;; End.*$\\|[[:space:]]\\{2,\\}\\|#\\+title: \\)"
             deft-directory "~/documents/roam")
       :config
-      (add-to-list 'deft-extensions "tex"))
+      (add-to-list 'deft-extensions "tex")
+
+      (defun gb/deft-parse-content (str)
+        "strip content from default texts (noise)"
+        (replace-regexp-in-string deft-strip-summary-regexp " " str))
+
+      ;; replace existing caching of deft w/ modified version
+      ;; that strips content before storing it in deft-hash-contents, too!
+      (defun deft-cache-newer-file (file mtime)
+        "Update cached information for FILE with given MTIME."
+        ;; Modification time
+        (puthash file mtime deft-hash-mtimes)
+        (let (contents title)
+          ;; Contents
+          (with-current-buffer (get-buffer-create "*Deft temp*")
+            (insert-file-contents file nil nil nil t)
+            (setq contents (concat (buffer-string))))
+          (puthash file (gb/deft-parse-content contents) deft-hash-contents)
+          ;; Title
+          (setq title (deft-parse-title file contents))
+          (puthash file title deft-hash-titles)
+          ;; Summary
+          (puthash file (deft-parse-summary contents title) deft-hash-summaries))
+        (kill-buffer "*Deft temp*")))
 
   #+end_src
 * EVAL org roam
