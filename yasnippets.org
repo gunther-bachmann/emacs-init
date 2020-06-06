@@ -1,0 +1,51 @@
+#+title: yasnippets
+Provide templates for yasnippet in a literate way
+Execute ~C-c C-v t~ to tangle files, then execute ~yas-reload-all~ to refresh
+* org
+** org roam entry
+   provide a default org roam entry, allowing to set the title
+   #+begin_src text :tangle ~/.emacs.d/snippets/org-mode/roam-entry
+     # -*- mode: snippet -*-
+     # name: roam-entry
+     # key: r-e
+     # --
+     ,#+title: ${1:title}
+     ,#+ROAM_TAGS:
+     ,* $1
+
+     ,#+begin_src emacs-lisp
+       ;; Local Variables:
+       ;; eval: (flyspell-mode 0) ;; no spell check errors
+       ;; eval: (org-show-all) ;; show all headings and content
+       ;; eval: (org-hide-block-all) ;; hide all org babel source blocks
+       ;; End:
+     ,#+end_src
+   #+end_src
+** org file local definitions
+   provide common local variables
+   #+begin_src text :tangle ~/.emacs.d/snippets/org-mode/file-local
+     # -*- mode: snippet -*-
+     # name: file-local
+     # key: file-local
+     # REMEMBER TO ADD AUTO EVAL ENTRIES TO ~safe-local-variable-values~
+     # --
+     ,#+begin_src emacs-lisp
+       ;; Local Variables:
+       ;; eval: (read-only-mode 1) ;; r/o
+       ;; eval: (flyspell-mode 0) ;; no spell check errors
+       ;; eval: (gb/set-dictionary "en") ;; set flyspell dictionary
+       ;; eval: (org-show-all) ;; show all headings and content
+       ;; eval: (org-hide-block-all) ;; hide all org babel source blocks
+       ;; End:
+     ,#+end_src
+   #+end_src
+* shell
+** rip dvd with handbrake
+   provide handbrake command line to rip dvd
+   #+begin_src text :tangle ~/.emacs.d/snippets/shell-mode/rip-dvd
+     # -*- mode: snippet -*-
+     # name: rip-dvd
+     # key: rip
+     # --
+     HandBrakeCLI --no-dvdnav -i /dev/sr0 -2 -e x264 -T -f av_mkv -b 1500 --audio-lang-list "de" -t $1 -o $2.mkv
+   #+end_src
