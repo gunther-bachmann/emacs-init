@@ -3104,7 +3104,7 @@
    #+END_SRC
 * editing related stuff
 ** COMMENT selfinsertion on readonly modes
-   #+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp :tangle no
      ;; TODO: refactor macro to a normal function
      (defvar gb/selfinsert-modification-mode-ignore-list '(".*magit.*" ".*Magit.*")
        "list of mode regexes to ignore")
@@ -7601,11 +7601,11 @@
   #+RESULTS:
   : org-toggle-item
 
-*** org mobile
+*** org mobile (disabled)
     - this will put all org files (known to the system) into the transfer folder which is not what I want, I don't want all files to be
       synced via Dropwizard
     - could be tamed to not use all agenda files!
-    #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp :tangle no
       (use-package org-mobile
         :commands org-mobile-pull org-mobile-push
         :after ( org)
@@ -8040,7 +8040,7 @@
  #+END_SRC
 *** helm org rifle
 **** find keybindings
-  #+BEGIN_SRC emacs-lisp
+  #+BEGIN_SRC emacs-lisp :tangle no
     (use-package helm-org-rifle
        :after ( helm org)
        :commands helm-org-rifle helm-org-rifle-directories helm-org-rifle-files)
@@ -8055,7 +8055,7 @@
 ***** helm-org-rifle-files
       Shows results from selected files.
 *** org appt (notification of agenda items)
-    #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp :tangle no
     (use-package appt
       :after ( org)
       ;; :defer 20
@@ -8089,7 +8089,7 @@
 
     #+END_SRC
 *** org review
-    #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp :tangle no
       (use-package org-review
         :commands org-review-insert-next-review org-review-insert-last-review
         :after ( org))
@@ -8389,7 +8389,7 @@
        :after ( org async))
     #+END_SRC
 *** adaptive warp
-    #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp :tangle no
     (when (locate-library "adaptive-wrap")
       (use-package adaptive-wrap))
     #+END_SRC
@@ -8397,14 +8397,14 @@
     - allow insertion of images via url, which automatically downloads
       into a local folder and creates a link within the org file
       [[https://github.com/tashrifsanil/org-easy-img-insert]]
-    #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp :tangle no
       (use-package org-easy-img-insert
         :after ( org)
         :bind ("C-c i i" . org-easy-img-insert)
         :config (progn))
     #+END_SRC
 *** org reveal (presentation)
-    #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp :tangle no
     (use-package ox-reveal
       :ensure t
       :after ( org htmlize)
@@ -8418,7 +8418,7 @@
 *** org table sticky headers
     - see [[https://github.com/cute-jumper/org-table-sticky-header][home page]]
     - headers of org tables stay in the header line while scrolling them out of view
-    #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp :tangle no
       (use-package org-table-sticky-header
         :ensure t
         :after ( org)
@@ -8429,7 +8429,7 @@
     - see [[https://github.com/markus1189/org-pdfview][homepage]]
     - executing M-x org-store-link within pdf-view-mode, will store a link that can be inserted into org mode via C-c C-l
     - when opening this link, pdf-view-mode is opened instead of system default pdf viewer!
-    #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp :tangle no
       (use-package org-pdfview
         :ensure t
         :after (org pdf-tools))
@@ -8446,7 +8446,7 @@
         :after ( org pdf-tools))
     #+END_SRC
 *** org magit
-    #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp :tangle no
     (use-package orgit
       :after ( org magit)
       ;; :defer 40
@@ -10167,7 +10167,7 @@
 ** org-brain
    organize org files within org-brain-path into somthing like a mindmap / wiki that can be browsed
    check the [[https://github.com/Kungsgeten/org-brain][home page]]
-   #+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp :tangle no
      (use-package org-brain
        :after ( org dash helm-org-rifle)
        :commands org-brain-open org-brain-visualize org-brain-insert-link
@@ -10215,7 +10215,7 @@
    #+END_SRC
 ** org recent headings
    - keep a list of lru org headings to choose from
-   #+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp :tangle no
      (use-package org-recent-headings
        :after ( org)
        :bind (("M-s-^" . org-recent-headings-helm)) ;; equivalent to M-s-i
@@ -10281,7 +10281,7 @@
 #+END_SRC
 ** org-pomodoro (time management technique)
    - install libnotify (e.g. nix-env -iA nixos.libnotify)
-   #+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp :tangle no
      (use-package org-pomodoro
        :after ( appt)
        :commands org-pomodoro-clock-in
@@ -10331,7 +10331,7 @@
      (setq comint-input-ring-size 8192)
    #+end_src
 ** ob-rust
-   #+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp :tangle no
    (use-package ob-rust
      :after( org))
    #+END_SRC
@@ -10496,7 +10496,7 @@
         USER-AGENT: kubectl/v1.14.0 (linux/amd64) kubernetes/641856d
         :auth-header
 
-  #+begin_src emacs-lisp
+  #+begin_src emacs-lisp :tangle no
     (use-package restclient
       :ensure t)
     (use-package ob-restclient
@@ -11580,14 +11580,14 @@
   - i = insert note for page
   - M-i = insert note with precise location (asked to click)
   - M-n/p = jump to next/previous annotated page
-  #+begin_src emacs-lisp
+  #+begin_src emacs-lisp :tangle no
   (use-package org-noter
     :ensure t
     :commands (org-noter))
   #+end_src
 * EVAL treemacs (start with C-x t t)
   - see [[https://github.com/Alexander-Miller/treemacs][here]]
-  #+begin_src emacs-lisp
+  #+begin_src emacs-lisp :tangle no
     (use-package treemacs
       :ensure t
       :defer t
@@ -12223,8 +12223,8 @@
       :init (defun gb/helm-bufler-switch () "" (interactive)(helm :sources '(helm-bufler-source))) ;; assign this to a command
       :ensure t)
   #+end_src
-* EVAL vlc
-  #+begin_src emacs-lisp
+* EVAL vlc (not really useful => disabled)
+  #+begin_src emacs-lisp :tangle no
     (use-package vlc
       :ensure-system-package vlc
       :ensure t)
