@@ -1382,6 +1382,11 @@
         '((eval gb/set-dictionary "en")
           (eval org-show-all)
           (eval org-hide-block-all)
+          (eval add-hook 'after-save-hook
+                '(lambda nil
+                   (org-babel-tangle)
+                   (yas-reload-all))
+                nil 'make-it-local)
           (eval progn
                 (setq current-prefix-arg
                       '(16))
