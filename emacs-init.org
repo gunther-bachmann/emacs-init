@@ -1,4 +1,5 @@
 #+title: init.el
+#+property: ^ nil
 #+property: header-args :tangle ~/.emacs.d/init.el :comments both
 #
 # execute org-babel-tangle to actually export the code into a init.el (directly into the emacs directory)
@@ -5699,7 +5700,7 @@
             "Run COMMAND and return the exit code (as int) and output (as string) in a pair ( exit-code . output-string )"
             (with-temp-buffer
               `(,(apply 'call-process shell-file-name nil (current-buffer) nil (list shell-command-switch command)) .
-                    ,(s-trim (buffer-string)))))
+                ,(s-trim (buffer-string)))))
 
           (defun gb/magit-log-trace-definition ()
             "Show log for the definition marked."
@@ -5708,15 +5709,15 @@
                              (user-error "Buffer isn't visiting a file")))
                   (fn (or (buffer-substring-no-properties (region-beginning) (region-end))
                          (user-error "function not marked")))
-                    (rev (or magit-buffer-refname
-                            (magit-get-current-branch)
-                            "HEAD")))
+                  (rev (or magit-buffer-refname
+                          (magit-get-current-branch)
+                          "HEAD")))
               (magit-log-trace-definition fname fn rev)))
 
           (defun gb/disable-smartscan ()
             ""
             (if (fboundp #'smartscan-mode)
-              (smartscan-mode -1))))
+                (smartscan-mode -1))))
 
         (add-hook 'magit-mode-hook 'gb/disable-smartscan)
         :config
@@ -5742,13 +5743,25 @@
         (setq magit-diff-hide-trailing-cr-characters t)
         (setq magit-display-buffer-function (quote magit-display-buffer-fullframe-status-v1))
 
+        ;; allow (magit-status "/yadm::") to open yadm repository
+        (when (executable-find "yadm")
+          (bind-key "C-c v y" #'(lambda () (interactive) (magit-status "/yadm::")))
+          (require 'tramp)
+          (add-to-list 'tramp-methods
+                       '("yadm"
+                         (tramp-login-program "yadm")
+                         (tramp-login-args (("enter")))
+                         (tramp-login-env (("SHELL") ("/bin/sh")))
+                         (tramp-remote-shell "/bin/sh")
+                         (tramp-remote-shell-args ("-c")))))
+
         ;; make sure that magit closes all other windows on the frame
         ;; (when (fboundp 'gb/display-buffer-fullframe)
         ;;   (add-to-list 'display-buffer-alist
         ;;                `(,(rx "*magit: ")
         ;;                  (gb/display-buffer-fullframe)
         ;;                  (reusable-frames . nil))))
-      )
+        )
       ;; show git relevant change info in the fringe of the frame
       ;; git-gutter-fringe works with nlinum-mode !
       (use-package git-gutter
