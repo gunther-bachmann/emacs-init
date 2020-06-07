@@ -2395,6 +2395,11 @@
         ;; (set-face-attribute 'mode-line nil :height 120)
         ;; (set-face-attribute 'mode-line-inactive nil :height 110)
         ;; (custom-set-faces '(mode-line ((t (:background "#403040" :foreground "#d5d8d6" :weight normal :height 110)))))
+        (custom-set-faces
+         '(doom-modeline-bar ((t (:background "#600060"))))
+         '(doom-modeline-bar-inactive ((t (:background "#500050"))))
+         '(mode-line ((t (:background "#351730" :foreground "#808080" :weight normal))))
+         '(mode-line-inactive ((t (:inherit mode-line :background "#251422" :foreground "#969896" :weight normal)))))
         (doom-modeline-mode 1))
     #+END_SRC
 *** spinner (busy indicator for modeline)
