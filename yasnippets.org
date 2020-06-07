@@ -29,6 +29,7 @@ These file local definitions must be at the head of the file to work (otherwise 
        ;; eval: (flyspell-mode 0) ;; no spell check errors
        ;; eval: (org-show-all) ;; show all headings and content
        ;; eval: (org-hide-block-all) ;; hide all org babel source blocks
+       ;; eval: (set-fill-column 80)
        ;; End:
      ,#+end_src
    #+end_src
@@ -47,6 +48,7 @@ These file local definitions must be at the head of the file to work (otherwise 
        ;; eval: (gb/set-dictionary "en") ;; set flyspell dictionary
        ;; eval: (org-show-all) ;; show all headings and content
        ;; eval: (org-hide-block-all) ;; hide all org babel source blocks
+       ;; eval: (set-fill-column 80)
        ;; End:
      ,#+end_src
    #+end_src
