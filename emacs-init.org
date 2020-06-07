@@ -1382,6 +1382,7 @@
         '((eval gb/set-dictionary "en")
           (eval org-show-all)
           (eval org-hide-block-all)
+          (eval set-fill-column 80)
           (eval add-hook 'after-save-hook
                 '(lambda nil
                    (org-babel-tangle)
