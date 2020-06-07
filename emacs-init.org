@@ -12396,6 +12396,11 @@
       :bind ("C-x M-e" . scratch-comment-eval-sexp)
       :ensure t)
   #+end_src
+* EVAL journalctl-mode
+  #+begin_src emacs-lisp
+    (use-package journalctl-mode
+      :ensure t)
+  #+end_src
 * proced
   #+begin_src emacs-lisp
     (use-package proced
