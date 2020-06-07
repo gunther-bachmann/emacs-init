@@ -12491,6 +12491,7 @@
     (use-package organize-imports-java)
     #+END_SRC
   - taskrunner - Retrieve build system/taskrunner tasks  (e.g. gradle tasks ....)
+  - lsp-metals - lsp for scala (metals)
 ** languages
   - karma test runner integration (upbo)
   - jest-test-mode - running node.js tests using jest
