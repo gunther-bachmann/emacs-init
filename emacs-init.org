@@ -12367,6 +12367,9 @@
     (use-package magit-delta
       :ensure t
       :config
+      (setq magit-delta-default-light-theme "ansi-light")
+      (setq magit-delta-default-dark-theme "Solarized (dark)") ;; "base16", "ansi-dark"
+      (setq magit-delta-hide-plus-minus-markers nil)
       (magit-delta-mode))
   #+end_src
 * EVAL ytel (youtube interface via invidous) [disabled, needs youtube-dl as extractor, too]
