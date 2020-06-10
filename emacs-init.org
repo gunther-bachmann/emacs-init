@@ -1382,6 +1382,8 @@
         '((eval gb/set-dictionary "en")
           (eval org-show-all)
           (eval org-hide-block-all)
+          (eval org-overview)
+          (eval save-excursion (goto-char (point-min)) (org-next-visible-heading 1) (org-cycle))
           (eval set-fill-column 80)
           (eval add-hook 'after-save-hook
                 '(lambda nil
