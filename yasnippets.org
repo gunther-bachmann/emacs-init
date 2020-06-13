@@ -4,6 +4,15 @@ files, then execute ~yas-reload-all~ to refresh.  This is actually done
 automatically by the file local add-hook in the following file-local var
 definition.  These file local definitions must be at the head of the file to
 work (otherwise those of the snippets are used instead).
+#+begin_src emacs-lisp
+  ;; Local Variables:
+  ;; eval: (read-only-mode 1) ;; r/o
+  ;; eval: (flyspell-mode 0) ;; no spell check errors
+  ;; eval: (org-show-all) ;; show all headings and content
+  ;; eval: (org-hide-block-all) ;; hide all org babel source blocks
+  ;; eval: (add-hook 'after-save-hook '(lambda () (org-babel-tangle) (yas-reload-all)) nil 'make-it-local)
+  ;; End:
+#+end_src
 * org
 ** org roam entry [r-e]
    provide a default org roam entry, allowing to set the title
@@ -22,6 +31,8 @@ work (otherwise those of the snippets are used instead).
        ;; eval: (flyspell-mode 0) ;; no spell check errors
        ;; eval: (org-show-all) ;; show all headings and content
        ;; eval: (org-hide-block-all) ;; hide all org babel source blocks
+       ;; eval: (org-babel-result-hide-all) ;; hide all org babel result blocks
+       ;; eval: (add-fira-code-symbol-keywords) ;; enable ligature display
        ;; eval: (set-fill-column 80)
        ;; End:
      ,#+end_src
@@ -76,13 +87,3 @@ work (otherwise those of the snippets are used instead).
      # --
      HandBrakeCLI --no-dvdnav -i /dev/sr0 -2 -e x264 -T -f av_mkv -b 1500 --audio-lang-list "de" -t $1 -o $2.mkv
    #+end_src
-
-#+begin_src emacs-lisp
-  ;; Local Variables:
-  ;; eval: (read-only-mode 1) ;; r/o
-  ;; eval: (flyspell-mode 0) ;; no spell check errors
-  ;; eval: (org-show-all) ;; show all headings and content
-  ;; eval: (org-hide-block-all) ;; hide all org babel source blocks
-  ;; eval: (add-hook 'after-save-hook '(lambda () (org-babel-tangle) (yas-reload-all)) nil 'make-it-local)
-  ;; End:
-#+end_src
