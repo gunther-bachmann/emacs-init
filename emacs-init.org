@@ -730,7 +730,7 @@
       echo "Installed space to control mapping"
     fi
     #+end_src
-    #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp :tangle no
       (defun gb/-kmonad-running-pid (keyboard)
         "kmonad is running the given keyboard configuration file"
         (s-trim (shell-command-to-string (s-concat "pgrep -a kmonad | grep " keyboard " | awk '{print $1 }'"))))
@@ -753,7 +753,7 @@
 
       (defun gb/-get-event-device (full-device-name)
        "provide a string of the event device (or nil if not found)"
-       (let ((input-device (s-trim (shell-command-to-string (s-concat "cat /proc/bus/input/devices | grep -B 1 -A 10 'Name=\"" full-device-name "' | grep \"H: Handlers\" | awk '{ print$5; }'" )))))
+       (let* ((input-device (s-trim (shell-command-to-string (s-concat "cat /proc/bus/input/devices | grep -B 1 -A 10 'Name=\"" full-device-name ".*\"' | grep \"H: Handlers\" | awk '{ print$5; }'" )))))
          (unless (string-empty-p input-device)
            (s-concat "/dev/input/" input-device))))
 
@@ -1132,7 +1132,7 @@
 
    #+END_SRC
 * delete old backup files
-  #+BEGIN_SRC emacs-lisp
+  #+begin_src emacs-lisp
   ;; delete backup files that are older than 20 weeks
   ;; or that are elisp files within .emacs.d/elpa/*
   (if (not (file-exists-p "~/file-backups"))
@@ -1147,7 +1147,7 @@
                      (string-match "!.emacs.d!elpa!.*elc?~$" file))) ;; remove old elpa files (which are not edited by me anyway)
         (message "about to delete file: %s" file)
         (delete-file file))))
-  #+END_SRC
+  #+end_src
 * ms windows specific stuff
   #+BEGIN_SRC emacs-lisp
   (when (is-ms-windows-p)
@@ -1383,6 +1383,8 @@
           (eval org-show-all)
           (eval org-hide-block-all)
           (eval org-overview)
+          (eval org-babel-result-hide-all)
+          (eval add-fira-code-symbol-keywords)
           (eval save-excursion (goto-char (point-min)) (org-next-visible-heading 1) (org-cycle))
           (eval set-fill-column 80)
           (eval add-hook 'after-save-hook
