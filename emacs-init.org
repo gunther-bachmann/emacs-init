@@ -12053,7 +12053,7 @@
     (use-package deft
       :commands deft
       :ensure t
-      :bind ("s-d" . deft)
+      :bind ("s-S-d" . deft)
       :init
       (setq deft-default-extension "org"
             ;; de-couples filename and note title:
@@ -12097,6 +12097,18 @@
         (kill-buffer "*Deft temp*")))
 
   #+end_src
+* EAVL notdef
+  - alternative to deft, using xapian to do the heavy lifting of full text searching
+  - see https://github.com/hasu/notdeft
+  #+begin_src emacs-lisp
+    (use-package notdeft
+      :commands (notdeft)
+      :bind ("s-d" . notdeft)
+      :load-path "~/repo/notdeft"
+      :custom
+      (notdeft-directories '("~/documents/roam"))
+      (notdeft-xapian-program "/home/pe/repo/notdeft/xapian/notdeft-xapian"))
+  #+end_src
 * EVAL org roam
   - see https://rgoswami.me/posts/org-note-workflow/
   - for org-roam-server browser to http://localhost:8080
@@ -12131,6 +12143,7 @@
           (org-notes "~/documents/roam")
           (org-directory org-notes)
           (deft-directory org-notes)
+          (notdeft-directories `(,org-notes))
           (org-roam-directory org-notes)
           :config (require 'org-roam-protocol)
           :bind (:map org-roam-mode-map
