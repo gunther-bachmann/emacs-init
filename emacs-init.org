@@ -1768,14 +1768,14 @@
    #+BEGIN_SRC emacs-lisp
      (setq gb/dual-screen-mode 'regular)
      (setq font-lock-support-mode 'jit-lock-mode)
-     ;; (setq jit-lock-defer-contextually t ;; 'syntax-driven
-     ;;       jit-lock-context-time 0.5
-     ;;       jit-lock-defer-time 0
-     ;;       jit-lock-stealth-load 50 ;; 200
-     ;;       jit-lock-stealth-nice 0.5
-     ;;       jit-lock-stealth-time nil ;; 0.2
-     ;;   )
-     (setq-default font-lock-multiline nil) ;; NEVER EVER SET THIS TO TRUE!!!!, makes opening this file a multi minute thing
+          (setq jit-lock-defer-contextually t ;; 'syntax-driven
+                jit-lock-context-time 0.5
+                jit-lock-defer-time nil
+                jit-lock-stealth-load 50 ;; 200
+                jit-lock-stealth-nice nil
+                jit-lock-stealth-time 0.2 ;; 0.2
+            )
+          (setq-default font-lock-multiline nil) ;; NEVER EVER SET THIS TO TRUE!!!!, makes opening this file a multi minute thing
 
      (setq-default line-spacing 4) ;; depends a bit on the type of font selected
 
@@ -7501,6 +7501,55 @@
                   (setq buffer-read-only t)))))
 
         :config
+
+        (setq gb/use-optimized-folded-src-fontificat nil) ;; fontify src blocks only if they ar not folded!
+
+        (defun gb/get-org-hide-block-status (&optional pos)
+          "t if babel block is folded, else nil"
+          (save-excursion
+            (when pos (goto-char pos))
+            (let ((element (org-element-at-point)))
+              (goto-char (org-element-property :begin element))
+              (unless (memq (org-element-type element)
+                            '(center-block comment-block dynamic-block example-block
+                                           export-block quote-block special-block
+                                           src-block verse-block))
+                (user-error "Not at a block"))
+              (let* ((post (org-element-property :post-affiliated element))
+                     (start (save-excursion
+                              (goto-char post)
+                              (line-end-position)))
+                     (end (save-excursion
+                            (goto-char (org-element-property :end element))
+                            (skip-chars-backward " \t\n")
+                            (line-end-position))))
+                ;; Do nothing when not before or at the block opening line or at
+                ;; the block closing line.
+                (unless (let ((eol (line-end-position))) (and (> eol start) (/= eol end)))
+                  (eq (get-char-property start 'invisible) 'org-hide-block))))))
+
+        ;; todo: optimize: fontify to the next end src- block marker (not to the end of the file)
+        (defun gb/org-hide-block-toggle-maybe--fontify-if-src-block (&rest args)
+          "fontify the rest of document if within a org babel src block"
+          (with-buffer-modified-unmodified
+           (let ((element (org-element-at-point)))
+             (when (equal 'src-block (org-element-type element))
+               (save-excursion (with-temp-message "fontify src block" (org-fontify-meta-lines-and-blocks-1 (point-max))))))))
+
+        (defun gb/org-src-font-lock-fontify-block--only-if-non-folded (orig-fun &rest args)
+          "if region within folded element, ignore fontification"
+          (let ((lang (nth 0 args))
+                (start (nth 1 args))
+                (end (nth 2 args)))
+            (unless (gb/get-org-hide-block-status start)
+              (with-temp-message
+                  (format "font-lock @%s lang %s" start lang)
+                (apply orig-fun args)))))
+
+        (when gb/use-optimized-folded-src-fontificat
+          (advice-add 'org-hide-block-toggle-maybe :after #'gb/org-hide-block-toggle-maybe--fontify-if-src-block)
+          (advice-add 'org-src-font-lock-fontify-block :around #'gb/org-src-font-lock-fontify-block--only-if-non-folded))
+
         (setq org-file-apps (append '(("\\.sid\\'" . "sidplayfp %s" )) org-file-apps))
         (setq org-cycle-include-plain-lists 'integrate)
         ;; set org babel backgrounds for several languages
@@ -7513,7 +7562,7 @@
         ;; `script'   Highlight subscript and superscript.
         ;; `entities' Highlight entities.
         ;; `native`   Use native highlighting
-        (setq org-highlight-latex-and-related '(native))
+        (setq org-highlight-latex-and-related nil) ;; '(native)
 
         ;; make sure that regular font in src block within org is 'white'
         (custom-set-faces '(org-block ((t (:foreground "gray75")))))
