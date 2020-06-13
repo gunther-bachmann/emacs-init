@@ -12420,6 +12420,14 @@
     (use-package journalctl-mode
       :ensure t)
   #+end_src
+* EVAL format-all
+  - format a very large number of different programming language using external tools
+  - ~format-all-mode~ will format automatically on save
+  #+begin_src emacs-lisp
+    (use-package format-all
+      :commands (format-all-buffer)
+      :ensure t)
+  #+end_src
 * proced
   #+begin_src emacs-lisp
     (use-package proced
