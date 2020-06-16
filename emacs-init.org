@@ -12149,7 +12149,7 @@
         (kill-buffer "*Deft temp*")))
 
   #+end_src
-* EAVL notdef
+* EVAL notdeft
   - alternative to deft, using xapian to do the heavy lifting of full text searching
   - see https://github.com/hasu/notdeft
   #+begin_src emacs-lisp
@@ -12647,6 +12647,7 @@
   - org-roam-bibtex - Connector between Org-roam, BibTeX-completion, and Org-ref
   - org-treeusage - Examine the usage of org headings in a tree-like manner
   - org-noter-pdftools - integration of org-noter and pdftools
+  - ox-leanpub - Export Org documents to Leanpub book format
 ** os/system
   - network-watch (allows hooks to run when network is goiing down/up)
   - scp (use scp to transfer files)
@@ -12703,6 +12704,9 @@
    - auth-source-xoauth2 - Integrate auth-source with XOAUTH2
 ** graphics
    - vega-view - allow preview of vega graphics (graphics described by json), see https://vega.github.io/vega/ and https://github.com/applied-science/emacs-vega-view
+** system
+   - arduino-cli-mode - Arduino-CLI command wrapper
+   - etc-sudoers-mode - Edit Sudo security policies
 ** ui
    - modern-fringes - Replaces default fringe bitmaps with better looking ones
    - simple-modeline -
