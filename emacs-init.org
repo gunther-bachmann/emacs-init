@@ -12159,7 +12159,18 @@
       :load-path "~/repo/notdeft"
       :custom
       (notdeft-directories '("~/documents/roam"))
-      (notdeft-xapian-program "/home/pe/repo/notdeft/xapian/notdeft-xapian"))
+      (notdeft-xapian-program "/home/pe/repo/notdeft/xapian/notdeft-xapian")
+      :config
+      (require 'notdeft-org)
+
+      ;; redefinition of reading deft link, using completing-read instead of ivy
+      (defun notdeft-org-read-deft-link-name ()
+        "Query for a \"deft:\" link name.
+    Do so interactively. Return the name component of a link, without
+    the \"deft:\" prefix."
+        (let ((name-lst (notdeft-make-basename-list)))
+          (when name-lst
+            (completing-read "NotDeft note: " name-lst)))))
   #+end_src
 * EVAL org roam
   - see https://rgoswami.me/posts/org-note-workflow/
