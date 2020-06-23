@@ -7532,7 +7532,7 @@
 
         :config
 
-        (setq gb/use-optimized-folded-src-fontificat nil) ;; fontify src blocks only if they ar not folded!
+        (setq gb/use-optimized-folded-src-fontificat t) ;; fontify src blocks only if they ar not folded!
 
         (defun gb/get-org-hide-block-status (&optional pos)
           "t if babel block is folded, else nil"
@@ -7564,7 +7564,9 @@
           (with-buffer-modified-unmodified
            (let ((element (org-element-at-point)))
              (when (equal 'src-block (org-element-type element))
-               (save-excursion (with-temp-message "fontify src block" (org-fontify-meta-lines-and-blocks-1 (point-max))))))))
+               (font-lock-fontify-block)
+               ;; (save-excursion (with-temp-message "fontify src block" (org-fontify-meta-lines-and-blocks-1 (or (re-search-forward "[ \t]*#\\+end_src" (point-max) t) (point-max)))))
+               ))))
 
         (defun gb/org-src-font-lock-fontify-block--only-if-non-folded (orig-fun &rest args)
           "if region within folded element, ignore fontification"
@@ -7572,9 +7574,11 @@
                 (start (nth 1 args))
                 (end (nth 2 args)))
             (unless (gb/get-org-hide-block-status start)
-              (with-temp-message
-                  (format "font-lock @%s lang %s" start lang)
-                (apply orig-fun args)))))
+              (apply orig-fun args)
+              ;; (with-temp-message
+              ;;     (format "font-lock @%s lang %s" start lang)
+              ;;   )
+              )))
 
         (when gb/use-optimized-folded-src-fontificat
           (advice-add 'org-hide-block-toggle-maybe :after #'gb/org-hide-block-toggle-maybe--fontify-if-src-block)
@@ -8047,20 +8051,21 @@
     #+END_SRC
 *** org bullets
  #+BEGIN_SRC emacs-lisp
- (use-package org-bullets
-   :ensure t
-   :after ( org)
-   :init
-   (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
-   :config
-   (setq org-bullets-bullet-list '("●" "⚫" "⚪" "⚬" "∘" "◦" "∙" "◉" "◯" "◎" "○" "◌" "◎" "○" "☉" "￮" "⊙" "❍" "⊚" "⊛"))
-   ;; override fontify buffer of org-bullets, since it forces fontifying again, which was already done => waste of time
-   (defun org-bullets--fontify-buffer ()
-     (when font-lock-mode
-       (if (and (fboundp 'font-lock-flush)
-              (fboundp 'font-lock-ensure))
-           (with-no-warnings
-             (font-lock-fontify-buffer))))))
+   (use-package org-bullets
+     :ensure t
+     :after ( org)
+     :init
+     (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
+     :config
+     (setq org-bullets-bullet-list '("●" "⚫" "⚪" "⚬" "∘" "◦" "∙" "◉" "◯" "◎" "○" "◌" "◎" "○" "☉" "￮" "⊙" "❍" "⊚" "⊛"))
+     ;; override fontify buffer of org-bullets, since it forces fontifying again, which was already done => waste of time
+     ;; (defun org-bullets--fontify-buffer ()
+     ;;   (when font-lock-mode
+     ;;     (if (and (fboundp 'font-lock-flush)
+     ;;            (fboundp 'font-lock-ensure))
+     ;;         (with-no-warnings
+     ;;           (font-lock-fontify-buffer)))))
+     )
  #+END_SRC
 *** level 3
 **** level 4
@@ -13154,4 +13159,5 @@
 # Local Variables:
 # eval: (read-only-mode 1)
 # eval: (flyspell-mode 0)
+# eval: (org-hide-block-all)
 # End:
