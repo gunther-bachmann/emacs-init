@@ -20,7 +20,26 @@
 #
 * first
 #+begin_src emacs-lisp
-(set-background-color "black")
+  (set-background-color "black")
+  (set-foreground-color "white")
+  (when (and (executable-find "getEventDeviceFor")
+             (executable-find "evtest"))
+    (let* ((tp-input (shell-command-to-string "getEventDeviceFor 'TouchPad'"))
+           ;; play the sound only if control is pressed on startup!
+           (tp-play-ok (shell-command-to-string (format "sudo evtest --query %s EV_KEY 274 || echo -n \"ok\"" tp-input)))
+           (kb-input (shell-command-to-string "getEventDeviceFor 'kmonad-internal-keyboard'"))
+           ;; play the sound only if middle touchpad button is pressed on startup!
+           (kb-play-ok (shell-command-to-string (format "sudo evtest --query %s EV_KEY 29 || echo -n \"ok\"" kb-input)))
+           (kb-usb-input (shell-command-to-string "getEventDeviceFor 'kmonad-filco-usb'"))
+           ;; play the sound only if middle touchpad button is pressed on startup!
+           (kb-usb-play-ok (shell-command-to-string (format "sudo evtest --query %s EV_KEY 29 || echo -n \"ok\"" kb-usb-input))))
+      (when (and (or (equal "ok" kb-play-ok)
+                     (equal "ok" tp-play-ok)
+                     (equal "ok" kb-usb-play-ok))
+                 (executable-find "pactl")
+                 (executable-find "play"))
+        (shell-command-to-string "pactl set-sink-volume 0 30%")
+        (start-process-shell-command "startup" nil  "play ~/sound/it_crowd.mp3"))))
 #+end_src
 * elpa-mirror (see https://github.com/redguardtoo/elpa-mirror)
   #+begin_src emacs-lisp
