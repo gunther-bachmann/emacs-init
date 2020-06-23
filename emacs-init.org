@@ -123,7 +123,7 @@
 ** helm locate
    helm uses /usr/bin/locate to actually provide a list of possible candidates.  the configuration goes into /etc/locate.rc (open within
    /sudo::/etc/locate.rc).
-** helm-m-x 
+** helm-m-x
 *** command history
     - is saved in extended-command-history and saved through the
       package 'session' which stores lots of session information into
@@ -3885,7 +3885,7 @@
        (if (string-prefix-p (buffer-substring 1 6) "<?xml")
            (nxml-pretty-format))))
    #+END_SRC
-** aggressive indent mode (also used by parinfer) 
+** aggressive indent mode (also used by parinfer)
    automatically indents all while typing 
    #+BEGIN_SRC emacs-lisp
    (when (locate-library "aggressive-indent")
@@ -4277,7 +4277,7 @@
      :config
      (with-eval-after-load 'company (add-hook 'company-mode-hook (lambda () (add-to-list 'company-backends 'company-capf))) (company-flx-mode +1)))
    #+END_SRC
-** IMPLEMENT company-shell 
+** IMPLEMENT company-shell
    - provide company help for fish (or other shell) completions within modes like (fish-mode, shell-mode)
    #+BEGIN_SRC emacs-lisp
    (use-package company-shell
@@ -4827,7 +4827,7 @@
     (see also https://github.com/abo-abo/lispy)
 **** general keybindings
 ***** [      move to first enclosing opening parenthesis
-***** ]      move to first enclosing closing parenthesis 
+***** ]      move to first enclosing closing parenthesis
       )      
 ***** C-1    display function doc inline (only if connected to nrepl)
 ***** C-2    display function parameters of current thing at point (repl connected)
@@ -7046,7 +7046,7 @@
     ;; (D) group description
     (setq gnus-group-line-format "%M%S %-27uG %5y/%-10t %D\n")
     #+END_SRC
-*** misc 
+*** misc
  #+BEGIN_SRC emacs-lisp
      (defun message-toggle-gcc ()
        "Insert or remove the \"Gcc\" header."
@@ -7065,7 +7065,7 @@
  #+END_SRC
 *** nnir (make mails searchable)
 **** add keybindings for searching imap groups (currently 'G G' within top top level)
-**** construct hydra 
+**** construct hydra
   #+BEGIN_SRC emacs-lisp
     ;; make imap searchable
     ;;(use-package nnir
@@ -7121,7 +7121,7 @@
  #+END_SRC
 *** incremental search within bbdb (and more) [[https://github.com/aki2o/bbdb-][link]]
 **** to open (during writing mails): M-x bbdb-:start-completion
-**** keybinding in that mode is then 
+**** keybinding in that mode is then
       j ... Go to next record
       k ... Go to previous record
       h ... Go to previous char
@@ -10644,28 +10644,60 @@
                                                   built-in
                                                 usb-device)))))
 
+         (defcustom gb/sound-theme-base-dir "~/sound" "base dir for sound files" :group 'gb/sound-theme :type 'string)
+         (defcustom gb/sound-theme-effect-volume "clack" "sound file to be used on volume change" :group 'gb/sound-theme :type 'string)
+         (defcustom gb/sound-theme-effect-switch-workspace "zing" "sound file to be used " :group 'gb/sound-theme :type 'string)
+         (defcustom gb/sound-theme-volume "-v 0.8" "volume parameter for sound player to play sounds with" :group 'gb/sound-theme :type 'string)
+         (defcustom gb/sound-theme-player "play" "player to be used for playing sound files" :group 'gb/sound-theme :type 'string)
+
+         (defcustom gb/sound-theme-muted nil "whether to mute sounds" :group 'gb/sound-theme :type 'boolean)
+
+         (defun gb/play-theme-sound (sound)
+           "play sound from theme"
+           (unless gb/sound-theme-muted
+             (start-process-shell-command "play-sound-theme" nil (format "%s %s %s/%s.wav" gb/sound-theme-player gb/sound-theme-volume gb/sound-theme-base-dir sound))))
+
          (defun gb/audio-lower-volume ()
            "lower volume by 5%"
            (interactive)
-           (let ((output-selected (gb/audio-output-selected)))
-             (shell-command (format "pactl set-sink-volume %s -5%%" output-selected))
-             (message (format "volume down, now %s     (%s)" (gb/get-volume-lr-escaped output-selected) output-selected))))
+           (with-ignored-messages
+            (let ((output-selected (gb/audio-output-selected)))
+              (shell-command (format "pactl set-sink-volume %s -5%%" output-selected))
+              (gb/play-theme-sound gb/sound-theme-effect-volume)
+              (gb/dunst-report-volume output-selected))))
 
-         (defun gb/get-volume-lr-escaped (element)
-           "get current volume as string"
-           (s-replace "%" "%%" (s-trim (shell-command-to-string (format "pactl list sinks | grep -A 9 \"Name: %s\" | grep -e \"^[[:space:]]*Volume:\" | awk '{ print $5 \" / \" $12 }'" element)))))
+         (defun gb/dunst-report-volume (element)
+           (let ((volume (gb/get-volume element))
+                 (volume-state (gb/get-volume-state element))
+                 (element-str (replace-regexp-in-string "\\(alsa_output.\\|.analog-stereo\\|-00\\)" "" element)))
+             (if (s-equals? "on" volume-state)
+                 (shell-command (format "dunstify -a \"changeVolume\" -u low -i audio-volume-high -r \"991049\" \"Volume: %i%%\n%s\" \"$(getProcessingString 20 '●' '◯' %i)\"" volume element-str volume))
+               (shell-command (format "dunstify -a \"changeVolume\" -u low -i audio-volume-muted -r \"991049\" \"Volume muted\n%s\"" element-str)))))
+
+         (defun gb/get-volume (element)
+           "get current volume as number"
+           (string-to-number
+            (s-replace "%" "" (s-trim (shell-command-to-string (format "pactl list sinks | grep -A 9 \"Name: %s\" | grep -e \"^[[:space:]]*Volume:\" | awk '{ print $5 \" / \" $12 }'" element))))))
+
+         (defun gb/get-volume-state (element)
+           "return 'on' (regular) or 'off' (muted)"
+           (s-trim (shell-command-to-string "amixer get Master | tail -1 | awk '{print $6}' | sed 's/[^a-z]*//g'")))
 
          (defun gb/audio-raise-volume ()
            "raise volume by 5%"
            (interactive)
-           (let ((output-selected (gb/audio-output-selected)))
-             (shell-command (format "pactl set-sink-volume %s +5%%" output-selected))
-             (message (format "volume up, now %s     (%s)" (gb/get-volume-lr-escaped output-selected) output-selected))))
+           (with-ignored-messages
+            (let ((output-selected (gb/audio-output-selected)))
+              (shell-command (format "pactl set-sink-volume %s +5%%" output-selected))
+              (gb/play-theme-sound gb/sound-theme-effect-volume)
+              (gb/dunst-report-volume output-selected))))
 
          (defun gb/audio-mute-volume ()
            "mute volume master"
            (interactive)
-           (shell-command "amixer sset Master toggle"))
+           (let ((output-selected (gb/audio-output-selected)))
+             (shell-command "amixer sset Master toggle")
+             (gb/dunst-report-volume output-selected)))
 
          (defun gb/audio-mute-mic ()
            "mute volume microphone"
@@ -10697,32 +10729,43 @@
     - brightness functions
        #+begin_src emacs-lisp
          (defun gb/brightness-up ()
-           ""
+           "increase monitor 0 brightness by 10%"
            (interactive)
-           (shell-command "xbacklight -inc 10")
-           (let ((brightness (s-trim (shell-command-to-string "xbacklight -get"))))
-             (message (s-concat "brightness up, now: " brightness " %%"))))
+           (with-ignored-messages
+            (shell-command "xbacklight -inc 10")
+            (let ((brightness (s-trim (shell-command-to-string "xbacklight -get"))))
+              (shell-command (format "dunstify -a \"changeBrightness\" -u low -i brightness-high -r \"991048\" \"Brightness: %s%%\" \"$(getProcessingString 20 '●' '◯' %s)\"" brightness brightness)))))
+
          (defun gb/brightness-set (percent)
-           ""
+           "set brightness of monior 0 to PERCENT"
            (shell-command (format "xbacklight -set %i" percent))
            (let ((brightness (s-trim (shell-command-to-string "xbacklight -get"))))
              (message (s-concat "brightness set, now: " brightness " %%"))))
+
          (defun gb/brightness-down ()
-           ""
+           "decrease monitor 0 brightness by 10%"
            (interactive)
-           (shell-command "xbacklight -dec 10")
-           (let ((brightness (s-trim (shell-command-to-string "xbacklight -get"))))
-             (message (s-concat "brightness down, now: " brightness " %%"))))
-
-
+           (with-ignored-messages
+            (shell-command "xbacklight -dec 10")
+            (let ((brightness (s-trim (shell-command-to-string "xbacklight -get"))))
+              (shell-command (format "dunstify -a \"changeBrightness\" -u low -i brightness-high -r \"991048\" \"Brightness: %s%%\" \"$(getProcessingString 20 '●' '◯' %s)\"" brightness brightness)))))
        #+end_src
     - lock, screen saver
        #+begin_src emacs-lisp
+         (defun gb/dunst-notify-disable ()
+           "disable dunst desktop notification (temporarily)"
+           (interactive)
+           (shell-command "notify-send \"DUNST_COMMAND_PAUSE\""))
+         (defun gb/dunst-notify-enable ()
+           "(re)enable dunst desktop notification"
+           (interactive)
+           (shell-command "notify-send \"DUNST_COMMAND_RESUME\""))
          (defun gb/lock-screen ()
            "lock screen"
            (interactive)
            (when (gb/upower--on-battery)
              (gb/brightness-set 0))
+           (gb/dunst-notify-disable)
            (shell-command "xset s activate"))
          (defun gb/screensaver-enable ()
            "enable screen saver"
@@ -10916,6 +10959,7 @@
                           (progn (message "no workspace left of this.") (beacon-blink) nil)
                         (setq gb/exwm--previous-workspace workspaceIdx)
                         (exwm-workspace-switch 0 t)
+                        (gb/play-theme-sound gb/sound-theme-effect-switch-workspace)
                         (message (format "<<     now %s" (exwm-workspace--position exwm-workspace--current)))
                         ;; (x-focus-frame (selected-frame))
                         (doom-modeline-set-selected-window)
@@ -10930,7 +10974,8 @@
                                (not (string-empty-p (gb/get-second-monitor))))
                           (progn ;; (setq gb/exwm--previous-workspace workspaceIdx)
                             (exwm-workspace-switch gb/exwm--previous-workspace t)
-                            ;; (message (format ">>     now %s" (exwm-workspace--position exwm-workspace--current)))
+                            (gb/play-theme-sound gb/sound-theme-effect-switch-workspace)
+                            (message (format ">>     now %s" (exwm-workspace--position exwm-workspace--current)))
                             ;; (x-focus-frame (selected-frame))
                             (doom-modeline-set-selected-window)
                             t)
@@ -10950,6 +10995,7 @@
                                    (< workspaceIdx lastIndex)))
                           (progn (exwm-workspace-switch (+ 1 workspaceIdx) t)
                                  (gb/exwm-visualize-workspace-switch (+ workspaceIdx (if single-mon-p 1 0)) (- (length exwm-workspace--list) (if single-mon-p 0 1)) 10)
+                                 (gb/play-theme-sound gb/sound-theme-effect-switch-workspace)
                                  (message (format "\\/     now %s" (exwm-workspace--position exwm-workspace--current)))
                                  ;; (x-focus-frame (selected-frame))
                                  (doom-modeline-set-selected-window))
@@ -10967,6 +11013,7 @@
                                    (> workspaceIdx 0)))
                           (progn (exwm-workspace-switch (- workspaceIdx 1) t)
                                  (gb/exwm-visualize-workspace-switch (- workspaceIdx (if single-mon-p 1 2)) (- (length exwm-workspace--list) (if single-mon-p 0 1)) 10)
+                                 (gb/play-theme-sound gb/sound-theme-effect-switch-workspace)
                                  (message (format "/\\     now %s" (exwm-workspace--position exwm-workspace--current)))
                                  ;; (x-focus-frame (selected-frame))
                                  (doom-modeline-set-selected-window))
