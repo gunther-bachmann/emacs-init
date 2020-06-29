@@ -6761,6 +6761,25 @@
    (setq shr-color-visible-luminance-min 80)
    (setq shr-use-fonts nil) ;; don't use proportional fonts
 
+   ;; remove image from the list of inline displayed elements in mails
+   (setq mm-inlined-types
+         '("text/.*"
+           "message/delivery-status"
+           "message/rfc822"
+           "message/partial"
+           "message/external-body"
+           "application/x-patch"
+           "application/emacs-lisp"
+           "application/x-emacs-lisp"
+           "application/pgp-signature"
+           "application/x-pkcs7-signature"
+           "application/pkcs7-signature"
+           "application/x-pkcs7-mime"
+           "application/pkcs7-mime"
+           "application/x-gtar-compressed"
+           "application/x-tar"
+           "application/zip"
+           "application/pgp"))
 
    ;; Gnus formatting and colorizing
 
