@@ -12221,13 +12221,42 @@
           (deft-directory org-notes)
           (notdeft-directories `(,org-notes))
           (org-roam-directory org-notes)
-          :config (require 'org-roam-protocol)
+          :config
+          (require 'org-roam-protocol)
+
+          (defvar gb/set-tag-config-list '(("ROAM_TAGS" . " ") ("FILETAGS" . ":"))
+            "list of pairs, describing org attribute and tag separator to be used")
+
+          (defun gb/set-tags-in-org-roam-file ()
+            "set the following tags on the first org header and on all attributes listed in 'gb/set-tag-config-list'"
+            (interactive)
+            (save-excursion
+              (goto-char (point-min))
+              (org-next-visible-heading 1)
+              (let* ((existing-tags (org-get-tags))
+                     (tag-string-list (s-split " " (read-string "tags (space separated): " (s-join " " existing-tags)))))
+                (-map (lambda (config)
+                        (let ((attr (car config))
+                              (sep (cdr config)))
+                          (goto-char (point-min))
+                          (when (re-search-forward (format "#\\+%s:" attr) nil t)
+                            (when (< (point) (line-end-position)) (kill-line))
+                            (unless (equal sep " ") (insert " "))
+                            (insert sep)
+                            (insert (s-join sep tag-string-list))
+                            (unless (equal sep " ") (insert sep)))))
+                      gb/set-tag-config-list))
+              (goto-char (point-min))
+              (org-next-visible-heading 1)
+              (org-set-tags tag-string-list)))
           :bind (:map org-roam-mode-map
                       (("C-c n l" . org-roam)
                        ("C-c n f" . org-roam-find-file)
                        ("C-c n g" . org-roam-show-graph))
                       :map org-mode-map
-                      (("C-c n i" . org-roam-insert))))
+                      (("C-c n i" . org-roam-insert)
+                       ("C-c n n" . notdeft-org-link-new-file)
+                       ("C-c n t" . gb/set-tags-in-org-roam-file))))
 
         (use-package org-roam-server
           :commands (org-roam-server-mode)
