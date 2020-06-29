@@ -3243,11 +3243,17 @@
 ** auto-fill-mode configuration
    - will word break / line break after column _
    #+BEGIN_SRC emacs-lisp
-   (setq fill-column 140)
-   (set-default 'fill-column 140)
-   (defun gb/enable-auto-fill-mode ()
-     "enable auto-fill-mode regardless of current state"
-     (auto-fill-mode +1))
+     (setq fill-column 140)
+     (set-default 'fill-column 140)
+     (set-default 'display-fill-column-indicator t)
+     (set-default 'display-fill-column-indicator-character 9474)
+     (custom-set-faces
+      '(fill-column-indicator ((t (:foreground "gray13"))))
+      '(fill-column-indicator-face ((t (:foreground "gray20")))))
+
+     (defun gb/enable-auto-fill-mode ()
+       "enable auto-fill-mode regardless of current state"
+       (auto-fill-mode +1))
    #+END_SRC
 ** keep some session stuff
    - will keep helm-M-x history after restart
