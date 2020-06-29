@@ -3151,7 +3151,7 @@
 
    #+END_SRC
 * editing related stuff
-** COMMENT selfinsertion on readonly modes
+** selfinsertion on readonly modes
    #+BEGIN_SRC emacs-lisp :tangle no
      ;; TODO: refactor macro to a normal function
      (defvar gb/selfinsert-modification-mode-ignore-list '(".*magit.*" ".*Magit.*")
@@ -3384,6 +3384,9 @@
 
      ;; automatically reload open buffers if they changed on disk
      (global-auto-revert-mode 1)
+     (set-default 'auto-revert-avoid-polling t) ;; avoid polling (may not work on remote filesystems)
+
+     (global-so-long-mode 1)
 
      ;; overwrite selected text
      (delete-selection-mode t)
@@ -6411,127 +6414,11 @@
    '(xslt-process-registered-stylesheets nil))
 
   (custom-set-faces
-   ;; custom-set-faces was added by Custom.
-   ;; If you edit it by hand, you could mess it up, so be careful.
-   ;; Your init file should contain only one such instance.
-   ;; If there is more than one, they won't work right.
    '(col-highlight ((t (:background "gray63"))))
    '(hi-yellow ((t (:background "gray44"))))
    '(region ((t (:background "gray45" :inverse-video nil))))
    '(popup-isearch-match ((t (:background "RoyalBlue2"))))
    '(term-color-yellow ((t (:background "DarkGoldenrod4" :foreground "#f0c674")))))
-
-  ;; load the color scheme similar to lighttable
-  ;; (load-theme 'noctilux t)
-
-  ;; (setq cheat-sheet-locations '("Emacs_Reference_Card.pdf"
-  ;;                               "calccard.pdf"
-  ;;                               "dired-ref.pdf"
-  ;;                               "dired-refcard.gnu.pdf"
-  ;;                               "gnus-booklet.pdf"
-  ;;                               "gnus-refcard.pdf"
-  ;;                               "magitCheatsheet.pdf"
-  ;;                               "orgcard.pdf"
-  ;;                               "paredit-cheatsheet.pdf"))
-
-  ;; ;; can be either 'right or 'below,
-  ;; (setq cheat-sheet-split-mode 'below)
-
-  ;; (defun open-cheat-sheet (file-path)
-  ;;   "split depending on customization var cheat-sheet-split-mode and load file from file-path"
-  ;;   (cond
-  ;;    ((equal cheat-sheet-split-mode 'right) (split-window-right))
-  ;;    ((equal cheat-sheet-split-mode 'left) (split-window-left))
-  ;;    ;;     ((equal cheat-sheet-split-mode 'above) (split-window-below))
-  ;;    ((equal cheat-sheet-split-mode 'below) (split-window-below)))
-  ;;   (other-window 1)
-  ;;   (find-file file-path)
-  ;;   (cond
-  ;;    ((equal cheat-sheet-split-mode 'right) (pdf-view-fit-height-to-window))
-  ;;    ((equal cheat-sheet-split-mode 'left) (pdf-view-fit-height-to-window))
-  ;;    ;;     ((equal cheat-sheet-split-mode 'above) (progn (pdf-view-fit-width-to-window)))
-  ;;    ((equal cheat-sheet-split-mode 'below) (pdf-view-fit-width-to-window)))
-  ;;   (other-window -1))
-
-  ;; (defun close-cheat-sheet (file-path)
-  ;;   "close the cheat sheet that is displayed, deleting the respective window"
-  ;;   (with-selected-window
-  ;;       (get-buffer-window (get-file-buffer file-path))
-  ;;     (delete-window)))
-
-  ;; (defun cheat-sheet-toggle (file-path)
-  ;;   "open the given cheatsheet (or close it, if already open)"
-  ;;   (let ((fbuf (get-file-buffer file-path)))
-  ;;     (if (and fbuf (get-buffer-window fbuf))
-  ;;         (close-cheat-sheet file-path)
-  ;;       (open-cheat-sheet file-path))))
-
-  ;; (defun cheat-sheet-clojure-toggle ()
-  ;;   "open the clojure cheatsheet"
-  ;;   (interactive)
-  ;;   (cheat-sheet-toggle (expand-file-name "~/Documents/cheat-sheet/clojure/clojure-cheatsheet-usletter-color.pdf")))
-
-  ;; (defun cheat-sheet-org-toggle ()
-  ;;   "open the org-mode cheatsheet"
-  ;;   (interactive)
-  ;;   (cheat-sheet-toggle (expand-file-name "~/Documents/cheat-sheet/emacs/orgcard.pdf")))
-
-  ;; (defun cheat-sheet-dired-toggle ()
-  ;;   "open the dired cheatsheet"
-  ;;   (interactive)
-  ;;   (cheat-sheet-toggle (expand-file-name "~/Documents/cheat-sheet/emacs/dired-refcard.gnu.pdf")))
-
-  ;; (defun cheat-sheet-magit-toggle ()
-  ;;   "open the magit cheatsheet"
-  ;;   (interactive)
-  ;;   (cheat-sheet-toggle (expand-file-name "~/Documents/cheat-sheet/emacs/magitCheatsheet.pdf")))
-
-  ;; clojure-cheatsheet
-  ;; runs with existing repl only:
-  ;; M-x clojure-cheatsheet opens a helm like search over severyl clojure concepts/functions etc.
-
-  ;; focus
-  ;; M-x focus-mode toggles this mode that focusses only on the construct under the cursor
-
-  ;; helm-ag
-  ;; search multi key word with M-x helm-ag
-
-
-  ;; (add-to-list 'load-path "~/.emacs.d/clomacs/src/elisp/")
-  ;; (require 'clomacs)
-
-  ;; (clomacs-defun get-property System/getProperty)
-  ;; (message (get-property "java.version"))
-
-  ;; (use-package kanban)
-
-  ;; (add-to-list 'load-path "~/git/local/hoclgen/src/elisp")
-  ;; (require 'hoclgen)
-
-
-  ;; (add-to-list 'load-path "~/.emacs.d/xml-customizations")
-  ;; (load "xml-extensions.el")
-
-
-  ;; C-c C-a annotate the marked region, or the word under point
-  ;; annotations are saved in ~/.annotations
-
-
-
-  ;; Set the defcustom variables defined in jiralib.el (actually only the jiralib-url is required, as the other 2 are usually computed from it correctly and is the case in the video demo):
-
-  ;; 3 matches for "\bdefcustom\b" in buffer: jiralib.el
-  ;;      55:(defcustom jiralib-host ""
-  ;;     107:(defcustom jiralib-wsdl-descriptor-url
-  ;;     120:(defcustom jiralib-url
-
-
-  ;; Write your password in ~/.authinfo, with machine being the (computed) jiralib-host, and the port being 80 (even if you are using https for Jira):
-
-  ;; machine JIRALIB-HOST login USERNAME password XXXXX port 80
-
-
-
 #+END_SRC
 * yasnippet
 #+BEGIN_SRC emacs-lisp
@@ -6905,7 +6792,7 @@
            (indicator " ")
            (header-extra (mail-header-extra header))) ;; <-- check this
        (when  (or (string-match "^text/calendar" ctype) ;; calendar is deeply nested within, but this check works only for top level types
-                  (string-match "^multipart/mixed" ctype)) 
+                  (string-match "^multipart/mixed" ctype))
          (setq indicator "@"))
        indicator))
 
@@ -6929,7 +6816,7 @@
          mm-discouraged-alternatives
          '("text/html" "image/.*"))
 
-   (setq gnus-summary-line-format 
+   (setq gnus-summary-line-format
          (concat
           "%*%5{%U%R%z%}" ;; (U)nread (R)eplied (z)??
           "%4{|%}"
@@ -6940,7 +6827,7 @@
           "%5{%u&@;%}"  ;; gnus-user-format-function-@ to print @ for messages with attachments
           "%2{ %}%(%-24,24f" ;; (f) prints from (if not ignored address, else to)!
           "%4{|%}"
-          "%2{%6k %}%)" ;; (k) human readable size 
+          "%2{%6k %}%)" ;; (k) human readable size
           "%4{|%}"
           "%2{ %}%3{%B%}%1{%s%}\n") ;; (s)ubject
           )
@@ -7273,9 +7160,9 @@
                                  (looking-at "^[ \t]*#\\+begin_src[ \t]+[^ \f\t\n\r\v]+[ \t]*"))))
             ;; Test if we moved out of a block.
             (when (or (and rasmus/org-at-src-begin
-                           (not at-src-block))
-                      ;; File was just opened.
-                      (eq rasmus/org-at-src-begin -1))
+                        (not at-src-block))
+                     ;; File was just opened.
+                     (eq rasmus/org-at-src-begin -1))
               (rasmus/org-prettify-src--update))
             ;; Remove composition if at line; doesn't work properly.
             ;; (when at-src-block
@@ -8396,7 +8283,7 @@
           (gnuplot . t)
           (groovy . t)
           (latex . t) ;; needs org-edit-latex
-          ;; (max . t) ;; maxima
+          (maxima . t) ;; maxima
           (plantuml . t)
           ;; (prolog . t)
           (python . t)
@@ -10766,10 +10653,12 @@
            "disable dunst desktop notification (temporarily)"
            (interactive)
            (shell-command "notify-send \"DUNST_COMMAND_PAUSE\""))
+
          (defun gb/dunst-notify-enable ()
            "(re)enable dunst desktop notification"
            (interactive)
            (shell-command "notify-send \"DUNST_COMMAND_RESUME\""))
+
          (defun gb/lock-screen ()
            "lock screen"
            (interactive)
@@ -10777,6 +10666,7 @@
              (gb/brightness-set 0))
            (gb/dunst-notify-disable)
            (shell-command "xset s activate"))
+
          (defun gb/screensaver-enable ()
            "enable screen saver"
            (interactive)
@@ -10784,6 +10674,7 @@
            (shell-command "xset s on")
            (shell-command "xset +dpms")
            (message "enabled screensaver"))
+
          (defun gb/screensaver-disable ()
            "enable screen saver"
            (interactive)
@@ -10792,10 +10683,6 @@
            (shell-command "xset -dpms")
            (message "disabled screensaver"))
 
-         (defun gb/keyboard-switch-alt-win ()
-           ""
-           (interactive)
-           (shell-command "setxkbmap -option \"altwin:swap_alt_win\""))
          (defun gb/hibernate-laptop ()
            "put laptop into hibernation (complete off, store memory onto disc)"
            (interactive)
@@ -10823,9 +10710,11 @@
              (shell-command-to-string "xfce4-power-manager") ;; make sure the power manager is running
              ;; if suspend does not work try switching off bluetooth service
              (shell-command-to-string "systemctl suspend")))
+
          (defun gb/reboot--immediately ()
            "immediately execute reboot, without running hooks nor asking questions"
            (shell-command "reboot"))
+
          (defun gb/reboot ()
            "reboot pc"
            (interactive)
@@ -10835,6 +10724,7 @@
                (progn
                  (add-hook 'kill-emacs-hook #'gb/reboot--immediately t)
                  (save-buffers-kill-emacs)))))
+
          (defun gb/reset-direnv ()
            "restart direnv mode, restart tide server and bash-completion"
            (interactive)
@@ -10843,9 +10733,11 @@
            (if (get-buffer "*tide-server*")
                (tide-restart-server))
            (bash-completion-reset))
+
          (defun gb/shutdown--immediately ()
            "immediately execute shutdown, without running hooks nor asking questions"
            (shell-command "shutdown -h now"))
+
          (defun gb/shutdown ()
            "reboot pc"
            (interactive)
@@ -10855,6 +10747,7 @@
                    (message "Running duplicity (backup), shutdown aborted.")
                  (add-hook 'kill-emacs-hook #'gb/shutdown--immediately t)
                  (save-buffers-kill-emacs)))))
+
          (defun gb/start-if-not-running (filename)
            "start this program if not already running"
            (let* ((program (file-name-base filename))
@@ -12505,9 +12398,11 @@
       :ensure t
       :config
       (setq keypression-use-child-frame nil
+            keypression-foreground-for-light-mode "#606060"
+            keypression-frame-background-mode 'light ;; use black for frame background of keys pressed
             keypression-fade-out-delay 3.0
             keypression-frame-justify 'keypression-right-justified
-            keypression-frames-maxnum 7
+            keypression-frames-maxnum 7 ;; max 7 frames to show the last 7 keystrokes
             keypression-cast-command-name t
             keypression-cast-command-name-format "%s  %s"
             keypression-combine-same-keystrokes t
