@@ -7502,7 +7502,13 @@
               ;;   )
               )))
 
+        (defun gb/fontify-buffer-when-in-org-mode ()
+          "if in org mode, fontify buffer"
+          (when (equal major-mode 'org-mode)
+            (font-lock-fontify-block)))
+
         (when gb/use-optimized-folded-src-fontificat
+          (add-hook 'isearch-mode-end-hook #'gb/fontify-buffer-when-in-org-mode)
           (advice-add 'org-hide-block-toggle-maybe :after #'gb/org-hide-block-toggle-maybe--fontify-if-src-block)
           (advice-add 'org-src-font-lock-fontify-block :around #'gb/org-src-font-lock-fontify-block--only-if-non-folded))
 
