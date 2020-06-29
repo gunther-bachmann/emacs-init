@@ -12470,6 +12470,14 @@
       :commands (format-all-buffer)
       :ensure t)
   #+end_src
+* EVAL compy - adjust programs via patterns
+  - use the current selection as input template for pattern matching and transformation
+  - see https://comby.dev/
+  #+begin_src emacs-lisp
+    (use-package comby
+      :commands (comby)
+      :ensure t)
+  #+end_src
 * proced
   #+begin_src emacs-lisp
     (use-package proced
