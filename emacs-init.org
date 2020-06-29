@@ -1772,6 +1772,10 @@
        (setq auto-window-hscroll t))
      ;; (setq smooth-scroll/vscroll-step-size 3)
    #+END_SRC
+** graphics
+   #+begin_src emacs-lisp
+     (set-default 'image-use-external-converter t) ;; use external converter for exotic graphics formats
+   #+end_src
 ** display symbols (pretty-mode, prettify-greek)
    #+BEGIN_SRC emacs-lisp
      (use-package pretty-mode
