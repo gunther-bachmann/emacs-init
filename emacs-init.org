@@ -7138,7 +7138,8 @@
                    ("S-<return>" . org-return-indent)
                    ("C-<return>" . gb/org-control-return)
                    ("C-c l" . org-store-link)
-                   ("C-c t i" . org-toggle-item))
+                   ("C-c t i" . org-toggle-item)
+                   ("H-f" . gb/fontify-buffer-when-in-org-mode))
       :init
       ;; thanks to https://pank.eu/blog/pretty-babel-src-blocks.html
       (with-eval-after-load 'org
