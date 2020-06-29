@@ -1406,7 +1406,12 @@
    #+begin_src emacs-lisp
      (custom-set-variables
       '(safe-local-variable-values
-        '((eval gb/set-dictionary "en")
+        '((org-image-actual-width . 300)
+          (org-image-actual-width . 250)
+          (org-image-actual-width . 200)
+          (org-image-actual-width . 150)
+          (org-image-actual-width . 100)
+          (eval gb/set-dictionary "en")
           (eval org-show-all)
           (eval org-hide-block-all)
           (eval org-overview)
