@@ -1404,21 +1404,17 @@
 ** allowed dir locals
    - look into [[file:~/.emacs.d/init.el]] search for 'safe-local-variable-values' and set these here accordingly
    #+begin_src emacs-lisp
+     (put 'org-image-actual-width 'safe-local-variable #'integerp)
+     (put 'org-tree-slide-presentation-length 'safe-local-variable #'integerp)
      (custom-set-variables
       '(safe-local-variable-values
-        '((org-image-actual-width . 300)
-          (org-image-actual-width . 250)
-          (org-image-actual-width . 200)
-          (org-image-actual-width . 150)
-          (org-image-actual-width . 100)
-          (eval gb/set-dictionary "en")
+        '((eval gb/set-dictionary "en")
           (eval org-show-all)
           (eval org-hide-block-all)
           (eval org-overview)
           (eval org-babel-result-hide-all)
           (eval add-fira-code-symbol-keywords)
           (eval save-excursion (goto-char (point-min)) (org-next-visible-heading 1) (org-cycle))
-          (eval set-fill-column 80)
           (eval add-hook 'after-save-hook
                 '(lambda nil
                    (org-babel-tangle)
@@ -1431,9 +1427,6 @@
           (eval setq org-format-latex-options
                 (plist-put org-format-latex-options :scale 2.6))
           (gb/slides-started)
-          (org-tree-slide-presentation-length . 30)
-          (org-tree-slide-presentation-length . 45)
-          (org-tree-slide-presentation-length . 60)
           (eval setq org-show-notification-handler
                 #'(lambda
                     (msg)
