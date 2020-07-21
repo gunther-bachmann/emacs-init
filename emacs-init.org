@@ -12579,6 +12579,13 @@
       :ensure t
       :bind (:map dired-mode-map (("/" . dired-narrow))))
   #+end_src
+* EVAL helm-icons - show icons in helm selection
+  - see https://github.com/yyoncho/helm-icons
+  #+begin_src emacs-lisp
+    (use-package helm-icons
+      :ensure t
+      :config (helm-icons-enable))
+  #+end_src
 * proced
   #+begin_src emacs-lisp
     (use-package proced
