@@ -12572,6 +12572,13 @@
       :ensure t
       :commands (disk-usage))
   #+end_src
+* EVAL dired-narrow - narrow list of files in dired mode
+  - narrow using "/", revert narrow mode using "g"
+  #+begin_src emacs-lisp
+    (use-package dired-narrow
+      :ensure t
+      :bind (:map dired-mode-map (("/" . dired-narrow))))
+  #+end_src
 * proced
   #+begin_src emacs-lisp
     (use-package proced
