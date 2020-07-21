@@ -1808,6 +1808,8 @@
             )
           (setq-default font-lock-multiline nil) ;; NEVER EVER SET THIS TO TRUE!!!!, makes opening this file a multi minute thing
 
+     (setq fast-but-imprecise-scrolling t)
+     (setq inhibit-compacting-font-caches t)
      (setq-default line-spacing 4) ;; depends a bit on the type of font selected
 
      (setq gb/default-font "Hack")
@@ -2110,6 +2112,7 @@
              (sublimity-mode 1)))
          (setq sublimity-scroll-drift-length 4)
          (setq sublimity-scroll-weight 4)
+         (setq redisplay-dont-pause nil) ;; make sure not to pause until full redraw
          (setq auto-hscroll-mode t) ;; does not work in sublimity scroll mode
          ;; minimap is explicitly not enabled, since another minimap-mode is used for that
          ;; enable minimap
