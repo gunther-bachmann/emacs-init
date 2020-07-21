@@ -9480,9 +9480,20 @@
        ;; :after (dired all-the-icons vscode-icon)
        :config
        ;; make sure that long lines are truncated in sidebar
+       (defun gb/dired-keep-cursor-during-tui-update (orig-fun &rest args)
+         "execute dired omit expunge after dired sidebar tui update"
+         (let ((old-point (point)))
+           (apply orig-fun args)
+           (dired-omit-expunge)
+           (goto-char old-point)
+           ;; (message "restored %i" old-point)
+           ))
+
+       (advice-add 'dired-sidebar-tui-update :around #'gb/dired-keep-cursor-during-tui-update)
+
+       ;; (advice-remove 'dired-sidebar-tui-update #'gb/dired-keep-cursor-during-tui-update)
+
        (advice-add 'dired-sidebar-toggle-sidebar :after #'(lambda (&rest args) (toggle-truncate-lines '(1))))
-
-
 
        (defun gb/dired-sidebar-follow-file ()
          "ensure sidebar is open and position cursor on file from which this function was called"
