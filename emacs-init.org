@@ -12594,6 +12594,13 @@
       :ensure t
       :config (setq ob-mermaid-cli-path (executable-find "mmdc")))
   #+end_src
+* EVAL agda
+  - installed agda via ~nix-env -iA nixos.haskellPackages.Agda~
+  #+begin_src emacs-lisp
+    (load-file (let ((coding-system-for-read 'utf-8))
+                 (shell-command-to-string "agda-mode locate")))
+    (setq agda2-backend "GHC")
+  #+end_src
 * proced
   #+begin_src emacs-lisp
     (use-package proced
