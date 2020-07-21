@@ -1790,9 +1790,20 @@
      (use-package prettify-greek
        :ensure t
        :config
+       (defun gb/uglify-greek-symbols ()
+         ""
+        (setq prettify-symbols-alist (cl-set-difference prettify-symbols-alist
+                        prettify-greek-lower))
+        (prettify-symbols-mode t))
+
+       (defun gb/prettify-greek-symbols ()
+         ""
+         (setq prettify-symbols-alist (append prettify-symbols-alist prettify-greek-lower))
+         (prettify-symbols-mode t))
+
        (add-hook 'emacs-lisp-mode-hook
                 (lambda ()
-                  (setq prettify-symbols-alist prettify-greek-lower)
+                  (gb/prettify-greek-symbols)
                   (prettify-symbols-mode t))))
    #+END_SRC
 ** font related stuff
@@ -7135,7 +7146,7 @@
                    ("C-<return>" . gb/org-control-return)
                    ("C-c l" . org-store-link)
                    ("C-c t i" . org-toggle-item)
-                   ("H-f" . gb/fontify-buffer-when-in-org-mode))
+                   ("H-f" . font-lock-fontify-block))
       :init
       ;; thanks to https://pank.eu/blog/pretty-babel-src-blocks.html
       (with-eval-after-load 'org
