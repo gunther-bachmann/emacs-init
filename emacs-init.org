@@ -12645,6 +12645,7 @@
   - company-native-complete - Company completion using native-complete
   - native-complete - Shell completion using native complete mechanisms
   - selectrum - emacs selection and narrowing framework
+  - company-manually - manually provide completio entries
 ** configuration
   - use-package-ensure-system-package
     - require binaries / packages of the underlying system for installation of package
@@ -12654,6 +12655,8 @@
   - leaf-manager - Configure manager for leaf based init.el
   - leaf-tree - Interactive side-bar feature for init.el using leaf
   - leaf-convert - convert configuration to leaf syntax (automatic optimization)
+** db
+   - sqlite3 - Direct access to the core SQLite3 API
 ** document
   - latexdiff (diff between two latex files)
   - texfrag
@@ -12663,6 +12666,7 @@
   - auctex-cluttex - interface to ClutTeX is a program to automatically process your LaTeX document. If necessary, it re-runs (La)TeX program to resolve cross-references and everything.
   - bibtex-completion - bibtex completion backend
   - lsp-latex - lsp mode client for LaTeX
+  - ob-latex-as-png - org babel functions for latex-as-png
 ** (function) selection
   - helm-selected
   - helm-org - Helm for org headlines and keywords completion
@@ -12720,6 +12724,7 @@
   - nix-haskell-mode
   - elpl (emacs lisp repl)
   - elisp-depmap - Generate an elisp dependency map in graphviz
+  - clojure-essential-ref - the essential reference
 ** mail
    - autocrypt - automatically encrypts and distributes encrypted emails (usable in gnus) https://git.sr.ht/~zge/autocrypt
 ** navigation
@@ -12793,6 +12798,8 @@
   - edwin (dynamic window manager)
   - zoom
     - keeps balanced windows, zooming the one currently having the focus
+  - windswap - swap window buffers (with left, right, up, down)
+  - windmove - move to window (left, right, up, down)
 ** unsorted
   - flycheck-indicator - A fancy mode line indicator for `flycheck-mode'
   - helm-tail - tailing of several sources
@@ -12805,6 +12812,7 @@
   - howdoyou - A stackoverflow and its sisters' sites reader
   - calc-at-point - do calculations on selections or at point
   - basic-ide - c64 basic ide that allows for basic dev and execution in vice (see https://gitlab.com/sasanidas/emacs-c64-basic-ide)
+  - pspp-mode - edit pspp files
 ** development
    - navigel (develop modes based on tablist more efficiently)
    - helm-taskrunner (select from tasks the build system of the current project provides (e.g. gradle tasks)) https://github.com/emacs-taskrunner/helm-taskrunner
@@ -12812,6 +12820,7 @@
    - verb (organize http requests from emacs to ...)
    - with-shell-interpreter (helper for cli apis)
    - auth-source-xoauth2 - Integrate auth-source with XOAUTH2
+   - prettier - code formatting with prettier (see prettier-js)
 ** graphics
    - vega-view - allow preview of vega graphics (graphics described by json), see https://vega.github.io/vega/ and https://github.com/applied-science/emacs-vega-view
 ** system
