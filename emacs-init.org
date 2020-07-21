@@ -12566,6 +12566,12 @@
       :commands (comby)
       :ensure t)
   #+end_src
+* EVAL disk-usage - show disk usage in dired like mode
+  #+begin_src emacs-lisp
+    (use-package disk-usage
+      :ensure t
+      :commands (disk-usage))
+  #+end_src
 * proced
   #+begin_src emacs-lisp
     (use-package proced
