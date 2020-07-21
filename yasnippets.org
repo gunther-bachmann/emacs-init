@@ -33,8 +33,9 @@ work (otherwise those of the snippets are used instead).
        ;; eval: (org-hide-block-all) ;; hide all org babel source blocks
        ;; eval: (org-babel-result-hide-all) ;; hide all org babel result blocks
        ;; eval: (add-fira-code-symbol-keywords) ;; enable ligature display
+       ;; org-image-actual-width: 100
        ;; eval: (org-display-inline-images)
-       ;; eval: (set-fill-column 80)
+       ;; fill-column:  80
        ;; End:
      ,#+end_src
    #+end_src
