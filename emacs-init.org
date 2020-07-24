@@ -12481,6 +12481,13 @@
       :load-path gb/bookmarkplus-dir)
   #+end_src
 * EVAL keypression
+  - patched function keypression--push-string, self-insert evaluates to: (note check on org-self-insert-command)
+    #+begin_src emacs-lisp
+      (self-insert (and keypression-concat-self-insert
+                                 (or (eq this-command 'self-insert-command)
+                                     (eq this-command 'org-self-insert-command))))
+    #+end_src
+
   #+begin_src emacs-lisp
     (use-package keypression
       :commands (keypression-mode)
