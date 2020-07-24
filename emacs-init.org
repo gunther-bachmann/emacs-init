@@ -9486,11 +9486,11 @@
            (apply orig-fun args)
            (dired-omit-expunge)
            (goto-char old-point)
-           ;; (message "restored %i" old-point)
-           ))
+           (global-hl-line-highlight)))
 
-       (advice-add 'dired-sidebar-tui-update :around #'gb/dired-keep-cursor-during-tui-update)
+       (advice-add 'dired-sidebar-revert :around #'gb/dired-keep-cursor-during-tui-update)
 
+       ;; (advice-add 'dired-sidebar-revert :after #'(lambda (&rest args) (message "TRACE: dired-sidebar-revert")))
        ;; (advice-remove 'dired-sidebar-tui-update #'gb/dired-keep-cursor-during-tui-update)
 
        (advice-add 'dired-sidebar-toggle-sidebar :after #'(lambda (&rest args) (toggle-truncate-lines '(1))))
