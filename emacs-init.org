@@ -10644,7 +10644,7 @@
            (interactive)
            (with-ignored-messages
             (let ((output-selected (gb/audio-output-selected)))
-              (when (< 130 (gb/get-volume output-selected))
+              (when (> 130 (gb/get-volume output-selected))
                 (shell-command (format "pactl set-sink-volume %s +5%%" output-selected))
                 (gb/play-theme-sound gb/sound-theme-effect-volume))
               (gb/dunst-report-volume output-selected))))
