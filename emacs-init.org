@@ -12648,6 +12648,17 @@
                  (shell-command-to-string "agda-mode locate")))
     (setq agda2-backend "GHC")
   #+end_src
+* EVAL grugru - rotate thing at point dependent on mode through list of items defined
+  - see https://github.com/ROCKTAKEY/grugru
+  #+begin_src emacs-lisp
+    (use-package grugru
+      :ensure t
+      :commands (grugru grugru-edit)
+      :bind (("H-." . grugru))
+      :config
+      (grugru-default-setup)
+      (grugru-edit-load))
+  #+end_src
 * proced
   #+begin_src emacs-lisp
     (use-package proced
