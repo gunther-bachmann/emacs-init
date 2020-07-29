@@ -12498,17 +12498,35 @@
   #+end_src
 * EVAL keypression
   - patched function keypression--push-string, self-insert evaluates to: (note check on org-self-insert-command)
-    #+begin_src emacs-lisp
+    #+begin_src emacs-lisp :tangle no
       (self-insert (and keypression-concat-self-insert
                                  (or (eq this-command 'self-insert-command)
                                      (eq this-command 'org-self-insert-command))))
     #+end_src
-
+  - patched function keypression--key-to-string: (note check on org-self-insert-command)
+    #+begin_src emacs-lisp :tangle no
+      (or (eq this-command 'self-insert-command)
+          (eq this-command 'org-self-insert-command))
+    #+end_src
   #+begin_src emacs-lisp
     (use-package keypression
       :commands (keypression-mode)
       :ensure t
+      :init
+      (defvar gb/within-password-entry nil)
       :config
+
+      (defun gb/set-password-entry-flag (&rest args)
+        (setq gb/within-password-entry t))
+      (advice-add 'read-passwd :before #'gb/set-password-entry-flag)
+
+      ;; leaving the mini buffer undos that
+      (defun gb/unset-password-entry-flag (&rest args)
+          (setq gb/within-password-entry nil))
+      (advice-add 'exit-minibuffer :before #'gb/unset-password-entry-flag)
+
+      ;; (advice-remove 'comint-send-invisible #'gb/around-send-invisible)
+
       (setq keypression-use-child-frame nil
             keypression-foreground-for-light-mode "#606060"
             keypression-frame-background-mode 'light ;; use black for frame background of keys pressed
