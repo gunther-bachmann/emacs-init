@@ -1558,9 +1558,9 @@
    - killing gpg agent by `gpgconf --kill gpg-agent`, restart is automatic, as soon as it is needed
    - see [[https://help.ubuntu.com/community/GnuPrivacyGuardHowto][here]] too
    #+begin_src emacs-lisp
-   (defun pinentry-emacs (desc prompt ok error)
-     (let ((str (read-passwd (concat (replace-regexp-in-string "%22" "\"" (replace-regexp-in-string "%0A" "\n" desc)) prompt ": "))))
-       str))
+     (defun pinentry-emacs (desc prompt ok error)
+       (let ((str (read-passwd (concat (replace-regexp-in-string "%22" "\"" (replace-regexp-in-string "%0A" "\n" desc)) prompt ": "))))
+         str))
    #+end_src
    #+BEGIN_SRC emacs-lisp
    (use-package epa
@@ -10667,14 +10667,14 @@
            "select audio output "
            (interactive)
            ;; (ivy-read "audio-output:" (gb/audio-outputs-available) :require-match t)
-           (let ((sink-name (helm-comp-read "audio-output:" (gb/audio-outputs-available) :must-match t)))
+           (let ((sink-name (completing-read "audio-output:" (gb/audio-outputs-available) nil t)))
              (shell-command-to-string (format "pactl set-default-sink %s" sink-name))
              (message (format "output: %s" (gb/audio-output-selected)))))
 
          (defun gb/audio-input-select ()
            "select audio input"
            (interactive)
-           (let ((source-name (helm-comp-read "audio-input:" (gb/audio-inputs-available) :must-match t)))
+           (let ((source-name (completing-read "audio-input:" (gb/audio-inputs-available) nil t)))
              (shell-command-to-string (format "pactl set-default-source %s" source-name))
              (message (format "input: %s" (gb/audio-input-selected)))))
 
@@ -12530,31 +12530,8 @@
 * EVAL shrface
   #+begin_src emacs-lisp
     (use-package shrface)
-  #+end_src
-* EVAL magit-delta
-  #+begin_src emacs-lisp
-    (use-package magit-delta
-      :ensure t
+    (use-package shrface
       :config
-      (setq magit-delta-default-light-theme "ansi-light")
-      (setq magit-delta-default-dark-theme "Solarized (dark)") ;; "base16", "ansi-dark"
-      (setq magit-delta-hide-plus-minus-markers nil)
-      (magit-delta-mode))
-  #+end_src
-* EVAL ytel (youtube interface via invidous) [disabled, needs youtube-dl as extractor, too]
-  #+begin_src emacs-lisp :tangle no
-    (use-package ytel
-      :config
-      (defun ytel-watch ()
-        "Stream video at point in mpv."
-        (interactive)
-        (let* ((video (ytel-get-current-video))
-               (id    (ytel-video-id video)))
-          (start-process "ytel cvlc" nil
-                         "cvlc"
-                         "--preferred-resolution" "720"
-                         (concat "https://www.youtube.com/watch?v=" id)))
-        (message "Starting streaming...")))
   #+end_src
 * EVAL file grep and replace
   #+begin_src emacs-lisp
@@ -12670,6 +12647,7 @@
   - native-complete - Shell completion using native complete mechanisms
   - selectrum - emacs selection and narrowing framework
   - company-manually - manually provide completio entries
+  - company-ledger - fuzzy autocomplete for ledger and friends
 ** configuration
   - use-package-ensure-system-package
     - require binaries / packages of the underlying system for installation of package
@@ -12749,6 +12727,7 @@
   - elpl (emacs lisp repl)
   - elisp-depmap - Generate an elisp dependency map in graphviz
   - clojure-essential-ref - the essential reference
+  - clojure-essential-ref-nov - browse the essential ref offline (via epub)
 ** mail
    - autocrypt - automatically encrypts and distributes encrypted emails (usable in gnus) https://git.sr.ht/~zge/autocrypt
 ** navigation
@@ -12780,13 +12759,13 @@
   - doct: Declarative Org capture templates
   - walkman: write http requests within org
   - org-pdftools - links to documents in pdfmode
-  - company-org-roam - Company backend for Org-roam
   - org-roam - Roam Research replica with Org-mode, allows something like zettelkasten  (see
     https://blog.jethro.dev/posts/introducing_org_roam/)
   - org-roam-bibtex - Connector between Org-roam, BibTeX-completion, and Org-ref
   - org-treeusage - Examine the usage of org headings in a tree-like manner
   - org-noter-pdftools - integration of org-noter and pdftools
   - ox-leanpub - Export Org documents to Leanpub book format
+  - org-ml - Functional Org Mode API
 ** os/system
   - network-watch (allows hooks to run when network is goiing down/up)
   - scp (use scp to transfer files)
@@ -13187,6 +13166,38 @@
                '(sidebar-select-line ((t (:background "dark goldenrod" :foreground "black" :box nil))))
                '(sidebar-suffix-path-header ((t (:foreground "#404040")))))))))
    #+END_SRC
+* useful but discarded because of drawback that might be fixed
+** EVAL magit-delta (disabled - speed degradation on large change sets)
+   #+begin_src emacs-lisp :tangle no
+     (use-package magit-delta
+       :ensure t
+       :config
+       (setq magit-delta-default-light-theme "ansi-light")
+       (setq magit-delta-default-dark-theme "Solarized (dark)") ;; "base16", "ansi-dark"
+       (setq magit-delta-hide-plus-minus-markers nil)
+       (magit-delta-mode))
+   #+end_src
+** EVAL (disabled: does not compile) vterm - better terminal emulation
+   - installed ~cmake~, ~libvterm~ and ~libtool~ via nix-env
+   #+begin_src emacs-lisp :tangle no
+     (use-package vterm
+       :commands (vterm))
+   #+end_src
+** EVAL ytel (youtube interface via invidous) [disabled, needs youtube-dl as extractor, too]
+   #+begin_src emacs-lisp :tangle no
+     (use-package ytel
+       :config
+       (defun ytel-watch ()
+         "Stream video at point in mpv."
+         (interactive)
+         (let* ((video (ytel-get-current-video))
+                (id    (ytel-video-id video)))
+           (start-process "ytel cvlc" nil
+                          "cvlc"
+                          "--preferred-resolution" "720"
+                          (concat "https://www.youtube.com/watch?v=" id)))
+         (message "Starting streaming...")))
+   #+end_src
 * finish - up
   #+BEGIN_SRC emacs-lisp
     (report-elapsed "enter finish - up")
