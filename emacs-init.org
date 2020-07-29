@@ -1413,6 +1413,7 @@
           (eval org-hide-block-all)
           (eval org-overview)
           (eval org-babel-result-hide-all)
+          (eval gb/org-roam-open-entry-visibility)
           (eval add-fira-code-symbol-keywords)
           (eval save-excursion (goto-char (point-min)) (org-next-visible-heading 1) (org-cycle))
           (eval add-hook 'after-save-hook
@@ -1952,8 +1953,8 @@
                                   ("\\(!=\\)"                    #Xe10e)
                                   ("\\(!==\\)"                   #Xe10f)
                                   ("\\(-}\\)"                    #Xe110)
-                                  ("\\(--\\)"                    #Xe111)
-                                  ("\\(---\\)"                   #Xe112)
+                                  ;; ("\\(--\\)"                    #Xe111) ;; double - (--)
+                                  ;; ("\\(---\\)"                   #Xe112) ;; triple - (---)
                                   ("\\(-->\\)"                   #Xe113)
                                   ("[^-]\\(->\\)"                #Xe114)
                                   ("\\(->>\\)"                   #Xe115)
@@ -8334,6 +8335,7 @@
            (plantuml . t)
            ;; (prolog . t)
            (python . t)
+           (R . t)
            ;; (scala . t)
            (scheme . t)
            (sed . t)
@@ -12273,6 +12275,20 @@
                 (goto-char (point-min))
                 (org-next-visible-heading 1)
                 (org-set-tags tag-string-list))))
+
+          (defun gb/org-roam-open-entry-visibility ()
+            "setup initial org visibility in org-roam entries"
+            (interactive)
+            (org-hide-block-all)
+            (org-babel-result-hide-all)
+            (add-fira-code-symbol-keywords)
+            (org-display-inline-images)
+            (org-content)
+            (progn (setq current-prefix-arg '(16))(call-interactively 'org-latex-preview))
+            (save-excursion
+              (goto-char (point-min))
+              (org-next-visible-heading 1)
+              (org-show-entry)))
           :bind (:map org-roam-mode-map
                       (("C-c n l" . org-roam)
                        ("C-c n f" . org-roam-find-file)

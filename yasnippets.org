@@ -26,16 +26,14 @@ work (otherwise those of the snippets are used instead).
      ,#+FILETAGS:
      ,* $1
 
+
+     ,* -
      ,#+begin_src emacs-lisp
        ;; Local Variables:
        ;; eval: (flyspell-mode 0) ;; no spell check errors
-       ;; eval: (org-show-all) ;; show all headings and content
-       ;; eval: (org-hide-block-all) ;; hide all org babel source blocks
-       ;; eval: (org-babel-result-hide-all) ;; hide all org babel result blocks
-       ;; eval: (add-fira-code-symbol-keywords) ;; enable ligature display
        ;; org-image-actual-width: 100
-       ;; eval: (org-display-inline-images)
        ;; fill-column:  80
+       ;; eval: (gb/org-roam-open-entry-visibility)
        ;; End:
      ,#+end_src
    #+end_src
