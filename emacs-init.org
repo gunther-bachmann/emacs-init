@@ -10668,12 +10668,18 @@
            (interactive)
            (shell-command "amixer sset Capture toggle"))
 
+         (defun gb/audio-output-set (sink-name)
+           (shell-command-to-string (format "pactl set-default-sink %s" sink-name)))
+
+         (defun gb/audio-output-set-builtin ()
+           (gb/audio-output-set (car (--filter (s-matches? "pci.*analog-stereo" it) (gb/audio-outputs-available)))))
+
          (defun gb/audio-output-select ()
            "select audio output "
            (interactive)
            ;; (ivy-read "audio-output:" (gb/audio-outputs-available) :require-match t)
            (let ((sink-name (completing-read "audio-output:" (gb/audio-outputs-available) nil t)))
-             (shell-command-to-string (format "pactl set-default-sink %s" sink-name))
+             (gb/audio-output-set sink-name)
              (message (format "output: %s" (gb/audio-output-selected)))))
 
          (defun gb/audio-input-select ()
