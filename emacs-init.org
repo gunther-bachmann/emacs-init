@@ -12670,6 +12670,11 @@
       (grugru-default-setup)
       (grugru-edit-load))
   #+end_src
+* EVAL ess - statistics package for emacs
+  #+begin_src emacs-lisp
+    (use-package ess
+      :config (require 'ess-r-mode))
+  #+end_src
 * proced
   #+begin_src emacs-lisp
     (use-package proced
