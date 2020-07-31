@@ -32,12 +32,17 @@
            (kb-play-ok (shell-command-to-string (format "sudo evtest --query %s EV_KEY 29 || echo -n \"ok\"" kb-input)))
            (kb-usb-input (shell-command-to-string "getEventDeviceFor 'kmonad-filco-usb'"))
            ;; play the sound only if middle touchpad button is pressed on startup!
-           (kb-usb-play-ok (shell-command-to-string (format "sudo evtest --query %s EV_KEY 29 || echo -n \"ok\"" kb-usb-input))))
+           (kb-usb-play-ok (shell-command-to-string (format "sudo evtest --query %s EV_KEY 29 || echo -n \"ok\"" kb-usb-input)))
+           (kb-bt-input (shell-command-to-string "getEventDeviceFor 'kmonad-filco-bluetooth'"))
+           ;; play the sound only if middle touchpad button is pressed on startup!
+           (kb-bt-play-ok (shell-command-to-string (format "sudo evtest --query %s EV_KEY 29 || echo -n \"ok\"" kb-bt-input))))
       (when (and (or (equal "ok" kb-play-ok)
                      (equal "ok" tp-play-ok)
-                     (equal "ok" kb-usb-play-ok))
+                     (equal "ok" kb-usb-play-ok)
+                     (equal "ok" kb-bt-play-ok))
                  (executable-find "pactl")
                  (executable-find "play"))
+        (shell-command-to-string (format "pactl set-default-sink %s" "alsa_output.pci-0000_00_1f.3.analog-stereo"))
         (shell-command-to-string "pactl set-sink-volume 0 30%")
         (start-process-shell-command "startup" nil  "play ~/sound/it_crowd.mp3"))))
 #+end_src
