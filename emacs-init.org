@@ -4206,62 +4206,22 @@
          (define-key company-active-map (kbd "M-TAB") #'company-try-hard)
          ))
 
+     ;; company box is patched!
+     ;; see function company-box-doc--show
+     ;;
+     ;; ;; (unless (frame-live-p (frame-parameter nil 'company-box-doc-frame)))
+     ;; ;; don't reuse the given frame, always create a new one
+     ;; (set-frame-parameter nil 'company-box-doc-frame (company-box-doc--make-frame doc))
+
      (use-package company-box
        :ensure t
-       ;; :after (company)
-       :init
-       (add-hook 'company-mode-hook 'company-box-mode)
-       (defun window-tab-line-height () 0) ;; currently not available (will be there on emacs 27)
+       :after (company)
+       :hook (company-mode . company-box-mode)
        :config
        (progn
          (setq company-box-enable-icon t)
          (custom-set-faces
-          '(company-box-candidate ((t (:foreground "gray85")))))
-         ;; overwrite the following two functions with customized values for setting
-         ;; width and alignment of the scrollbar for company box
-         (defun company-box--update-scrollbar-buffer (height-blank height-scrollbar percent buffer)
-           (with-current-buffer buffer
-             (erase-buffer)
-             (setq header-line-format nil
-                   mode-line-format nil
-                   cursor-in-non-selected-windows nil)
-             (unless (zerop height-blank)
-               (insert (propertize " " 'display `(space :align-to left-fringe :height ,height-blank))
-                       (propertize "\n" 'face '(:height 1))))
-             (setq height-scrollbar (if (= percent 1)
-                                        ;; Due to float/int casting in the emacs code, there might 1 or 2
-                                        ;; remainings pixels
-                                        (+ height-scrollbar 10)
-                                      height-scrollbar))
-             (insert (propertize " " 'face (list :background (face-background 'company-box-scrollbar nil t))
-                                 'display `(space :align-to left-fringe :height ,height-scrollbar)))
-             (current-buffer)))
-
-         (defun company-box--update-scrollbar (frame &optional first)
-           (let* ((selection company-selection)
-                  (buffer (company-box--get-buffer "-scrollbar"))
-                  (h-frame company-box--height)
-                  (n-elements (min company-candidates-length company-box-max-candidates))
-                  (percent (company-box--percent selection (1- n-elements)))
-                  (percent-display (company-box--percent h-frame (* n-elements (frame-char-height frame))))
-                  (scrollbar-pixels (* h-frame percent-display))
-                  (height-scrollbar (/ scrollbar-pixels (frame-char-height frame)))
-                  (blank-pixels (* (- h-frame scrollbar-pixels) percent))
-                  (height-blank (/ blank-pixels (frame-char-height frame))))
-             (cond
-              ((and first (= percent-display 1) (window-live-p company-box--scrollbar-window))
-               (delete-window company-box--scrollbar-window))
-              ((window-live-p company-box--scrollbar-window)
-               (company-box--update-scrollbar-buffer height-blank height-scrollbar percent buffer))
-              ((/= percent-display 1)
-               (setq
-                company-box--scrollbar-window
-                (with-selected-frame (company-box--get-frame)
-                  (display-buffer-in-side-window
-                   (company-box--update-scrollbar-buffer height-blank height-scrollbar percent buffer)
-                   '((side . left) (window-width . 2)))))
-               (set-frame-parameter frame 'company-box-scrollbar (window-buffer company-box--scrollbar-window))
-               (window-preserve-size company-box--scrollbar-window t t)))))))
+          '(company-box-candidate ((t (:foreground "gray85")))))))
 
      (use-package company
        ;; :after (selected)
