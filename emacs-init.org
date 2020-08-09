@@ -9749,21 +9749,22 @@
    #+END_SRC
 ** emms (emacs music system)
    #+BEGIN_SRC emacs-lisp
-   (use-package emms
-     :ensure t
-     :config
-     (require 'emms-setup)
-     (emms-all)
-     (emms-default-players)
-     (setq emms-source-file-default-directory "~/music/")
-     (setq emms-playlist-buffer-name "*Music*")
-     (setq emms-info-asynchronously t)
-     ;; (require 'emms-info-libtag) ;;; load functions that will talk to emms-print-metadata which in turn talks to libtag and gets metadata
-     (setq emms-info-functions '(emms-info-mp3info)) ;;; make sure libtag is the only thing delivering metadata
-     (require 'emms-mode-line)
-     (emms-mode-line 1)
-     (require 'emms-playing-time)
-     (emms-playing-time 1))
+     (use-package emms
+       :ensure t
+       :commands (emms)
+       :config
+       (require 'emms-setup)
+       (emms-all)
+       (emms-default-players)
+       (setq emms-source-file-default-directory "~/music/")
+       (setq emms-playlist-buffer-name "*Music*")
+       (setq emms-info-asynchronously t)
+       ;; (require 'emms-info-libtag) ;;; load functions that will talk to emms-print-metadata which in turn talks to libtag and gets metadata
+       (setq emms-info-functions '(emms-info-mp3info)) ;;; make sure libtag is the only thing delivering metadata
+       (require 'emms-mode-line)
+       (emms-mode-line 1)
+       (require 'emms-playing-time)
+       (emms-playing-time 1))
    #+END_SRC
 ** posframe
    - posframe allows floating frames to be displayed at point position
@@ -12175,7 +12176,7 @@
         (kill-buffer "*Deft temp*")))
 
   #+end_src
-* EVAL notdeft
+* notdeft
   - alternative to deft, using xapian to do the heavy lifting of full text searching
   - see https://github.com/hasu/notdeft
   #+begin_src emacs-lisp
@@ -12198,7 +12199,7 @@
           (when name-lst
             (completing-read "NotDeft note: " name-lst)))))
   #+end_src
-* EVAL org roam
+* org roam
   - see https://rgoswami.me/posts/org-note-workflow/
   - for org-roam-server browser to http://localhost:8080
   - company-org-roam allows completion (company) of references other org-roam documents
@@ -12566,7 +12567,7 @@
       (with-eval-after-load 'mu4e
         (add-hook 'mu4e-view-mode-hook 'shrface-mode)))
   #+end_src
-* EVAL file grep and replace
+* file grep and replace
   #+begin_src emacs-lisp
     (use-package helm-ag
       :ensure t)
@@ -12582,7 +12583,8 @@
 * EVAL journalctl-mode
   #+begin_src emacs-lisp
     (use-package journalctl-mode
-      :ensure t)
+      :ensure t
+      :commands (journalctl))
   #+end_src
 * EVAL format-all
   - format a very large number of different programming language using external tools
@@ -12613,7 +12615,7 @@
       :ensure t
       :bind (:map dired-mode-map (("/" . dired-narrow))))
   #+end_src
-* EVAL helm-icons - show icons in helm selection
+* helm-icons - show icons in helm selection
   - see https://github.com/yyoncho/helm-icons
   #+begin_src emacs-lisp
     (use-package helm-icons
@@ -13227,6 +13229,12 @@
                '(sidebar-select-line ((t (:background "dark goldenrod" :foreground "black" :box nil))))
                '(sidebar-suffix-path-header ((t (:foreground "#404040")))))))))
    #+END_SRC
+** helm-selector - util functions for easy buffer selection - discarded: dwim behaviour is not what I want
+   #+begin_src emacs-lisp :tangle no
+     (use-package helm-selector
+       :ensure t
+       :config )
+   #+end_src
 * useful but discarded because of drawback that might be fixed
 ** EVAL magit-delta (disabled - speed degradation on large change sets)
    #+begin_src emacs-lisp :tangle no
