@@ -2122,16 +2122,28 @@
        (setq gb/face-list (mapcar #'car face-new-frame-defaults))
 
        (defun gb/face-list-func (orig-func &rest args)
-         "Return a list of all defined faces."
+         "Return a list of all defined faces. cached version using cached list."
          gb/face-list)
 
+       (defun gb/facep (orig-func &rest args)
+         "is FACE a face name. cached version working on cached list."
+         (memq (car args) gb/face-list))
+
+       (defun gb/around-make-frame (orig-func &rest args)
+         "advice make frame to make use of cached font information (which would otherwise slow the creation of the frame down)"
+         (setq gb/face-list (mapcar #'car face-new-frame-defaults))
+         (advice-add 'face-list :around #'gb/face-list-func)
+         (advice-add 'facep :around #'gb/facep)
+         (let ((result (apply orig-func args)))
+           (advice-remove 'facep #'gb/facep)
+           (advice-remove 'face-list #'gb/face-list-func)
+           result))
+
        (advice-add 'make-frame :around
-                   #'(lambda (orig-func &rest args)
-                       (setq gb/face-list (mapcar #'car face-new-frame-defaults))
-                       (advice-add 'face-list :around #'gb/face-list-func)
-                       (let ((result (apply orig-func args)))
-                         (advice-remove 'face-list #'gb/face-list-func)
-                         result)))
+                   #'gb/around-make-frame)
+
+       ;; execute the following to get original behaviour
+       ;; (advice-remove 'make-frame #'gb/around-make-frame)
      #+end_src
 ** sublimity (smooth scrolling)
    - patched ~sublimity--post-command~ commented out ~(recenter)~ after vscroll detection
