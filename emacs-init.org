@@ -12678,6 +12678,23 @@
       :ensure t
       :config (beginend-global-mode))
   #+end_src
+* EVAL scratch - open scratch buffer in the same mode as the current buffer
+  #+begin_src emacs-lisp
+    (use-package scratch
+      :ensure t
+      :bind ("s-x" . scratch)
+      :config (add-hook 'scratch-create-buffer-hook #'gb/scratch-insert-comment)
+      :init
+      (defun gb/scratch-insert-comment ()
+        ""
+        (interactive)
+        (goto-char (point-min))
+        (insert "scratchpad")
+        (mark-whole-buffer)
+        (comment-dwim nil)
+        (goto-char (point-max))
+        (insert "\n")))
+  #+end_src
 * proced
   #+begin_src emacs-lisp
     (use-package proced
