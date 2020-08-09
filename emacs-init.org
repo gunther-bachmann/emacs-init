@@ -12665,6 +12665,13 @@
     (use-package ess
       :config (require 'ess-r-mode))
   #+end_src
+* fragtog - replace latex fragments with graphics, entering the original text cursor moves over the graphics
+  - see https://github.com/io12/org-fragtog
+  #+begin_src emacs-lisp
+    (use-package org-fragtog
+      :ensure t
+      :hook (org-mode . org-fragtog-mode))
+  #+end_src
 * proced
   #+begin_src emacs-lisp
     (use-package proced
