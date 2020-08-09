@@ -2116,6 +2116,23 @@
        ;;   (gb/setup-ligatures))
 
      #+END_SRC
+
+   - speedup frame creation by caching font list during setup
+     #+begin_src emacs-lisp
+       (setq gb/face-list (mapcar #'car face-new-frame-defaults))
+
+       (defun gb/face-list-func (orig-func &rest args)
+         "Return a list of all defined faces."
+         gb/face-list)
+
+       (advice-add 'make-frame :around
+                   #'(lambda (orig-func &rest args)
+                       (setq gb/face-list (mapcar #'car face-new-frame-defaults))
+                       (advice-add 'face-list :around #'gb/face-list-func)
+                       (let ((result (apply orig-func args)))
+                         (advice-remove 'face-list #'gb/face-list-func)
+                         result)))
+     #+end_src
 ** sublimity (smooth scrolling)
    - patched ~sublimity--post-command~ commented out ~(recenter)~ after vscroll detection
    #+BEGIN_SRC emacs-lisp
