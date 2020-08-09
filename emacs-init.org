@@ -12672,6 +12672,12 @@
       :ensure t
       :hook (org-mode . org-fragtog-mode))
   #+end_src
+* EVAL beginend - jump to the right beginning / end, depending on the mode
+  #+begin_src emacs-lisp
+    (use-package beginend
+      :ensure t
+      :config (beginend-global-mode))
+  #+end_src
 * proced
   #+begin_src emacs-lisp
     (use-package proced
