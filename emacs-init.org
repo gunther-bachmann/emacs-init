@@ -10190,13 +10190,6 @@
        :after ( yaml-mode)
        :commands (yaml-tomato-show-current-path yaml-tomato-copy))
    #+END_SRC
-** agda (deactivated)
-   - 'agda-mode locate' will provide the path to agda.el which in turn holds all code to actually implement the agda mode.
-   - this will however not readly integrate smoothly with req-package but is alright for the time being I guess.
-   #+BEGIN_SRC emacs-lisp :tangle no
-     (load-file (let ((coding-system-for-read 'utf-8))
-                     (shell-command-to-string "agda-mode locate")))
-   #+END_SRC
 ** historian
    #+BEGIN_SRC emacs-lisp
    (when (locate-library "historian")
@@ -12641,6 +12634,18 @@
     (load-file (let ((coding-system-for-read 'utf-8))
                  (shell-command-to-string "agda-mode locate")))
     (setq agda2-backend "GHC")
+
+    (setq auto-mode-alist
+          (append
+           '(("\\.agda\\'" . agda2-mode)
+             ("\\.lagda.md\\'" . agda2-mode))
+           auto-mode-alist))
+
+    (custom-set-faces '(agda2-highlight-datatype-face ((t (:foreground "light blue"))))
+                      '(agda2-highlight-primitive-type-face ((t (:foreground "light blue"))))
+                      '(agda2-highlight-operator-face ((t (:foreground "light blue"))))
+                      '(agda2-highlight-function-face ((t (:foreground "light blue"))))
+                      '(agda2-highlight-primitive-face ((t (:foreground "light blue")))))
   #+end_src
 * EVAL grugru - rotate thing at point dependent on mode through list of items defined
   - see https://github.com/ROCKTAKEY/grugru
