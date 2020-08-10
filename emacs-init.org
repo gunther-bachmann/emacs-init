@@ -9948,9 +9948,9 @@
        :config (dimmer-activate)
        (setq dimmer-exclusion-regexp "\\*helm.*"))
    #+END_SRC
-** eterm-256color
+** eterm-256color - (disabled, installs lots of fonts that slow down frame creation, since each font is recalculated)
    - see [[http://github.com/dieggsy/eterm-256color][here]]
-   #+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp :tangle no
    (use-package eterm-256color
      :ensure t
      :after ( xterm-color)
