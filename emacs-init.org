@@ -5765,6 +5765,31 @@
         :init
         (progn
 
+          (defun gb/magit-assume-unchanged ()
+            "assume current file (or selection of files) to be unchanged"
+            (interactive)
+            (let* ((atpoint (magit-section-value-if 'file))
+                   (files (magit-region-values 'file t)))
+              (if files
+                  (-each files
+                    (lambda (file)
+                      (magit-call-git "update-index" "--assume-unchanged" file)))
+                (magit-call-git "update-index" "--assume-unchanged" atpoint)))
+            (magit-refresh))
+
+          (defun gb/magit--get-assumed-unchanged ()
+            "list of files currently assumed unchanged in git index"
+            (--filter (not (string-empty-p it))
+                      (s-split "\n" (shell-command-to-string "git ls-files -v | grep '^h' | sed -e 's/^h //g'"))))
+
+
+          (defun gb/magit-restore-assumed-unchanged ()
+            "restore all assumed unchanged"
+            (interactive)
+            (--each (gb/magit--get-assumed-unchanged)
+              (shell-command-to-string (format "git update-index --no-assume-unchanged \"%s\"" it)))
+            (magit-refresh))
+
           (defun gb/shell-command-to-exit-code-and-string (command)
             "Run COMMAND and return the exit code (as int) and output (as string) in a pair ( exit-code . output-string )"
             (with-temp-buffer
