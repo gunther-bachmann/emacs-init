@@ -6681,6 +6681,49 @@
          (interactive)
          (scroll-down-command))))
  #+END_SRC
+** diary
+   #+begin_src emacs-lisp
+     (when (boundp 'gb/private-google-calendar-url)
+       (require 'appt)
+
+       (setq appt-display-diary nil
+             appt-message-warning-time 10
+             appt-display-interval 3
+             appt-audible nil
+             appt-display-duration 360)
+
+       (defun gb/update-agenda-with-google-calendar ()
+         "async function to update cal based dictionary"
+         (message (format "running agenda refresh (at %s)" (current-time-string)))
+         (appt-activate -1)
+         (setq diary-file "~/.emacs.d/diary")
+         (async-start (lambda ()
+                        (add-to-list 'load-path "~/.emacs.d/accounts/")
+                        (require 'private)
+                        (shell-command-to-string (format "wget -q -O ~/cal.ics %s" gb/itemis-google-calendar-url))
+                        (shell-command-to-string (format "wget -q -O ~/pcal.ics %s" gb/private-google-calendar-url))
+                        (when (file-exists-p gb/diary-calendar-file)
+                          (delete-file gb/diary-calendar-file))
+                        (icalendar-import-file gb/itemis-calendar-file gb/diary-calendar-file)
+                        (icalendar-import-file gb/private-calendar-file gb/diary-calendar-file))
+                      (lambda (result)
+                        (setq diary-file gb/diary-calendar-file)
+                        (appt-activate 1)
+                        (message (format "agenda refresh done (at %s)." (current-time-string))))))
+
+
+       (defun gb/start-update-agenda-timer ()
+         "start the timer that updates diary with google calendar entries every 5 minutes"
+         (interactive)
+         (setq gb/update-agenda-timer (run-at-time nil (* 5 60) #'gb/update-agenda-with-google-calendar)))
+
+       (defun gb/cancel-update-agenda-timer ()
+         "cancel the timer that updates diary with google calendar entries every 5 minutes"
+         (interactive)
+         (cancel-timer gb/update-agenda-timer))
+
+       (gb/start-update-agenda-timer))
+   #+end_src
 ** gnus (mail)
 *** gnu-firstentry
  #+BEGIN_SRC emacs-lisp
