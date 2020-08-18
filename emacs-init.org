@@ -5806,6 +5806,14 @@
             (--filter (not (string-empty-p it))
                       (s-split "\n" (shell-command-to-string "git ls-files -v | grep '^h' | sed -e 's/^h //g'"))))
 
+          (defun gb/magit-show-assumed-unchanged ()
+            ""
+            (interactive)
+            (let* ((buffer (generate-new-buffer (generate-new-buffer-name "*magit - assumed unchanged*"))))
+              (with-current-buffer buffer
+                (--each (gb/magit--get-assumed-unchanged)
+                  (insert it "\n")))
+              (switch-to-buffer buffer)))
 
           (defun gb/magit-restore-assumed-unchanged ()
             "restore all assumed unchanged"
