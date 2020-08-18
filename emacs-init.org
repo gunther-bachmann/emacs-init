@@ -2954,7 +2954,7 @@
 
        (defun gb/blink-if-not-shell (&rest args)
          "user for blinking on recenter, which shell mode does constantly => only in other modes"
-         (unless (memq major-mode (list 'ansi-term-mode 'term-mode 'shell-mode 'comint-mode))
+         (unless (memq major-mode (list 'ansi-term-mode 'term-mode 'shell-mode 'comint-mode 'slack-mode 'slack-message-buffer-mode))
            (beacon-blink)))
 
        (advice-add 'recenter :after #'gb/blink-if-not-shell)
@@ -8539,35 +8539,82 @@
     #+begin_src emacs-lisp
       (use-package org-sidebar)
     #+end_src
-** slack (disabled)
- #+BEGIN_SRC emacs-lisp :tangle no
+** slack
+ #+BEGIN_SRC emacs-lisp
+   (use-package emojify
+     :ensure t
+     :hook (slack-mode . emojify-turn-on-emojify-mode)
+     (org-mode . emojify-turn-off-emojify-mode ))
 
    (use-package slack
      :ensure t
-     :disabled t
-     :init           
+     :commands (slack-start)
+     :init
      (setq slack-enable-emoji t) ;; if you want to enable emoji, default nil
      ;; (setq slack-room-subscription '(clojurians itemisHamburg))
+     (setq slack-prefer-current-team t)
+     (with-eval-after-load 'tracking
+       (bind-key "s-\\" #'tracking-next-buffer tracking-mode-map))
+     ;; Ensure the buffer exists when a message arrives on a
+     ;; channel that wasn't open.
+     (setq slack-buffer-create-on-notify t)
+     :config
+     (setq lui-time-stamp-format "[%m-%d %H:%M]")
+     (setq lui-fill-column 80)
 
-     :config  
-     (slack-start)
-     (let* ((auth-map (jde-read-properties-file "~/.slack-auth.properties.gpg")))
+     (add-hook 'slack-mode-hook #'emojify-mode)
+
+     (bind-key "@" #'slack-message-embed-mention slack-mode-map)
+
+     (let* ((auth-map (jde-read-properties-file "~/.slack.api.token.gpg")))
        (slack-register-team
-        :name "itemis-hh"
+        :name "itemis"
         :default t
-        :client-id (gethash "slack-client-id" auth-map)
-        :client-secret (gethash "slack-client-secret" auth-map)
         :token (gethash "slack-token" auth-map)
         :subscribed-channels '(general random))
-       (slack-register-team
-        :name "clojurians"
-        :client-id (gethash "slack-client-id" auth-map)
-        :client-secret (gethash "slack-client-secret" auth-map)
-        :token (gethash "slack-token" auth-map)
-        :subscribed-channels '(cider clojure-hamburg))
-       ))
+       )
 
+     ;; make sure to not track common channels (annoying)
+     (setq tracking-ignored-buffers '(".*itemis : general.*" ))
 
+     (defun gb/slack-all-room-names ()
+       ""
+       (--map (slack-room-name it (slack-team-select))
+              (cl-loop for team in (list (slack-team-select))
+                       append (append (slack-team-ims team)
+                                      (slack-team-groups team)
+                                      (slack-team-channels team)))))
+
+     (defun gb/slack-room-by-regex (regex)
+       ""
+       (--first (s-matches? regex (slack-room-name it (slack-team-select)))
+                (cl-loop for team in (list (slack-team-select))
+                         append (append (slack-team-ims team)
+                                        (slack-team-groups team)
+                                        (slack-team-channels team)))))
+
+     (defun gb/slack-room-display (regex)
+       (slack-room-display (gb/slack-room-by-regex regex) (slack-team-select)))
+
+     ;; (gb/slack-room-display "^nord$")
+     )
+
+   (use-package alert
+     :commands (alert)
+     :ensure t
+     :init
+     (setq alert-default-style 'message)
+     ;; disable all alerts
+     (add-to-list 'alert-user-configuration
+                  '(((:category . "slack")) ignore nil))
+
+     ;; alert me on some channels
+     (add-to-list
+      'alert-user-configuration
+      '(((:title . "\\(nord\\|Slackbot\\)")
+         (:category . "slack"))
+        message nil))
+     )
  #+END_SRC
 * ido (disabled, now using helm)
 ** ido itself (configured to being not used, since it is started anyways)
