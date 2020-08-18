@@ -11402,6 +11402,42 @@
                     (exwm-input--fake-key key)))
               (insert string)))
 
+          (defun gb/firefox-open-on-workspace-1 ()
+            ""
+            (interactive)
+            (gb/exwm-workspace-switch 1)
+            (let ((fbuffer (--find (s-matches? "Firefox.*" (buffer-name(cdr  it))) exwm--id-buffer-alist)))
+              (if fbuffer
+                  (switch-to-buffer (cdr fbuffer))
+                  (start-process-shell-command "firefox" nil "jfirefox"))))
+
+          (defun gb/mail-open-on-workspace-7 ()
+            ""
+            (interactive)
+            (gb/exwm-workspace-switch 7)
+            (unless (--any? (s-matches? it (buffer-name)) '(".Summary.*" ".Group.*" ".Article" ".BBDB."))
+              (call-interactively #'gnus)))
+
+          (defun gb/emacs-init-open ()
+            ""
+            (interactive)
+            (find-file "~/repo/emacs-init/emacs-init.org"))
+
+          (defun gb/slack-open-on-workspace-1 ()
+            ""
+            (interactive)
+            (gb/exwm-workspace-switch 1)
+            (start-process-shell-command "slack-buffer" nil "slack-ui"))
+
+          (defun gb/pass-open-on-workspace-0 ()
+            ""
+            (interactive)
+            (gb/exwm-workspace-switch 0)
+            (ignore-errors (windmove-right))
+            (unless (s-equals? (buffer-name) gb/password-store)
+              (split-window-right-and-select-scratch)
+              (find-file gb/password-store)))
+
           ;; changes via exwm-input-set-key become active after restart of exwm only!
           (exwm-input-set-key (kbd "<XF86MonBrightnessUp>") #'gb/brightness-up)
           (exwm-input-set-key (kbd "<XF86MonBrightnessDown>") #'gb/brightness-down)
@@ -11438,6 +11474,11 @@
           (exwm-input-set-key (kbd "s-<down>") #'windmove-down)
 
           (exwm-input-set-key (kbd "H-c") #'gb/mouse-pointer-to-cursor)
+          (exwm-input-set-key (kbd "H-s") #'gb/slack-open-on-workspace-1)
+          (exwm-input-set-key (kbd "H-p") #'gb/pass-open-on-workspace-0)
+          (exwm-input-set-key (kbd "H-u") #'gb/firefox-open-on-workspace-1)
+          (exwm-input-set-key (kbd "H-m") #'gb/mail-open-on-workspace-7)
+          (exwm-input-set-key (kbd "H-e") #'gb/emacs-init-open)
 
           (exwm-input-set-key (kbd "S-s-<up>") #'gb/remove-upper-window)
           (exwm-input-set-key (kbd "S-s-<down>") #'gb/remove-lower-window)
