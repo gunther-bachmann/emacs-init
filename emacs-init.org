@@ -5895,12 +5895,43 @@
         :config
         (progn
           (custom-set-faces
-           '(git-gutter:unchanged ((t (:background "orange4")))))))
+           '(git-gutter:unchanged ((t (:background "orange4")))))
+          (setq git-gutter-added-sign".")))
 
       (use-package git-gutter-fringe
         :ensure t
         :after ( git-gutter)
-        :config (global-git-gutter-mode +1))
+        :config
+        (global-git-gutter-mode +1)
+        (fringe-helper-define 'git-gutter-fr:added nil
+          "........"
+          "........"
+          "...X...."
+          "..XXX..."
+          "...X...."
+          "........"
+          "........"
+          "........")
+
+        (fringe-helper-define 'git-gutter-fr:deleted nil
+          "........"
+          "........"
+          "........"
+          "..XXX..."
+          "........"
+          "........"
+          "........"
+          "........")
+
+        (fringe-helper-define 'git-gutter-fr:modified nil
+          "........"
+          "........"
+          "....X..."
+          "...X...."
+          "....X..."
+          "........"
+          "........"
+          "........"))
 
       (use-package magit-gh-pulls
         :after ( magit)
