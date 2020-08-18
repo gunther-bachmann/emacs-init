@@ -3463,7 +3463,10 @@
      (global-auto-revert-mode 1)
      (set-default 'auto-revert-avoid-polling t) ;; avoid polling (may not work on remote filesystems)
 
-     (global-so-long-mode 1)
+     ;; make sure so long is used for e.g. minified files
+     ;; see https://www.emacswiki.org/emacs/SoLong
+     (when (version<= "27" emacs-version)
+       (global-so-long-mode 1))
 
      ;; overwrite selected text
      (delete-selection-mode t)
@@ -4172,10 +4175,12 @@
 ** helpful
    - allow for additional help information for functions
    #+BEGIN_SRC emacs-lisp
-   (use-package helpful
-     :ensure t
-     :commands (helpful-macro helpful-function helpful-command helpful-variable helpful-at-point)
-     :bind ("s-h" . helpful-at-point))
+     (use-package helpful
+       :ensure t
+       :commands (helpful-macro helpful-callable helpful-function helpful-command helpful-variable helpful-at-point)
+       :bind ("s-h" . helpful-at-point)
+             ("C-h f" . helpful-callable)
+             ("C-h v" . helpful-variable))
    #+END_SRC
 ** which key
    #+BEGIN_SRC emacs-lisp
@@ -5819,12 +5824,12 @@
             "Show log for the definition marked."
             (interactive)
             (let ((fname  (or (magit-file-relative-name)
-                             (user-error "Buffer isn't visiting a file")))
+                              (user-error "Buffer isn't visiting a file")))
                   (fn (or (buffer-substring-no-properties (region-beginning) (region-end))
-                         (user-error "function not marked")))
+                          (user-error "function not marked")))
                   (rev (or magit-buffer-refname
-                          (magit-get-current-branch)
-                          "HEAD")))
+                           (magit-get-current-branch)
+                           "HEAD")))
               (magit-log-trace-definition fname fn rev)))
 
           (defun gb/disable-smartscan ()
@@ -6646,7 +6651,7 @@
 
    ;; closed by gnu-lastentry!
    (use-package gnus
-     :commands gnus
+     ;; :commands gnus
      :after ( smtpmail-multi mm-decode hydra bbdb)
      :bind (
             :map gnus-group-mode-map
@@ -9716,7 +9721,7 @@
         (bind-key "C-c m" #'vr/mc-mark)
         (setq vr/default-regexp-modifiers (quote (:I t :M t :S nil :U nil)))))
   #+END_SRC
-* language server protocol mode
+* lsp - language server protocol mode
 #+BEGIN_SRC emacs-lisp
 (report-elapsed "check point language server protocol mode")
 #+END_SRC
@@ -10299,7 +10304,7 @@
    (when (locate-library "historian")
     (use-package historian))
    #+END_SRC
-** org-brain
+** org-brain (disabled - now using notdeft)
    organize org files within org-brain-path into somthing like a mindmap / wiki that can be browsed
    check the [[https://github.com/Kungsgeten/org-brain][home page]]
    #+BEGIN_SRC emacs-lisp :tangle no
@@ -10488,7 +10493,9 @@
    #+BEGIN_SRC emacs-lisp
      (use-package all-the-icons-dired
        :ensure t
-       :after ( all-the-icons dired))
+       :after ( all-the-icons dired)
+       :bind (:map dired-mode-map
+                   ("C-x t t" . #'all-the-icons-dired-mode)))
    #+END_SRC
 ** all the icons gnus
    - on hold, icons disturb custom ui settings of gnu
@@ -10954,10 +10961,10 @@
        #+end_src
   - exwm configuration
     #+BEGIN_SRC emacs-lisp
-    (when gb/use-exwm
-      (use-package xelb
-        :after (helm-external helm ace-window windmove)
-        :ensure t))
+      (when gb/use-exwm
+        (use-package xelb
+          :after (helm-external helm ace-window windmove)
+          :ensure t))
     #+END_SRC
   - exwm
     #+BEGIN_SRC emacs-lisp
@@ -12621,6 +12628,9 @@
       (defvar gb/within-password-entry nil)
       :config
 
+      (setq keypression-use-child-frame t)
+      (setq frame-resize-pixelwise nil)
+
       (defun gb/set-password-entry-flag (&rest args)
         (setq gb/within-password-entry t))
       (advice-add 'read-passwd :before #'gb/set-password-entry-flag)
@@ -13034,6 +13044,7 @@
    - with-shell-interpreter (helper for cli apis)
    - auth-source-xoauth2 - Integrate auth-source with XOAUTH2
    - prettier - code formatting with prettier (see prettier-js)
+   - lsp-focus - use focus in lsp (reduce to some region, rest is grayed out)
 ** graphics
    - vega-view - allow preview of vega graphics (graphics described by json), see https://vega.github.io/vega/ and https://github.com/applied-science/emacs-vega-view
 ** system
@@ -13043,6 +13054,16 @@
    - modern-fringes - Replaces default fringe bitmaps with better looking ones
    - simple-modeline -
 * discarded
+** dired-posframe (disabled) preview is disrupting
+   #+begin_src emacs-lisp :tangle no
+     (use-package dired-posframe
+       :ensure t
+       :disabled t
+       :commands (dired-posframe-show dired-posframe-mode)
+       :bind (:map dired-mode-map
+                   ("C-c t p" . #'dired-posframe-mode)
+                   ("C-c p" . #'dired-posframe-show)))
+   #+end_src
 ** pixel-scroll (pixel wise scrolling) currently disabled (part of emacs 27)
    #+BEGIN_SRC emacs-lisp :tangle no
      ;; currently on the load path by .emacs.d/additionals
