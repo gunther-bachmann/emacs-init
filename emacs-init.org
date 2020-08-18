@@ -2146,11 +2146,23 @@
            (advice-remove 'face-list #'gb/face-list-func)
            result))
 
-       (advice-add 'make-frame :around
-                   #'gb/around-make-frame)
+       (defun gb/install-frame-creation-speedup ()
+         "makes frame creation much faster by reusing font lists. this may however disrupt some programs, see gb/disable-frame-speedup-for"
+         (advice-add 'make-frame :around
+                     #'gb/around-make-frame))
 
-       ;; execute the following to get original behaviour
-       ;; (advice-remove 'make-frame #'gb/around-make-frame)
+       (defun gb/remove-frame-creation-speedup ()
+         "restore the old frame creation method, which is quite slow"
+         (advice-remove 'make-frame #'gb/around-make-frame))
+
+       ;; default is: speedup frame creation
+       (gb/install-frame-creation-speedup)
+
+       (defun gb/disable-frame-speedup-for (orig-func &rest params)
+         "disable frame creation speedup for functions (e.g. gnus) that show font problems"
+         (gb/remove-frame-creation-speedup)
+         (apply orig-func params)
+         (gb/install-frame-creation-speedup))
      #+end_src
 ** sublimity (smooth scrolling)
    - patched ~sublimity--post-command~ commented out ~(recenter)~ after vscroll detection
@@ -10945,6 +10957,14 @@
                       ))
 
                   (defvar gb/exwm--previous-workspace 1 "workspace index before going left")
+
+                  (defun gb/exwm-workspace-switch (index &optional force previousIdx)
+                    "remember workspace index when switching to 0 (left, laptop monitor)"
+                    (let ((actualPrevIdx (or previousIdx (exwm-workspace--position exwm-workspace--current))))
+                      (when ( and (= index 0) (> actualPrevIdx 0))
+                        (setq gb/exwm--previous-workspace actualPrevIdx))
+                      (exwm-workspace-switch index force)))
+
                   (defun gb/exwm-workspace-left ()
                     "jump to workspace left of the current one (multi monitor)"
                     ;; if on multimonitor, check if there is one left of this
@@ -10954,13 +10974,13 @@
                       (if (or (s-equals? (gb/get-primary-monitor) monitor)
                               (string-empty-p (gb/get-second-monitor)))
                           (progn (message "no workspace left of this.") (beacon-blink) nil)
-                        (setq gb/exwm--previous-workspace workspaceIdx)
-                        (exwm-workspace-switch 0 t)
+                        (gb/exwm-workspace-switch 0 t workspaceIdx)
                         (gb/play-theme-sound gb/sound-theme-effect-switch-workspace)
                         (message (format "<<     now %s" (exwm-workspace--position exwm-workspace--current)))
                         ;; (x-focus-frame (selected-frame))
                         (doom-modeline-set-selected-window)
                         t)))
+
                   (defun gb/exwm-workspace-right ()
                     "jump to workspace right of the current one (multi monitor)"
                     ;; if on multimonitor, check if there is one left of this
@@ -10979,6 +10999,7 @@
                         (message "no workspace right of this.")
                         (beacon-blink)
                         nil)))
+
                   (defun gb/exwm-workspace-down ()
                     "jump to workspace down of the current one (multi monitor)"
                     (interactive)
@@ -10990,7 +11011,7 @@
                                    (< workspaceIdx lastIndex))
                               (and single-mon-p
                                    (< workspaceIdx lastIndex)))
-                          (progn (exwm-workspace-switch (+ 1 workspaceIdx) t)
+                          (progn (gb/exwm-workspace-switch (+ 1 workspaceIdx) t)
                                  (gb/exwm-visualize-workspace-switch (+ workspaceIdx (if single-mon-p 1 0)) (- (length exwm-workspace--list) (if single-mon-p 0 1)) 10)
                                  (gb/play-theme-sound gb/sound-theme-effect-switch-workspace)
                                  (message (format "\\/     now %s" (exwm-workspace--position exwm-workspace--current)))
@@ -10998,6 +11019,7 @@
                                  (doom-modeline-set-selected-window))
                         (message "no workspace below this.")
                         (beacon-blink))))
+
                   (defun gb/exwm-workspace-up ()
                     "jump to workspace up of the current one (multi monitor)"
                     (interactive)
@@ -11008,7 +11030,7 @@
                                    (> workspaceIdx 1))
                               (and single-mon-p
                                    (> workspaceIdx 0)))
-                          (progn (exwm-workspace-switch (- workspaceIdx 1) t)
+                          (progn (gb/exwm-workspace-switch (- workspaceIdx 1) t)
                                  (gb/exwm-visualize-workspace-switch (- workspaceIdx (if single-mon-p 1 2)) (- (length exwm-workspace--list) (if single-mon-p 0 1)) 10)
                                  (gb/play-theme-sound gb/sound-theme-effect-switch-workspace)
                                  (message (format "/\\     now %s" (exwm-workspace--position exwm-workspace--current)))
@@ -11422,6 +11444,10 @@
           ;; (setq exwm-workspace-minibuffer-position 'bottom)
 
           (setq exwm-workspace-number 8) ;; set the number of workspaces (default is 4)
+
+          ;; make sure that workspace frames are initialized without frame creation speedup
+          ;; gnus does not work well with speed initialized frames, it shows some font problems
+          (advice-add 'exwm-workspace--init :around #'gb/disable-frame-speedup-for)
 
           ;; show all exwm buffers in all workspaces (no restriction)
           (setq exwm-workspace-show-all-buffers t)
