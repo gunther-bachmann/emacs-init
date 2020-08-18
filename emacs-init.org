@@ -272,9 +272,15 @@
   #+END_SRC
 * check account configuration files
   #+BEGIN_SRC emacs-lisp
-  (setq agenda-accounts-exists (file-exists-p (concat user-emacs-directory "accounts/agenda-accounts.el")))
-  (setq calendar-accounts-exists (file-exists-p (concat user-emacs-directory "accounts/calendar-accounts.el")))
-  (setq mail-accounts-exists (file-exists-p (concat user-emacs-directory "accounts/mail-accounts.el")))
+    (setq agenda-accounts-exists (file-exists-p (concat user-emacs-directory "accounts/agenda-accounts.el")))
+    (setq calendar-accounts-exists (file-exists-p (concat user-emacs-directory "accounts/calendar-accounts.el")))
+    (setq mail-accounts-exists (file-exists-p (concat user-emacs-directory "accounts/mail-accounts.el")))
+    (setq private-exists (file-exists-p (concat user-emacs-directory "accounts/private.el")))
+
+    (when private-exists
+      (use-package private
+        :load-path "~/.emacs.d/accounts/"))
+
   #+END_SRC
 * initial setting of vars
   #+BEGIN_SRC emacs-lisp
