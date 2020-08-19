@@ -12738,10 +12738,16 @@
                                  (or (eq this-command 'self-insert-command)
                                      (eq this-command 'org-self-insert-command))))
     #+end_src
-  - patched function keypression--key-to-string: (note check on org-self-insert-command)
+  - replaced substitution keypression--key-to-string: (note check on org-self-insert-command)
     #+begin_src emacs-lisp :tangle no
-      (or (eq this-command 'self-insert-command)
-          (eq this-command 'org-self-insert-command))
+      (defsubst keypression--keys-to-string (keys)
+        (if (bound-and-true-p gb/within-password-entry)
+            "*"
+          (if (and (or (eq this-command 'self-insert-command)
+                    (eq this-command 'org-self-insert-command))
+                 (string= keys " "))
+              keypression-space-substitution-string
+            (key-description keys))))
     #+end_src
   #+begin_src emacs-lisp
     (use-package keypression
