@@ -11096,7 +11096,8 @@
            (if-let (left-window (windmove-find-other-window 'left))
                (let ((width (window-total-width left-window)))
                  (delete-window left-window)
-                 (window-resize (get-buffer-window) width t))))
+                 (when (not (frame-root-window-p (get-buffer-window)))
+                   (window-resize (get-buffer-window) width t)))))
 
          (defun gb/remove-right-window ()
            ""
