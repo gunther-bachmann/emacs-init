@@ -11086,7 +11086,9 @@
            ""
            (interactive)
            (if-let (left-window (windmove-find-other-window 'left))
-               (delete-window left-window)))
+               (let ((width (window-total-width left-window)))
+                 (delete-window left-window)
+                 (window-resize (get-buffer-window) width t))))
 
          (defun gb/remove-right-window ()
            ""
