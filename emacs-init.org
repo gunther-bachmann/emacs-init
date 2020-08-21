@@ -8293,6 +8293,9 @@
         (org-agenda-to-appt)             ;; generate the appt list from org agenda files on emacs launch
         (run-at-time "24:01" 3600 'org-agenda-to-appt)           ;; update appt list hourly
 
+        ;; make sure appt are highlighted accordingly
+        (custom-set-faces '(mode-line-emphasis ((t (:foreground "DarkGoldenrod3")))))
+
         ;; set up the call to terminal-notifier
         (defvar gb/appt-notifier-path (s-trim (shell-command-to-string "command -v notify-send")))
 
