@@ -1823,14 +1823,14 @@
    #+BEGIN_SRC emacs-lisp
      (setq gb/dual-screen-mode 'regular)
      (setq font-lock-support-mode 'jit-lock-mode)
-          (setq jit-lock-defer-contextually t ;; 'syntax-driven
-                jit-lock-context-time 0.5
-                jit-lock-defer-time nil
-                jit-lock-stealth-load 50 ;; 200
-                jit-lock-stealth-nice 2.0
-                jit-lock-stealth-time 0.2 ;; 0.2
-            )
-          (setq-default font-lock-multiline nil) ;; NEVER EVER SET THIS TO TRUE!!!!, makes opening this file a multi minute thing
+     (setq jit-lock-defer-contextually t ;; 'syntax-driven
+           jit-lock-context-time 0.5
+           jit-lock-defer-time nil
+           jit-lock-stealth-load 50 ;; 200
+           jit-lock-stealth-nice 2.0
+           jit-lock-stealth-time 0.2 ;; 0.2
+           )
+     (setq-default font-lock-multiline nil) ;; NEVER EVER SET THIS TO TRUE!!!!, makes opening this file a multi minute thing
 
      (setq fast-but-imprecise-scrolling t)
      (setq inhibit-compacting-font-caches t)
@@ -1883,23 +1883,23 @@
        Use DEFAULT-HEIGHT for default face and VARIABLE-PITCH-HEIGHT
        for variable-pitch face."
        (when gb/setup-main-fonts-needs-execution
-           (let* ((attr-map (ht-merge (gb/get-font-heights (x-display-pixel-width) window-system)
-                                      (gb/get-font-weights window-system))))
-             (message "setting up default fonts")
-             (message (format "display pixel width %d" (x-display-pixel-width)))
-             ;; (set-default-font gb/default-font)
-             ;; (set-frame-font gb/default-font t nil)
-             ;; (set-face-font 'default gb/default-font nil)
-             (set-face-attribute 'default nil
-                                 ;; :family gb/default-font
-                                 :font gb/default-font
-                                 :height (ht-get attr-map 'default-height)
-                                 :weight (ht-get attr-map 'default-weight))
-             (set-face-attribute 'variable-pitch nil
-                                 ;; :family "Fira Sans"
-                                 :height (ht-get attr-map 'variable-pitch-height)
-                                 :weight (ht-get attr-map 'variable-pitch-weight))
-             (setq gb/setup-main-fonts-needs-execution nil))))
+         (let* ((attr-map (ht-merge (gb/get-font-heights (x-display-pixel-width) window-system)
+                                    (gb/get-font-weights window-system))))
+           (message "setting up default fonts")
+           (message (format "display pixel width %d" (x-display-pixel-width)))
+           ;; (set-default-font gb/default-font)
+           ;; (set-frame-font gb/default-font t nil)
+           ;; (set-face-font 'default gb/default-font nil)
+           (set-face-attribute 'default nil
+                               ;; :family gb/default-font
+                               :font gb/default-font
+                               :height (ht-get attr-map 'default-height)
+                               :weight (ht-get attr-map 'default-weight))
+           (set-face-attribute 'variable-pitch nil
+                               ;; :family "Fira Sans"
+                               :height (ht-get attr-map 'variable-pitch-height)
+                               :weight (ht-get attr-map 'variable-pitch-weight))
+           (setq gb/setup-main-fonts-needs-execution nil))))
 
      (defun gb/reset-main-fonts ()
        "reinitialize fonts e.g. if resolution changed etc."
@@ -11571,7 +11571,6 @@
           (exwm-input-set-key (kbd "<s-f3>") #'gb/audio-raise-volume)
           (exwm-input-set-key (kbd "<s-f1>") #'gb/audio-mute-volume)
           (exwm-input-set-key (kbd "<s-f12>") #'exwm-floating-toggle-floating)
-          (exwm-input-set-key (kbd "s-l") #'gb/lock-screen)
           (exwm-input-set-key (kbd "C-M-s-l") #'gb/suspend-laptop)
           (exwm-input-set-key (kbd "C-M-s-s") #'gb/shutdown)
           (exwm-input-set-key (kbd "C-M-s-r") #'gb/reboot)
@@ -11594,6 +11593,7 @@
           (exwm-input-set-key (kbd "s-<up>") #'windmove-up)
           (exwm-input-set-key (kbd "s-<down>") #'windmove-down)
 
+          (exwm-input-set-key (kbd "H-l") #'gb/lock-screen)
           (exwm-input-set-key (kbd "H-c") #'gb/mouse-pointer-to-cursor)
           (exwm-input-set-key (kbd "H-s") #'gb/slack-open-on-workspace-1)
           (exwm-input-set-key (kbd "H-p") #'gb/pass-open-on-workspace-0)
@@ -11618,17 +11618,6 @@
           (exwm-input-set-key (kbd "C-S-s-a") #'(lambda () (interactive) (gb/exwm-insert-string-anywhere "Ä")))
           (exwm-input-set-key (kbd "C-S-s-u") #'(lambda () (interactive) (gb/exwm-insert-string-anywhere "Ü")))
 
-
-          ;; set some specifics
-          ;; kuchen
-          ;; (define-key exwm-mode-map (kbd "k") #'(lambda () (interactive) (gb/filtered-insert-char ?k exwm-class-name)))
-          ;; (define-key exwm-mode-map (kbd "K") #'(lambda () (interactive) (gb/filtered-insert-char ?K exwm-class-name)))
-          ;; (define-key exwm-mode-map (kbd "u") #'(lambda () (interactive) (gb/filtered-insert-char ?u exwm-class-name)))
-          ;; (define-key exwm-mode-map (kbd "c") #'(lambda () (interactive) (gb/filtered-insert-char ?c exwm-class-name)))
-          ;; (define-key exwm-mode-map (kbd "h") #'(lambda () (interactive) (gb/filtered-insert-char ?h exwm-class-name)))
-          ;; (define-key exwm-mode-map (kbd "e") #'(lambda () (interactive) (gb/filtered-insert-char ?e exwm-class-name)))
-          ;; (define-key exwm-mode-map (kbd "n") #'(lambda () (interactive) (gb/filtered-insert-char ?n exwm-class-name)))
-
           ;; start programs
           (exwm-input-set-key (kbd "s-1") #'gb/exwm-program-select) ;; do not wrap, since it already resets exwm
 
@@ -11637,6 +11626,7 @@
           (exwm-input-set-key (kbd "C-c a a e") #'gb/aws-ec2-browse)
           (exwm-input-set-key (kbd "C-c a a p") #'gb/aws-pipeline-browse)
           (exwm-input-set-key (kbd "C-c a a s") #'gb/aws-s3-browse)
+
           (setq gb/aws-region "eu-central-1")
           (defun gb/aws-code-commit-browse ()
             "browse to aws service console for code commit"
@@ -13006,6 +12996,16 @@
       :ensure t
       :hook (org-mode . org-fragtog-mode))
   #+end_src
+* EVAL notate - indentation aware of prettified symbols (disabled, does not work out of the box)
+  - see https://github.com/ekaschalk/notate
+  #+begin_src emacs-lisp :tangle no
+    (when (file-exists-p "~/.emacs.d/additionals/notate/nt.el")
+      (use-package smartparens
+        :ensure t)
+      (use-package nt-dev
+        :load-path "~/.emacs.d/additionals/notate"))
+  #+end_src
+
 * EVAL beginend - jump to the right beginning / end, depending on the mode
   #+begin_src emacs-lisp
     (use-package beginend
@@ -13028,6 +13028,12 @@
         (comment-dwim nil)
         (goto-char (point-max))
         (insert "\n")))
+  #+end_src
+* EVAL esup - emacs startup profiling
+  #+begin_src emacs-lisp
+    (use-package esup
+      :ensure t
+      :commands (esup))
   #+end_src
 * proced
   #+begin_src emacs-lisp
