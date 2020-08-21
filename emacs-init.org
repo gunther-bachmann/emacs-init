@@ -6690,27 +6690,81 @@
              appt-message-warning-time 10
              appt-display-interval 3
              appt-audible nil
-             appt-display-duration 360)
+             appt-display-duration 360
+             appt-display-format 'echo)
 
        (defun gb/update-agenda-with-google-calendar ()
          "async function to update cal based dictionary"
          (message (format "running agenda refresh (at %s)" (current-time-string)))
-         (appt-activate -1)
-         (setq diary-file "~/.emacs.d/diary")
-         (async-start (lambda ()
-                        (add-to-list 'load-path "~/.emacs.d/accounts/")
-                        (require 'private)
-                        (shell-command-to-string (format "wget -q -O ~/cal.ics %s" gb/itemis-google-calendar-url))
-                        (shell-command-to-string (format "wget -q -O ~/pcal.ics %s" gb/private-google-calendar-url))
-                        (when (file-exists-p gb/diary-calendar-file)
-                          (delete-file gb/diary-calendar-file))
-                        (icalendar-import-file gb/itemis-calendar-file gb/diary-calendar-file)
-                        (icalendar-import-file gb/private-calendar-file gb/diary-calendar-file))
-                      (lambda (result)
-                        (setq diary-file gb/diary-calendar-file)
-                        (appt-activate 1)
-                        (message (format "agenda refresh done (at %s)." (current-time-string))))))
+         (gb/async-execute-costly-shell-command
+          (format "wget -q -O %s-temp %s" gb/itemis-calendar-file gb/itemis-google-calendar-url)
+          '(lambda ()
+             (gb/async-execute-costly-shell-command
+              (format "wget -q -O %s-temp %s" gb/private-calendar-file gb/private-google-calendar-url)
+              '(lambda ()
+                 (appt-activate -1)
+                 (setq diary-file "~/.emacs.d/diary")
+                 (--each `(,gb/diary-calendar-file ,gb/itemis-calendar-file ,gb/private-calendar-file)
+                   (progn
+                     (when-let ((buffer (get-file-buffer it)))
+                       (kill-buffer buffer))
+                     (when (file-exists-p it)
+                       (delete-file it))))
+                 (--each `(,gb/private-calendar-file ,gb/itemis-calendar-file)
+                   (let ((temp-file (format "%s-temp" it)))
+                     (when (file-exists-p temp-file)
+                       (copy-file temp-file it)
+                       (delete-file temp-file))))
+                 (with-temp-buffer
+                   (insert-file gb/itemis-calendar-file)
+                   (icalendar-import-buffer gb/diary-calendar-file t t))
+                 (with-temp-buffer
+                   (insert-file gb/private-calendar-file)
+                   (icalendar-import-buffer gb/diary-calendar-file t t))
+                 (setq diary-file gb/diary-calendar-file)
+                 (appt-activate 1)
+                 (message (format "agenda refresh done (at %s)." (current-time-string)))
+                 )))))
 
+       (defun gb/async-execute-costly-shell-command (acommand &optional lambda-on-success lambda-on-failure timeout-s)
+         "execute a costly shell function asynchronously.
+     allow optional callback functions for success (LAMBDA-ON-SUCCESS) and failure (LAMBDA-ON-FAILURE)
+     as well as a new TIMEOUT-S which overrides the default of 10s.
+
+     Example usage:
+       (gb/async-execute-costly-shell-command
+         \"sleep 4\"
+         '(lambda () (message \"success\"))
+         '(lambda () (message \"failure\"))
+         3)
+
+       Execute \"sleep 4\" asynchronously on the shell, printing \"success\" when finishing
+       regularly, printing \"failure\" in case of timeouts, using 3 s as timeout.
+       This will run into a timeout, killing the non-finished process.
+
+
+       (gb/async-execute-costly-shell-command
+         \"sleep 4\"
+         '(lambda () (message \"success\")))
+
+       This will succeed, printing \"success\" after 4 s.
+     "
+         (funcall `(lambda () (make-thread (lambda ()
+                                        (let* ((process (start-process-shell-command "*gen*" nil ,acommand))
+                                               (timeoutCounter 0)
+                                               (timeoutAt (or ,timeout-s 10)))
+                                          (while (and (< timeoutCounter timeoutAt) (process-live-p process))
+                                            (sleep-for 1)
+                                            (setq timeoutCounter (1+ timeoutCounter)))
+                                          (let ((rc (process-exit-status process)))
+                                            (if (and (not (process-live-p process))
+                                                   (= rc 0))
+                                                (progn
+                                                  (when ,lambda-on-success
+                                                    (funcall ,lambda-on-success)))
+                                              (delete-process process)
+                                              (when ,lambda-on-failure
+                                                (funcall ,lambda-on-failure))))))))))
 
        (defun gb/start-update-agenda-timer ()
          "start the timer that updates diary with google calendar entries every 5 minutes"
@@ -6722,7 +6776,9 @@
          (interactive)
          (cancel-timer gb/update-agenda-timer))
 
-       (gb/start-update-agenda-timer))
+       (gb/start-update-agenda-timer)
+       ;; (gb/update-agenda-with-google-calendar)
+       )
    #+end_src
 ** gnus (mail)
 *** gnu-firstentry
