@@ -11129,17 +11129,26 @@
                     (let* (
                            (spaces-before newidx)
                            (spaces-after (- length newidx 1))
-                           (separator (s-concat "+" (s-join "" (-repeat display-width "-")) "+"))
-                           (empty-space (s-concat "|" (s-join "" (-repeat display-width " ")) "|"))
-                           (new-space (s-concat "|" (s-join "" (-repeat display-width "X")) "|"))
-                           (empty (s-concat separator "\n" empty-space))
-                           (filled (s-concat separator "\n" new-space))
-                           (display (s-join "\n" (append (-repeat spaces-before empty) `(,filled) (-repeat spaces-after empty) `(,separator)))))
-                      ;; (posframe-hide " *my-posframe-buffer*")
-                      ;; (posframe-show " *my-posframe-buffer*"
-                      ;;                :string display
-                      ;;                :poshandler 'posframe-poshandler-frame-center
-                      ;;                :timeout 2)
+                           (separator-top (s-concat "┌" (s-join "" (-repeat display-width "─")) "┐"))
+                           (separator (s-concat "├" (s-join "" (-repeat display-width "─")) "┤"))
+                           (separator-bottom (s-concat "└" (s-join "" (-repeat display-width "─")) "┘"))
+                           (empty-space (s-concat "│" (s-join "" (-repeat display-width " ")) "│"))
+                           (new-space (s-concat "│" (s-join "" (-repeat display-width "█")) "│"))
+                           (top-filled )
+                           (display (s-concat separator-top "\n" (s-join (s-concat "\n" separator "\n") (append (-repeat spaces-before empty-space) `(,new-space) (-repeat spaces-after empty-space))) "\n" separator-bottom))
+                           (my-posframe-buffer " *my-posframe-buffer*"))
+
+                      (with-current-buffer (get-buffer-create my-posframe-buffer)
+                        (erase-buffer)
+                        (setq line-spacing 0)
+                        (insert display))
+
+                      (posframe-hide my-posframe-buffer)
+                      (posframe-show my-posframe-buffer
+                                     :string display
+                                     :poshandler 'posframe-poshandler-frame-center
+                                     :foreground-color "gray30"
+                                     :timeout 2)
                       ;; (posframe-show " *inpos-posframe-buffer"
                       ;;                :string (s-concat "monitor workspace [" (number-to-string newidx) "]")
                       ;;                :position (point)
