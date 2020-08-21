@@ -8705,9 +8705,17 @@
      (setq lui-time-stamp-format "[%m-%d %H:%M]")
      (setq lui-fill-column 80)
 
-     (add-hook 'slack-mode-hook #'emojify-mode)
+     (defun gb/slack-init-mode-config ()
+       "do some settings for slack"
+       ;; show pictures in one piece (since they are chunked in lines)
+       (setq line-spacing 0))
 
-     (bind-key "@" #'slack-message-embed-mention slack-mode-map)
+     (add-hook 'slack-mode-hook #'emojify-mode)
+     (add-hook 'slack-mode-hook #'gb/slack-init-mode-config)
+
+     (bind-key "C-c :" #'emojify-insert-emoji slack-mode-map)
+     (bind-key "C-c '" #'slack-message-write-another-buffer slack-message-buffer-mode-map)
+     (bind-key "C-c @" #'slack-message-embed-mention slack-mode-map)
 
      (let* ((auth-map (jde-read-properties-file "~/.slack.api.token.gpg")))
        (slack-register-team
