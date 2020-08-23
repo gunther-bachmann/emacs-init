@@ -4242,19 +4242,16 @@
          (define-key company-active-map (kbd "M-TAB") #'company-try-hard)
          ))
 
-     ;; company box is patched!
-     ;; see function company-box-doc--show
-     ;;
-     ;; ;; (unless (frame-live-p (frame-parameter nil 'company-box-doc-frame)))
-     ;; ;; don't reuse the given frame, always create a new one
-     ;; (set-frame-parameter nil 'company-box-doc-frame (company-box-doc--make-frame doc))
-
      (use-package company-box
        :ensure t
        :after (company)
        :hook (company-mode . company-box-mode)
        :config
        (progn
+         (defun gb/company-box-doc--init-frame-parameter (orig-func &rest args)
+           "initialize frame parameter to ensure that the frame is always recreated"
+           (set-frame-parameter nil 'company-box-doc-frame nil))
+         (advice-add 'company-box-doc--show :before #'gb/company-box-doc--init-frame-parameter)
          (setq company-box-enable-icon t)
          (custom-set-faces
           '(company-box-candidate ((t (:foreground "gray85")))))))
