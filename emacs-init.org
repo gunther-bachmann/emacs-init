@@ -6683,12 +6683,39 @@
      (when (boundp 'gb/private-google-calendar-url)
        (require 'appt)
 
-       (setq appt-display-diary nil
-             appt-message-warning-time 10
-             appt-display-interval 3
-             appt-audible nil
-             appt-display-duration 360
-             appt-display-format 'echo)
+       (when (file-exists-p gb/diary-calendar-file)
+         (setq diary-file gb/diary-calendar-file))
+
+       (defun gb/sync-update-agenda-with-google-calendar ()
+         "synchronous update diary with google calendar"
+         (shell-command-to-string (format "wget -q -O %s-temp %s" gb/itemis-calendar-file gb/itemis-google-calendar-url))
+         (shell-command-to-string (format "wget -q -O %s-temp %s" gb/private-calendar-file gb/private-google-calendar-url))
+         (gb/import-diary-from-google-calendar-files))
+
+       (defun gb/import-diary-from-google-calendar-files ()
+         "import the configured ics calendar files"
+         (appt-activate -1)
+         (setq diary-file "~/.emacs.d/diary")
+         (--each `(,gb/diary-calendar-file ,gb/itemis-calendar-file ,gb/private-calendar-file)
+           (progn
+             (when-let ((buffer (get-file-buffer it)))
+               (kill-buffer buffer))
+             (when (file-exists-p it)
+               (delete-file it))))
+         (--each `(,gb/private-calendar-file ,gb/itemis-calendar-file)
+           (let ((temp-file (format "%s-temp" it)))
+             (when (file-exists-p temp-file)
+               (copy-file temp-file it)
+               (delete-file temp-file))))
+         (with-temp-buffer
+           (insert-file gb/itemis-calendar-file)
+           (icalendar-import-buffer gb/diary-calendar-file t t))
+         (with-temp-buffer
+           (insert-file gb/private-calendar-file)
+           (icalendar-import-buffer gb/diary-calendar-file t t))
+         (setq diary-file gb/diary-calendar-file)
+         (appt-activate 1)
+         (message (format "agenda refresh done (at %s)." (current-time-string))))
 
        (defun gb/update-agenda-with-google-calendar ()
          "async function to update cal based dictionary"
@@ -6698,30 +6725,7 @@
           '(lambda ()
              (gb/async-execute-costly-shell-command
               (format "wget -q -O %s-temp %s" gb/private-calendar-file gb/private-google-calendar-url)
-              '(lambda ()
-                 (appt-activate -1)
-                 (setq diary-file "~/.emacs.d/diary")
-                 (--each `(,gb/diary-calendar-file ,gb/itemis-calendar-file ,gb/private-calendar-file)
-                   (progn
-                     (when-let ((buffer (get-file-buffer it)))
-                       (kill-buffer buffer))
-                     (when (file-exists-p it)
-                       (delete-file it))))
-                 (--each `(,gb/private-calendar-file ,gb/itemis-calendar-file)
-                   (let ((temp-file (format "%s-temp" it)))
-                     (when (file-exists-p temp-file)
-                       (copy-file temp-file it)
-                       (delete-file temp-file))))
-                 (with-temp-buffer
-                   (insert-file gb/itemis-calendar-file)
-                   (icalendar-import-buffer gb/diary-calendar-file t t))
-                 (with-temp-buffer
-                   (insert-file gb/private-calendar-file)
-                   (icalendar-import-buffer gb/diary-calendar-file t t))
-                 (setq diary-file gb/diary-calendar-file)
-                 (appt-activate 1)
-                 (message (format "agenda refresh done (at %s)." (current-time-string)))
-                 )))))
+              '(lambda () (gb/import-diary-from-google-calendar-files))))))
 
        (defun gb/async-execute-costly-shell-command (acommand &optional lambda-on-success lambda-on-failure timeout-s)
          "execute a costly shell function asynchronously.
@@ -6746,34 +6750,61 @@
 
        This will succeed, printing \"success\" after 4 s.
      "
-         (funcall `(lambda () (make-thread (lambda ()
-                                        (let* ((process (start-process-shell-command "*gen*" nil ,acommand))
-                                               (timeoutCounter 0)
-                                               (timeoutAt (or ,timeout-s 10)))
-                                          (while (and (< timeoutCounter timeoutAt) (process-live-p process))
-                                            (sleep-for 1)
-                                            (setq timeoutCounter (1+ timeoutCounter)))
-                                          (let ((rc (process-exit-status process)))
-                                            (if (and (not (process-live-p process))
-                                                   (= rc 0))
-                                                (progn
-                                                  (when ,lambda-on-success
-                                                    (funcall ,lambda-on-success)))
-                                              (delete-process process)
-                                              (when ,lambda-on-failure
-                                                (funcall ,lambda-on-failure))))))))))
+         (funcall
+          `(lambda ()
+             (make-thread
+              (lambda ()
+                (let* ((process (start-process-shell-command "*gen*" nil ,acommand))
+                       (timeoutCounter 0)
+                       (timeoutAt (or ,timeout-s 10)))
+                  (while (and (< timeoutCounter timeoutAt) (process-live-p process))
+                    (sleep-for 1)
+                    (setq timeoutCounter (1+ timeoutCounter)))
+                  (let ((rc (process-exit-status process)))
+                    (if (and (not (process-live-p process))
+                             (= rc 0))
+                        (progn
+                          (when ,lambda-on-success
+                            (funcall ,lambda-on-success)))
+                      (delete-process process)
+                      (when ,lambda-on-failure
+                        (funcall ,lambda-on-failure))))))))))
 
-       (defun gb/start-update-agenda-timer ()
-         "start the timer that updates diary with google calendar entries every 5 minutes"
-         (interactive)
-         (setq gb/update-agenda-timer (run-at-time nil (* 5 60) #'gb/update-agenda-with-google-calendar)))
+       ;; running this function every 5 minutes seems to leak memory (emacs eating up ram)
+       ;; (defun gb/start-update-agenda-timer ()
+       ;;   "start the timer that updates diary with google calendar entries every 5 minutes"
+       ;;   (interactive)
+       ;;   (setq gb/update-agenda-timer (run-at-time "5 minutes" (* 5 60) #'gb/update-agenda-with-google-calendar)))
 
-       (defun gb/cancel-update-agenda-timer ()
-         "cancel the timer that updates diary with google calendar entries every 5 minutes"
-         (interactive)
-         (cancel-timer gb/update-agenda-timer))
+       ;; (defun gb/cancel-update-agenda-timer ()
+       ;;   "cancel the timer that updates diary with google calendar entries every 5 minutes"
+       ;;   (interactive)
+       ;;   (cancel-timer gb/update-agenda-timer))
 
-       (gb/start-update-agenda-timer)
+       (defun gb/org-agenda (&optional arg)
+         "run org agenda, updating the diary with calendar, first"
+         (interactive "P")
+         (when arg
+           (message "loading calendar files from web")
+           (gb/sync-update-agenda-with-google-calendar))
+         (when (file-exists-p gb/diary-calendar-file)
+           (setq diary-file gb/diary-calendar-file))
+         (call-interactively #'org-agenda))
+
+       (defun gb/org-agenda-refresh (&optional exhaustive)
+         (interactive "P")
+         (when exhaustive
+           (message "loading calendar files from web")
+           (gb/sync-update-agenda-with-google-calendar))
+         (org-agenda-redo-all exhaustive))
+
+       ;; (bind-key "g" #'gb/org-agenda-refresh org-agenda-mode-map)
+
+       (bind-key "H-a" #'gb/org-agenda)
+
+       ;; run once at startup
+       (run-at-time "2 minutes" nil #'gb/update-agenda-with-google-calendar)
+       ;; (gb/start-update-agenda-timer)
        ;; (gb/update-agenda-with-google-calendar)
        )
    #+end_src
@@ -7914,6 +7945,9 @@
       :config
       (progn
 
+        (when (fboundp 'gb/org-agenda-refresh)
+          (bind-key "g" #'gb/org-agenda-refresh org-agenda-mode-map))
+
         ;;don't show tasks as scheduled if they are already shown as a deadline
         (setq org-agenda-skip-scheduled-if-deadline-is-shown t)
 
@@ -8272,40 +8306,45 @@
 ***** helm-org-rifle-files
       Shows results from selected files.
 *** org appt (notification of agenda items)
-    #+BEGIN_SRC emacs-lisp :tangle no
+    #+BEGIN_SRC emacs-lisp
       (use-package appt
-        :after ( org)
+        ;; :after ( org)
         ;; :defer 20
         :init (add-hook 'org-finalize-agenda-hook 'org-agenda-to-appt) ;; update appt list on agenda view
         :config
-        (setq appt-time-msg-list nil)    ;; clear existing appt list
-        (setq appt-display-interval '10) ;; warn every 10 minutes from t - appt-message-warning-time
-        (setq
-         appt-message-warning-time '10  ;; send first warning 10 minutes before appointment
-         appt-display-mode-line nil     ;; don't show in the modeline
-         appt-display-format 'window)   ;; pass warnings to the designated window function
-        (appt-activate 1)                ;; activate appointment notification
-        (display-time)                   ;; activate time display
 
+        (setq appt-display-diary nil
+              appt-message-warning-time 10  ;; send first warning 10 minutes before appointment
+              appt-display-interval 3       ;; warn every 3 minutes from t - appt-message-warning-time
+              appt-audible nil
+              appt-display-duration 360
+              appt-display-format 'echo)
+
+
+        (setq appt-time-msg-list nil)    ;; clear existing appt list
+
+
+        (appt-activate 1)                ;; activate appointment notification
         (org-agenda-to-appt)             ;; generate the appt list from org agenda files on emacs launch
         (run-at-time "24:01" 3600 'org-agenda-to-appt)           ;; update appt list hourly
 
         ;; make sure appt are highlighted accordingly
         (custom-set-faces '(mode-line-emphasis ((t (:foreground "DarkGoldenrod3")))))
 
-        ;; set up the call to terminal-notifier
-        (defvar gb/appt-notifier-path (s-trim (shell-command-to-string "command -v notify-send")))
+        ;; ;; set up the call to terminal-notifier (only working when appt-display-format is set to 'window)
+        ;; (defvar gb/appt-notifier-path (s-trim (shell-command-to-string "command -v notify-send")))
 
-        (defun gb/appt-send-notification (title msg)
-          (shell-command (concat gb/appt-notifier-path " " msg " -a " title)))
+        ;; (defun gb/appt-send-notification (title msg)
+        ;;   (shell-command (concat gb/appt-notifier-path " " msg " -a " title)))
 
-        ;; designate the window function for my-appt-send-notification
-        (defun gb/appt-display (min-to-app new-time msg)
-          (gb/appt-send-notification
-           (format "'Appointment in %s minutes'" min-to-app)    ;; passed to -title in terminal-notifier call
-           (format "'%s'" msg)))                                ;; passed to -message in terminal-notifier call
+        ;; ;; designate the window function for my-appt-send-notification
+        ;; (defun gb/appt-display (min-to-app new-time msg)
+        ;;   (gb/appt-send-notification
+        ;;    (format "'Appointment in %s minutes'" min-to-app)    ;; passed to -title in terminal-notifier call
+        ;;    (format "'%s'" msg)))                                ;; passed to -message in terminal-notifier call
 
-        (setq appt-disp-window-function (function gb/appt-display)))
+        ;; (setq appt-disp-window-function (function gb/appt-display))
+        )
 
     #+END_SRC
 *** org review
