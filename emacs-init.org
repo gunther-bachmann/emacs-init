@@ -289,6 +289,7 @@
     (setq running-nixos nil)
     (setq  frame-inhibit-implied-resize t) ;; inhibit font (or other) based resize of frames
     (put 'list-timers 'disabled nil)
+    (put 'list-threads 'disabled nil)
   #+END_SRC
 * initial function setup
   #+BEGIN_SRC emacs-lisp
@@ -8794,7 +8795,7 @@
      :init
      (setq alert-default-style 'message)
      ;; disable all alerts
-     (add-to-list 'alert-user-configuration
+     (setq alert-user-configuration
                   '(((:category . "slack")) ignore nil))
 
      ;; alert me on some channels
@@ -13138,6 +13139,8 @@
   - bibtex-completion - bibtex completion backend
   - lsp-latex - lsp mode client for LaTeX
   - ob-latex-as-png - org babel functions for latex-as-png
+  - toc-mode - extract table of contents from a pdf document that has it printed, but not explicit within the pdf structure itself, clean it
+    up and add the cleaned up toc to the pdf (such that it is usable). see https://github.com/dalanicolai/toc-mode
 ** (function) selection
   - helm-selected
   - helm-org - Helm for org headlines and keywords completion
