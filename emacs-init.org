@@ -10044,7 +10044,7 @@
    #+BEGIN_SRC emacs-lisp
      (use-package emms
        :ensure t
-       :commands (emms)
+       :commands (emms emms-browser)
        :config
        (require 'emms-setup)
        (emms-all)
@@ -10056,6 +10056,7 @@
        (setq emms-info-functions '(emms-info-mp3info)) ;;; make sure libtag is the only thing delivering metadata
        (require 'emms-mode-line)
        (emms-mode-line 1)
+       (bind-key "<tab>" 'emms-browser-toggle-subitems emms-browser-mode-map)
        (require 'emms-playing-time)
        (emms-playing-time 1))
    #+END_SRC
