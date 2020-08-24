@@ -8929,6 +8929,7 @@
                          'gb/helm-hide-minibuffer-maybe))
        :custom (helm-truncate-lines t "make sure lines are truncated in helm buffers")
                (helm-echo-input-in-header-line t "make sure keyboard entry is displayed in header line of helm buffer")
+               (history-delete-duplicates t "make sure helm does not show duplicate entries")
        :config
        (progn
          ;; ignore files in boring file rexp list
