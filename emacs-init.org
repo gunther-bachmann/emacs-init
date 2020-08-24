@@ -22,30 +22,37 @@
 #+begin_src emacs-lisp
   (set-background-color "black")
   (set-foreground-color "white")
-  (when (and (executable-find "getEventDeviceFor")
-           (executable-find "evtest"))
-    (let* ((default-output "alsa_output.pci-0000_00_1f.3.analog-stereo")
-           (tp-input (shell-command-to-string "getEventDeviceFor 'TouchPad'"))
-           ;; play the sound only if control is pressed on startup!
-           (tp-play-ok (shell-command-to-string (format "sudo evtest --query %s EV_KEY 274 || echo -n \"ok\"" tp-input)))
-           (kb-input (shell-command-to-string "getEventDeviceFor 'kmonad-internal-keyboard'"))
-           ;; play the sound only if middle touchpad button is pressed on startup!
-           (kb-play-ok (shell-command-to-string (format "sudo evtest --query %s EV_KEY 29 || echo -n \"ok\"" kb-input)))
-           (kb-usb-input (shell-command-to-string "getEventDeviceFor 'kmonad-filco-usb'"))
-           ;; play the sound only if middle touchpad button is pressed on startup!
-           (kb-usb-play-ok (shell-command-to-string (format "sudo evtest --query %s EV_KEY 29 || echo -n \"ok\"" kb-usb-input)))
-           (kb-bt-input (shell-command-to-string "getEventDeviceFor 'kmonad-filco-bluetooth'"))
-           ;; play the sound only if middle touchpad button is pressed on startup!
-           (kb-bt-play-ok (shell-command-to-string (format "sudo evtest --query %s EV_KEY 29 || echo -n \"ok\"" kb-bt-input))))
-      (when (and (or (equal "ok" kb-play-ok)
-                  (equal "ok" tp-play-ok)
-                  (equal "ok" kb-usb-play-ok)
-                  (equal "ok" kb-bt-play-ok))
-               (executable-find "pactl")
-               (executable-find "play"))
-        (shell-command-to-string (format "pactl set-default-sink %s" default-output))
-        (shell-command-to-string (format "pactl set-sink-volume %s 30%%" default-output))
-        (start-process-shell-command "startup" nil  "play ~/sound/it_crowd.mp3"))))
+  (setq gb/playing-startup-sound nil)
+  (defun gb/play-startup-sound-when-ctrlkey-down ()
+    ""
+    (when (and (executable-find "getEventDeviceFor")
+               (executable-find "evtest")
+               (not gb/playing-startup-sound))
+      (let* ((default-output "alsa_output.pci-0000_00_1f.3.analog-stereo")
+             (tp-input (shell-command-to-string "getEventDeviceFor 'TouchPad'"))
+             ;; play the sound only if control is pressed on startup!
+             (tp-play-ok (shell-command-to-string (format "sudo evtest --query %s EV_KEY 274 || echo -n \"ok\"" tp-input)))
+             (kb-input (shell-command-to-string "getEventDeviceFor 'kmonad-internal-keyboard'"))
+             ;; play the sound only if middle touchpad button is pressed on startup!
+             (kb-play-ok (shell-command-to-string (format "sudo evtest --query %s EV_KEY 29 || echo -n \"ok\"" kb-input)))
+             (kb-usb-input (shell-command-to-string "getEventDeviceFor 'kmonad-filco-usb'"))
+             ;; play the sound only if middle touchpad button is pressed on startup!
+             (kb-usb-play-ok (shell-command-to-string (format "sudo evtest --query %s EV_KEY 29 || echo -n \"ok\"" kb-usb-input)))
+             (kb-bt-input (shell-command-to-string "getEventDeviceFor 'kmonad-filco-bluetooth'"))
+             ;; play the sound only if middle touchpad button is pressed on startup!
+             (kb-bt-play-ok (shell-command-to-string (format "sudo evtest --query %s EV_KEY 29 || echo -n \"ok\"" kb-bt-input))))
+        (when (and (or (equal "ok" kb-play-ok)
+                       (equal "ok" tp-play-ok)
+                       (equal "ok" kb-usb-play-ok)
+                       (equal "ok" kb-bt-play-ok))
+                   (executable-find "pactl")
+                   (executable-find "play"))
+          (shell-command-to-string (format "pactl set-default-sink %s" default-output))
+          (shell-command-to-string (format "pactl set-sink-volume %s 30%%" default-output))
+          (start-process-shell-command "startup" nil  "play ~/sound/it_crowd.mp3")
+          (setq gb/playing-startup-sound t)))))
+
+  (gb/play-startup-sound-when-ctrlkey-down)
 #+end_src
 * elpa-mirror (see https://github.com/redguardtoo/elpa-mirror)
   #+begin_src emacs-lisp
@@ -526,6 +533,11 @@
      (use-package use-package-chords
        :ensure t)
    #+end_src
+* play startup sound (check again 1)
+  #+begin_src emacs-lisp
+    ;; if not playing test again and play 1
+    (gb/play-startup-sound-when-ctrlkey-down)
+  #+end_src
 * workarounds for broken packages
   #+BEGIN_SRC emacs-lisp
   ;; since perspective is using make-variable-frame-local and this function/macro is removed in emacs 26.x
@@ -1466,6 +1478,11 @@
       (message "OK: Image type png is supported.")
     (message "WARNING: image type png is NOT supported."))
   #+END_SRC
+* play startup sound (check again 2)
+  #+begin_src emacs-lisp
+    ;; if not playing test again and play 2
+    (gb/play-startup-sound-when-ctrlkey-down)
+  #+end_src
 * own utility functions (based on installed utils)
 ** xml
    #+BEGIN_SRC emacs-lisp
@@ -3222,6 +3239,11 @@
      (bind-key "C-x C-2" 'split-window-below-and-select))
 
    #+END_SRC
+* play startup sound (check again 3)
+  #+begin_src emacs-lisp
+    ;; if not playing test again and play 3
+    (gb/play-startup-sound-when-ctrlkey-down)
+  #+end_src
 * editing related stuff
 ** selfinsertion on readonly modes
    #+BEGIN_SRC emacs-lisp :tangle no
@@ -6524,6 +6546,11 @@
    '(popup-isearch-match ((t (:background "RoyalBlue2"))))
    '(term-color-yellow ((t (:background "DarkGoldenrod4" :foreground "#f0c674")))))
 #+END_SRC
+* play startup sound (check again 4)
+  #+begin_src emacs-lisp
+    ;; if not playing test again and play 4
+    (gb/play-startup-sound-when-ctrlkey-down)
+  #+end_src
 * yasnippet
 #+BEGIN_SRC emacs-lisp
   (use-package yasnippet
