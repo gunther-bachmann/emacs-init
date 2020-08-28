@@ -3501,6 +3501,7 @@
      ;; make sure so long is used for e.g. minified files
      ;; see https://www.emacswiki.org/emacs/SoLong
      (when (version<= "27" emacs-version)
+       (setq so-long-threshold 1024) ;; if line is longer than 1024, the enter so long mode
        (global-so-long-mode 1))
 
      ;; overwrite selected text
