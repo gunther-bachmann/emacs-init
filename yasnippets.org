@@ -37,6 +37,36 @@ work (otherwise those of the snippets are used instead).
        ;; End:
      ,#+end_src
    #+end_src
+** org tree slide presentation [pres]
+   provide local variables to configure org tree slide presentations
+   #+begin_src text :tangle ~/.emacs.d/snippets/org-mode/tree-slide-presentation
+     # -*- mode: snippet -*-
+     # name: tree-slide-presentation
+     # key: pres
+     # --
+
+     ,#+begin_src emacs-lisp
+       ;; Local Variables:
+       ;; org-image-actual-width: 600
+       ;; org-tree-slide-header: nil
+       ;; org-tree-slide-heading-emphasis: t
+       ;; org-tree-slide-modeline-display: 'lighter
+       ;; org-tree-slide-presentation-length: 10
+       ;; gb/slides-started: nil
+       ;; org-tree-slide-content--pos: nil
+       ;; eval: (add-fira-code-symbol-keywords)
+       ;; eval: (org-display-inline-images)
+       ;; eval: (org-hide-block-all)
+       ;; eval: (org-babel-result-hide-all)
+       ;; eval: (setq org-show-notification-handler #'(lambda (msg) (message msg)))
+       ;; eval: (read-only-mode +1)
+       ;; eval: (flyspell-mode 0) ;; no spell check errors
+       ;; eval: (toggle-serif)
+       ;; eval: (org-tree-slide-mode)
+       ;; eval: (org-tree-slide-content)
+       ;; End:
+     ,#+end_src
+   #+end_src
 ** org file local definitions [f-l]
    provide common local variables
    #+begin_src text :tangle ~/.emacs.d/snippets/org-mode/file-local
