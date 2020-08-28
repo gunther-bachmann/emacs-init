@@ -2498,6 +2498,9 @@
         :config
         (setq gb/cached-file-remote-p-hash (make-hash-table :test 'equal))
         (setq gb/original-file-remote-p #'file-remote-p)
+        (setq doom-modeline-icon nil)
+        (setq doom-modeline-unicode-fallback nil)
+        (setq doom-modeline-checker-simple-format t)
         ;; TODO: transform redefinition into surrounding advice!
         ;; TODO: drop some / clear hash once in a while / e.g. if size > 1000
         ;; overwrite this function
