@@ -2981,7 +2981,8 @@
 
        (defun gb/blink-if-not-shell (&rest args)
          "user for blinking on recenter, which shell mode does constantly => only in other modes"
-         (unless (memq major-mode (list 'ansi-term-mode 'term-mode 'shell-mode 'comint-mode 'slack-mode 'slack-message-buffer-mode))
+         (unless (or (memq major-mode (list 'ansi-term-mode 'term-mode 'shell-mode 'comint-mode))
+                    (string-prefix-p "slack" (symbol-name major-mode)))
            (beacon-blink)))
 
        (advice-add 'recenter :after #'gb/blink-if-not-shell)
@@ -8769,7 +8770,7 @@
 
    (use-package slack
      :ensure t
-     :commands (slack-start)
+     :commands (gb/slack-start)
      :init
      (setq slack-enable-emoji t) ;; if you want to enable emoji, default nil
      ;; (setq slack-room-subscription '(clojurians itemisHamburg))
@@ -8786,7 +8787,8 @@
      (defun gb/slack-init-mode-config ()
        "do some settings for slack"
        ;; show pictures in one piece (since they are chunked in lines)
-       (setq line-spacing 0))
+       (setq-local line-spacing 0)
+       (setq-local browse-url-browser-function 'browse-url-chromium))
 
      (add-hook 'slack-mode-hook #'emojify-mode)
      (add-hook 'slack-mode-hook #'gb/slack-init-mode-config)
@@ -8801,16 +8803,25 @@
      (bind-key "C-c '" #'slack-message-write-another-buffer slack-thread-message-buffer-mode-map)
      (bind-key "C-c @" #'slack-message-embed-mention slack-thread-message-buffer-mode-map)
 
-     (let* ((auth-map (jde-read-properties-file "~/.slack.api.token.gpg")))
-       (slack-register-team
-        :name "itemis"
-        :default t
-        :token (gethash "slack-token" auth-map)
-        :subscribed-channels '(general random))
-       )
+     (setq gb/slack-team-registered nil)
+     (defun gb/slack-register-teams ()
+       "read slack api tokens and set configuration accordingly"
+       (unless gb/slack-team-registered
+         (let* ((auth-map (jde-read-properties-file "~/.slack.api.token.gpg")))
+           (slack-register-team
+            :name "itemis"
+            :default t
+            :token (gethash "slack-token" auth-map)
+            :subscribed-channels '(general random))
+           (setq gb/slack-team-registered t))))
+
+     (defun gb/slack-start ()
+       (interactive)
+       (gb/slack-register-teams)
+       (slack-start))
 
      ;; make sure to not track common channels (annoying)
-     (setq tracking-ignored-buffers '(".*itemis : general" ".*itemis : xtext.*"))
+     (setq tracking-ignored-buffers '(".*itemis : general" ".*itemis : xtext.*" ".*homecooking.*"))
 
      (defun gb/slack-all-room-names ()
        ""
@@ -8831,8 +8842,74 @@
      (defun gb/slack-room-display (regex)
        (slack-room-display (gb/slack-room-by-regex regex) (slack-team-select)))
 
+     (defun gb/slack-room-by-id (id-string)
+       "get room by id"
+       (--first (equal (oref it id) id-string)
+                (cl-loop for team in (list (slack-team-select))
+                         append (append (slack-team-ims team)
+                                        (slack-team-groups team)
+                                        (slack-team-channels team)))))
+
+     (defun gb/slack-group-mpim-open ()
+       "open a the group mpim"
+       (interactive)
+       (let* ((req-resp (slack-group-mpim-open)))
+         (make-thread `(lambda ()
+                         (while (not (request-response-done-p ,req-resp))
+                           (message "wait for room")
+                           (sleep-for 0 100))
+                         (message "open room")
+                         (let ((room-id (plist-get (plist-get (request-response-data ,req-resp) :channel) :id)))
+                           (slack-room-display (gb/slack-room-by-id room-id) (slack-team-select)))))))
+
      ;; (gb/slack-room-display "^nord$")
-     )
+     (defun gb/slack-programming-xtext ()
+       "set slack status"
+       (interactive)
+       (slack-user-set-status-request (slack-team-select) ":xtext:" "programming")
+       (gb/slack-user-set-active))
+
+     (defun gb/slack-programming-racket ()
+       "set slack status"
+       (interactive)
+       (slack-user-set-status-request (slack-team-select) ":racket-lang:" "enjoying lambdas")
+       (gb/slack-user-set-active))
+
+     (defun gb/slack-coffee-break ()
+       "set slack status"
+       (interactive)
+       (slack-user-set-status-request (slack-team-select) ":coffee:" "break")
+       (gb/slack-user-set-away))
+
+     (defun gb/slack-food-break ()
+       "set slack status"
+       (interactive)
+       (slack-user-set-status-request (slack-team-select) ":knife_fork_plate:" "mampf")
+       (gb/slack-user-set-away))
+
+     (defun gb/slack-feierabend ()
+       "set slack status"
+       (interactive)
+       (slack-user-set-status-request (slack-team-select) ":hourglass:" "...")
+       (gb/slack-user-set-away))
+
+     ;; report slack status to mode line (updating it every ?s
+     ;; (slack-user-status (plist-get(gb/slack-user-by-name "gunther") :id) (slack-team-select)) ;; get the status
+     ;; (emojify-string ":xtext:")
+
+     (defun gb/slack-user-set-away ()
+       "set my user away in the current team"
+       (let* ((team (slack-team-select)))
+         (slack-request-set-presence team "away")))
+
+     (defun gb/slack-user-set-active ()
+       "set my user away in the current team"
+       (let* ((team (slack-team-select)))
+         (slack-request-set-presence team "auto")))
+
+     (defun gb/slack-user-by-name (name)
+       "get the slack id of the given name in the current group"
+       (--first (and (s-equals-p name (plist-get it :name)) (eq :json-false (plist-get it :deleted))) (hash-table-values (oref (slack-team-select) users)))))
 
    (use-package alert
      :ensure t
