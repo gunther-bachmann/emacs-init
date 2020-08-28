@@ -9049,7 +9049,15 @@
                (history-delete-duplicates t "make sure helm does not show duplicate entries")
        :config
        (progn
-         ;; ignore files in boring file rexp list
+         (defun gb/org-center-when-at-bottom (&rest args)
+           "recenter when focussing into an org file at the very bottom"
+           (when (and(boundp 'mode-name)(equal mode-name "Org"))
+             (save-excursion
+               (goto-char (line-end-position))
+               (unless (pos-visible-in-window-p (+ 1 (point)))
+                 (recenter-top-bottom)))))
+         (advice-add 'helm :after #'gb/org-center-when-at-bottom)
+         ;;(advice-remove 'helm #'gb/org-center-when-at-bottom)
 
          ;; patch helm-keyboard-quit to only abort-recursive-edit if it is really in progress
          (defun helm-keyboard-quit ()
