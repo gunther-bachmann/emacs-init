@@ -6822,14 +6822,16 @@
        ;;   (cancel-timer gb/update-agenda-timer))
 
        (defun gb/org-agenda (&optional arg)
-         "run org agenda, updating the diary with calendar, first"
+         "run org agenda (list on workspace 7), updating the diary with calendar, first"
          (interactive "P")
          (when arg
            (message "loading calendar files from web")
            (gb/sync-update-agenda-with-google-calendar))
          (when (file-exists-p gb/diary-calendar-file)
            (setq diary-file gb/diary-calendar-file))
-         (call-interactively #'org-agenda))
+         (when (fboundp 'gb/exwm-workspace-switch)
+           (gb/exwm-workspace-switch 7))
+         (call-interactively #'org-agenda-list))
 
        (defun gb/org-agenda-refresh (&optional exhaustive)
          (interactive "P")
