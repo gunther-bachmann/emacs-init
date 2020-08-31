@@ -12084,10 +12084,59 @@
     #+begin_src emacs-lisp
       (use-package org-tree-slide
         :load-path "~/repo/org-tree-slide"
-        :commands org-tree-slide-mode
+        :commands (gb/presentation-start gb/presentation-end)
         :config
         (setq org-tree-slide-header nil)
-        (setq org-tree-slide-heading-emphasis t))
+        (setq org-tree-slide-heading-emphasis t)
+
+        (defun gb/presentation-start ()
+          "make all relevant adjustments to present an org-tree-slide presentation"
+          (interactive)
+          (when (boundp 'org-bullets-mode)
+            (setq org-bullets-bullet-list '("" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "")))
+          (setq cursor-type nil)
+          (global-hl-line-mode -1)
+          (hl-line-mode -1)
+          (when (fboundp 'add-fira-code-symbol-keywords)
+            (add-fira-code-symbol-keywords))
+          (org-display-inline-images)
+          (org-hide-block-all)
+          (org-babel-result-hide-all)
+          (read-only-mode +1)
+          (flyspell-mode 0) ;; no spell check errors
+          (when (fboundp 'toggle-serif)
+            (toggle-serif))
+          (when (boundp org-padding-mode)
+            (setq org-padding-heading-padding-alist
+                  '((4.0 . 1.5) (3.0 . 0.5) (3.0 . 0.5) (3.0 . 0.5) (2.5 . 0.5) (2.0 . 0.5) (1.5 . 0.5) (0.5 . 0.5)))
+            (org-padding-mode))
+          (org-tree-slide-mode)
+          (redisplay t)
+          (when (boundp beginend-org-mode)
+            (beginend-org-mode-goto-beginning))
+          (setq org-tree-slide-content--pos nil)
+          (org-tree-slide-content))
+
+        (defun gb/presentation-end ()
+          "revert all adjustments done to present an org-tree-slide presentation"
+          (interactive)
+          (org-tree-slide-mode -1)
+          (when (boundp org-padding-mode)
+            (org-padding-mode -1)
+            (setq org-padding-heading-padding-alist
+                  '((0 . 0) (0 . 0) (0 . 0) (0 . 0) (0 . 0) (0 . 0) (0 . 0) (0 . 0))))
+          (when (fboundp 'remove-fira-code-symbol-keywords)
+            (remove-fira-code-symbol-keywords))
+          (when (boundp 'org-bullets-mode)
+            (setq org-bullets-bullet-list '("●" "⚫" "⚪" "⚬" "∘" "◦" "∙" "◉" "◯" "◎" "○" "◌" "◎" "○" "☉" "￮" "⊙" "❍" "⊚" "⊛")))
+          (when (fboundp 'toggle-serif)
+            (toggle-serif))
+          (when (boundp 'org-padding-mode)
+            (org-padding-mode)
+            (redisplay t)
+            (org-padding-mode -1))
+          (global-hl-line-mode 1)
+          (setq cursor-type 'box)))
     #+end_src
   #+begin_src emacs-lisp :tangle no
     (use-package org-tree-slide
@@ -13209,11 +13258,10 @@
       :commands (esup))
   #+end_src
 * EVAL org-padding - define padding for each org mode heading level
-  #+begin_src emacs-lisp :tangle no
+  #+begin_src emacs-lisp
     (use-package org-padding
       :load-path "~/.emacs.d/additionals/"
       :config
-      (add-hook 'org-mode-hook #'org-padding-mode)
       ;; (remove-hook 'org-mode-hook #'org-padding-mode)
       (setq org-padding-block-begin-line-padding '(2.0 . nil))
       (setq org-padding-block-end-line-padding '(nil . 1.0))
