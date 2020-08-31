@@ -4286,7 +4286,9 @@
        (progn
          (defun gb/company-box-doc--init-frame-parameter (orig-func &rest args)
            "initialize frame parameter to ensure that the frame is always recreated"
-           (set-frame-parameter nil 'company-box-doc-frame nil))
+           (frame-local-setq company-box-doc-frame nil)
+           ;; (set-frame-parameter nil 'company-box-doc-frame nil)
+           )
          (advice-add 'company-box-doc--show :before #'gb/company-box-doc--init-frame-parameter)
          (setq company-box-enable-icon t)
          (custom-set-faces
