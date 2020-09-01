@@ -1791,8 +1791,9 @@
        (setq scroll-up-aggressively 1e-12
              scroll-down-aggressively 1e-12)
        (when (version<= "27.0" emacs-version)
-         (setq fast-but-imprecise-scrolling nil)
-         (pixel-scroll-mode 1))
+         (setq fast-but-imprecise-scrolling t)
+         ;; (pixel-scroll-mode 1)
+         )
        (setq scroll-margin 0)
        (setq scroll-step 1)
        (setq scroll-conservatively 10000)
@@ -1847,12 +1848,13 @@
    #+BEGIN_SRC emacs-lisp
      (setq gb/dual-screen-mode 'regular)
      (setq font-lock-support-mode 'jit-lock-mode)
-     (setq jit-lock-defer-contextually t ;; 'syntax-driven
+     (setq jit-lock-defer-contextually nil ;; t ;; 'syntax-driven
            jit-lock-context-time 0.5
-           jit-lock-defer-time nil
-           jit-lock-stealth-load 50 ;; 200
-           jit-lock-stealth-nice 2.0
+           jit-lock-defer-time 0.5
+           jit-lock-stealth-load nil ;; 200
+           jit-lock-stealth-nice 0.5
            jit-lock-stealth-time 0.2 ;; 0.2
+           jit-lock-chunk-size 500 ;; default is 500
            )
      (setq-default font-lock-multiline nil) ;; NEVER EVER SET THIS TO TRUE!!!!, makes opening this file a multi minute thing
 
@@ -7722,7 +7724,7 @@
 
         :config
 
-        (setq gb/use-optimized-folded-src-fontificat t) ;; fontify src blocks only if they ar not folded!
+        (setq gb/use-optimized-folded-src-fontificat nil) ;; fontify src blocks only if they ar not folded!
 
         (defun gb/get-org-hide-block-status (&optional pos)
           "t if babel block is folded, else nil"
