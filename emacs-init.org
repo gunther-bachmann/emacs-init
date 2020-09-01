@@ -12123,20 +12123,18 @@
           "revert all adjustments done to present an org-tree-slide presentation"
           (interactive)
           (org-tree-slide-mode -1)
-          (when (boundp org-padding-mode)
-            (org-padding-mode -1)
-            (setq org-padding-heading-padding-alist
-                  '((0 . 0) (0 . 0) (0 . 0) (0 . 0) (0 . 0) (0 . 0) (0 . 0) (0 . 0))))
           (when (fboundp 'remove-fira-code-symbol-keywords)
             (remove-fira-code-symbol-keywords))
           (when (boundp 'org-bullets-mode)
             (setq org-bullets-bullet-list '("●" "⚫" "⚪" "⚬" "∘" "◦" "∙" "◉" "◯" "◎" "○" "◌" "◎" "○" "☉" "￮" "⊙" "❍" "⊚" "⊛")))
           (when (fboundp 'toggle-serif)
             (toggle-serif))
-          (when (boundp 'org-padding-mode)
-            (org-padding-mode)
-            (redisplay t)
-            (org-padding-mode -1))
+          (when (fboundp 'org-padding-mode)
+            (org-padding-mode -1)
+            (setq org-padding-heading-padding-alist
+                  '((0 . 0) (0 . 0) (0 . 0) (0 . 0) (0 . 0) (0 . 0) (0 . 0) (0 . 0)))
+            (org-padding-mode 1)
+            (redisplay t))
           (global-hl-line-mode 1)
           (setq cursor-type 'box)))
     #+end_src
