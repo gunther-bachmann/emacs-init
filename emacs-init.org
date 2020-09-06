@@ -8791,11 +8791,30 @@
      (setq lui-time-stamp-format "[%m-%d %H:%M]")
      (setq lui-fill-column 80)
 
+     (defun gb/slack-lui-push-button (&optional pos use-mouse-action)
+       "make sure jitsy references are opened using chromium, all else is using firefox"
+       (interactive
+        (list (if (integerp last-command-event) (point) last-command-event)))
+       (when (integerp pos)
+         (let* ((button (button-at (or pos (point))))
+                (luiaction (button-get button 'lui-button-function))
+                (luiparameter (button-get button 'lui-button-arguments)))
+           (if (eq luiaction 'browse-url)
+               (if (string-match-p ".*\\(/meet\\.jit\\.si/\\|/teams\\.microsoft\\).*" (car luiparameter))
+                   (progn (message "... with chromium")
+                          (browse-url-chromium (car luiparameter)))
+                 (message " ... with firefox")
+                 (browse-url-firefox (car luiparameter)))
+             (message "... neither of the two, use standard behaviour")
+             (push-button pos use-mouse-action)))))
+     (bind-key "<RET>" #'gb/slack-lui-push-button button-map)
+
      (defun gb/slack-init-mode-config ()
        "do some settings for slack"
        ;; show pictures in one piece (since they are chunked in lines)
        (setq-local line-spacing 0)
-       (setq-local browse-url-browser-function 'browse-url-chromium))
+       ;; (setq-local browse-url-browser-function 'browse-url-chromium)
+       )
 
      (add-hook 'slack-mode-hook #'emojify-mode)
      (add-hook 'slack-mode-hook #'gb/slack-init-mode-config)
@@ -8804,13 +8823,22 @@
      (add-hook 'slack-file-info-buffer-mode-hook #'emojify-mode)
      (add-hook 'slack-file-info-buffer-mode-hook #'gb/slack-init-mode-config)
 
-     (bind-key "C-c :" #'emojify-insert-emoji slack-mode-map)
-     (bind-key "C-c '" #'slack-message-write-another-buffer slack-message-buffer-mode-map)
+     ;; insert (embed) direct mention of user
      (bind-key "C-c @" #'slack-message-embed-mention slack-mode-map)
-
-     (bind-key "C-c :" #'emojify-insert-emoji slack-thread-message-buffer-mode-map)
-     (bind-key "C-c '" #'slack-message-write-another-buffer slack-thread-message-buffer-mode-map)
      (bind-key "C-c @" #'slack-message-embed-mention slack-thread-message-buffer-mode-map)
+
+     ;; insert (embed) emoji
+     (bind-key "C-c :" #'emojify-insert-emoji slack-mode-map)
+     (bind-key "C-c :" #'emojify-insert-emoji slack-thread-message-buffer-mode-map)
+
+     ;; edit message in separate buffer
+     (bind-key "C-c '" #'slack-message-write-another-buffer slack-thread-message-buffer-mode-map)
+     (bind-key "C-c '" #'slack-message-write-another-buffer slack-message-buffer-mode-map)
+
+     ;; reply in thread
+     (bind-key "C-c C-r" #'slack-thread-show-or-create slack-message-buffer-mode-map)
+     (bind-key "C-c C-r" #'slack-thread-show-or-create slack-mode-map)
+     (bind-key "C-c C-r" #'slack-thread-show-or-create slack-thread-message-buffer-mode-map)
 
      (setq gb/slack-team-registered nil)
      (defun gb/slack-register-teams ()
@@ -8830,7 +8858,7 @@
        (slack-start))
 
      ;; make sure to not track common channels (annoying)
-     (setq tracking-ignored-buffers '(".*itemis : general" ".*itemis : xtext.*" ".*homecooking.*"))
+     (setq tracking-ignored-buffers '(".*itemis : general.*" ".*itemis : xtext.*" ".*homecooking.*" ".*nintendo-pipe_pr.*" ".*itemis : random.*"))
 
      (defun gb/slack-all-room-names ()
        ""
@@ -8923,17 +8951,42 @@
    (use-package alert
      :ensure t
      :init
-     (setq alert-default-style 'message)
-     ;; disable all alerts
-     (setq alert-user-configuration
-           '(((:category . "slack")) ignore nil))
 
-     ;; alert me on some channels
-     (add-to-list
-      'alert-user-configuration
-      '(((:title . "\\(nord\\|Slackbot\\|generali\\)")
-         (:category . "slack"))
-        message nil))
+    (alert-define-style
+      'gb/alert-style :title
+      "Make Org headings for slack messages I receive - Style"
+      :notifier
+      (lambda (info)
+        (write-region
+         (s-concat
+          "* TODO "
+          (plist-get info :title)
+          " : "
+          (format
+           "%s %s :slack:"
+           (plist-get info :title)
+           (plist-get info :message))
+          "\n"
+          (format "\n <%s>" (format-time-string "%Y-%m-%d %H:%M"))
+          "\n")
+         nil
+         "~/slack.org"
+         t)))
+     (setq alert-default-style 'message)
+     (setq alert-user-configuration
+           '(((:category . "slack")) gb/alert-style nil))
+
+     ;; (setq alert-default-style 'message)
+     ;; ;; disable all alerts
+     ;; (setq alert-user-configuration
+     ;;       '(((:category . "slack")) ignore nil))
+
+     ;; ;; alert me on some channels
+     ;; (add-to-list
+     ;;  'alert-user-configuration
+     ;;  '(((:title . "\\(nord\\|Slackbot\\|generali\\)")
+     ;;     (:category . "slack"))
+     ;;    message nil))
      )
  #+END_SRC
 * ido (disabled, now using helm)
