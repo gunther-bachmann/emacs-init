@@ -11091,8 +11091,9 @@
            (with-ignored-messages
             (let ((output-selected (gb/audio-output-selected)))
               (shell-command (format "pactl set-sink-volume %s -5%%" output-selected))
-              (gb/play-theme-sound gb/sound-theme-effect-volume)
-              (gb/dunst-report-volume output-selected))))
+              (while-no-input
+                (gb/play-theme-sound gb/sound-theme-effect-volume)
+                (gb/dunst-report-volume output-selected)))))
 
          (defun gb/dunst-report-volume (element)
            (let ((volume (gb/get-volume element))
@@ -11118,8 +11119,9 @@
             (let ((output-selected (gb/audio-output-selected)))
               (when (> 130 (gb/get-volume output-selected))
                 (shell-command (format "pactl set-sink-volume %s +5%%" output-selected))
-                (gb/play-theme-sound gb/sound-theme-effect-volume))
-              (gb/dunst-report-volume output-selected))))
+                (while-no-input
+                  (gb/play-theme-sound gb/sound-theme-effect-volume)
+                  (gb/dunst-report-volume output-selected))))))
 
          (defun gb/audio-mute-volume ()
            "mute volume master"
@@ -11168,8 +11170,9 @@
            (interactive)
            (with-ignored-messages
             (shell-command "xbacklight -inc 10")
-            (let ((brightness (s-trim (shell-command-to-string "xbacklight -get"))))
-              (shell-command (format "dunstify -a \"changeBrightness\" -u low -i brightness-high -r \"991048\" \"Brightness: %s%%\" \"$(getProcessingString 20 '●' '◯' %s)\"" brightness brightness)))))
+            (while-no-input
+              (let ((brightness (s-trim (shell-command-to-string "xbacklight -get"))))
+                (shell-command (format "dunstify -a \"changeBrightness\" -u low -i brightness-high -r \"991048\" \"Brightness: %s%%\" \"$(getProcessingString 20 '●' '◯' %s)\"" brightness brightness))))))
 
          (defun gb/brightness-set (percent)
            "set brightness of monior 0 to PERCENT"
@@ -11182,8 +11185,9 @@
            (interactive)
            (with-ignored-messages
             (shell-command "xbacklight -dec 10")
-            (let ((brightness (s-trim (shell-command-to-string "xbacklight -get"))))
-              (shell-command (format "dunstify -a \"changeBrightness\" -u low -i brightness-high -r \"991048\" \"Brightness: %s%%\" \"$(getProcessingString 20 '●' '◯' %s)\"" brightness brightness)))))
+            (while-no-input
+              (let ((brightness (s-trim (shell-command-to-string "xbacklight -get"))))
+                (shell-command (format "dunstify -a \"changeBrightness\" -u low -i brightness-high -r \"991048\" \"Brightness: %s%%\" \"$(getProcessingString 20 '●' '◯' %s)\"" brightness brightness))))))
        #+end_src
     - lock, screen saver
        #+begin_src emacs-lisp
