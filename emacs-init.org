@@ -13336,6 +13336,14 @@
   #+begin_src emacs-lisp
     (use-package find-file-rg)
   #+end_src
+* EVAL eshell-syntax-highlighting
+  - provide syntax hightlighting in the eshell
+  #+begin_src emacs-lisp
+    (use-package eshell-syntax-highlighting
+      :after esh-mode
+      :load-path "~/.emacs.d/additionals/eshell-syntax-highlighting/"
+      :config (eshell-syntax-highlighting-enable))
+  #+end_src
 * proced
   #+begin_src emacs-lisp
     (use-package proced
