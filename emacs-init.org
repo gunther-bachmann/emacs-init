@@ -11460,13 +11460,14 @@
                               (and single-mon-p
                                    (< workspaceIdx lastIndex)))
                           (progn (gb/exwm-workspace-switch (+ 1 workspaceIdx) t)
-                                 (gb/exwm-visualize-workspace-switch (+ workspaceIdx (if single-mon-p 1 0)) (- (length exwm-workspace--list) (if single-mon-p 0 1)) 10)
-                                 (gb/play-theme-sound gb/sound-theme-effect-switch-workspace)
-                                 (message (format "\\/     now %s" (exwm-workspace--position exwm-workspace--current)))
+                                 (while-no-input
+                                   (gb/exwm-visualize-workspace-switch (+ workspaceIdx (if single-mon-p 1 0)) (- (length exwm-workspace--list) (if single-mon-p 0 1)) 10)
+                                   (gb/play-theme-sound gb/sound-theme-effect-switch-workspace)
+                                   (message (format "\\/     now %s" (exwm-workspace--position exwm-workspace--current))))
                                  ;; (x-focus-frame (selected-frame))
                                  (doom-modeline-set-selected-window))
-                        (message "no workspace below this.")
-                        (beacon-blink))))
+                        (message "no workspace below this."))
+                      (beacon-blink)))
 
                   (defun gb/exwm-workspace-up ()
                     "jump to workspace up of the current one (multi monitor)"
@@ -11479,13 +11480,14 @@
                               (and single-mon-p
                                    (> workspaceIdx 0)))
                           (progn (gb/exwm-workspace-switch (- workspaceIdx 1) t)
-                                 (gb/exwm-visualize-workspace-switch (- workspaceIdx (if single-mon-p 1 2)) (- (length exwm-workspace--list) (if single-mon-p 0 1)) 10)
-                                 (gb/play-theme-sound gb/sound-theme-effect-switch-workspace)
-                                 (message (format "/\\     now %s" (exwm-workspace--position exwm-workspace--current)))
+                                 (while-no-input
+                                   (gb/exwm-visualize-workspace-switch (- workspaceIdx (if single-mon-p 1 2)) (- (length exwm-workspace--list) (if single-mon-p 0 1)) 10)
+                                   (gb/play-theme-sound gb/sound-theme-effect-switch-workspace)
+                                   (message (format "/\\     now %s" (exwm-workspace--position exwm-workspace--current))))
                                  ;; (x-focus-frame (selected-frame))
                                  (doom-modeline-set-selected-window))
-                        (message "no workspace above this")
-                        (beacon-blink))))
+                        (message "no workspace above this"))
+                      (beacon-blink)))
                   (defun gb/exwm-next-workspace (&optional inc)
                     "jump to the next (inc) workspace"
                     (interactive)
