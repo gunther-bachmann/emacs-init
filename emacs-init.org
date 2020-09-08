@@ -1337,93 +1337,95 @@
 * check installation status of programs (*nix)
   - make sure this is done, after path is properly setup (mac os problem)
   #+BEGIN_SRC emacs-lisp
-  (setq running-nixos (getenv "NIX_PATH"))
-  (setq gb/use-exwm (or (string= "ok" (s-trim (shell-command-to-string "cat ~/.xinitrc | grep -q -e '^ *exec .*emacs' && echo 'ok'")))
-                        running-nixos))
-  ;; (if (is-linux-p)
-  ;;     (let* ((tracepathResult (shell-command-to-string "tracepath -b -m 4 github.com"))
-  ;;            (gb/behind-comp (s-contains? "compal" tracepathResult))
-  ;;            (gb/behind-kabeld (s-contains? "kabel-deutschland" tracepathResult)))
-  ;;       (setq gb/network-home (and gb/behind-comp gb/behind-kabeld)))
-  ;;   (setq gb/network-home nil))
-  (setq gb/dual-monitor-setup (string= "2" (s-trim (shell-command-to-string "xrandr --listmonitors | grep \"Monitors\" | awk '{ print $2; }'"))))
+    (setq running-nixos (getenv "NIX_PATH"))
+    (setq gb/use-exwm (or (string= "ok" (s-trim (shell-command-to-string "cat ~/.xinitrc | grep -q -e '^ *exec .*emacs' && echo 'ok'")))
+                          running-nixos))
+    ;; (if (is-linux-p)
+    ;;     (let* ((tracepathResult (shell-command-to-string "tracepath -b -m 4 github.com"))
+    ;;            (gb/behind-comp (s-contains? "compal" tracepathResult))
+    ;;            (gb/behind-kabeld (s-contains? "kabel-deutschland" tracepathResult)))
+    ;;       (setq gb/network-home (and gb/behind-comp gb/behind-kabeld)))
+    ;;   (setq gb/network-home nil))
+    (setq gb/dual-monitor-setup (string= "2" (s-trim (shell-command-to-string "xrandr --listmonitors | grep \"Monitors\" | awk '{ print $2; }'"))))
 
-  ;; (setq gb/use-smart-mode-line (and gb/use-exwm gb/dual-monitor-setup (not gb/network-home) (not running-nixos))) ;;
-  ;; (setq gb/use-space-line (not gb/use-smart-mode-line))
-
-
-  (when (is-_nix-p)
-    (progn
-
-      ;; is imagemagick installed (program for command line image manipulation)
-      ;; install via "brew install imagemagick" or "pacman -S imagemagick"
-      (check-_nix-program-status imagemagick-installed "animate" "ImageMagick" "pdf-tools not installed!")
-      (check-_nix-program-status poppler-installed "pdfinfo" "poppler" "pdf-tools not installed!")
-      (check-_nix-program-status gnutls-cli-installed "gnutls-cli" "gnutls-cli" "gnutls-cli not installed!")
-
-      (check-_nix-program-status xmllint-installed "xmllint" "xmllint" "xmllint not installed, some xml functions will not be accessible (e.g. formatting)")
+    ;; (setq gb/use-smart-mode-line (and gb/use-exwm gb/dual-monitor-setup (not gb/network-home) (not running-nixos))) ;;
+    ;; (setq gb/use-space-line (not gb/use-smart-mode-line))
 
 
-      ;; graphviz brings dot (and other) cl tools which are needed for plantuml to work
-      (check-_nix-program-status graphviz-installed "dot" "GraphViz" "dot is not available, thus plantuml cannot be used!")
+    (when (is-_nix-p)
+      (progn
 
-      ;; make useful for pdf tools
-      (check-_nix-program-status make-installed '("make" "automake" "autoconf" "g++" "gcc") "make-tools" "make-tools are not (completely) available, thus pdf-tools cannot be compiled!")
+        ;; is imagemagick installed (program for command line image manipulation)
+        ;; install via "brew install imagemagick" or "pacman -S imagemagick"
+        (check-_nix-program-status imagemagick-installed "animate" "ImageMagick" "pdf-tools not installed!")
+        (check-_nix-program-status poppler-installed "pdfinfo" "poppler" "pdf-tools not installed!")
+        (check-_nix-program-status gnutls-cli-installed "gnutls-cli" "gnutls-cli" "gnutls-cli not installed!")
 
-      ;; check basic tooling
-      (check-_nix-program-status locate-installed "locate" "locate" "locate is not available, thus helm find file will not work properly!")
-
-      ;; lein (for clojure)
-      (check-_nix-program-status lein-installed "lein" "leinigen" "lein is not available, thus clojure/cider will not work properly!")
-
-      ;; hub (for magithub)
-      (check-_nix-program-status hub-installed "hub" "hub" "hub command line tool not available, magithub will not be installed")
-
-      ;; gpg (for file encryption)
-      (check-_nix-program-status gpg-installed "gpg" "gpg" "gpg is necessary for file encryption.")
-      (when gpg-installed
-          (setq epg-gpg-program "gpg"))
-
-      (check-_nix-program-status w3m-installed '("w3m") "w3m" "html messages in gnus will not be displayed, helm dash browsing will not use w3m.")
-
-      (check-_nix-program-status git-lfs-installed "git-lfs" "git-lfs" "magit-lfs will not be available")
-
-      (check-_nix-program-status ledger-installed "ledger" "ledger" "ledger-mode will not be available")
-
-      (check-_nix-program-status chromium-installed "chromium" "chromium" "chromium not found, flymd will not work")
-
-      (check-_nix-program-status firefox-installed "firefox" "firefox" "firefox not found")
-
-      (check-_nix-program-status icecat-installed "icecat" "icecat" "icecat not found")
-
-      (check-_nix-program-status git-imerge-installed "git-imerge" "git-imerge" "git-imerge not found")
-
-      (check-_nix-program-status languagetool-installed "languagetool" "languagetool" "languagetool not found")
-
-      (check-_nix-program-status proselint-installed "proselint" "proselint" "proselint not found") ;; proselint is a linter for english prose
-
-      (if chromium-installed
-          (progn
-            (setq browse-url-browser-function 'browse-url-chromium)
-            (setq browse-url-chromium-program (s-trim (shell-command-to-string "command -v chromium")))))
-
-      ;; firefox takes precedence (over chromium)
-      (if firefox-installed
-          (progn
-            (setq browse-url-browser-function 'browse-url-firefox)
-            (setq browse-url-firefox-program (s-trim (shell-command-to-string "command -v firefox")))))
+        (check-_nix-program-status xmllint-installed "xmllint" "xmllint" "xmllint not installed, some xml functions will not be accessible (e.g. formatting)")
 
 
-      ;; icecat takes precedence (over firefox)
-      ;; (if icecat-installed
-      ;;   (progn
-      ;;     (setq browse-url-browser-function 'browse-url-default-browser)
-      ;;     (setq browse-url-chromium-program (s-trim (shell-command-to-string "command -v icecat")))))
+        ;; graphviz brings dot (and other) cl tools which are needed for plantuml to work
+        (check-_nix-program-status graphviz-installed "dot" "GraphViz" "dot is not available, thus plantuml cannot be used!")
 
-      (setq gnu-ls-installed (not (is-ms-windows-p)))
-      (if gnu-ls-installed
-          (setq gnu-ls-bin-path (car (split-string (shell-command-to-string "command -v ls")))))
-      ))
+        ;; make useful for pdf tools
+        (check-_nix-program-status make-installed '("make" "automake" "autoconf" "g++" "gcc") "make-tools" "make-tools are not (completely) available, thus pdf-tools cannot be compiled!")
+
+        ;; check basic tooling
+        (check-_nix-program-status locate-installed "locate" "locate" "locate is not available, thus helm find file will not work properly!")
+
+        ;; lein (for clojure)
+        (check-_nix-program-status lein-installed "lein" "leinigen" "lein is not available, thus clojure/cider will not work properly!")
+
+        ;; hub (for magithub)
+        (check-_nix-program-status hub-installed "hub" "hub" "hub command line tool not available, magithub will not be installed")
+
+        ;; gpg (for file encryption)
+        (check-_nix-program-status gpg-installed "gpg" "gpg" "gpg is necessary for file encryption.")
+        (when gpg-installed
+            (setq epg-gpg-program "gpg"))
+
+        (check-_nix-program-status w3m-installed '("w3m") "w3m" "html messages in gnus will not be displayed, helm dash browsing will not use w3m.")
+
+        (check-_nix-program-status git-lfs-installed "git-lfs" "git-lfs" "magit-lfs will not be available")
+
+        (check-_nix-program-status ledger-installed "ledger" "ledger" "ledger-mode will not be available")
+
+        (check-_nix-program-status chromium-installed "chromium" "chromium" "chromium not found, flymd will not work")
+
+        (check-_nix-program-status firefox-installed "firefox" "firefox" "firefox not found")
+
+        (check-_nix-program-status icecat-installed "icecat" "icecat" "icecat not found")
+
+        (check-_nix-program-status git-imerge-installed "git-imerge" "git-imerge" "git-imerge not found")
+
+        (check-_nix-program-status languagetool-installed "languagetool" "languagetool" "languagetool not found")
+
+        (check-_nix-program-status proselint-installed "proselint" "proselint" "proselint not found") ;; proselint is a linter for english prose
+
+        (when chromium-installed
+          (setq browse-url-browser-function 'browse-url-chromium)
+          (setq browse-url-chromium-program (s-trim (shell-command-to-string "command -v chromium"))))
+
+        ;; firefox takes precedence (over chromium)
+        (when firefox-installed
+          (setq browse-url-browser-function 'browse-url-firefox)
+          (setq browse-url-firefox-program (s-trim (shell-command-to-string "command -v firefox"))))
+
+        (when (and chromium-installed firefox-installed)
+          (setq browse-url-browser-function
+                '((".*\\(/meet\\.jit\\.si/\\|/teams\\.microsoft\\|/meet\\.google\\.com/\\).*" . browse-url-chromium) ;; use chromium for jitsi and teams
+                  ( ".*" . browse-url-firefox))))
+
+        ;; icecat takes precedence (over firefox)
+        ;; (if icecat-installed
+        ;;   (progn
+        ;;     (setq browse-url-browser-function 'browse-url-default-browser)
+        ;;     (setq browse-url-chromium-program (s-trim (shell-command-to-string "command -v icecat")))))
+
+        (setq gnu-ls-installed (not (is-ms-windows-p)))
+        (if gnu-ls-installed
+            (setq gnu-ls-bin-path (car (split-string (shell-command-to-string "command -v ls")))))
+        ))
   #+END_SRC
 * project specific settings
 ** allowed dir locals
