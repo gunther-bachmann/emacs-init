@@ -7406,497 +7406,497 @@
 ** org
 *** org
   #+BEGIN_SRC emacs-lisp
-        (use-package org
-          :after ( hydra helm)
-          :bind (:map  org-mode-map
-                       ("<f1>" . hydra-org-mode/body)
+    (use-package org
+      :after ( hydra helm)
+      :bind (:map  org-mode-map
+                   ("<f1>" . hydra-org-mode/body)
 
-                       ("RET" . gb/org-return-dwim)
-                       ("S-<return>" . org-return-indent)
-                       ("C-<return>" . gb/org-control-return)
-                       ("C-c l" . org-store-link)
-                       ("C-c t i" . org-toggle-item)
-                       ("H-f" . font-lock-fontify-block))
-          :init
-          ;; thanks to https://pank.eu/blog/pretty-babel-src-blocks.html
-          (with-eval-after-load 'org
-            (defvar-local rasmus/org-at-src-begin -1
-              "Variable that holds whether last position was a ")
+                   ("RET" . gb/org-return-dwim)
+                   ("S-<return>" . org-return-indent)
+                   ("C-<return>" . gb/org-control-return)
+                   ("C-c l" . org-store-link)
+                   ("C-c t i" . org-toggle-item)
+                   ("H-f" . font-lock-fontify-block))
+      :init
+      ;; thanks to https://pank.eu/blog/pretty-babel-src-blocks.html
+      (with-eval-after-load 'org
+        (defvar-local rasmus/org-at-src-begin -1
+          "Variable that holds whether last position was a ")
 
-            (defvar rasmus/ob-header-symbol ?☰
-              "Symbol used for babel headers")
+        (defvar rasmus/ob-header-symbol ?☰
+          "Symbol used for babel headers")
 
-            (defun rasmus/org-prettify-src--update ()
-              (let ((case-fold-search t)
-                    (re "^[ \t]*#\\+begin_src[ \t]+[^ \f\t\n\r\v]+[ \t]*")
-                    found)
-                (save-excursion
-                  (goto-char (point-min))
-                  (while (re-search-forward re nil t)
-                    (goto-char (match-end 0))
-                    (let ((args (org-trim
-                                 (buffer-substring-no-properties (point)
-                                                                 (line-end-position)))))
-                      (when (org-string-nw-p args)
-                        (let ((new-cell (cons args rasmus/ob-header-symbol)))
-                          (cl-pushnew new-cell prettify-symbols-alist :test #'equal)
-                          (cl-pushnew new-cell found :test #'equal)))))
-                  (setq prettify-symbols-alist
-                        (cl-set-difference prettify-symbols-alist
-                                           (cl-set-difference
-                                            (cl-remove-if-not
-                                             (lambda (elm)
-                                               (eq (cdr elm) rasmus/ob-header-symbol))
-                                             prettify-symbols-alist)
-                                            found :test #'equal)))
-                  ;; Clean up old font-lock-keywords.
-                  (font-lock-remove-keywords nil prettify-symbols--keywords)
-                  (setq prettify-symbols--keywords (prettify-symbols--make-keywords))
-                  (font-lock-add-keywords nil prettify-symbols--keywords)
-                  (while (re-search-forward re nil t)
-                    (font-lock-flush (line-beginning-position) (line-end-position))))))
+        (defun rasmus/org-prettify-src--update ()
+          (let ((case-fold-search t)
+                (re "^[ \t]*#\\+begin_src[ \t]+[^ \f\t\n\r\v]+[ \t]*")
+                found)
+            (save-excursion
+              (goto-char (point-min))
+              (while (re-search-forward re nil t)
+                (goto-char (match-end 0))
+                (let ((args (org-trim
+                             (buffer-substring-no-properties (point)
+                                                             (line-end-position)))))
+                  (when (org-string-nw-p args)
+                    (let ((new-cell (cons args rasmus/ob-header-symbol)))
+                      (cl-pushnew new-cell prettify-symbols-alist :test #'equal)
+                      (cl-pushnew new-cell found :test #'equal)))))
+              (setq prettify-symbols-alist
+                    (cl-set-difference prettify-symbols-alist
+                                       (cl-set-difference
+                                        (cl-remove-if-not
+                                         (lambda (elm)
+                                           (eq (cdr elm) rasmus/ob-header-symbol))
+                                         prettify-symbols-alist)
+                                        found :test #'equal)))
+              ;; Clean up old font-lock-keywords.
+              (font-lock-remove-keywords nil prettify-symbols--keywords)
+              (setq prettify-symbols--keywords (prettify-symbols--make-keywords))
+              (font-lock-add-keywords nil prettify-symbols--keywords)
+              (while (re-search-forward re nil t)
+                (font-lock-flush (line-beginning-position) (line-end-position))))))
 
-            (defun rasmus/org-prettify-src ()
-              "Hide src options via `prettify-symbols-mode'.
+        (defun rasmus/org-prettify-src ()
+          "Hide src options via `prettify-symbols-mode'.
 
-          `prettify-symbols-mode' is used because it has uncollpasing. It's
-          may not be efficient."
-              (let* ((case-fold-search t)
-                     (at-src-block (save-excursion
-                                     (beginning-of-line)
-                                     (looking-at "^[ \t]*#\\+begin_src[ \t]+[^ \f\t\n\r\v]+[ \t]*"))))
-                ;; Test if we moved out of a block.
-                (when (or (and rasmus/org-at-src-begin
-                               (not at-src-block))
-                          ;; File was just opened.
-                          (eq rasmus/org-at-src-begin -1))
-                  (rasmus/org-prettify-src--update))
-                ;; Remove composition if at line; doesn't work properly.
-                ;; (when at-src-block
-                ;;   (with-silent-modifications
-                ;;     (remove-text-properties (match-end 0)
-                ;;                             (1+ (line-end-position))
-                ;;                             '(composition))))
-                (setq rasmus/org-at-src-begin at-src-block)))
+      `prettify-symbols-mode' is used because it has uncollpasing. It's
+      may not be efficient."
+          (let* ((case-fold-search t)
+                 (at-src-block (save-excursion
+                                 (beginning-of-line)
+                                 (looking-at "^[ \t]*#\\+begin_src[ \t]+[^ \f\t\n\r\v]+[ \t]*"))))
+            ;; Test if we moved out of a block.
+            (when (or (and rasmus/org-at-src-begin
+                           (not at-src-block))
+                      ;; File was just opened.
+                      (eq rasmus/org-at-src-begin -1))
+              (rasmus/org-prettify-src--update))
+            ;; Remove composition if at line; doesn't work properly.
+            ;; (when at-src-block
+            ;;   (with-silent-modifications
+            ;;     (remove-text-properties (match-end 0)
+            ;;                             (1+ (line-end-position))
+            ;;                             '(composition))))
+            (setq rasmus/org-at-src-begin at-src-block)))
 
-            (defun rasmus/org-prettify-symbols ()
-              (mapc (apply-partially 'add-to-list 'prettify-symbols-alist)
-                    (cl-reduce 'append
-                               (mapcar (lambda (x) (list x (cons (upcase (car x)) (cdr x))))
-                                       `(("#+begin_src" . ?λ)
-                                         ("#+end_src"   . ?□)
-                                         ("#+header:" . ,rasmus/ob-header-symbol)
-                                         ("#+begin_quote" . ?»)
-                                         ("#+end_quote" . ?«)))))
-              (turn-on-prettify-symbols-mode)
-              (add-hook 'post-command-hook 'rasmus/org-prettify-src t t))
-            (add-hook 'org-mode-hook #'rasmus/org-prettify-symbols))
-
-
-          (progn
-            (add-hook 'after-change-major-mode-hook #'gb/activate-properties-in-org-mode)
-            (add-hook 'org-mode-hook #'gb/enable-auto-fill-mode)
-            ;; (add-hook 'org-mode-hook
-            ;;           (lambda ()
-            ;;             "beautify checkbox symbols"
-            ;;             (push '("[ ]" . " ☐ ") prettify-symbols-alist)
-            ;;             (push '("[X]" . " ⌧ ") prettify-symbols-alist)
-            ;;             (push '("[-]" . " ◼ ") prettify-symbols-alist)
-            ;;             (prettify-symbols-mode)))
-            (custom-set-faces '(header-line ((t (:inherit org-table-face :foreground "#8abeb7"))))) ;; set (non scrolling) header to inhiert font from org mode tables (not mode line, which is to small on multi monitor w/ current config)
-            (setq org-image-actual-width nil)
-            (setq org-format-latex-options (plist-put org-format-latex-options :scale 2.0))
-            (setq org-hide-emphasis-markers t)          ;; hides ** and // surrounding text that is bold or intalics
-            (setq org-src-window-setup 'current-window) ;; make edit src block open in the same window as the org file itself
-            ;; (add-hook 'org-mode-hook #'org-sticky-header)
-            ;; make sure source blocks are collapsed at first
-            ;; and C-x t b expands and recollapses them
-            ;; see [[https://emacs.stackexchange.com/questions/7211/collapse-src-blocks-in-org-mode-by-default][here]]
-
-            (defun gb/org-babel--count-approx-src-block-lenths ()
-              ""
-              (interactive)
-              (while t
-                (let ((line (line-number-at-pos)))
-                  (org-babel-next-src-block)
-                  (message (format "line %s, length %s" (int-to-string (line-number-at-pos)) (int-to-string (- (line-number-at-pos) line)))))))
-
-            (defvar gb/org-block-visible nil)
-            (defun gb/org-toggle-block-visibility ()
-              ""
-              (interactive)
-              (if gb/org-block-visible
-                  (org-hide-block-all)
-                (org-show-block-all))
-              (setq-local gb/org-block-visible (not gb/org-block-visible)))
-            ;; (add-hook 'org-mode-hook #'gb/org-toggle-block-visibility)
-            (define-key gb/toggle-map "b" #'gb/org-toggle-block-visibility)
-                                                ; ensure that adjusted save hook is not executed when org edit src save is executed
-            (advice-add 'org-edit-src-save :around #'gb/wrap-org-edit-src-save)
-            ;; ensure that read only mode is removed when org src edit is started
-            (advice-add 'org-edit-special :before #'(lambda (orig-func &rest args) (read-only-mode -1))))
+        (defun rasmus/org-prettify-symbols ()
+          (mapc (apply-partially 'add-to-list 'prettify-symbols-alist)
+                (cl-reduce 'append
+                           (mapcar (lambda (x) (list x (cons (upcase (car x)) (cdr x))))
+                                   `(("#+begin_src" . ?λ)
+                                     ("#+end_src"   . ?□)
+                                     ("#+header:" . ,rasmus/ob-header-symbol)
+                                     ("#+begin_quote" . ?»)
+                                     ("#+end_quote" . ?«)))))
+          (turn-on-prettify-symbols-mode)
+          (add-hook 'post-command-hook 'rasmus/org-prettify-src t t))
+        (add-hook 'org-mode-hook #'rasmus/org-prettify-symbols))
 
 
-          (progn
-            (require 'ob-clojure) ;; not found in packages (20180510)
-            (require 'org-inlinetask)
-            (defun gb/org-control-return ()
-              "open a new item a breaking out of the current level"
-              (interactive)
-              (let* ((element (org-element-at-point))
-                     (start-element (car element))
-                     (start (cadadr element))
-                     root-line)
-                (cond
-                 ((eq start-element 'headline)
-                  (progn
-                    (org-end-of-subtree)
-                    (org-insert-heading)
-                    (org-promote)))
-                 ((eq start-element 'item)
-                  (org-end-of-item-list)
-                  (org-insert-heading))
-                 (t
-                  (save-excursion
-                    (goto-char start)
-                    (setq root-line (thing-at-point 'line t)))
-                  (if (string-match "^ *-.*" root-line)
-                      (if (not (string-match "^ *-.*" (thing-at-point 'line t)))
-                          (progn
-                            (org-end-of-item)
-                            (org-insert-item))
-                        ;; (org-end-of-item-list)
-                        (org-insert-heading))
-                    (org-insert-heading-respect-content))))))
+      (progn
+        (add-hook 'after-change-major-mode-hook #'gb/activate-properties-in-org-mode)
+        (add-hook 'org-mode-hook #'gb/enable-auto-fill-mode)
+        ;; (add-hook 'org-mode-hook
+        ;;           (lambda ()
+        ;;             "beautify checkbox symbols"
+        ;;             (push '("[ ]" . " ☐ ") prettify-symbols-alist)
+        ;;             (push '("[X]" . " ⌧ ") prettify-symbols-alist)
+        ;;             (push '("[-]" . " ◼ ") prettify-symbols-alist)
+        ;;             (prettify-symbols-mode)))
+        (custom-set-faces '(header-line ((t (:inherit org-table-face :foreground "#8abeb7"))))) ;; set (non scrolling) header to inhiert font from org mode tables (not mode line, which is to small on multi monitor w/ current config)
+        (setq org-image-actual-width nil)
+        (setq org-format-latex-options (plist-put org-format-latex-options :scale 2.0))
+        (setq org-hide-emphasis-markers t)          ;; hides ** and // surrounding text that is bold or intalics
+        (setq org-src-window-setup 'current-window) ;; make edit src block open in the same window as the org file itself
+        ;; (add-hook 'org-mode-hook #'org-sticky-header)
+        ;; make sure source blocks are collapsed at first
+        ;; and C-x t b expands and recollapses them
+        ;; see [[https://emacs.stackexchange.com/questions/7211/collapse-src-blocks-in-org-mode-by-default][here]]
 
-            (defun gb/org-return-dwim--on-checkbox-item ()
-              "call only if at the beginning of the checkbox to insert below"
-              (org-end-of-item)
-              (if (org-in-item-p)
-                  (org-insert-todo-heading 1)
-                (progn (move-point-visually -1)
-                       (org-insert-todo-heading 1)
-                       (org-end-of-item)
-                       (if (not (org-in-item-p))
-                           (progn
-                             (move-point-visually -1)
-                             (org-end-of-line))))))
+        (defun gb/org-babel--count-approx-src-block-lenths ()
+          ""
+          (interactive)
+          (while t
+            (let ((line (line-number-at-pos)))
+              (org-babel-next-src-block)
+              (message (format "line %s, length %s" (int-to-string (line-number-at-pos)) (int-to-string (- (line-number-at-pos) line)))))))
 
-            (defun gb/org-return-dwim--on-list-item ()
-              "call only if at the beginning of the item to insert below"
-              (org-end-of-item)
-              (if (org-in-item-p)
-                  (org-insert-item)
-                (progn (move-point-visually -1)
-                       (org-insert-item)
-                       (org-end-of-item)
-                       (if (not (org-in-item-p))
-                           (progn
-                             (move-point-visually -1)
-                             (org-end-of-line))))))
-
-            (defun gb/org-return-dwim--is-list-or-item (list-type)
-              "is this org element type an item or a plain-list (- or - [ ])"
-              (or (eq list-type 'item)
-                  (eq list-type 'plain-list)))
-
-            (defun gb/org-is-checkbox-line (line)
-              (string-match "^ *- \\[.\\].*" line))
-
-            (defun gb/org-return-dwim ()
-              "execute return and continue element (lists) given by context"
-              (interactive)
-              ;; check if current point is over link and open that instead
-              (let* ((context (org-element-context))
-                     (type-at-point (car context))
-                     (saved-position (point)))
-                (cond ((and (< (point) (line-end-position)) (eq 'link type-at-point))
-                       (org-open-at-point))
-                      (t
-                       (move-beginning-of-line nil) ;; to identify list as item (does not work when point is in text part of item)
-                       (let* ((list-type (car (org-element-at-point)))
-                              (line (thing-at-point 'line t))
-                              (new-context (org-element-context))
-                              (todo-keyword (org-element-property :todo-keyword new-context)))
-                         (cond ((and (eq list-type 'headline) (null todo-keyword))
-                                (org-insert-heading-after-current))
-                               ((eq list-type 'headline)
-                                (org-insert-todo-heading context)
-                                (call-interactively 'org-move-subtree-down))
-                               ((and (gb/org-is-checkbox-line line) (gb/org-return-dwim--is-list-or-item list-type))
-                                (gb/org-return-dwim--on-checkbox-item))
-                               ((and (not (gb/org-is-checkbox-line line))  (gb/org-return-dwim--is-list-or-item list-type))
-                                (gb/org-return-dwim--on-list-item))
-                               (t (progn (goto-char saved-position)
-                                         (org-return-indent)))))))))
-
-            (defun gb/org-smart-return (&optional ignore)
-              "Add new list item, heading or table row with RET.
-               A double return on an empty element deletes it.
-               Use a prefix arg to get regular RET.
-               reference: http://kitchingroup.cheme.cmu.edu/blog/2017/04/09/A-better-return-in-org-mode/?utm_source=feedburner&utm_medium=twitter&utm_campaign=Feed:+TheKitchinResearchGroup+(The+Kitchin+Research+Group)"
-              (interactive "P")
-              (if ignore
-                  (org-return)
-                (cond
-                 ;; Open links like usual
-                 ((eq 'link (car (org-element-context)))
-                  (org-open-at-point-global))
-                 ;; It doesn't make sense to add headings in inline tasks. Thanks Anders
-                 ;; Johansson!
-                 ((org-inlinetask-in-task-p)
-                  (org-return))
-                 ;; add checkboxes
-                 ((org-at-item-checkbox-p)
-                  (org-insert-todo-heading nil))
-                 ;; lists end with two blank lines, so we need to make sure we are also not
-                 ;; at the beginning of a line to avoid a loop where a new entry gets
-                 ;; created with only one blank line.
-                 ((and (org-in-item-p) (not (bolp)))
-                  (if (org-element-property :contents-begin (org-element-context))
-                      (org-insert-heading)
-                    (beginning-of-line)
-                    (setf (buffer-substring
-                           (line-beginning-position) (line-end-position)) "")
-                    (org-return)))
-                 ((org-at-heading-p)
-                  (if (not (string= "" (org-element-property :title (org-element-context))))
-                      (progn (org-end-of-meta-data)
-                             (org-insert-heading))
-                    (beginning-of-line)
-                    (setf (buffer-substring
-                           (line-beginning-position) (line-end-position)) "")))
-                 ((org-at-table-p)
-                  (if (-any?
-                       (lambda (x) (not (string= "" x)))
-                       (nth
-                        (- (org-table-current-dline) 1)
-                        (org-table-to-lisp)))
-                      (org-return)
-                    ;; empty row
-                    (beginning-of-line)
-                    (setf (buffer-substring
-                           (line-beginning-position) (line-end-position)) "")
-                    (org-return)))
-                 (t
-                  (org-return)))))
-
-            (defun gb/wrap-org-edit-src-save (orig-func &rest args)
-              "remove save adjusted hook, execute save and add hook again.
-               thus this function prevents org-babel tangle and setting the file on r/o when edited in org edit src mode"
-              (remove-hook 'after-save-hook 'gb/tangle-on-save-org-mode-file)
-              (let ((res (apply orig-func args)))
-                (add-hook 'after-save-hook 'gb/tangle-on-save-org-mode-file)
-                res))
+        (defvar gb/org-block-visible nil)
+        (defun gb/org-toggle-block-visibility ()
+          ""
+          (interactive)
+          (if gb/org-block-visible
+              (org-hide-block-all)
+            (org-show-block-all))
+          (setq-local gb/org-block-visible (not gb/org-block-visible)))
+        ;; (add-hook 'org-mode-hook #'gb/org-toggle-block-visibility)
+        (define-key gb/toggle-map "b" #'gb/org-toggle-block-visibility)
+                                            ; ensure that adjusted save hook is not executed when org edit src save is executed
+        (advice-add 'org-edit-src-save :around #'gb/wrap-org-edit-src-save)
+        ;; ensure that read only mode is removed when org src edit is started
+        (advice-add 'org-edit-special :before #'(lambda (orig-func &rest args) (read-only-mode -1))))
 
 
-            (setq org-clock-clocked-in-display nil)
-            (defun gb/org-clock-in-switch-to-state-fn (state)
-              "switch TODO to IMPLEMENT if clocking in!"
-              (if (equal state "TODO")
-                  "IMPLEMENT"
-                nil))
-
-            (defun gb/org-global-props-key-re (key)
-              "Construct a regular expression matching key and an optional plus and eating the spaces behind.
-             Test for existence of the plus: (match-beginning 1)"
-              (concat "^" (regexp-quote key) "\\(\\+\\)?[[:space:]]+"))
-
-            (defun gb/org-global-props (&optional buffer)
-              "Get the plists of global org properties of current buffer."
-              (with-current-buffer (or buffer (current-buffer))
-                (org-element-map (org-element-parse-buffer) 'keyword (lambda (el) (when (string-equal (org-element-property :key el) "PROPERTY") (nth 1 el))))))
-
-            (defun gb/org-global-prop-value (key)
-              "Get global org property KEY of current buffer.
-               Adding up values for one key is supported."
-              (let ((key-re (gb/org-global-props-key-re key))
-                    (props (gb/org-global-props))
-                    ret)
-                (cl-loop with val for prop in props
-                         when (string-match key-re (setq val (plist-get prop :value))) do
-                         (setq
-                          val (substring val (match-end 0))
-                          ret (if (match-beginning 1)
-                                  (concat ret " " val)
-                                val)))
-                ret))
-
-            ;; TODO: generalize to all properties
-            (defun gb/activate-properties-in-org-mode ()
-              (when (string= major-mode "org-mode")
-                (let* ((readOnly (gb/org-global-prop-value "readonly")))
-                  (if (string= readOnly "yes")
-                      (setq buffer-read-only t)))))
-
-            :config
-            (setq org-agenda-files '("~/slack.org"))
-            (setq gb/use-optimized-folded-src-fontificat nil) ;; fontify src blocks only if they ar not folded!
-
-            (defun gb/get-org-hide-block-status (&optional pos)
-              "t if babel block is folded, else nil"
+      (progn
+        (require 'ob-clojure) ;; not found in packages (20180510)
+        (require 'org-inlinetask)
+        (defun gb/org-control-return ()
+          "open a new item a breaking out of the current level"
+          (interactive)
+          (let* ((element (org-element-at-point))
+                 (start-element (car element))
+                 (start (cadadr element))
+                 root-line)
+            (cond
+             ((eq start-element 'headline)
+              (progn
+                (org-end-of-subtree)
+                (org-insert-heading)
+                (org-promote)))
+             ((eq start-element 'item)
+              (org-end-of-item-list)
+              (org-insert-heading))
+             (t
               (save-excursion
-                (when pos (goto-char pos))
-                (let ((element (org-element-at-point)))
-                  (goto-char (org-element-property :begin element))
-                  (unless (memq (org-element-type element)
-                                '(center-block comment-block dynamic-block example-block
-                                               export-block quote-block special-block
-                                               src-block verse-block))
-                    (user-error "Not at a block"))
-                  (let* ((post (org-element-property :post-affiliated element))
-                         (start (save-excursion
-                                  (goto-char post)
-                                  (line-end-position)))
-                         (end (save-excursion
-                                (goto-char (org-element-property :end element))
-                                (skip-chars-backward " \t\n")
-                                (line-end-position))))
-                    ;; Do nothing when not before or at the block opening line or at
-                    ;; the block closing line.
-                    (unless (let ((eol (line-end-position))) (and (> eol start) (/= eol end)))
-                      (eq (get-char-property start 'invisible) 'org-hide-block))))))
+                (goto-char start)
+                (setq root-line (thing-at-point 'line t)))
+              (if (string-match "^ *-.*" root-line)
+                  (if (not (string-match "^ *-.*" (thing-at-point 'line t)))
+                      (progn
+                        (org-end-of-item)
+                        (org-insert-item))
+                    ;; (org-end-of-item-list)
+                    (org-insert-heading))
+                (org-insert-heading-respect-content))))))
 
-            ;; todo: optimize: fontify to the next end src- block marker (not to the end of the file)
-            (defun gb/org-hide-block-toggle-maybe--fontify-if-src-block (&rest args)
-              "fontify the rest of document if within a org babel src block"
-              (with-buffer-modified-unmodified
-               (let ((element (org-element-at-point)))
-                 (when (equal 'src-block (org-element-type element))
-                   (font-lock-fontify-block)
-                   ;; (save-excursion (with-temp-message "fontify src block" (org-fontify-meta-lines-and-blocks-1 (or (re-search-forward "[ \t]*#\\+end_src" (point-max) t) (point-max)))))
-                   ))))
+        (defun gb/org-return-dwim--on-checkbox-item ()
+          "call only if at the beginning of the checkbox to insert below"
+          (org-end-of-item)
+          (if (org-in-item-p)
+              (org-insert-todo-heading 1)
+            (progn (move-point-visually -1)
+                   (org-insert-todo-heading 1)
+                   (org-end-of-item)
+                   (if (not (org-in-item-p))
+                       (progn
+                         (move-point-visually -1)
+                         (org-end-of-line))))))
 
-            (defun gb/org-src-font-lock-fontify-block--only-if-non-folded (orig-fun &rest args)
-              "if region within folded element, ignore fontification"
-              (let ((lang (nth 0 args))
-                    (start (nth 1 args))
-                    (end (nth 2 args)))
-                (unless (gb/get-org-hide-block-status start)
-                  (apply orig-fun args)
-                  ;; (with-temp-message
-                  ;;     (format "font-lock @%s lang %s" start lang)
-                  ;;   )
-                  )))
+        (defun gb/org-return-dwim--on-list-item ()
+          "call only if at the beginning of the item to insert below"
+          (org-end-of-item)
+          (if (org-in-item-p)
+              (org-insert-item)
+            (progn (move-point-visually -1)
+                   (org-insert-item)
+                   (org-end-of-item)
+                   (if (not (org-in-item-p))
+                       (progn
+                         (move-point-visually -1)
+                         (org-end-of-line))))))
 
-            (defun gb/fontify-buffer-when-in-org-mode ()
-              "if in org mode, fontify buffer"
-              (when (equal major-mode 'org-mode)
-                (font-lock-fontify-block)))
+        (defun gb/org-return-dwim--is-list-or-item (list-type)
+          "is this org element type an item or a plain-list (- or - [ ])"
+          (or (eq list-type 'item)
+              (eq list-type 'plain-list)))
 
-            (when gb/use-optimized-folded-src-fontificat
-              (add-hook 'isearch-mode-end-hook #'gb/fontify-buffer-when-in-org-mode)
-              (advice-add 'org-hide-block-toggle-maybe :after #'gb/org-hide-block-toggle-maybe--fontify-if-src-block)
-              (advice-add 'org-src-font-lock-fontify-block :around #'gb/org-src-font-lock-fontify-block--only-if-non-folded))
+        (defun gb/org-is-checkbox-line (line)
+          (string-match "^ *- \\[.\\].*" line))
 
-            (setq org-file-apps (append '(("\\.sid\\'" . "sidplayfp %s" )) org-file-apps))
-            (setq org-cycle-include-plain-lists 'integrate)
-            ;; set org babel backgrounds for several languages
-            (setq org-src-block-faces
-                  '(("emacs-lisp" (:background "#1b1010" :extend t))
-                    ("java" (:background "#1b1010" :extend t))))
+        (defun gb/org-return-dwim ()
+          "execute return and continue element (lists) given by context"
+          (interactive)
+          ;; check if current point is over link and open that instead
+          (let* ((context (org-element-context))
+                 (type-at-point (org-element-type context))
+                 (saved-position (point)))
+            (cond ((and (< (point) (line-end-position)) (eq 'link type-at-point))
+                   (org-open-at-point))
+                  (t
+                   (move-beginning-of-line nil) ;; to identify list as item (does not work when point is in text part of item)
+                   (let* ((list-type (car (org-element-at-point)))
+                          (line (thing-at-point 'line t))
+                          (new-context (org-element-context))
+                          (todo-keyword (org-element-property :todo-keyword new-context)))
+                     (cond ((and (eq list-type 'headline) (null todo-keyword))
+                            (org-insert-heading-after-current))
+                           ((eq list-type 'headline)
+                            (org-insert-todo-heading context)
+                            (call-interactively 'org-move-subtree-down))
+                           ((and (gb/org-is-checkbox-line line) (gb/org-return-dwim--is-list-or-item list-type))
+                            (gb/org-return-dwim--on-checkbox-item))
+                           ((and (not (gb/org-is-checkbox-line line))  (gb/org-return-dwim--is-list-or-item list-type))
+                            (gb/org-return-dwim--on-list-item))
+                           (t (progn (goto-char saved-position)
+                                     (org-return-indent)))))))))
 
-            ;; make sure latex is highlighted in org mode buffers
-            ;; `latex'    Highlight LaTeX snippets and environments.
-            ;; `script'   Highlight subscript and superscript.
-            ;; `entities' Highlight entities.
-            ;; `native`   Use native highlighting
-            (setq org-highlight-latex-and-related nil) ;; '(native)
+        (defun gb/org-smart-return (&optional ignore)
+          "Add new list item, heading or table row with RET.
+           A double return on an empty element deletes it.
+           Use a prefix arg to get regular RET.
+           reference: http://kitchingroup.cheme.cmu.edu/blog/2017/04/09/A-better-return-in-org-mode/?utm_source=feedburner&utm_medium=twitter&utm_campaign=Feed:+TheKitchinResearchGroup+(The+Kitchin+Research+Group)"
+          (interactive "P")
+          (if ignore
+              (org-return)
+            (cond
+             ;; Open links like usual
+             ((eq 'link (car (org-element-context)))
+              (org-open-at-point-global))
+             ;; It doesn't make sense to add headings in inline tasks. Thanks Anders
+             ;; Johansson!
+             ((org-inlinetask-in-task-p)
+              (org-return))
+             ;; add checkboxes
+             ((org-at-item-checkbox-p)
+              (org-insert-todo-heading nil))
+             ;; lists end with two blank lines, so we need to make sure we are also not
+             ;; at the beginning of a line to avoid a loop where a new entry gets
+             ;; created with only one blank line.
+             ((and (org-in-item-p) (not (bolp)))
+              (if (org-element-property :contents-begin (org-element-context))
+                  (org-insert-heading)
+                (beginning-of-line)
+                (setf (buffer-substring
+                       (line-beginning-position) (line-end-position)) "")
+                (org-return)))
+             ((org-at-heading-p)
+              (if (not (string= "" (org-element-property :title (org-element-context))))
+                  (progn (org-end-of-meta-data)
+                         (org-insert-heading))
+                (beginning-of-line)
+                (setf (buffer-substring
+                       (line-beginning-position) (line-end-position)) "")))
+             ((org-at-table-p)
+              (if (-any?
+                   (lambda (x) (not (string= "" x)))
+                   (nth
+                    (- (org-table-current-dline) 1)
+                    (org-table-to-lisp)))
+                  (org-return)
+                ;; empty row
+                (beginning-of-line)
+                (setf (buffer-substring
+                       (line-beginning-position) (line-end-position)) "")
+                (org-return)))
+             (t
+              (org-return)))))
 
-            ;; make sure that regular font in src block within org is 'white'
-            (custom-set-faces '(org-block ((t (:foreground "gray75")))))
-            (setq flycheck-keymap-prefix (kbd "C-c k"))
-
-            ;;--------------------------------------------------------------------------------
-            (defhydra hydra-org-mode ()
-              "
-                  org mode
-                  ^-^------------------------------------------------
-                  _ci_: clock in             _cti_: toggle item     _cr_: org reveal    Movement:
-                  _co_: clock out                                                   C-c p previous bulletin
-                  _cq_: clock cancel/quit                                           C-c u up bulletin level
-                  _cj_: jump to clock                                               M-<ret>
-                  _cd_: display clock times                                         C-<ret>
-
-                  %s(hydra-combine-functions-w-key-bindings
-                    '((\"  [ci]  clock in            \" . org-clock-in)
-                      (\"  [co]  clock out           \" . org-clock-out)
-                      (\"  [cq]  clock cancel/quit   \" . org-clock-cancel)
-                      (\"  [cj]  jump to clock       \" . org-clock-goto)
-                      (\"  [cd]  display clock times \" . org-clock-display)
-                      (\"  [cti] toggle item         \" . org-toggle-item)
-                      (\"  [cr]  org reveal          \" . org-reveal)
-                      ))
-                "
-              ("ci" org-clock-in :exit t)
-              ("co" org-clock-out :exit t)
-              ("cq" org-clock-cancel :exit t)
-              ("cj" org-clock-goto :exit t)
-              ("cd" org-clock-display :exit t)
-              ("cti" org-toggle-item :exit t)
-              ("cr" org-reveal :exit t))
+        (defun gb/wrap-org-edit-src-save (orig-func &rest args)
+          "remove save adjusted hook, execute save and add hook again.
+           thus this function prevents org-babel tangle and setting the file on r/o when edited in org edit src mode"
+          (remove-hook 'after-save-hook 'gb/tangle-on-save-org-mode-file)
+          (let ((res (apply orig-func args)))
+            (add-hook 'after-save-hook 'gb/tangle-on-save-org-mode-file)
+            res))
 
 
-            ;; Resume clocking tasks when emacs is restarted
-            (org-clock-persistence-insinuate)
+        (setq org-clock-clocked-in-display nil)
+        (defun gb/org-clock-in-switch-to-state-fn (state)
+          "switch TODO to IMPLEMENT if clocking in!"
+          (if (equal state "TODO")
+              "IMPLEMENT"
+            nil))
 
-            ;; make sure that clock display will include all times (even last year ...)
-            (setq org-clock-display-default-range (quote untilnow))
+        (defun gb/org-global-props-key-re (key)
+          "Construct a regular expression matching key and an optional plus and eating the spaces behind.
+         Test for existence of the plus: (match-beginning 1)"
+          (concat "^" (regexp-quote key) "\\(\\+\\)?[[:space:]]+"))
 
-            ;; Yes it's long... but more is better ;
-            (setq org-clock-history-length 35)
+        (defun gb/org-global-props (&optional buffer)
+          "Get the plists of global org properties of current buffer."
+          (with-current-buffer (or buffer (current-buffer))
+            (org-element-map (org-element-parse-buffer) 'keyword (lambda (el) (when (string-equal (org-element-property :key el) "PROPERTY") (nth 1 el))))))
 
-            ;; Resume clocking task on clock-in if the clock is open
-            (setq org-clock-in-resume t)
+        (defun gb/org-global-prop-value (key)
+          "Get global org property KEY of current buffer.
+           Adding up values for one key is supported."
+          (let ((key-re (gb/org-global-props-key-re key))
+                (props (gb/org-global-props))
+                ret)
+            (cl-loop with val for prop in props
+                     when (string-match key-re (setq val (plist-get prop :value))) do
+                     (setq
+                      val (substring val (match-end 0))
+                      ret (if (match-beginning 1)
+                              (concat ret " " val)
+                            val)))
+            ret))
 
-            ;; name the drawer to be "clocking"
-            (setq org-clock-into-drawer "CLOCKING")
+        ;; TODO: generalize to all properties
+        (defun gb/activate-properties-in-org-mode ()
+          (when (string= major-mode "org-mode")
+            (let* ((readOnly (gb/org-global-prop-value "readonly")))
+              (if (string= readOnly "yes")
+                  (setq buffer-read-only t)))))
 
-            ;; The format string used when creating CLOCKSUM lines.
-            (setq org-duration-format '((special . h:mm)))
-            (setq org-time-clocksum-format
-                  (quote
-                   (:hours "%d" :require-hours t :minutes ":%02d" :require-minutes t))) ;; make sure that clock sums in org mode show hours and minutes only (no days)
+        :config
+        (setq org-agenda-files '("~/slack.org"))
+        (setq gb/use-optimized-folded-src-fontificat nil) ;; fontify src blocks only if they ar not folded!
 
-            ;; Change task state to IMPLEMENT when clocking in (only if in STATE TODO)
-            (setq org-clock-in-switch-to-state (function  gb/org-clock-in-switch-to-state-fn))
+        (defun gb/get-org-hide-block-status (&optional pos)
+          "t if babel block is folded, else nil"
+          (save-excursion
+            (when pos (goto-char pos))
+            (let ((element (org-element-at-point)))
+              (goto-char (org-element-property :begin element))
+              (unless (memq (org-element-type element)
+                            '(center-block comment-block dynamic-block example-block
+                                           export-block quote-block special-block
+                                           src-block verse-block))
+                (user-error "Not at a block"))
+              (let* ((post (org-element-property :post-affiliated element))
+                     (start (save-excursion
+                              (goto-char post)
+                              (line-end-position)))
+                     (end (save-excursion
+                            (goto-char (org-element-property :end element))
+                            (skip-chars-backward " \t\n")
+                            (line-end-position))))
+                ;; Do nothing when not before or at the block opening line or at
+                ;; the block closing line.
+                (unless (let ((eol (line-end-position))) (and (> eol start) (/= eol end)))
+                  (eq (get-char-property start 'invisible) 'org-hide-block))))))
 
-            ;; mark checked lists a bit differently (changed 27)
-            ;; (font-lock-add-keywords
-            ;;  'org-mode
-            ;;  `(("^[ \t]*\\(?:[-+*]\\|[0-9]+[).]\\)[ \t]+\\(\\(?:\\[@\\(?:start:\\)?[0-9]+\\][ \t]*\\)?\\[\\(?:X\\|\\([0-9]+\\)/\\2\\)\\][^\n]*\n\\)" 1 'org-headline-done prepend))
-            ;;  'append)
+        ;; todo: optimize: fontify to the next end src- block marker (not to the end of the file)
+        (defun gb/org-hide-block-toggle-maybe--fontify-if-src-block (&rest args)
+          "fontify the rest of document if within a org babel src block"
+          (with-buffer-modified-unmodified
+           (let ((element (org-element-at-point)))
+             (when (equal 'src-block (org-element-type element))
+               (font-lock-fontify-block)
+               ;; (save-excursion (with-temp-message "fontify src block" (org-fontify-meta-lines-and-blocks-1 (or (re-search-forward "[ \t]*#\\+end_src" (point-max) t) (point-max)))))
+               ))))
 
-            (setq org-ellipsis "…")         ;; make the ... at the end (that indicates folding) be a bit less invasive
-            (setq org-hide-leading-stars t) ;; each level only one star
-            (setq org-special-ctrl-a/e t)   ;; jump to the head text only (not to the star marking the head)
+        (defun gb/org-src-font-lock-fontify-block--only-if-non-folded (orig-fun &rest args)
+          "if region within folded element, ignore fontification"
+          (let ((lang (nth 0 args))
+                (start (nth 1 args))
+                (end (nth 2 args)))
+            (unless (gb/get-org-hide-block-status start)
+              (apply orig-fun args)
+              ;; (with-temp-message
+              ;;     (format "font-lock @%s lang %s" start lang)
+              ;;   )
+              )))
 
-            ;; replace dashes and bullets with utf-8 bullet
-            ;; (font-lock-add-keywords 'org-mode
-            ;;                         '(("^ +\\([-*]\\) "
-            ;;                            (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
+        (defun gb/fontify-buffer-when-in-org-mode ()
+          "if in org mode, fontify buffer"
+          (when (equal major-mode 'org-mode)
+            (font-lock-fontify-block)))
 
-            ;; make level headings larger / bold
-            ;; (let* ((variable-tuple (cond ((x-list-fonts "Source Sans Pro") '(:font "Source Sans Pro"))
-            ;;                             ((x-list-fonts "Lucida Grande")   '(:font "Lucida Grande"))
-            ;;                             ((x-list-fonts "Verdana")         '(:font "Verdana"))
-            ;;                             ((x-family-fonts "Sans Serif")    '(:family "Sans Serif"))
-            ;;                             (nil (warn "Cannot find a Sans Serif Font.  Install Source Sans Pro."))))
-            ;;      (base-font-color     (face-foreground 'default nil 'default))
-            ;;      (headline           `(:inherit default :weight bold )))
+        (when gb/use-optimized-folded-src-fontificat
+          (add-hook 'isearch-mode-end-hook #'gb/fontify-buffer-when-in-org-mode)
+          (advice-add 'org-hide-block-toggle-maybe :after #'gb/org-hide-block-toggle-maybe--fontify-if-src-block)
+          (advice-add 'org-src-font-lock-fontify-block :around #'gb/org-src-font-lock-fontify-block--only-if-non-folded))
 
-            (custom-theme-set-faces 'user
-                                    ;;                          `(org-document-title ((t ( :height 1.5 :underline nil))))
-                                    ;;                          `(org-level-8 ((t (,@headline ,@variable-tuple))))
-                                    ;;                          `(org-level-7 ((t (,@headline ,@variable-tuple))))
-                                    ;;                          `(org-level-6 ((t (,@headline ,@variable-tuple))))
-                                    ;;                          `(org-level-5 ((t (,@headline ,@variable-tuple))))
-                                    ;;                          `(org-level-4 ((t (:foreground "#a97167"))))
-                                    ;;                          `(org-level-3 ((t (:foreground "#4fa8a8" ,@headline))))
-                                    `(org-level-2 ((t (:foreground "burlywood"))))
-                                    `(outline-2 ((t (:foreground "burlywood")))) ;; change both org-level and outline, since org-tree-slide uses them
-                                    `(org-level-1 ((t (:foreground "#de935f"))))
-                                    `(outline-1 ((t (:foreground "#de935f")))))))
+        (setq org-file-apps (append '(("\\.sid\\'" . "sidplayfp %s" )) org-file-apps))
+        (setq org-cycle-include-plain-lists 'integrate)
+        ;; set org babel backgrounds for several languages
+        (setq org-src-block-faces
+              '(("emacs-lisp" (:background "#1b1010" :extend t))
+                ("java" (:background "#1b1010" :extend t))))
+
+        ;; make sure latex is highlighted in org mode buffers
+        ;; `latex'    Highlight LaTeX snippets and environments.
+        ;; `script'   Highlight subscript and superscript.
+        ;; `entities' Highlight entities.
+        ;; `native`   Use native highlighting
+        (setq org-highlight-latex-and-related nil) ;; '(native)
+
+        ;; make sure that regular font in src block within org is 'white'
+        (custom-set-faces '(org-block ((t (:foreground "gray75")))))
+        (setq flycheck-keymap-prefix (kbd "C-c k"))
+
+        ;;--------------------------------------------------------------------------------
+        (defhydra hydra-org-mode ()
+          "
+              org mode
+              ^-^------------------------------------------------
+              _ci_: clock in             _cti_: toggle item     _cr_: org reveal    Movement:
+              _co_: clock out                                                   C-c p previous bulletin
+              _cq_: clock cancel/quit                                           C-c u up bulletin level
+              _cj_: jump to clock                                               M-<ret>
+              _cd_: display clock times                                         C-<ret>
+
+              %s(hydra-combine-functions-w-key-bindings
+                '((\"  [ci]  clock in            \" . org-clock-in)
+                  (\"  [co]  clock out           \" . org-clock-out)
+                  (\"  [cq]  clock cancel/quit   \" . org-clock-cancel)
+                  (\"  [cj]  jump to clock       \" . org-clock-goto)
+                  (\"  [cd]  display clock times \" . org-clock-display)
+                  (\"  [cti] toggle item         \" . org-toggle-item)
+                  (\"  [cr]  org reveal          \" . org-reveal)
+                  ))
+            "
+          ("ci" org-clock-in :exit t)
+          ("co" org-clock-out :exit t)
+          ("cq" org-clock-cancel :exit t)
+          ("cj" org-clock-goto :exit t)
+          ("cd" org-clock-display :exit t)
+          ("cti" org-toggle-item :exit t)
+          ("cr" org-reveal :exit t))
+
+
+        ;; Resume clocking tasks when emacs is restarted
+        (org-clock-persistence-insinuate)
+
+        ;; make sure that clock display will include all times (even last year ...)
+        (setq org-clock-display-default-range (quote untilnow))
+
+        ;; Yes it's long... but more is better ;
+        (setq org-clock-history-length 35)
+
+        ;; Resume clocking task on clock-in if the clock is open
+        (setq org-clock-in-resume t)
+
+        ;; name the drawer to be "clocking"
+        (setq org-clock-into-drawer "CLOCKING")
+
+        ;; The format string used when creating CLOCKSUM lines.
+        (setq org-duration-format '((special . h:mm)))
+        (setq org-time-clocksum-format
+              (quote
+               (:hours "%d" :require-hours t :minutes ":%02d" :require-minutes t))) ;; make sure that clock sums in org mode show hours and minutes only (no days)
+
+        ;; Change task state to IMPLEMENT when clocking in (only if in STATE TODO)
+        (setq org-clock-in-switch-to-state (function  gb/org-clock-in-switch-to-state-fn))
+
+        ;; mark checked lists a bit differently (changed 27)
+        ;; (font-lock-add-keywords
+        ;;  'org-mode
+        ;;  `(("^[ \t]*\\(?:[-+*]\\|[0-9]+[).]\\)[ \t]+\\(\\(?:\\[@\\(?:start:\\)?[0-9]+\\][ \t]*\\)?\\[\\(?:X\\|\\([0-9]+\\)/\\2\\)\\][^\n]*\n\\)" 1 'org-headline-done prepend))
+        ;;  'append)
+
+        (setq org-ellipsis "…")         ;; make the ... at the end (that indicates folding) be a bit less invasive
+        (setq org-hide-leading-stars t) ;; each level only one star
+        (setq org-special-ctrl-a/e t)   ;; jump to the head text only (not to the star marking the head)
+
+        ;; replace dashes and bullets with utf-8 bullet
+        ;; (font-lock-add-keywords 'org-mode
+        ;;                         '(("^ +\\([-*]\\) "
+        ;;                            (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
+
+        ;; make level headings larger / bold
+        ;; (let* ((variable-tuple (cond ((x-list-fonts "Source Sans Pro") '(:font "Source Sans Pro"))
+        ;;                             ((x-list-fonts "Lucida Grande")   '(:font "Lucida Grande"))
+        ;;                             ((x-list-fonts "Verdana")         '(:font "Verdana"))
+        ;;                             ((x-family-fonts "Sans Serif")    '(:family "Sans Serif"))
+        ;;                             (nil (warn "Cannot find a Sans Serif Font.  Install Source Sans Pro."))))
+        ;;      (base-font-color     (face-foreground 'default nil 'default))
+        ;;      (headline           `(:inherit default :weight bold )))
+
+        (custom-theme-set-faces 'user
+                                ;;                          `(org-document-title ((t ( :height 1.5 :underline nil))))
+                                ;;                          `(org-level-8 ((t (,@headline ,@variable-tuple))))
+                                ;;                          `(org-level-7 ((t (,@headline ,@variable-tuple))))
+                                ;;                          `(org-level-6 ((t (,@headline ,@variable-tuple))))
+                                ;;                          `(org-level-5 ((t (,@headline ,@variable-tuple))))
+                                ;;                          `(org-level-4 ((t (:foreground "#a97167"))))
+                                ;;                          `(org-level-3 ((t (:foreground "#4fa8a8" ,@headline))))
+                                `(org-level-2 ((t (:foreground "burlywood"))))
+                                `(outline-2 ((t (:foreground "burlywood")))) ;; change both org-level and outline, since org-tree-slide uses them
+                                `(org-level-1 ((t (:foreground "#de935f"))))
+                                `(outline-1 ((t (:foreground "#de935f")))))))
   #+END_SRC
 
   #+RESULTS:
