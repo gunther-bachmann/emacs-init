@@ -8779,25 +8779,57 @@
         :init
         (progn (add-hook 'org-mode-hook 'org-table-sticky-header-mode)))
     #+END_SRC
-*** org pdfview links
-    - see [[https://github.com/markus1189/org-pdfview][homepage]]
+*** org pdftools (must be loaded before org mode)
+    - see [[https://github.com/fuxialexander/org-pdftools][homepage]]
     - executing M-x org-store-link within pdf-view-mode, will store a link that can be inserted into org mode via C-c C-l
     - when opening this link, pdf-view-mode is opened instead of system default pdf viewer!
-    #+BEGIN_SRC emacs-lisp :tangle no
-      (use-package org-pdfview
+    #+BEGIN_SRC emacs-lisp
+      (setq org-pdftools-link-prefix "pdfview")
+      (use-package org-pdftools
         :ensure t
-        :after (org pdf-tools))
-      (progn
-        (defun ensure-org-pdfview ()
-          "ensure that package org-pdfview is loaded"
-          (require 'org-pdfview))
-        (when (fboundp 'org-mode)
-          (add-hook 'org-mode-hook #'ensure-org-pdfview))
-        (when (fboundp 'pdf-view-mode)
-          (add-hook 'pdf-view-mode-hook #'ensure-org-pdfview)))
+        :init (org-pdftools-setup-link)
+        :config
+        (defun gb/pdf-view-kill-window ()
+          (interactive)
+          (gb/org-store-link-to "~/pdf-views.org")
+          (gb/kill-a-buffer-and-delete-window nil))
 
-      (use-package org-pdfview
-        :after ( org pdf-tools))
+        (defun gb/pdf-view-kill ()
+          (interactive)
+          (gb/org-store-link-to "~/pdf-views.org")
+          (gb/kill-a-buffer nil))
+
+        (defun gb/org-store-link-to (link-file)
+          ;; format: pdfview:~/Downloads/Coronateste_Altona_03_09_2020b.pdf::2++0.00
+          (let* ((file (buffer-file-name))
+                   (page (pdf-view-current-page))
+                   (link (format "%s:%s::%i++0.00" org-pdftools-link-prefix file page))
+                   (name (file-name-base file)))
+            (save-excursion
+              (find-file link-file)
+              (goto-char (point-max))
+              (if (not (re-search-backward (regexp-quote file) nil t))
+                  (gb/org-store-link-to--insert-link-at-end file link name page)
+                (goto-char (line-beginning-position))
+                (unless (re-search-forward (regexp-quote link) nil t)
+                  (gb/org-store-link-to--insert-link-at-end file link name page))))))
+
+        (defun gb/org-store-link-to--insert-link-at-end (file link name page)
+          (goto-char (point-max))
+          (insert "- ")
+          (org-insert-link file link (format "%s - %s : %i" (format-time-string "%Y%m%d %H:%M") name page))
+          (insert "\n"))
+
+        (bind-key "q" #'gb/pdf-view-kill pdf-view-mode-map)
+        (bind-key "C-x k" #'gb/pdf-view-kill pdf-view-mode-map)
+        (bind-key "C-x C-k" #'gb/pdf-view-kill-window pdf-view-mode-map))
+
+      (use-package org-noter-pdftools
+        :ensure t
+        :after org-noter
+        :config
+        (with-eval-after-load 'pdf-annot
+          (add-hook 'pdf-annot-activate-handler-functions #'org-noter-pdftools-jump-to-note)))
     #+END_SRC
 *** org magit
     #+BEGIN_SRC emacs-lisp :tangle no
