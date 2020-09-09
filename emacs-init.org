@@ -13406,6 +13406,22 @@
       :ensure t
       :config (eshell-syntax-highlighting-enable))
   #+end_src
+* eimp (internal)
+  #+begin_src emacs-lisp
+    (use-package eimp
+      :ensure t
+      :config
+      (setq gb/image-scale 1.0)
+      (bind-key "<left>" #'image-backward-hscroll eimp-minor-mode-map)
+      (bind-key "<right>" #'image-forward-hscroll eimp-minor-mode-map)
+      (bind-key "<down>" #'image-next-line eimp-minor-mode-map)
+      (bind-key "<up>" #'image-previous-line eimp-minor-mode-map)
+      (bind-key "+" #'(lambda () (interactive) (setq gb/image-scale (+ 0.25 gb/image-scale)) (image-transform-set-scale gb/image-scale)) eimp-minor-mode-map)
+      (bind-key "-" #'(lambda () (interactive) (setq gb/image-scale (- gb/image-scale 0.25)) (image-transform-set-scale gb/image-scale)) eimp-minor-mode-map)
+      (bind-key "0" #'(lambda () (interactive) (setq gb/image-scale 1.0) (image-transform-set-scale gb/image-scale)) eimp-minor-mode-map)
+      (bind-key "2" #'(lambda () (interactive) (setq gb/image-scale 2.0) (image-transform-set-scale gb/image-scale)) eimp-minor-mode-map))
+  #+end_src
+
 * proced
   #+begin_src emacs-lisp
     (use-package proced
