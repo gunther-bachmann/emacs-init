@@ -7442,7 +7442,7 @@
 *** org
   #+BEGIN_SRC emacs-lisp
     (use-package org
-      :after ( hydra helm)
+      :after (hydra helm)
       :bind (:map  org-mode-map
                    ("<f1>" . hydra-org-mode/body)
 
@@ -10280,9 +10280,11 @@
    - lets you interactively select magick commands to manipulate the image in the buffer
    - it has command autocomplete, description and some parameter completion facilities
    - see [[https://github.com/walseb/blimp][homepage]]
+   - in image view hit ~C-c C-o~ to open blimp interface of functions to execute on the image
    #+BEGIN_SRC emacs-lisp
-   (use-package blimp
-     :init (add-hook 'image-mode-hook 'blimp-mode))
+     (use-package blimp
+       :ensure t
+       :init (add-hook 'image-mode-hook 'blimp-mode))
    #+END_SRC
 ** emms (emacs music system)
    #+BEGIN_SRC emacs-lisp
@@ -13588,6 +13590,7 @@
   - org-noter-pdftools - integration of org-noter and pdftools
   - ox-leanpub - Export Org documents to Leanpub book format
   - org-ml - Functional Org Mode API
+  - orgstrap - allow elisp usage in org source blocks more freely (less cryptic header configuration) see https://github.com/tgbugs/orgstrap)
 ** os/system
   - network-watch (allows hooks to run when network is goiing down/up)
   - scp (use scp to transfer files)
