@@ -6539,7 +6539,42 @@
             ;; (setq pdf-info-epdfinfo-program "~/.emacs.d/elpa/pdf-tools-20180428.1527/build/server/epdfinfo")
             (setq pdf-misc-print-programm (s-trim (shell-command-to-string "command -v lp")))
             (setq pdf-view-display-size (quote fit-page))
-            (setq pdf-misc-print-programm-args '("-o" "media=A4" "-o" "sides=two-sided-long-edge")))))
+            (setq pdf-misc-print-programm-args '("-o" "media=A4" "-o" "sides=two-sided-long-edge"))
+
+
+            ;; the following routines patch the misbehaviour of pdf-tools on my configuration, not (re)displaying the pdf,
+            ;; if: zoom mode is NOT full page AND page change is executed while NOT being on vscroll position 0
+            (defun gb/pdf-view-next-page ()
+              (interactive)
+              (image-scroll-down 100)
+              (pdf-view-next-page))
+            (defun gb/pdf-view-previous-page ()
+              (interactive)
+              (pdf-view-previous-page)
+              (image-scroll-down 10)
+              (image-scroll-up 100))
+            (defun gb/pdf-view-jump-to-begin ()
+              (interactive)
+              (image-scroll-down 100)
+              (pdf-view-first-page))
+            (defun gb/pdf-view-jump-to-end ()
+              (interactive)
+              (image-scroll-down 100)
+              (pdf-view-last-page))
+            (bind-key "n" #'gb/pdf-view-next-page pdf-view-mode-map)
+            (bind-key "p" #'gb/pdf-view-previous-page pdf-view-mode-map)
+            (bind-key "M-<" #'gb/pdf-view-jump-to-begin pdf-view-mode-map)
+            (bind-key "M->" #'gb/pdf-view-jump-to-end pdf-view-mode-map)
+
+            ;; since the regular routine does not detect the end of page correctly ...
+            (defun gb/pdf-view-scroll-up-or-next-page (orig-func &rest args)
+              (interactive)
+              (let ((vscroll-before (window-vscroll)))
+                (apply orig-func args)
+                (when (eq vscroll-before (window-vscroll)) ;; if scroll position before is exactly the same as after, jump to next page
+                  (gb/pdf-view-next-page))))
+
+            (advice-add 'pdf-view-scroll-up-or-next-page :around #'gb/pdf-view-scroll-up-or-next-page))))
   #+END_SRC
 * rest
 #+BEGIN_SRC emacs-lisp
