@@ -23,13 +23,20 @@
   (set-background-color "black")
   (set-foreground-color "white")
   (setq gb/playing-startup-sound nil)
+  (defun gb/play-startup-sound ()
+    (interactive)
+    (let ((default-output "alsa_output.pci-0000_00_1f.3.analog-stereo"))
+      (shell-command-to-string "amixer sset Master on") ;; unmute
+      (shell-command-to-string (format "pactl set-default-sink %s" default-output))
+      (shell-command-to-string (format "pactl set-sink-volume %s 30%%" default-output))
+      (start-process-shell-command "startup" nil  "play ~/sound/it_crowd.mp3")))
+
   (defun gb/play-startup-sound-when-ctrlkey-down ()
     ""
     (when (and (executable-find "getEventDeviceFor")
                (executable-find "evtest")
                (not gb/playing-startup-sound))
-      (let* ((default-output "alsa_output.pci-0000_00_1f.3.analog-stereo")
-             (tp-input (shell-command-to-string "getEventDeviceFor 'TouchPad'"))
+      (let* ((tp-input (shell-command-to-string "getEventDeviceFor 'TouchPad'"))
              ;; play the sound only if control is pressed on startup!
              (tp-play-ok (shell-command-to-string (format "sudo evtest --query %s EV_KEY 274 || echo -n \"ok\"" tp-input)))
              (kb-input (shell-command-to-string "getEventDeviceFor 'kmonad-internal-keyboard'"))
@@ -46,10 +53,9 @@
                        (equal "ok" kb-usb-play-ok)
                        (equal "ok" kb-bt-play-ok))
                    (executable-find "pactl")
-                   (executable-find "play"))
-          (shell-command-to-string (format "pactl set-default-sink %s" default-output))
-          (shell-command-to-string (format "pactl set-sink-volume %s 30%%" default-output))
-          (start-process-shell-command "startup" nil  "play ~/sound/it_crowd.mp3")
+                   (executable-find "play")
+                   (executable-find "amixer"))
+          (gb/play-startup-sound)
           (setq gb/playing-startup-sound t)))))
 
   (gb/play-startup-sound-when-ctrlkey-down)
