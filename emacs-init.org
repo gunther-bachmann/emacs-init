@@ -569,8 +569,7 @@
      (custom-set-variables
       ;; '(canlock-password "0e8b34f24c62bdf6cc5585ec93c62be865aee099")
       '(custom-safe-themes
-        (quote
-         ("84d2f9eeb3f82d619ca4bfffe5f157282f4779732f48a5ac1484d94d5ff5b279" "4848f52f443b88525a4e2fe4f620a20c40fad90a66a953613be90556b9eb7880" "db790b6031dbc390c8b9318b077f5825302dad9d82925f4c70eaddd22825aafa" "141bdb2503f744acaa2bd8defb015f3c8e9e581ff40ec9ae4f3a27917256edaa" "516ef72a7861d71b39bdd8ae3d2c19628abb916a1456ea93a400cc222f87442a" "05b3ea2f5a8d1913eda3a209bb4bd0091c2aa15e4de64e0580f45d2534428568" "e93f05b3616b9e19a79c3ebd107252684bc88ecb77798617e72443b70aae86d5" "c74e83f8aa4c78a121b52146eadb792c9facc5b1f02c917e3dbb454fca931223" "a27c00821ccfd5a78b01e4f35dc056706dd9ede09a8b90c6955ae6a390eb1c1e" "26614652a4b3515b4bbbb9828d71e206cc249b67c9142c06239ed3418eff95e2" "3c83b3676d796422704082049fc38b6966bcad960f896669dfc21a7a37a748fa" default)))
+        '("06f0b439b62164c6f8f84fdda32b62fb50b6d00e8b01c2208e55543a6337433a" "84d2f9eeb3f82d619ca4bfffe5f157282f4779732f48a5ac1484d94d5ff5b279" "4848f52f443b88525a4e2fe4f620a20c40fad90a66a953613be90556b9eb7880" "db790b6031dbc390c8b9318b077f5825302dad9d82925f4c70eaddd22825aafa" "141bdb2503f744acaa2bd8defb015f3c8e9e581ff40ec9ae4f3a27917256edaa" "516ef72a7861d71b39bdd8ae3d2c19628abb916a1456ea93a400cc222f87442a" "05b3ea2f5a8d1913eda3a209bb4bd0091c2aa15e4de64e0580f45d2534428568" "e93f05b3616b9e19a79c3ebd107252684bc88ecb77798617e72443b70aae86d5" "c74e83f8aa4c78a121b52146eadb792c9facc5b1f02c917e3dbb454fca931223" "a27c00821ccfd5a78b01e4f35dc056706dd9ede09a8b90c6955ae6a390eb1c1e" "26614652a4b3515b4bbbb9828d71e206cc249b67c9142c06239ed3418eff95e2" "3c83b3676d796422704082049fc38b6966bcad960f896669dfc21a7a37a748fa" default))
       ;; '(tool-bar-mode nil) ;; part of early-init.el
       )
 
@@ -582,12 +581,14 @@
        :ensure t
        :config
        (progn
-         (load-theme 'sanityinc-tomorrow-night t)
+         (setq gb/theme-mode 'night)
+         (color-theme-sanityinc-tomorrow gb/theme-mode)
          (toggle-frame-fullscreen)
-         (custom-set-faces '(link-face ((t (:foreground "#81a2be" :underline (:style line :color "#41526e"))))))
-         (custom-set-faces '(link ((t (:foreground "#81a2be" :underline (:style line :color "#41526e")))))))
-       )
-
+         (cond
+          ((eq gb/theme-mode 'light) nil) ;; TODO complete
+          (t (progn
+               (custom-set-faces '(link-face ((t (:foreground "#81a2be" :underline (:style line :color "#41526e"))))))
+               (custom-set-faces '(link ((t (:foreground "#81a2be" :underline (:style line :color "#41526e")))))))))))
    #+END_SRC
 * splash and initial buffer config
   #+BEGIN_SRC emacs-lisp
@@ -2534,9 +2535,9 @@
         (defun doom-modeline--font-width ()
           "Cache the font width."
           (or doom-modeline--font-width-cache
-             (let ((width (window-font-width nil 'mode-line)))
-               (setq doom-modeline--font-width-cache width)
-               width)))
+              (let ((width (window-font-width nil 'mode-line)))
+                (setq doom-modeline--font-width-cache width)
+                width)))
 
         (setq doom-modeline-buffer-file-name-style 'relative-to-project)
         (setq doom-modeline-vcs-max-length 40)
@@ -2546,11 +2547,15 @@
         ;; (set-face-attribute 'mode-line nil :height 120)
         ;; (set-face-attribute 'mode-line-inactive nil :height 110)
         ;; (custom-set-faces '(mode-line ((t (:background "#403040" :foreground "#d5d8d6" :weight normal :height 110)))))
-        (custom-set-faces
-         '(doom-modeline-bar ((t (:background "#600060"))))
-         '(doom-modeline-bar-inactive ((t (:background "#500050"))))
-         '(mode-line ((t (:background "#2C1529" :foreground "#808080" :weight normal))))
-         '(mode-line-inactive ((t (:inherit mode-line :background "#251422" :foreground "#969896" :weight normal)))))
+
+        (cond
+         ((eq gb/theme-mode 'light) nil) ;; TODO complete
+         (t (progn
+              (custom-set-faces
+               '(doom-modeline-bar ((t (:background "#600060"))))
+               '(doom-modeline-bar-inactive ((t (:background "#500050"))))
+               '(mode-line ((t (:background "#2C1529" :foreground "#808080" :weight normal))))
+               '(mode-line-inactive ((t (:inherit mode-line :background "#251422" :foreground "#969896" :weight normal))))))))
         (doom-modeline-mode 1))
     #+END_SRC
 *** spinner (busy indicator for modeline)
@@ -2563,175 +2568,175 @@
     #+END_SRC
 *** spaceline (mode line of spacemacs) (disabled)
     #+BEGIN_SRC emacs-lisp :tangle no
-    (when gb/use-space-line
-      (use-package powerline)
-      (use-package spaceline
-        :ensure t
-        :after ( powerline) ;; symon
-        :config
-        ;; Valid Values: alternate, arrow, arrow-fade, bar, box, brace,
-        ;; butt, chamfer, contour, curve, rounded, roundstub, wave, zigzag,
-        ;; utf-8
-        (setq powerline-default-separator nil) ;;'utf-8
+      (when gb/use-space-line
+        (use-package powerline)
+        (use-package spaceline
+          :ensure t
+          :after ( powerline) ;; symon
+          :config
+          ;; Valid Values: alternate, arrow, arrow-fade, bar, box, brace,
+          ;; butt, chamfer, contour, curve, rounded, roundstub, wave, zigzag,
+          ;; utf-8
+          (setq powerline-default-separator nil) ;;'utf-8
 
-        (require 'spaceline-config)
-        (spaceline-spacemacs-theme)
-        (spaceline-helm-mode)
-        (custom-set-faces
-         '(spaceline-highlight-face ((t (:background "DarkGoldenrod3" :foreground "#000000" :inherit (quote mode-line))))))
+          (require 'spaceline-config)
+          (spaceline-spacemacs-theme)
+          (spaceline-helm-mode)
+          (custom-set-faces
+           '(spaceline-highlight-face ((t (:background "DarkGoldenrod3" :foreground "#000000" :inherit (quote mode-line))))))
 
-        (gb/do-after-display-system-init
+          (gb/do-after-display-system-init
 
-         (setq gb/mode-line-buffer-read-only-symbol (if fira-code-symbol-installed "\ue0a2" "o"))  ;; ""
-         (setq gb/mode-line-buffer-modified-ro-symbol (if fira-code-symbol-installed "\ue16b" "x"))  ;; ""
-         (setq gb/mode-line-buffer-modified-symbol (if fira-code-symbol-installed "\ue16f" "*"))  ;; ""
-         (setq gb/mode-line-branch-up-to-date-symbol "\u2713")  ;; "✓"
-         (setq gb/mode-line-branch-edited-symbol (if fira-code-symbol-installed "\ue16f" "*"))  ;; ""
-         (setq gb/mode-line-cutted-path-prefix-symbol "\u2025") ;; "…"
+           (setq gb/mode-line-buffer-read-only-symbol (if fira-code-symbol-installed "\ue0a2" "o"))  ;; ""
+           (setq gb/mode-line-buffer-modified-ro-symbol (if fira-code-symbol-installed "\ue16b" "x"))  ;; ""
+           (setq gb/mode-line-buffer-modified-symbol (if fira-code-symbol-installed "\ue16f" "*"))  ;; ""
+           (setq gb/mode-line-branch-up-to-date-symbol "\u2713")  ;; "✓"
+           (setq gb/mode-line-branch-edited-symbol (if fira-code-symbol-installed "\ue16f" "*"))  ;; ""
+           (setq gb/mode-line-cutted-path-prefix-symbol "\u2025") ;; "…"
 
-         (defun gb/symon-display-str ()
-           "update symon display"
-           (let ((message-log-max nil)  ; do not insert to *Messages* buffer
-                 (display-string nil)
-                 (page 0)
-                 (displaystr ""))
-             (dolist (lst symon--display-fns)
-               (if (= page symon--active-page)
-                   (setq displaystr (apply 'concat (mapcar 'funcall lst)))
-                 (mapc 'funcall lst))
-               (setq page (1+ page)))
-             displaystr)
-           )
+           (defun gb/symon-display-str ()
+             "update symon display"
+             (let ((message-log-max nil)  ; do not insert to *Messages* buffer
+                   (display-string nil)
+                   (page 0)
+                   (displaystr ""))
+               (dolist (lst symon--display-fns)
+                 (if (= page symon--active-page)
+                     (setq displaystr (apply 'concat (mapcar 'funcall lst)))
+                   (mapc 'funcall lst))
+                 (setq page (1+ page)))
+               displaystr)
+             )
 
-         (spaceline-define-segment gb/symon
-           ""
-           "" ;;(gb/symon-display-str)
-           )
-
-         (spaceline-define-segment gb/buffer-status
-           "Buffer status (read-only, modified), with color"
-           (cond ((and buffer-read-only (buffer-modified-p)) gb/mode-line-buffer-modified-ro-symbol)
-                 (buffer-read-only gb/mode-line-buffer-read-only-symbol)
-                 ((buffer-modified-p) gb/mode-line-buffer-modified-symbol)
-                 (t " ")))
-
-         (spaceline-define-segment gb/date-and-cw
-           "display date and calendar week of window is broad enough"
-           (if (> (window-width) 150)
-               (propertize (format-time-string "%m-%d/%V")
-                           'help-echo "month-day/calendarweek")
-             ""))
-
-         (spaceline-define-segment gb/buffer-id
-           (propertize (buffer-name) 'help-echo (format "%s, size: %s" (buffer-name) (number-to-string (buffer-size)))))
-
-         (spaceline-define-segment gb/buffer-file-name
-           "provide fullpath to buffer file name, shortened to 35 characters if too long"
-           ;; limit path length to a certain number of characters (currently 35)
-           ;; TODO: allow replacing certain paths with some shorthands (e.g. :doc: for ~/Documents/)
-           (let* ((path (replace-regexp-in-string (concat "^" (regexp-quote (expand-file-name "~"))) "~" (or (file-name-directory (or buffer-file-name "")) "")))
-                  (maxlen (max 0 (- (window-width) 57 (length (buffer-name)))))
-                  (spath (cond ((>= 0 maxlen) "")
-                               ((> (length path) maxlen)
-                                (concat gb/mode-line-cutted-path-prefix-symbol (substring path (- maxlen) nil)))
-                               (t path))))
-             (propertize spath 'help-echo path))
-           ;;     (or spath "")
-           )
-
-         (defun parent-dir-of (directory)
-           "parrent directory of the given"
-           (s-join "/" (-drop-last 1 (s-split "/" directory))))
-
-         (defun file-exists-up-the-tree (directory filename)
-           "does the given file exist in this directory or anywhere up to the root?"
-           (or (file-exists-p (concat directory "/" filename))
-               (and (not (or (string= "/" directory)
-                             (string-empty-p directory)))
-                    (file-exists-up-the-tree (parent-dir-of directory) filename))))
-
-         (defun gb/in-git-dir-p ()
-           (or
-            (and (buffer-file-name) (file-exists-up-the-tree (file-name-directory (buffer-file-name)) ".git"))
-            (not (string-match "^fatal" (shell-command-to-string "git rev-parse --git-dir")))))
-
-         (defun gb/vc-status ()
-           (if vc-mode
-               vc-mode
-             (concat "\ue0a0 " (car (split-string (shell-command-to-string "git rev-parse --abbrev-ref HEAD"))))))
-
-         (setq gb/vc-status-cache-delay "10 sec")
-         (setq gb/vc-status-cache-buffer-id nil)
-         (setq gb/vc-status-cache nil)
-         (setq gb/vc-status-cache-timer nil)
-
-         (defun gb/get-cached-git-state ()
-           "if cache filled and within same buffer (name) refresh in five seconds and return cached value, else refresh cache and return new values"
-           (if (and gb/vc-status-cache (string= (buffer-name) gb/vc-status-cache-buffer-id))
-               ;; only if no timer is running!
-               (unless gb/vc-status-cache-timer
-                 (setq gb/vc-status-cache-timer (run-at-time gb/vc-status-cache-delay nil 'gb/refresh-vc-status-cache)))
-             (gb/refresh-vc-status-cache))
-           gb/vc-status-cache)
-
-         (defun gb/refresh-vc-status-cache ()
-           "refresh values with actual git call and clear timer (maybe cancel?)"
-           (setq gb/vc-status-cache-buffer-id (buffer-name))
-           (setq gb/vc-status-cache (gb/git-state))
-           (setq gb/vc-status-cache-timer nil))
-
-         (defun gb/git-state ()
-           "query git status for the currently active buffer, refresh on buffer switches"
-           (let* ((git-output (shell-command-to-string "git status -s")))
-             ;; (message (concat  "git querried " (current-time-string))) ;; just for debugging, please remove when done
-             (if (string-empty-p git-output)
-                 'up-to-date
-               'dirty)))
-
-         (defun gb/vc-state ()
-           (if (buffer-file-name)
-               (vc-state (buffer-file-name))
-             (gb/get-cached-git-state)))
-
-         (defun gb/buffer-on-remote ()
-           "return whether current buffer is on remote (via tramp)"
-           (file-remote-p (or default-directory buffer-file-name dired-directory "")))
-
-         (spaceline-define-segment gb/projectile-id
-           (cond ((gb/buffer-on-remote) "×")
-                 ((and (fboundp 'projectile-project-p) (projectile-project-p))
-                  (projectile-project-name))
-                 (t "×")))
-
-         (spaceline-define-segment gb/version-control
-           "Version control information."
-           (when (and (not (gb/buffer-on-remote)) (gb/in-git-dir-p))
-             (powerline-raw
-              (s-trim (concat (replace-regexp-in-string "^ *Git[:-]" "\ue0a0 " (gb/vc-status)) ;; "  "
-                              (pcase (gb/vc-state)
-                                (`up-to-date (concat " " gb/mode-line-branch-up-to-date-symbol))
-                                (`edited (concat " " gb/mode-line-branch-edited-symbol))
-                                (`added " +")
-                                (`unregistered " ?")
-                                (`removed " -")
-                                (`needs-merge " m")
-                                (`needs-update " u")
-                                (`ignored " i")
-                                (_ " x")))))))
-
-         (spaceline-define-segment gb/time
-           "A segment to to display the time"
-           (propertize (format-time-string "%H:%M")
-                       'face `(:height ,(spaceline-all-the-icons--height 0.9) :inherit)
-                       'display '(raise 0.1)
-                       'help-echo (format-time-string "%A, %Y.%m.%d %H:%M")))
-
-         (when (package-installed-p 'indent-info)
-           (spaceline-define-segment gb/indent-info-mode-line
+           (spaceline-define-segment gb/symon
              ""
-             (indent-info-mode-line)))
+             "" ;;(gb/symon-display-str)
+             )
 
-         )))
+           (spaceline-define-segment gb/buffer-status
+             "Buffer status (read-only, modified), with color"
+             (cond ((and buffer-read-only (buffer-modified-p)) gb/mode-line-buffer-modified-ro-symbol)
+                   (buffer-read-only gb/mode-line-buffer-read-only-symbol)
+                   ((buffer-modified-p) gb/mode-line-buffer-modified-symbol)
+                   (t " ")))
+
+           (spaceline-define-segment gb/date-and-cw
+             "display date and calendar week of window is broad enough"
+             (if (> (window-width) 150)
+                 (propertize (format-time-string "%m-%d/%V")
+                             'help-echo "month-day/calendarweek")
+               ""))
+
+           (spaceline-define-segment gb/buffer-id
+             (propertize (buffer-name) 'help-echo (format "%s, size: %s" (buffer-name) (number-to-string (buffer-size)))))
+
+           (spaceline-define-segment gb/buffer-file-name
+             "provide fullpath to buffer file name, shortened to 35 characters if too long"
+             ;; limit path length to a certain number of characters (currently 35)
+             ;; TODO: allow replacing certain paths with some shorthands (e.g. :doc: for ~/Documents/)
+             (let* ((path (replace-regexp-in-string (concat "^" (regexp-quote (expand-file-name "~"))) "~" (or (file-name-directory (or buffer-file-name "")) "")))
+                    (maxlen (max 0 (- (window-width) 57 (length (buffer-name)))))
+                    (spath (cond ((>= 0 maxlen) "")
+                                 ((> (length path) maxlen)
+                                  (concat gb/mode-line-cutted-path-prefix-symbol (substring path (- maxlen) nil)))
+                                 (t path))))
+               (propertize spath 'help-echo path))
+             ;;     (or spath "")
+             )
+
+           (defun parent-dir-of (directory)
+             "parrent directory of the given"
+             (s-join "/" (-drop-last 1 (s-split "/" directory))))
+
+           (defun file-exists-up-the-tree (directory filename)
+             "does the given file exist in this directory or anywhere up to the root?"
+             (or (file-exists-p (concat directory "/" filename))
+                 (and (not (or (string= "/" directory)
+                               (string-empty-p directory)))
+                      (file-exists-up-the-tree (parent-dir-of directory) filename))))
+
+           (defun gb/in-git-dir-p ()
+             (or
+              (and (buffer-file-name) (file-exists-up-the-tree (file-name-directory (buffer-file-name)) ".git"))
+              (not (string-match "^fatal" (shell-command-to-string "git rev-parse --git-dir")))))
+
+           (defun gb/vc-status ()
+             (if vc-mode
+                 vc-mode
+               (concat "\ue0a0 " (car (split-string (shell-command-to-string "git rev-parse --abbrev-ref HEAD"))))))
+
+           (setq gb/vc-status-cache-delay "10 sec")
+           (setq gb/vc-status-cache-buffer-id nil)
+           (setq gb/vc-status-cache nil)
+           (setq gb/vc-status-cache-timer nil)
+
+           (defun gb/get-cached-git-state ()
+             "if cache filled and within same buffer (name) refresh in five seconds and return cached value, else refresh cache and return new values"
+             (if (and gb/vc-status-cache (string= (buffer-name) gb/vc-status-cache-buffer-id))
+                 ;; only if no timer is running!
+                 (unless gb/vc-status-cache-timer
+                   (setq gb/vc-status-cache-timer (run-at-time gb/vc-status-cache-delay nil 'gb/refresh-vc-status-cache)))
+               (gb/refresh-vc-status-cache))
+             gb/vc-status-cache)
+
+           (defun gb/refresh-vc-status-cache ()
+             "refresh values with actual git call and clear timer (maybe cancel?)"
+             (setq gb/vc-status-cache-buffer-id (buffer-name))
+             (setq gb/vc-status-cache (gb/git-state))
+             (setq gb/vc-status-cache-timer nil))
+
+           (defun gb/git-state ()
+             "query git status for the currently active buffer, refresh on buffer switches"
+             (let* ((git-output (shell-command-to-string "git status -s")))
+               ;; (message (concat  "git querried " (current-time-string))) ;; just for debugging, please remove when done
+               (if (string-empty-p git-output)
+                   'up-to-date
+                 'dirty)))
+
+           (defun gb/vc-state ()
+             (if (buffer-file-name)
+                 (vc-state (buffer-file-name))
+               (gb/get-cached-git-state)))
+
+           (defun gb/buffer-on-remote ()
+             "return whether current buffer is on remote (via tramp)"
+             (file-remote-p (or default-directory buffer-file-name dired-directory "")))
+
+           (spaceline-define-segment gb/projectile-id
+             (cond ((gb/buffer-on-remote) "×")
+                   ((and (fboundp 'projectile-project-p) (projectile-project-p))
+                    (projectile-project-name))
+                   (t "×")))
+
+           (spaceline-define-segment gb/version-control
+             "Version control information."
+             (when (and (not (gb/buffer-on-remote)) (gb/in-git-dir-p))
+               (powerline-raw
+                (s-trim (concat (replace-regexp-in-string "^ *Git[:-]" "\ue0a0 " (gb/vc-status)) ;; "  "
+                                (pcase (gb/vc-state)
+                                  (`up-to-date (concat " " gb/mode-line-branch-up-to-date-symbol))
+                                  (`edited (concat " " gb/mode-line-branch-edited-symbol))
+                                  (`added " +")
+                                  (`unregistered " ?")
+                                  (`removed " -")
+                                  (`needs-merge " m")
+                                  (`needs-update " u")
+                                  (`ignored " i")
+                                  (_ " x")))))))
+
+           (spaceline-define-segment gb/time
+             "A segment to to display the time"
+             (propertize (format-time-string "%H:%M")
+                         'face `(:height ,(spaceline-all-the-icons--height 0.9) :inherit)
+                         'display '(raise 0.1)
+                         'help-echo (format-time-string "%A, %Y.%m.%d %H:%M")))
+
+           (when (package-installed-p 'indent-info)
+             (spaceline-define-segment gb/indent-info-mode-line
+               ""
+               (indent-info-mode-line)))
+
+           )))
     #+END_SRC
 *** spaceline all the icons (disabled)
     - important: install fonts located [[https://github.com/domtronn/all-the-icons.el/tree/master/fonts][here]]
@@ -3364,9 +3369,13 @@
      (set-default 'fill-column 140)
      (set-default 'display-fill-column-indicator t)
      (set-default 'display-fill-column-indicator-character 9474)
-     (custom-set-faces
-      '(fill-column-indicator ((t (:foreground "gray13"))))
-      '(fill-column-indicator-face ((t (:foreground "gray20")))))
+
+     (cond
+      ((eq gb/theme-mode 'light) nil) ;; TODO complete
+      (t (progn
+           (custom-set-faces
+            '(fill-column-indicator ((t (:foreground "gray13"))))
+            '(fill-column-indicator-face ((t (:foreground "gray20"))))))))
 
      (defun gb/enable-auto-fill-mode ()
        "enable auto-fill-mode regardless of current state"
@@ -3532,11 +3541,15 @@
 
      ;; Highlights matching parenthesis
      (show-paren-mode 1)
-     (custom-set-faces '(show-paren-match
-                         ((t (:background "black"
-                                          :foreground "yellow"
-                                          :weight ultra-bold
-                                          :width ultraexpanded)))))
+
+     (cond
+      ((eq gb/theme-mode 'light) nil) ;; TODO complete
+      (t (progn
+           (custom-set-faces '(show-paren-match
+                               ((t (:background "black"
+                                                :foreground "yellow"
+                                                :weight ultra-bold
+                                                :width ultraexpanded))))))))
 
      ;; Highlight current line
      (global-hl-line-mode 1)
@@ -4306,8 +4319,11 @@
            )
          (advice-add 'company-box-doc--show :before #'gb/company-box-doc--init-frame-parameter)
          (setq company-box-enable-icon t)
-         (custom-set-faces
-          '(company-box-candidate ((t (:foreground "gray85")))))))
+         (cond
+          ((eq gb/theme-mode 'light) nil) ;; TODO complete
+          (t (progn
+               (custom-set-faces
+                '(company-box-candidate ((t (:foreground "gray85"))))))))))
 
      (use-package company
        ;; :after (selected)
@@ -4349,14 +4365,17 @@
                  ;; scala-mode
                  )))
 
-         (custom-set-faces
-          '(company-echo-common ((t (:inherit company-echo :foreground "gray15"))))
-          '(company-preview ((t (:foreground "gray15"))))
-          '(company-preview-common ((t (:foreground "tomato2"))))
-          '(company-tooltip ((t (:background "gray15" :foreground "gray85"))))
-          '(company-tooltip-selection ((t (:background "gray23" :foreground "white"))))
-          '(company-tooltip-common ((t (:foreground "firebrick4"))))
-          '(company-tooltip-annotation ((t (:foreground "gray15")))))
+         (cond
+          ((eq gb/theme-mode 'light) nil) ;; TODO complete
+          (t (progn
+               (custom-set-faces
+                '(company-echo-common ((t (:inherit company-echo :foreground "gray15"))))
+                '(company-preview ((t (:foreground "gray15"))))
+                '(company-preview-common ((t (:foreground "tomato2"))))
+                '(company-tooltip ((t (:background "gray15" :foreground "gray85"))))
+                '(company-tooltip-selection ((t (:background "gray23" :foreground "white"))))
+                '(company-tooltip-common ((t (:foreground "firebrick4"))))
+                '(company-tooltip-annotation ((t (:foreground "gray15"))))))))
 
 
          ))
@@ -4569,33 +4588,32 @@
 
    #+END_SRC
    #+BEGIN_SRC emacs-lisp
-   (use-package avy
-     :ensure t
-     :bind (("C-S-SPC" . avy-goto-char-timer)
-            ("C-c SPC" . avy-goto-char-timer)
-            ("C-c C-SPC" . avy-goto-char-timer)
-            ("C-x SPC" . avy-pop-mark)
-            ("C-x C-SPC" . avy-pop-mark))
-     :config
-     (progn
-       (setq avy-background t)
-       (setq avy-keys (number-sequence ?a ?z))
-       (custom-set-faces
-        '(avy-lead-face ((t (:foreground "red"))))
-        '(avy-lead-face-0 ((t (:foreground "orange"))))
-        '(avy-lead-face-1 ((t (:foreground "yellow"))))
-        '(avy-lead-face-2 ((t (:foreground "white")))))))
+     (use-package avy
+       :ensure t
+       :bind (("C-S-SPC" . avy-goto-char-timer)
+              ("C-c SPC" . avy-goto-char-timer)
+              ("C-c C-SPC" . avy-goto-char-timer)
+              ("C-x SPC" . avy-pop-mark)
+              ("C-x C-SPC" . avy-pop-mark))
+       :config
+       (progn
+         (setq avy-background t)
+         (setq avy-keys (number-sequence ?a ?z))
+         (cond
+          ((eq gb/theme-mode 'light) nil) ;; TODO complete
+          (t (progn
+               (custom-set-faces
+                '(avy-lead-face ((t (:foreground "red"))))
+                '(avy-lead-face-0 ((t (:foreground "orange"))))
+                '(avy-lead-face-1 ((t (:foreground "yellow"))))
+                '(avy-lead-face-2 ((t (:foreground "white"))))))))))
 
-
-
-   (use-package avy-zap
-     :ensure t
-     :after ( avy)
-     :bind
-     (("M-Z" . avy-zap-to-char-dwim)
-      ("M-z" . avy-zap-up-to-char)))
-
-
+     (use-package avy-zap
+       :ensure t
+       :after ( avy)
+       :bind
+       (("M-Z" . avy-zap-to-char-dwim)
+        ("M-z" . avy-zap-up-to-char)))
    #+END_SRC
 ** ace popup menu
    - display regular popup windows (like the one upon C-c $ to correct mispelled words) as a text window (in separate emacs window)
@@ -4823,13 +4841,19 @@
        (progn
          (setq minimap-major-modes (quote (prog-mode org-mode nxml-mode)))
          (setq minimap-window-location (quote right))
-         (custom-set-faces '(minimap-active-region-background ((t (:extend t :background "gray23")))))))
+         (cond
+          ((eq gb/theme-mode 'light) nil) ;; TODO complete
+          (t (progn
+               (custom-set-faces '(minimap-active-region-background ((t (:extend t :background "gray23"))))))))))
    #+END_SRC
 * programming language related
 ** all
    #+begin_src emacs-lisp
-     (custom-set-faces
-      '(font-lock-comment-face ((t (:foreground "gray50" :slant italic)))))
+     (cond
+      ((eq gb/theme-mode 'light) nil) ;; TODO complete
+      (t (progn
+           (custom-set-faces
+            '(font-lock-comment-face ((t (:foreground "gray50" :slant italic))))))))
    #+end_src
 ** functional-editing
 *** OBSOLETE parinfer (currently disabled)
@@ -4939,16 +4963,18 @@
 ***** >      barf in
 ***** <      barf out
       #+BEGIN_SRC emacs-lisp
-      (use-package iedit
-        :after (rainbow-identifiers))
-      (use-package lispy
-        :ensure t
-        :bind (("C-1" . lispy-describe-inline)) ;; make C-1 available even without lispy mode!
-        :after ( hydra iedit)
-        :config
-        (custom-set-faces
-         '(lispy-face-hint ((t (:background "gray20" :foreground "#fff3bc")))))
-        )
+        (use-package iedit
+          :after (rainbow-identifiers))
+        (use-package lispy
+          :ensure t
+          :bind (("C-1" . lispy-describe-inline)) ;; make C-1 available even without lispy mode!
+          :after ( hydra iedit)
+          :config
+          (cond
+           ((eq gb/theme-mode 'light) nil) ;; TODO complete
+           (t (progn
+                (custom-set-faces
+                 '(lispy-face-hint ((t (:background "gray20" :foreground "#fff3bc")))))))))
       #+END_SRC
 ** clojure
 *** clojure
@@ -5754,8 +5780,11 @@
      :config
      (progn
        ;; (persp-mode 1)
-       (custom-set-faces
-        '(persp-selected-face ((t (:foreground "Grey70")))))))
+       (cond
+        ((eq gb/theme-mode 'light) nil) ;; TODO complete
+        (t (progn
+             (custom-set-faces
+              '(persp-selected-face ((t (:foreground "Grey70"))))))))))
  #+END_SRC
 *** projectile
     - see [[http://batsov.com/projectile/][here]]
@@ -5793,21 +5822,24 @@
         :config
         ;; make sure that ediff session does not open control window in separate frame, which mixes up exwm
         (setq ediff-window-setup-function (quote ediff-setup-windows-plain))
-        (custom-set-faces '(diff-removed ((t (:background "red" :foreground "#663333"))))
-                          '(diff-refine-added ((t (:background "green" :foreground "#336633"))))
+        (cond
+         ((eq gb/theme-mode 'light) nil) ;; TODO complete
+         (t (progn
+              (custom-set-faces '(diff-removed ((t (:background "red" :foreground "#663333"))))
+                                '(diff-refine-added ((t (:background "green" :foreground "#336633"))))
 
-                          '(magit-diff-added ((t (:background "#273C26" :foreground "#ddffdd"))))
-                          '(magit-diff-added-highlight ((t (:background "#223822" :foreground "#cceecc"))))
-                          '(magit-diff-removed ((t (:background "#442222" :foreground "#ffdddd"))))
-                          '(magit-diff-removed-highlight ((t (:background "#442222" :foreground "#eecccc"))))
-                          '(magit-diffstat-removed ((t (:foreground "#aa4444"))))
+                                '(magit-diff-added ((t (:background "#273C26" :foreground "#ddffdd"))))
+                                '(magit-diff-added-highlight ((t (:background "#223822" :foreground "#cceecc"))))
+                                '(magit-diff-removed ((t (:background "#442222" :foreground "#ffdddd"))))
+                                '(magit-diff-removed-highlight ((t (:background "#442222" :foreground "#eecccc"))))
+                                '(magit-diffstat-removed ((t (:foreground "#aa4444"))))
 
-                          '(ediff-current-diff-C ((t (:background "#444417"))))
-                          '(ediff-fine-diff-C ((t (:background "#555520"))))
-                          '(ediff-odd-diff-C ((t (:background "#555555"))))
-                          '(ediff-even-diff-C ((t (:background "#555555"))))
-                          '(ediff-fine-diff-B ((t (:background "#176517"))))
-                          '(ediff-fine-diff-A ((t (:background "#751717"))))))
+                                '(ediff-current-diff-C ((t (:background "#444417"))))
+                                '(ediff-fine-diff-C ((t (:background "#555520"))))
+                                '(ediff-odd-diff-C ((t (:background "#555555"))))
+                                '(ediff-even-diff-C ((t (:background "#555555"))))
+                                '(ediff-fine-diff-B ((t (:background "#176517"))))
+                                '(ediff-fine-diff-A ((t (:background "#751717")))))))))
 
       ;; TODO move this function to some general function pool
       (defun gb/display-buffer-fullframe (buffer alist)
@@ -5944,8 +5976,11 @@
         :ensure t
         :config
         (progn
-          (custom-set-faces
-           '(git-gutter:unchanged ((t (:background "orange4")))))
+          (cond
+           ((eq gb/theme-mode 'light) nil) ;; TODO complete
+           (t (progn
+                (custom-set-faces
+                 '(git-gutter:unchanged ((t (:background "orange4"))))))))
           (setq git-gutter-added-sign".")))
 
       (use-package git-gutter-fringe
@@ -6604,12 +6639,15 @@
    '(default-truncate-lines t)
    '(xslt-process-registered-stylesheets nil))
 
-  (custom-set-faces
-   '(col-highlight ((t (:background "gray63"))))
-   '(hi-yellow ((t (:background "gray44"))))
-   '(region ((t (:background "gray45" :inverse-video nil))))
-   '(popup-isearch-match ((t (:background "RoyalBlue2"))))
-   '(term-color-yellow ((t (:background "DarkGoldenrod4" :foreground "#f0c674")))))
+  (cond
+   ((eq gb/theme-mode 'light) nil) ;; TODO complete
+   (t (progn
+        (custom-set-faces
+         '(col-highlight ((t (:background "gray63"))))
+         '(hi-yellow ((t (:background "gray44"))))
+         '(region ((t (:background "gray45" :inverse-video nil))))
+         '(popup-isearch-match ((t (:background "RoyalBlue2"))))
+         '(term-color-yellow ((t (:background "DarkGoldenrod4" :foreground "#f0c674"))))))))
 #+END_SRC
 * play startup sound (check again 4)
   #+begin_src emacs-lisp
@@ -6691,47 +6729,49 @@
      :ensure t
      :commands elfeed
      :bind (:map elfeed-search-mode-map
-            ("l" . recenter-top-bottom)
-            :map elfeed-show-mode-map
-            ("l" . recenter-top-bottom))
+                 ("l" . recenter-top-bottom)
+                 :map elfeed-show-mode-map
+                 ("l" . recenter-top-bottom))
      :config
      (progn
        (setq elfeed-use-curl t)
        (setq shr-width 80)
        (setq shr-image-animate nil)
-       (custom-set-faces
-        '(elfeed-search-feed-face ((t (:foreground "NavajoWhite2"))))
-        '(elfeed-search-title-face ((t (:foreground "dark gray"))))
-        '(elfeed-search-unread-title-face ((t (:inherit elfeed-search-title-face :foreground "DarkOrange2")))))
-       ))
+       (cond
+        ((eq gb/theme-mode 'light) nil) ;; TODO complete
+        (t (progn
+             (custom-set-faces
+              '(elfeed-search-feed-face ((t (:foreground "NavajoWhite2"))))
+              '(elfeed-search-title-face ((t (:foreground "dark gray"))))
+              '(elfeed-search-unread-title-face ((t (:inherit elfeed-search-title-face :foreground "DarkOrange2"))))))))))
 
    ;; Load elfeed-org
    (use-package elfeed-org
      :ensure t
      :after ( elfeed org dash)
      :init (progn
-       ;; TOOD fix function that is not known here
-       ;; only programming related books
-       ;; (add-hook 'elfeed-new-entry-hook
-       ;;           (elfeed-make-tagger :feed-url "pdfbooksplanet"
-       ;;                               :entry-link '(not "programming")
-       ;;                               :add 'junk
-       ;;                              :remove 'unread))
+             ;; TOOD fix function that is not known here
+             ;; only programming related books
+             ;; (add-hook 'elfeed-new-entry-hook
+             ;;           (elfeed-make-tagger :feed-url "pdfbooksplanet"
+             ;;                               :entry-link '(not "programming")
+             ;;                               :add 'junk
+             ;;                              :remove 'unread))
 
-       ;; only programming related books
-       ;; (add-hook 'elfeed-new-entry-hook
-       ;;          (elfeed-make-tagger :feed-url "BookDL"
-       ;;                              :entry-link '(not "programming")
-       ;;                             :add 'junk
-       ;;                              :remove 'unread))
+             ;; only programming related books
+             ;; (add-hook 'elfeed-new-entry-hook
+             ;;          (elfeed-make-tagger :feed-url "BookDL"
+             ;;                              :entry-link '(not "programming")
+             ;;                             :add 'junk
+             ;;                              :remove 'unread))
 
-       ;; (add-hook 'elfeed-new-entry-hook
-       ;;          (elfeed-make-tagger :feed-url "lobste\\.rs"
-       ;;                              :entry-link '(not "emacs")
-       ;;                              :add 'junk
-       ;;                              :remove 'unread))
+             ;; (add-hook 'elfeed-new-entry-hook
+             ;;          (elfeed-make-tagger :feed-url "lobste\\.rs"
+             ;;                              :entry-link '(not "emacs")
+             ;;                              :add 'junk
+             ;;                              :remove 'unread))
 
-       )
+             )
      :config
      (progn
 
@@ -7102,31 +7142,34 @@
    ;; Gnus formatting and colorizing
 
    ;; customize org link
-   (custom-set-faces '(org-link ((t (:foreground "#81a2be" :underline (:style line :color "#41526e"))))))
-   (custom-set-faces '(org-date ((t (:foreground "#81a2be" :underline (:style line :color "#41526e"))))))
+   (cond
+    ((eq gb/theme-mode 'light) nil) ;; TODO complete
+    (t (progn
+         (custom-set-faces '(org-link ((t (:foreground "#81a2be" :underline (:style line :color "#41526e"))))))
+         (custom-set-faces '(org-date ((t (:foreground "#81a2be" :underline (:style line :color "#41526e"))))))
 
-   (copy-face 'default 'mysubject)
-   (setq gnus-face-1 'mysubject)
+         (copy-face 'default 'mysubject)
+         (setq gnus-face-1 'mysubject)
 
-   (copy-face 'default 'mytime)
-   (set-face-foreground 'mytime "cornflowerblue")
-   (setq gnus-face-2 'mytime)
+         (copy-face 'default 'mytime)
+         (set-face-foreground 'mytime "cornflowerblue")
+         (setq gnus-face-2 'mytime)
 
-   (copy-face 'default 'mythreads)
-   (set-face-foreground 'mythreads "turquoise")
-   (setq gnus-face-3 'mythreads)
+         (copy-face 'default 'mythreads)
+         (set-face-foreground 'mythreads "turquoise")
+         (setq gnus-face-3 'mythreads)
 
-   (copy-face 'default 'mygrey)
-   (set-face-foreground 'mygrey "blue")
-   (setq gnus-face-4 'mygrey)
+         (copy-face 'default 'mygrey)
+         (set-face-foreground 'mygrey "blue")
+         (setq gnus-face-4 'mygrey)
 
-   (copy-face 'default 'myblack)
-   (set-face-foreground 'myblack "gold")
-   (setq gnus-face-5 'myblack)
+         (copy-face 'default 'myblack)
+         (set-face-foreground 'myblack "gold")
+         (setq gnus-face-5 'myblack)
 
-   (copy-face 'default 'mybiggernumbers)
-   (set-face-foreground 'mybiggernumbers "seagreen")
-   (setq gnus-face-6 'mybiggernumbers)
+         (copy-face 'default 'mybiggernumbers)
+         (set-face-foreground 'mybiggernumbers "seagreen")
+         (setq gnus-face-6 'mybiggernumbers))))
 
 
    (defun gnus-user-format-function-@ (header)
@@ -7177,7 +7220,7 @@
           "%2{%6k %}%)" ;; (k) human readable size
           "%4{|%}"
           "%2{ %}%3{%B%}%1{%s%}\n") ;; (s)ubject
-          )
+         )
 
    ;; (cond (window-system
    ;;        (setq custom-background-mode 'light)
@@ -7222,16 +7265,16 @@
    (gnus-add-configuration
     '(article
       (horizontal 1.0 (vertical 50
-                           (group 1.0))
-               (vertical 1.0
-                         (summary 0.35 point)
-                         (article 1.0)))))
+                                (group 1.0))
+                  (vertical 1.0
+                            (summary 0.35 point)
+                            (article 1.0)))))
    (gnus-add-configuration
     '(summary
       (horizontal 1.0 (vertical 50
-                 (group 1.0))
-       (vertical 1.0
-                 (summary 1.0 point)))))
+                                (group 1.0))
+                  (vertical 1.0
+                            (summary 1.0 point)))))
 
 
    ;; turn off flowed mode
@@ -7500,8 +7543,8 @@
         (defun rasmus/org-prettify-src ()
           "Hide src options via `prettify-symbols-mode'.
 
-      `prettify-symbols-mode' is used because it has uncollpasing. It's
-      may not be efficient."
+          `prettify-symbols-mode' is used because it has uncollpasing. It's
+          may not be efficient."
           (let* ((case-fold-search t)
                  (at-src-block (save-excursion
                                  (beginning-of-line)
@@ -7544,7 +7587,10 @@
         ;;             (push '("[X]" . " ⌧ ") prettify-symbols-alist)
         ;;             (push '("[-]" . " ◼ ") prettify-symbols-alist)
         ;;             (prettify-symbols-mode)))
-        (custom-set-faces '(header-line ((t (:inherit org-table-face :foreground "#8abeb7"))))) ;; set (non scrolling) header to inhiert font from org mode tables (not mode line, which is to small on multi monitor w/ current config)
+        (cond
+         ((eq gb/theme-mode 'light) nil) ;; TODO complete
+         (t (progn
+              (custom-set-faces '(header-line ((t (:inherit org-table-face :foreground "#8abeb7")))))))) ;; set (non scrolling) header to inhiert font from org mode tables (not mode line, which is to small on multi monitor w/ current config)
         (setq org-image-actual-width nil)
         (setq org-format-latex-options (plist-put org-format-latex-options :scale 2.0))
         (setq org-hide-emphasis-markers t)          ;; hides ** and // surrounding text that is bold or intalics
@@ -7673,9 +7719,9 @@
 
         (defun gb/org-smart-return (&optional ignore)
           "Add new list item, heading or table row with RET.
-           A double return on an empty element deletes it.
-           Use a prefix arg to get regular RET.
-           reference: http://kitchingroup.cheme.cmu.edu/blog/2017/04/09/A-better-return-in-org-mode/?utm_source=feedburner&utm_medium=twitter&utm_campaign=Feed:+TheKitchinResearchGroup+(The+Kitchin+Research+Group)"
+               A double return on an empty element deletes it.
+               Use a prefix arg to get regular RET.
+               reference: http://kitchingroup.cheme.cmu.edu/blog/2017/04/09/A-better-return-in-org-mode/?utm_source=feedburner&utm_medium=twitter&utm_campaign=Feed:+TheKitchinResearchGroup+(The+Kitchin+Research+Group)"
           (interactive "P")
           (if ignore
               (org-return)
@@ -7724,7 +7770,7 @@
 
         (defun gb/wrap-org-edit-src-save (orig-func &rest args)
           "remove save adjusted hook, execute save and add hook again.
-           thus this function prevents org-babel tangle and setting the file on r/o when edited in org edit src mode"
+               thus this function prevents org-babel tangle and setting the file on r/o when edited in org edit src mode"
           (remove-hook 'after-save-hook 'gb/tangle-on-save-org-mode-file)
           (let ((res (apply orig-func args)))
             (add-hook 'after-save-hook 'gb/tangle-on-save-org-mode-file)
@@ -7740,7 +7786,7 @@
 
         (defun gb/org-global-props-key-re (key)
           "Construct a regular expression matching key and an optional plus and eating the spaces behind.
-         Test for existence of the plus: (match-beginning 1)"
+             Test for existence of the plus: (match-beginning 1)"
           (concat "^" (regexp-quote key) "\\(\\+\\)?[[:space:]]+"))
 
         (defun gb/org-global-props (&optional buffer)
@@ -7750,7 +7796,7 @@
 
         (defun gb/org-global-prop-value (key)
           "Get global org property KEY of current buffer.
-           Adding up values for one key is supported."
+               Adding up values for one key is supported."
           (let ((key-re (gb/org-global-props-key-re key))
                 (props (gb/org-global-props))
                 ret)
@@ -7845,30 +7891,33 @@
         (setq org-highlight-latex-and-related nil) ;; '(native)
 
         ;; make sure that regular font in src block within org is 'white'
-        (custom-set-faces '(org-block ((t (:foreground "gray75")))))
+        (cond
+         ((eq gb/theme-mode 'light) nil) ;; TODO complete
+         (t (progn
+              (custom-set-faces '(org-block ((t (:foreground "gray75"))))))))
         (setq flycheck-keymap-prefix (kbd "C-c k"))
 
         ;;--------------------------------------------------------------------------------
         (defhydra hydra-org-mode ()
           "
-              org mode
-              ^-^------------------------------------------------
-              _ci_: clock in             _cti_: toggle item     _cr_: org reveal    Movement:
-              _co_: clock out                                                   C-c p previous bulletin
-              _cq_: clock cancel/quit                                           C-c u up bulletin level
-              _cj_: jump to clock                                               M-<ret>
-              _cd_: display clock times                                         C-<ret>
+                  org mode
+                  ^-^------------------------------------------------
+                  _ci_: clock in             _cti_: toggle item     _cr_: org reveal    Movement:
+                  _co_: clock out                                                   C-c p previous bulletin
+                  _cq_: clock cancel/quit                                           C-c u up bulletin level
+                  _cj_: jump to clock                                               M-<ret>
+                  _cd_: display clock times                                         C-<ret>
 
-              %s(hydra-combine-functions-w-key-bindings
-                '((\"  [ci]  clock in            \" . org-clock-in)
-                  (\"  [co]  clock out           \" . org-clock-out)
-                  (\"  [cq]  clock cancel/quit   \" . org-clock-cancel)
-                  (\"  [cj]  jump to clock       \" . org-clock-goto)
-                  (\"  [cd]  display clock times \" . org-clock-display)
-                  (\"  [cti] toggle item         \" . org-toggle-item)
-                  (\"  [cr]  org reveal          \" . org-reveal)
-                  ))
-            "
+                  %s(hydra-combine-functions-w-key-bindings
+                    '((\"  [ci]  clock in            \" . org-clock-in)
+                      (\"  [co]  clock out           \" . org-clock-out)
+                      (\"  [cq]  clock cancel/quit   \" . org-clock-cancel)
+                      (\"  [cj]  jump to clock       \" . org-clock-goto)
+                      (\"  [cd]  display clock times \" . org-clock-display)
+                      (\"  [cti] toggle item         \" . org-toggle-item)
+                      (\"  [cr]  org reveal          \" . org-reveal)
+                      ))
+                "
           ("ci" org-clock-in :exit t)
           ("co" org-clock-out :exit t)
           ("cq" org-clock-cancel :exit t)
@@ -8424,7 +8473,10 @@
         (run-at-time "24:01" 3600 'org-agenda-to-appt)           ;; update appt list hourly
 
         ;; make sure appt are highlighted accordingly
-        (custom-set-faces '(mode-line-emphasis ((t (:foreground "DarkGoldenrod3")))))
+        (cond
+         ((eq gb/theme-mode 'light) nil) ;; TODO complete
+         (t (progn
+              (custom-set-faces '(mode-line-emphasis ((t (:foreground "DarkGoldenrod3"))))))))
 
         ;; ;; set up the call to terminal-notifier (only working when appt-display-format is set to 'window)
         ;; (defvar gb/appt-notifier-path (s-trim (shell-command-to-string "command -v notify-send")))
@@ -8475,13 +8527,16 @@
       ;; thus the org-ditaa-jar-path can be constructed (which is true for mac os brew systems)
       (setq org-ditaa-jar-path "~/bin/ditaa.jar") ;; "/usr/local/bin/ditaa"
 
-      (custom-set-faces
-       `(org-block-begin-line ((t ( ;;:underline "#A7A6AA"
-                                   :height 0.8 :foreground "gray50"))))
-       `(org-block-end-line ((t (
-                                 ;; :overline "#A7A6AA"
-                                 :height 0.8 :foreground "#606060"))))
-       )
+      (cond
+       ((eq gb/theme-mode 'light) nil) ;; TODO complete
+       (t (progn
+            (custom-set-faces
+             `(org-block-begin-line ((t ( ;;:underline "#A7A6AA"
+                                         :height 0.8 :foreground "gray50"))))
+             `(org-block-end-line ((t (
+                                       ;; :overline "#A7A6AA"
+                                       :height 0.8 :foreground "#606060"))))
+             ))))
       ;; set sed command for org babel
       (setq org-babel-sed-command (s-trim (shell-command-to-string "command -v sed")))
 
@@ -9163,8 +9218,8 @@
                (add-hook 'helm-minibuffer-set-up-hook
                          'gb/helm-hide-minibuffer-maybe))
        :custom (helm-truncate-lines t "make sure lines are truncated in helm buffers")
-               (helm-echo-input-in-header-line t "make sure keyboard entry is displayed in header line of helm buffer")
-               (history-delete-duplicates t "make sure helm does not show duplicate entries")
+       (helm-echo-input-in-header-line t "make sure keyboard entry is displayed in header line of helm buffer")
+       (history-delete-duplicates t "make sure helm does not show duplicate entries")
        :config
        (progn
          (defun gb/org-center-when-at-bottom (&rest args)
@@ -9204,8 +9259,11 @@
          (setq helm-display-function 'pop-to-buffer)
          (require 'helm-locate)
          (setq helm-locate-command "locate %s %s")
-         (custom-set-faces
-          '(match ((t (:background "#1d1f21" :foreground "DarkGoldenrod1" :inverse-video nil)))))
+         (cond
+          ((eq gb/theme-mode 'light) nil) ;; TODO complete
+          (t (progn
+               (custom-set-faces
+                '(match ((t (:background "#1d1f21" :foreground "DarkGoldenrod1" :inverse-video nil))))))))
          (setq helm-split-window-default-side 'right)
          (setq helm-buffer-max-length nil)
          (setq helm-ff-skip-boring-files t)
@@ -9959,13 +10017,16 @@
                    ("[" . dired-subtree-up)
                    ("C-c C-u" . dired-subtree-up))
        :config
-       (custom-set-faces
-        '(dired-subtree-depth-1-face ((t (:background "#252e30" :extend t))))
-        '(dired-subtree-depth-2-face ((t (:background "#232a2b" :extend t))))
-        '(dired-subtree-depth-3-face ((t (:background "#212627" :extend t))))
-        '(dired-subtree-depth-4-face ((t (:background "#1e2223" :extend t))))
-        '(dired-subtree-depth-5-face ((t (:background "#1c1d1e" :extend t))))
-        '(dired-subtree-depth-6-face ((t (:background "#1a191a" :extend t))))))
+       (cond
+        ((eq gb/theme-mode 'light) nil) ;; TODO complete
+        (t (progn
+             (custom-set-faces
+              '(dired-subtree-depth-1-face ((t (:background "#252e30" :extend t))))
+              '(dired-subtree-depth-2-face ((t (:background "#232a2b" :extend t))))
+              '(dired-subtree-depth-3-face ((t (:background "#212627" :extend t))))
+              '(dired-subtree-depth-4-face ((t (:background "#1e2223" :extend t))))
+              '(dired-subtree-depth-5-face ((t (:background "#1c1d1e" :extend t))))
+              '(dired-subtree-depth-6-face ((t (:background "#1a191a" :extend t)))))))))
 
      (defun gb/dired--get-depth-at-point ()
        "get the level (staring with 1) of the subdirectory at point (else nil)"
@@ -10112,16 +10173,19 @@
 * stripe-buffer
   add stripes to background of dired (or any other mode)
   #+BEGIN_SRC emacs-lisp
-  (when (locate-library "stripe-buffer")
-    (use-package stripe-buffer
-      :init (progn
-              ;; (add-hook 'dired-mode-hook 'turn-on-stripe-buffer-mode)
-              ;; (add-hook 'dired-mode-hook 'stripe-listify-buffer)
-              )
-      :config
-      (custom-set-faces
-       '(stripe-highlight ((t (:background "gray15")))))
-      ))
+    (when (locate-library "stripe-buffer")
+      (use-package stripe-buffer
+        :init (progn
+                ;; (add-hook 'dired-mode-hook 'turn-on-stripe-buffer-mode)
+                ;; (add-hook 'dired-mode-hook 'stripe-listify-buffer)
+                )
+        :config
+        (cond
+         ((eq gb/theme-mode 'light) nil) ;; TODO complete
+         (t (progn
+              (custom-set-faces
+               '(stripe-highlight ((t (:background "gray15"))))))))
+        ))
   #+END_SRC
 * figlet (text->ascii art)
   - 'M-x figlet' to enter a text that is transformed into asci art
@@ -10227,10 +10291,13 @@
          (setq nswbuff-exclude-buffer-regexps (quote ("^ " "^\\*helm")))
          (setq nswbuff-status-window-layout (quote adjust))
          (setq nswbuff-clear-delay 1.5)
-         (custom-set-faces
-          '(nswbuff-current-buffer-face ((t (:foreground "GoldenRod1" :weight bold))))
-          '(nswbuff-separator-face ((t (:foreground "GoldenRod1"))))
-          '(nswbuff-special-buffers-face ((t (:foreground "dim gray" :underline nil :weight normal))))))
+         (cond
+          ((eq gb/theme-mode 'light) nil) ;; TODO complete
+          (t (progn
+               (custom-set-faces
+                '(nswbuff-current-buffer-face ((t (:foreground "GoldenRod1" :weight bold))))
+                '(nswbuff-separator-face ((t (:foreground "GoldenRod1"))))
+                '(nswbuff-special-buffers-face ((t (:foreground "dim gray" :underline nil :weight normal)))))))))
        :bind (("s-<tab>" . nswbuff-switch-to-next-buffer)
               ("S-s-<iso-lefttab>" . nswbuff-switch-to-previous-buffer)))
    #+end_src
@@ -10904,7 +10971,10 @@
    #+END_SRC
 ** comint settings
    #+begin_src emacs-lisp
-     (custom-set-faces '(comint-highlight-prompt ((t (:foreground "peru")))))
+     (cond
+      ((eq gb/theme-mode 'light) nil) ;; TODO complete
+      (t (progn
+           (custom-set-faces '(comint-highlight-prompt ((t (:foreground "peru"))))))))
      (setq comint-input-ring-file-name "~/.comint_hist")
      (setq comint-input-ring-size 8192)
    #+end_src
@@ -12357,10 +12427,13 @@
       (with-eval-after-load 'winum
         (define-key winum-keymap (kbd "M-0") #'treemacs-select-window))
       :config
-      (custom-set-faces '(treemacs-root-face ((t (:inherit font-lock-variable-name-face :weight bold :height 1.2)))))
+      (cond
+       ((eq gb/theme-mode 'light) nil) ;; TODO complete
+       (t (progn
+            (custom-set-faces '(treemacs-root-face ((t (:inherit font-lock-variable-name-face :weight bold :height 1.2))))))))
       (defun gb/tremacs-themes-setup-tab-width (&rest _)
-      "Set `tab-width' to 1, so tab characters don't ruin formatting."
-      (setq tab-width 1))
+        "Set `tab-width' to 1, so tab characters don't ruin formatting."
+        (setq tab-width 1))
       (add-hook 'treemacs-mode-hook #'gb/tremacs-themes-setup-tab-width)
       (let ((face-spec '(:inherit font-lock-doc-face :slant normal)))
         (treemacs-create-theme "atom"
@@ -12445,36 +12518,36 @@
              :icon (format "  %s\t" (all-the-icons-octicon "file-text" :v-adjust 0 :face face-spec))
              :extensions (fallback))))
 
-    (defun gb/get-treemacs-extensions (ext)
-      "Expand the extension pattern EXT into a list of extensions.
+        (defun gb/get-treemacs-extensions (ext)
+          "Expand the extension pattern EXT into a list of extensions.
     This is used to generate extensions for `treemacs' from `all-the-icons-icon-alist'."
-      (let* ((e (s-replace-all
-                 '((".\\?" . "") ("\\?" . "") ("\\." . "")
-                   ("\\" . "") ("^" . "") ("$" . "")
-                   ("'" . "") ("*." . "") ("*" . ""))
-                 ext))
-             (exts (list e)))
-        ;; Handle "[]"
-        (when-let* ((s (s-split "\\[\\|\\]" e))
-                    (f (car s))
-                    (m (cadr s))
-                    (l (caddr s))
-                    (mcs (delete "" (s-split "" m))))
-          (setq exts nil)
-          (dolist (c mcs)
-            (push (s-concat f c l) exts)))
-        ;; Handle '?
-        (dolist (ext exts)
-          (when (s-match "?" ext)
-            (when-let ((s (s-split "?" ext)))
+          (let* ((e (s-replace-all
+                     '((".\\?" . "") ("\\?" . "") ("\\." . "")
+                       ("\\" . "") ("^" . "") ("$" . "")
+                       ("'" . "") ("*." . "") ("*" . ""))
+                     ext))
+                 (exts (list e)))
+            ;; Handle "[]"
+            (when-let* ((s (s-split "\\[\\|\\]" e))
+                        (f (car s))
+                        (m (cadr s))
+                        (l (caddr s))
+                        (mcs (delete "" (s-split "" m))))
               (setq exts nil)
-              (push (s-join "" s) exts)
-              (push (s-concat (if (> (length (car s)) 1)
-                                  (substring (car s) 0 -1))
-                              (cadr s)) exts))))
-        exts))
+              (dolist (c mcs)
+                (push (s-concat f c l) exts)))
+            ;; Handle '?
+            (dolist (ext exts)
+              (when (s-match "?" ext)
+                (when-let ((s (s-split "?" ext)))
+                  (setq exts nil)
+                  (push (s-join "" s) exts)
+                  (push (s-concat (if (> (length (car s)) 1)
+                                      (substring (car s) 0 -1))
+                                  (cadr s)) exts))))
+            exts))
 
-           (treemacs-create-theme "doom-colors"
+        (treemacs-create-theme "doom-colors"
           :extends "atom"
           :config
           (progn
@@ -13322,11 +13395,14 @@
              ("\\.lagda.md\\'" . agda2-mode))
            auto-mode-alist))
 
-    (custom-set-faces '(agda2-highlight-datatype-face ((t (:foreground "light blue"))))
-                      '(agda2-highlight-primitive-type-face ((t (:foreground "light blue"))))
-                      '(agda2-highlight-operator-face ((t (:foreground "light blue"))))
-                      '(agda2-highlight-function-face ((t (:foreground "light blue"))))
-                      '(agda2-highlight-primitive-face ((t (:foreground "light blue")))))
+    (cond
+     ((eq gb/theme-mode 'light) nil) ;; TODO complete
+     (t (progn
+          (custom-set-faces '(agda2-highlight-datatype-face ((t (:foreground "light blue"))))
+                            '(agda2-highlight-primitive-type-face ((t (:foreground "light blue"))))
+                            '(agda2-highlight-operator-face ((t (:foreground "light blue"))))
+                            '(agda2-highlight-function-face ((t (:foreground "light blue"))))
+                            '(agda2-highlight-primitive-face ((t (:foreground "light blue"))))))))
   #+end_src
 * EVAL grugru - rotate thing at point dependent on mode through list of items defined
   - see https://github.com/ROCKTAKEY/grugru
@@ -13972,43 +14048,46 @@
    - install sidebar into additionals https://github.com/sebastiencs/sidebar.el
    - now on melpa: originally install frame-local into additionals https://github.com/sebastiencs/frame-local
    #+BEGIN_SRC emacs-lisp :tangle no
-      (when (and (file-exists-p "~/.emacs.d/additionals/font-lock+.el")
-                 (file-exists-p "~/.local/share/icons-in-terminal/icons-in-terminal.el")
-                 )
-        (progn
-          (use-package icons-in-terminal
-            :after ( font-lock+)
-            :load-path "~/.local/share/icons-in-terminal/")
-          (when (file-exists-p "~/.emacs.d/additionals/sidebar.el/sidebar.el")
-            (use-package ov)
-            (use-package frame-local)
-              ;; originally from here!
-              ;; :load-path "~/.emacs.d/additionals/frame-local/"
-            (use-package sidebar
-              :after (projectile s dash dash-functional ov frame-local icons-in-terminal)
-              :bind (("s-a" . gb/sidebar-toggle)
-                     :map sidebar-mode-map
-                     ("s-a" . sidebar-close))
-              :load-path "~/.emacs.d/additionals/sidebar.el/"
-              :config
-              (defun sidebar-buffers-pre-command ()) ;; override default implementation
-              (defun gb/sidebar-toggle ()
-                ""
-                (interactive)
-                (if (sidebar-get-window t)
-                    (sidebar-close)
-                  (sidebar-open)))
-              (custom-set-variables
-               ;; '(sidebar-icon-powerline "")
-               ;; '(sidebar-icon-modeline "")
-               ;; '(sidebar-icon-header-end "")
-               ;; '(sidebar-select-icon-right-header "")
-               '(sidebar-mode-line-height 1.0)
-               '(sidebar-width 50))
-              (custom-set-faces
-               '(sidebar-primary-color ((t (:background "dark goldenrod" :foreground "black"))))
-               '(sidebar-select-line ((t (:background "dark goldenrod" :foreground "black" :box nil))))
-               '(sidebar-suffix-path-header ((t (:foreground "#404040")))))))))
+     (when (and (file-exists-p "~/.emacs.d/additionals/font-lock+.el")
+                (file-exists-p "~/.local/share/icons-in-terminal/icons-in-terminal.el")
+                )
+       (progn
+         (use-package icons-in-terminal
+           :after ( font-lock+)
+           :load-path "~/.local/share/icons-in-terminal/")
+         (when (file-exists-p "~/.emacs.d/additionals/sidebar.el/sidebar.el")
+           (use-package ov)
+           (use-package frame-local)
+           ;; originally from here!
+           ;; :load-path "~/.emacs.d/additionals/frame-local/"
+           (use-package sidebar
+             :after (projectile s dash dash-functional ov frame-local icons-in-terminal)
+             :bind (("s-a" . gb/sidebar-toggle)
+                    :map sidebar-mode-map
+                    ("s-a" . sidebar-close))
+             :load-path "~/.emacs.d/additionals/sidebar.el/"
+             :config
+             (defun sidebar-buffers-pre-command ()) ;; override default implementation
+             (defun gb/sidebar-toggle ()
+               ""
+               (interactive)
+               (if (sidebar-get-window t)
+                   (sidebar-close)
+                 (sidebar-open)))
+             (custom-set-variables
+              ;; '(sidebar-icon-powerline "")
+              ;; '(sidebar-icon-modeline "")
+              ;; '(sidebar-icon-header-end "")
+              ;; '(sidebar-select-icon-right-header "")
+              '(sidebar-mode-line-height 1.0)
+              '(sidebar-width 50))
+             (cond
+              ((eq gb/theme-mode 'light) nil) ;; TODO complete
+              (t (progn
+                   (custom-set-faces
+                    '(sidebar-primary-color ((t (:background "dark goldenrod" :foreground "black"))))
+                    '(sidebar-select-line ((t (:background "dark goldenrod" :foreground "black" :box nil))))
+                    '(sidebar-suffix-path-header ((t (:foreground "#404040"))))))))))))
    #+END_SRC
 ** helm-selector - util functions for easy buffer selection - discarded: dwim behaviour is not what I want
    #+begin_src emacs-lisp :tangle no
@@ -14068,14 +14147,17 @@
      ;; for kuchen checks:
      ;; (add-hook 'buffer-list-update-hook #'gb/register-key-filter)
      ;; (add-hook 'magit-popup-mode-hook #'gb/un-register-key-filter)
-     (custom-set-faces
-      '(hl-line ((t (:background "gray18"))))
-      '(highlight ((t (:background "gray18"))))
-      '(region ((t (:background "gray24"))))
-      '(font-lock-doc-face ((t (:foreground "gray52"))))
-      '(font-lock-comment-face ((t (:foreground "gray50"))))
-      '(font-lock-comment-delimiter-face ((t (:foreground "gray50"))))
-      '(font-lock-string-face ((t (:foreground "#4080b0"))))))
+     (cond
+      ((eq gb/theme-mode 'light) nil) ;; TODO complete
+      (t (progn
+           (custom-set-faces
+            '(hl-line ((t (:background "gray18"))))
+            '(highlight ((t (:background "gray18"))))
+            '(region ((t (:background "gray24"))))
+            '(font-lock-doc-face ((t (:foreground "gray52"))))
+            '(font-lock-comment-face ((t (:foreground "gray50"))))
+            '(font-lock-comment-delimiter-face ((t (:foreground "gray50"))))
+            '(font-lock-string-face ((t (:foreground "#4080b0")))))))))
     (setq gc-cons-threshold 80000000)
     (midnight-mode 1)
     (report-elapsed "exit finish - up")
