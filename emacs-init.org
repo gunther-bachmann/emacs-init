@@ -13403,7 +13403,7 @@
   #+begin_src emacs-lisp
     (use-package eshell-syntax-highlighting
       :after esh-mode
-      :load-path "~/.emacs.d/additionals/eshell-syntax-highlighting/"
+      :ensure t
       :config (eshell-syntax-highlighting-enable))
   #+end_src
 * proced
