@@ -8910,9 +8910,44 @@
      :hook (slack-mode . emojify-turn-on-emojify-mode)
      (org-mode . emojify-turn-off-emojify-mode ))
 
+   ;; patch on slack-20200830.1021
+   ;; file slack-block.el:53
+   ;; inore errors in creating layout block
+   ;;     (defun slack-create-layout-block (payload)
+   ;;       (ignore-errors ;; <- GBA ADDED
+   ;;         (let ((type (plist-get payload :type)))
+   ;;           (cond
+   ;;            ((string= "section" type)
+   ;;             (slack-create-section-layout-block payload))
+   ;;            ((string= "divider" type)
+   ;;             (slack-create-divider-layout-block payload))
+   ;;            ((string= "image" type)
+   ;;             (slack-create-image-layout-block payload))
+   ;;            ((string= "actions" type)
+   ;;             (slack-create-actions-layout-block payload))
+   ;;            ((string= "context" type)
+   ;;             (slack-create-context-layout-block payload))
+   ;;            ((string= "rich_text" type)
+   ;;             (slack-create-rich-text-block payload))
+   ;;            (t (make-instance 'slack-layout-block
+   ;;                              :type type
+   ;;                              :payload payload))
+   ;;            ;; ;; TODO https://api.slack.com/reference/block-kit/blocks#file
+   ;;            ;; ((string= "file" type)
+   ;;            ;;  (message "TODO: %S" payload)
+   ;;            ;;  nil
+   ;;            ;;  )
+   ;;            ;; ;; TODO https://api.slack.com/reference/block-kit/blocks#input
+   ;;            ;; ((string= "input" type)
+   ;;            ;;  (message "TODO: %S" payload)
+   ;;            ;;  nil
+   ;;            ;;  )
+   ;;            ))))
+
    (use-package slack
      :ensure t
      :commands (gb/slack-start)
+     :custom (slack-log-level 'warn "make log less verbose")
      :init
      (setq slack-enable-emoji t) ;; if you want to enable emoji, default nil
      ;; (setq slack-room-subscription '(clojurians itemisHamburg))
