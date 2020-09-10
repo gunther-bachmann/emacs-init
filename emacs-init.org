@@ -1858,14 +1858,26 @@
      (setq gb/dual-screen-mode 'regular)
      (setq font-lock-support-mode 'jit-lock-mode)
      (setq jit-lock-defer-contextually nil ;; t ;; 'syntax-driven
-           jit-lock-context-time 0.5
-           jit-lock-defer-time 0.5
-           jit-lock-stealth-load nil ;; 200
-           jit-lock-stealth-nice 0.5
-           jit-lock-stealth-time 0.2 ;; 0.2
+           jit-lock-context-time 0.1 ;; 0.2
+           jit-lock-defer-time 0.1 ;; 0.2
+           jit-lock-stealth-load 200 ;; 200
+           jit-lock-stealth-nice 0.1 ;; 0.2
+           jit-lock-stealth-time 0.1 ;; 0.2
            jit-lock-chunk-size 500 ;; default is 500
            )
      (setq-default font-lock-multiline nil) ;; NEVER EVER SET THIS TO TRUE!!!!, makes opening this file a multi minute thing
+
+     ;; exclude all buffers > 10k from being stealth fontified!
+     (require 'dash) ;; just to make sure, is installed as minimum package on startup
+     (setq gb/jit-lock-stealth-fontify-ignore-buffer-threshold 10000)
+     (defun gb/jit-lock-stealth-fontify-ignore-buffers (&rest args)
+       (when jit-lock-stealth-buffers
+         (when-let ((buffers-to-ignore (--filter (> (buffer-size it) gb/jit-lock-stealth-fontify-ignore-buffer-threshold) jit-lock-stealth-buffers)))
+           (--each buffers-to-ignore
+             (setq jit-lock-stealth-buffers (remove it jit-lock-stealth-buffers))))))
+
+     (advice-add 'jit-lock-stealth-fontify :after #'gb/jit-lock-stealth-fontify-ignore-buffers)
+     ;; (advice-remove 'jit-lock-stealth-fontify #'gb/jit-lock-stealth-fontify-ignore-buffers)
 
      (setq fast-but-imprecise-scrolling t)
      (setq inhibit-compacting-font-caches t)
