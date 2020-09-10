@@ -3140,6 +3140,7 @@
              org-block-begin-line
              org-block-end-line
              org-block
+             org-code
              ;;
              rainbow-identifiers-identifier-1
              rainbow-identifiers-identifier-2
