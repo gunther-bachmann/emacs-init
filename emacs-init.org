@@ -13669,6 +13669,12 @@
             (posframe-delete-all)))
         (run-hook-with-args 'git-messenger:after-popup-hook popuped-message))))
   #+end_src
+* EVAL gitconfig-mode - mode to edit git config files
+  - see https://github.com/magit/git-modes
+  #+begin_src emacs-lisp
+    (use-package gitconfig-mode
+      :ensure t)
+  #+end_src
 * eimp (internal)
   #+begin_src emacs-lisp
     (use-package eimp
