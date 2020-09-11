@@ -13675,6 +13675,15 @@
     (use-package gitconfig-mode
       :ensure t)
   #+end_src
+* EVAL yascroll - yet another scroll bar mode
+  - see https://github.com/emacsorphanage/yascroll
+  #+begin_src emacs-lisp
+    (use-package yascroll
+      :ensure t
+      :config
+      (setq yascroll:delay-to-hide 0.75)
+      (setq yascroll:disabled-modes '(image-mode)))
+  #+end_src
 * eimp (internal)
   #+begin_src emacs-lisp
     (use-package eimp
