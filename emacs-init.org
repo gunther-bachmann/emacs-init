@@ -8888,18 +8888,19 @@
 
         (defun gb/org-store-link-to (link-file)
           ;; format: pdfview:~/Downloads/Coronateste_Altona_03_09_2020b.pdf::2++0.00
-          (let* ((file (buffer-file-name))
+          (ignore-errors
+            (let* ((file (buffer-file-name))
                    (page (pdf-view-current-page))
                    (link (format "%s:%s::%i++0.00" org-pdftools-link-prefix file page))
                    (name (file-name-base file)))
-            (save-excursion
-              (find-file link-file)
-              (goto-char (point-max))
-              (if (not (re-search-backward (regexp-quote file) nil t))
-                  (gb/org-store-link-to--insert-link-at-end file link name page)
-                (goto-char (line-beginning-position))
-                (unless (re-search-forward (regexp-quote link) nil t)
-                  (gb/org-store-link-to--insert-link-at-end file link name page))))))
+              (save-excursion
+                (with-current-buffer (find-file-noselect link-file t)
+                  (goto-char (point-max))
+                  (if (not (re-search-backward (regexp-quote file) nil t))
+                      (gb/org-store-link-to--insert-link-at-end file link name page)
+                    (goto-char (line-beginning-position))
+                    (unless (re-search-forward (regexp-quote link) nil t)
+                      (gb/org-store-link-to--insert-link-at-end file link name page))))))))
 
         (defun gb/org-store-link-to--insert-link-at-end (file link name page)
           (goto-char (point-max))
