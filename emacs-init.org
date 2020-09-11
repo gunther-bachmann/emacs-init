@@ -77,23 +77,23 @@
 * preset
   - things to setup before anything else happens
   #+BEGIN_SRC emacs-lisp
-  (setq gb/log-startup-timing nil) ;; set true for timing messages during startup
-  (setq gb/debug-package nil) ;; fails on all packages that could not be loaded but are not mandatory either
+    (setq gb/log-startup-timing nil) ;; set true for timing messages during startup
+    (setq gb/debug-package nil) ;; fails on all packages that could not be loaded but are not mandatory either
 
-  (setq gb/time (float-time))
     (setq gb/list-of-faces-to-set '()) ;; add-to-list all the customizations wanted, are set on setting up fonts at the end of the initialisation process
+    (setq gb/time (float-time))
 
-  (setq gc-cons-threshold 800000000)
+    (setq gc-cons-threshold 800000000)
 
-  (defun report-elapsed (msg-prefix)
-    "record an message time since last call of this function"
-    (if gb/log-startup-timing
-        (progn
-          (setq gb/elapsed-time (- (float-time) gb/time))
-          (setq gb/time (float-time))
-          (message (format "%s: %f seconds" msg-prefix gb/elapsed-time)))))
+    (defun report-elapsed (msg-prefix)
+      "record an message time since last call of this function"
+      (if gb/log-startup-timing
+          (progn
+            (setq gb/elapsed-time (- (float-time) gb/time))
+            (setq gb/time (float-time))
+            (message (format "%s: %f seconds" msg-prefix gb/elapsed-time)))))
 
-  (report-elapsed "preset")
+    (report-elapsed "preset")
   #+END_SRC
 * benchmarking
   - simply call M-x profiler-report after loading
@@ -2551,9 +2551,9 @@
         (defun doom-modeline--font-width ()
           "Cache the font width."
           (or doom-modeline--font-width-cache
-              (let ((width (window-font-width nil 'mode-line)))
-                (setq doom-modeline--font-width-cache width)
-                width)))
+             (let ((width (window-font-width nil 'mode-line)))
+               (setq doom-modeline--font-width-cache width)
+               width)))
 
         (setq doom-modeline-buffer-file-name-style 'relative-to-project)
         (setq doom-modeline-vcs-max-length 40)
@@ -3579,8 +3579,8 @@
          (cl-loop for f in (face-list)
                   for face = (symbol-name f)
                   when (and (string-match regexp face)
-                          (eq (face-attribute f :extend t 'default)
-                              'unspecified))
+                            (eq (face-attribute f :extend t 'default)
+                                'unspecified))
                   do (set-face-attribute f nil :extend t)))
 
        (when (fboundp 'set-face-extend)
