@@ -81,6 +81,7 @@
   (setq gb/debug-package nil) ;; fails on all packages that could not be loaded but are not mandatory either
 
   (setq gb/time (float-time))
+    (setq gb/list-of-faces-to-set '()) ;; add-to-list all the customizations wanted, are set on setting up fonts at the end of the initialisation process
 
   (setq gc-cons-threshold 800000000)
 
@@ -587,8 +588,9 @@
          (cond
           ((eq gb/theme-mode 'light) nil) ;; TODO complete
           (t (progn
-               (custom-set-faces '(link-face ((t (:foreground "#81a2be" :underline (:style line :color "#41526e"))))))
-               (custom-set-faces '(link ((t (:foreground "#81a2be" :underline (:style line :color "#41526e")))))))))))
+               (--each '((link-face ((t (:foreground "#81a2be" :underline (:style line :color "#41526e")))))
+                         (link ((t (:foreground "#81a2be" :underline (:style line :color "#41526e"))))))
+                 (add-to-list 'gb/list-of-faces-to-set it)))))))
    #+END_SRC
 * splash and initial buffer config
   #+BEGIN_SRC emacs-lisp
@@ -1935,6 +1937,8 @@
            (message "setting up default fonts")
            (message (format "display pixel width %d" (x-display-pixel-width)))
            ;; (set-default-font gb/default-font)
+
+           (apply 'custom-set-faces gb/list-of-faces-to-set)
            ;; (set-frame-font gb/default-font t nil)
            ;; (set-face-font 'default gb/default-font nil)
            (set-face-attribute 'default nil
@@ -2563,11 +2567,11 @@
         (cond
          ((eq gb/theme-mode 'light) nil) ;; TODO complete
          (t (progn
-              (custom-set-faces
-               '(doom-modeline-bar ((t (:background "#600060"))))
-               '(doom-modeline-bar-inactive ((t (:background "#500050"))))
-               '(mode-line ((t (:background "#2C1529" :foreground "#808080" :weight normal))))
-               '(mode-line-inactive ((t (:inherit mode-line :background "#251422" :foreground "#969896" :weight normal))))))))
+              (--each '((doom-modeline-bar ((t (:background "#600060"))))
+                        (doom-modeline-bar-inactive ((t (:background "#500050"))))
+                        (mode-line ((t (:background "#2C1529" :foreground "#808080" :weight normal))))
+                        (mode-line-inactive ((t (:inherit mode-line :background "#251422" :foreground "#969896" :weight normal)))))
+                (add-to-list 'gb/list-of-faces-to-set it)))))
         (doom-modeline-mode 1))
     #+END_SRC
 *** spinner (busy indicator for modeline)
@@ -3386,9 +3390,9 @@
      (cond
       ((eq gb/theme-mode 'light) nil) ;; TODO complete
       (t (progn
-           (custom-set-faces
-            '(fill-column-indicator ((t (:foreground "gray13"))))
-            '(fill-column-indicator-face ((t (:foreground "gray20"))))))))
+           (--each '((fill-column-indicator ((t (:foreground "gray13"))))
+                     (fill-column-indicator-face ((t (:foreground "gray20")))))
+             (add-to-list 'gb/list-of-faces-to-set it)))))
 
      (defun gb/enable-auto-fill-mode ()
        "enable auto-fill-mode regardless of current state"
@@ -3558,11 +3562,12 @@
      (cond
       ((eq gb/theme-mode 'light) nil) ;; TODO complete
       (t (progn
-           (custom-set-faces '(show-paren-match
-                               ((t (:background "black"
-                                                :foreground "yellow"
-                                                :weight ultra-bold
-                                                :width ultraexpanded))))))))
+           (--each '((show-paren-match
+                      ((t (:background "black"
+                                       :foreground "yellow"
+                                       :weight ultra-bold
+                                       :width ultraexpanded)))))
+                   (add-to-list 'gb/list-of-faces-to-set it)))))
 
      ;; Highlight current line
      (global-hl-line-mode 1)
@@ -4337,8 +4342,10 @@
          (cond
           ((eq gb/theme-mode 'light) nil) ;; TODO complete
           (t (progn
-               (custom-set-faces
-                '(company-box-candidate ((t (:foreground "gray85"))))))))))
+               (--each '((company-box-background ((t (:foreground "grey80" :background "gray12"))))
+                         (company-box-scrollbar ((t (:inherit company-tooltip-selection :background "grey30"))))
+                         (company-box-candidate ((t (:foreground "gray85")))))
+                 (add-to-list 'gb/list-of-faces-to-set it)))))))
 
      (use-package company
        ;; :after (selected)
@@ -4383,16 +4390,15 @@
          (cond
           ((eq gb/theme-mode 'light) nil) ;; TODO complete
           (t (progn
-               (custom-set-faces
-                '(company-echo-common ((t (:inherit company-echo :foreground "gray15"))))
-                '(company-preview ((t (:foreground "gray15"))))
-                '(company-preview-common ((t (:foreground "tomato2"))))
-                '(company-tooltip ((t (:background "gray15" :foreground "gray85"))))
-                '(company-tooltip-selection ((t (:background "gray23" :foreground "white"))))
-                '(company-tooltip-common ((t (:foreground "firebrick4"))))
-                '(company-tooltip-annotation ((t (:foreground "gray15"))))))))
-
-
+               (message "customize faces - company")
+               (--each '((company-echo-common ((t (:inherit company-echo :foreground "gray15"))))
+                         (company-preview ((t (:foreground "gray15"))))
+                         (company-preview-common ((t (:foreground "tomato2"))))
+                         (company-tooltip ((t (:background "gray12" :foreground "gray85"))))
+                         (company-tooltip-selection ((t (:background "gray23" :foreground "white"))))
+                         (company-tooltip-common ((t (:foreground "firebrick4"))))
+                         (company-tooltip-annotation ((t (:foreground "gray15")))))
+                 (add-to-list 'gb/list-of-faces-to-set it)))))
          ))
 
      (use-package company-statistics
@@ -4617,11 +4623,11 @@
          (cond
           ((eq gb/theme-mode 'light) nil) ;; TODO complete
           (t (progn
-               (custom-set-faces
-                '(avy-lead-face ((t (:foreground "red"))))
-                '(avy-lead-face-0 ((t (:foreground "orange"))))
-                '(avy-lead-face-1 ((t (:foreground "yellow"))))
-                '(avy-lead-face-2 ((t (:foreground "white"))))))))))
+               (--each '((avy-lead-face ((t (:foreground "red"))))
+                         (avy-lead-face-0 ((t (:foreground "orange"))))
+                         (avy-lead-face-1 ((t (:foreground "yellow"))))
+                         (avy-lead-face-2 ((t (:foreground "white")))))
+                 (add-to-list 'gb/list-of-faces-to-set it)))))))
 
      (use-package avy-zap
        :ensure t
@@ -4859,7 +4865,8 @@
          (cond
           ((eq gb/theme-mode 'light) nil) ;; TODO complete
           (t (progn
-               (custom-set-faces '(minimap-active-region-background ((t (:extend t :background "gray23"))))))))))
+               (--each '((minimap-active-region-background ((t (:extend t :background "gray23")))))
+                 (add-to-list 'gb/list-of-faces-to-set it)))))))
    #+END_SRC
 * programming language related
 ** all
@@ -4867,8 +4874,8 @@
      (cond
       ((eq gb/theme-mode 'light) nil) ;; TODO complete
       (t (progn
-           (custom-set-faces
-            '(font-lock-comment-face ((t (:foreground "gray50" :slant italic))))))))
+           (--each '((font-lock-comment-face ((t (:foreground "gray50" :slant italic)))))
+             (add-to-list 'gb/list-of-faces-to-set it)))))
    #+end_src
 ** functional-editing
 *** OBSOLETE parinfer (currently disabled)
@@ -4988,8 +4995,8 @@
           (cond
            ((eq gb/theme-mode 'light) nil) ;; TODO complete
            (t (progn
-                (custom-set-faces
-                 '(lispy-face-hint ((t (:background "gray20" :foreground "#fff3bc")))))))))
+                (--each '((lispy-face-hint ((t (:background "gray20" :foreground "#fff3bc")))))
+                  (add-to-list 'gb/list-of-faces-to-set it))))))
       #+END_SRC
 ** clojure
 *** clojure
@@ -5798,8 +5805,8 @@
        (cond
         ((eq gb/theme-mode 'light) nil) ;; TODO complete
         (t (progn
-             (custom-set-faces
-              '(persp-selected-face ((t (:foreground "Grey70"))))))))))
+             (--each '((persp-selected-face ((t (:foreground "Grey70")))))
+               (add-to-list 'gb/list-of-faces-to-set it)))))))
  #+END_SRC
 *** projectile
     - see [[http://batsov.com/projectile/][here]]
@@ -5840,21 +5847,22 @@
         (cond
          ((eq gb/theme-mode 'light) nil) ;; TODO complete
          (t (progn
-              (custom-set-faces '(diff-removed ((t (:background "red" :foreground "#663333"))))
-                                '(diff-refine-added ((t (:background "green" :foreground "#336633"))))
+              (--each '( (diff-removed ((t (:background "red" :foreground "#663333"))))
+                         (diff-refine-added ((t (:background "green" :foreground "#336633"))))
 
-                                '(magit-diff-added ((t (:background "#273C26" :foreground "#ddffdd"))))
-                                '(magit-diff-added-highlight ((t (:background "#223822" :foreground "#cceecc"))))
-                                '(magit-diff-removed ((t (:background "#442222" :foreground "#ffdddd"))))
-                                '(magit-diff-removed-highlight ((t (:background "#442222" :foreground "#eecccc"))))
-                                '(magit-diffstat-removed ((t (:foreground "#aa4444"))))
+                         (magit-diff-added ((t (:background "#273C26" :foreground "#ddffdd"))))
+                         (magit-diff-added-highlight ((t (:background "#223822" :foreground "#cceecc"))))
+                         (magit-diff-removed ((t (:background "#442222" :foreground "#ffdddd"))))
+                         (magit-diff-removed-highlight ((t (:background "#442222" :foreground "#eecccc"))))
+                         (magit-diffstat-removed ((t (:foreground "#aa4444"))))
 
-                                '(ediff-current-diff-C ((t (:background "#444417"))))
-                                '(ediff-fine-diff-C ((t (:background "#555520"))))
-                                '(ediff-odd-diff-C ((t (:background "#555555"))))
-                                '(ediff-even-diff-C ((t (:background "#555555"))))
-                                '(ediff-fine-diff-B ((t (:background "#176517"))))
-                                '(ediff-fine-diff-A ((t (:background "#751717")))))))))
+                         (ediff-current-diff-C ((t (:background "#444417"))))
+                         (ediff-fine-diff-C ((t (:background "#555520"))))
+                         (ediff-odd-diff-C ((t (:background "#555555"))))
+                         (ediff-even-diff-C ((t (:background "#555555"))))
+                         (ediff-fine-diff-B ((t (:background "#176517"))))
+                         (ediff-fine-diff-A ((t (:background "#751717")))))
+                (add-to-list 'gb/list-of-faces-to-set it))))))
 
       ;; TODO move this function to some general function pool
       (defun gb/display-buffer-fullframe (buffer alist)
@@ -5994,8 +6002,8 @@
           (cond
            ((eq gb/theme-mode 'light) nil) ;; TODO complete
            (t (progn
-                (custom-set-faces
-                 '(git-gutter:unchanged ((t (:background "orange4"))))))))
+                (--each '((git-gutter:unchanged ((t (:background "orange4")))))
+                  (add-to-list 'gb/list-of-faces-to-set it)))))
           (setq git-gutter-added-sign".")))
 
       (use-package git-gutter-fringe
@@ -6657,12 +6665,12 @@
   (cond
    ((eq gb/theme-mode 'light) nil) ;; TODO complete
    (t (progn
-        (custom-set-faces
-         '(col-highlight ((t (:background "gray63"))))
-         '(hi-yellow ((t (:background "gray44"))))
-         '(region ((t (:background "gray45" :inverse-video nil))))
-         '(popup-isearch-match ((t (:background "RoyalBlue2"))))
-         '(term-color-yellow ((t (:background "DarkGoldenrod4" :foreground "#f0c674"))))))))
+        (--each '((col-highlight ((t (:background "gray63"))))
+                  (hi-yellow ((t (:background "gray44"))))
+                  (region ((t (:background "gray45" :inverse-video nil))))
+                  (popup-isearch-match ((t (:background "RoyalBlue2"))))
+                  (term-color-yellow ((t (:background "DarkGoldenrod4" :foreground "#f0c674")))))
+          (add-to-list 'gb/list-of-faces-to-set it)))))
 #+END_SRC
 * play startup sound (check again 4)
   #+begin_src emacs-lisp
@@ -6755,10 +6763,10 @@
        (cond
         ((eq gb/theme-mode 'light) nil) ;; TODO complete
         (t (progn
-             (custom-set-faces
-              '(elfeed-search-feed-face ((t (:foreground "NavajoWhite2"))))
-              '(elfeed-search-title-face ((t (:foreground "dark gray"))))
-              '(elfeed-search-unread-title-face ((t (:inherit elfeed-search-title-face :foreground "DarkOrange2"))))))))))
+             (--each '((elfeed-search-feed-face ((t (:foreground "NavajoWhite2"))))
+                       (elfeed-search-title-face ((t (:foreground "dark gray"))))
+                       (elfeed-search-unread-title-face ((t (:inherit elfeed-search-title-face :foreground "DarkOrange2")))))
+               (add-to-list 'gb/list-of-faces-to-set it)))))))
 
    ;; Load elfeed-org
    (use-package elfeed-org
@@ -7160,8 +7168,9 @@
    (cond
     ((eq gb/theme-mode 'light) nil) ;; TODO complete
     (t (progn
-         (custom-set-faces '(org-link ((t (:foreground "#81a2be" :underline (:style line :color "#41526e"))))))
-         (custom-set-faces '(org-date ((t (:foreground "#81a2be" :underline (:style line :color "#41526e"))))))
+         (--each '( (org-link ((t (:foreground "#81a2be" :underline (:style line :color "#41526e")))))
+                    (org-date ((t (:foreground "#81a2be" :underline (:style line :color "#41526e"))))))
+           (add-to-list 'gb/list-of-faces-to-set it))
 
          (copy-face 'default 'mysubject)
          (setq gnus-face-1 'mysubject)
@@ -7605,7 +7614,8 @@
         (cond
          ((eq gb/theme-mode 'light) nil) ;; TODO complete
          (t (progn
-              (custom-set-faces '(header-line ((t (:inherit org-table-face :foreground "#8abeb7")))))))) ;; set (non scrolling) header to inhiert font from org mode tables (not mode line, which is to small on multi monitor w/ current config)
+              (--each '( (header-line ((t (:inherit org-table-face :foreground "#8abeb7")))))
+                (add-to-list 'gb/list-of-faces-to-set it))))) ;; set (non scrolling) header to inhiert font from org mode tables (not mode line, which is to small on multi monitor w/ current config)
         (setq org-image-actual-width nil)
         (setq org-format-latex-options (plist-put org-format-latex-options :scale 2.0))
         (setq org-hide-emphasis-markers t)          ;; hides ** and // surrounding text that is bold or intalics
@@ -7909,7 +7919,8 @@
         (cond
          ((eq gb/theme-mode 'light) nil) ;; TODO complete
          (t (progn
-              (custom-set-faces '(org-block ((t (:foreground "gray75"))))))))
+              (--each '( (org-block ((t (:foreground "gray75")))))
+                (add-to-list 'gb/list-of-faces-to-set it)))))
         (setq flycheck-keymap-prefix (kbd "C-c k"))
 
         ;;--------------------------------------------------------------------------------
@@ -8491,7 +8502,8 @@
         (cond
          ((eq gb/theme-mode 'light) nil) ;; TODO complete
          (t (progn
-              (custom-set-faces '(mode-line-emphasis ((t (:foreground "DarkGoldenrod3"))))))))
+              (--each '( (mode-line-emphasis ((t (:foreground "DarkGoldenrod3")))))
+                (add-to-list 'gb/list-of-faces-to-set it)))))
 
         ;; ;; set up the call to terminal-notifier (only working when appt-display-format is set to 'window)
         ;; (defvar gb/appt-notifier-path (s-trim (shell-command-to-string "command -v notify-send")))
@@ -8545,13 +8557,12 @@
       (cond
        ((eq gb/theme-mode 'light) nil) ;; TODO complete
        (t (progn
-            (custom-set-faces
-             `(org-block-begin-line ((t ( ;;:underline "#A7A6AA"
-                                         :height 0.8 :foreground "gray50"))))
-             `(org-block-end-line ((t (
-                                       ;; :overline "#A7A6AA"
-                                       :height 0.8 :foreground "#606060"))))
-             ))))
+            (--each '((org-block-begin-line ((t (;;:underline "#A7A6AA"
+                                                 :height 0.8 :foreground "gray50"))))
+                      (org-block-end-line ((t (
+                                               ;; :overline "#A7A6AA"
+                                               :height 0.8 :foreground "#606060")))))
+              (add-to-list 'gb/list-of-faces-to-set it)))))
       ;; set sed command for org babel
       (setq org-babel-sed-command (s-trim (shell-command-to-string "command -v sed")))
 
@@ -9312,8 +9323,8 @@
          (cond
           ((eq gb/theme-mode 'light) nil) ;; TODO complete
           (t (progn
-               (custom-set-faces
-                '(match ((t (:background "#1d1f21" :foreground "DarkGoldenrod1" :inverse-video nil))))))))
+               (--each '((match ((t (:background "#1d1f21" :foreground "DarkGoldenrod1" :inverse-video nil)))))
+                 (add-to-list 'gb/list-of-faces-to-set it)))))
          (setq helm-split-window-default-side 'right)
          (setq helm-buffer-max-length nil)
          (setq helm-ff-skip-boring-files t)
@@ -10070,13 +10081,13 @@
        (cond
         ((eq gb/theme-mode 'light) nil) ;; TODO complete
         (t (progn
-             (custom-set-faces
-              '(dired-subtree-depth-1-face ((t (:background "#252e30" :extend t))))
-              '(dired-subtree-depth-2-face ((t (:background "#232a2b" :extend t))))
-              '(dired-subtree-depth-3-face ((t (:background "#212627" :extend t))))
-              '(dired-subtree-depth-4-face ((t (:background "#1e2223" :extend t))))
-              '(dired-subtree-depth-5-face ((t (:background "#1c1d1e" :extend t))))
-              '(dired-subtree-depth-6-face ((t (:background "#1a191a" :extend t)))))))))
+             (--each '((dired-subtree-depth-1-face ((t (:background "#252e30" :extend t))))
+                       (dired-subtree-depth-2-face ((t (:background "#232a2b" :extend t))))
+                       (dired-subtree-depth-3-face ((t (:background "#212627" :extend t))))
+                       (dired-subtree-depth-4-face ((t (:background "#1e2223" :extend t))))
+                       (dired-subtree-depth-5-face ((t (:background "#1c1d1e" :extend t))))
+                       (dired-subtree-depth-6-face ((t (:background "#1a191a" :extend t)))))
+               (add-to-list 'gb/list-of-faces-to-set it))))))
 
      (defun gb/dired--get-depth-at-point ()
        "get the level (staring with 1) of the subdirectory at point (else nil)"
@@ -10233,9 +10244,8 @@
         (cond
          ((eq gb/theme-mode 'light) nil) ;; TODO complete
          (t (progn
-              (custom-set-faces
-               '(stripe-highlight ((t (:background "gray15"))))))))
-        ))
+              (--each '((stripe-highlight ((t (:background "gray15")))))
+                (add-to-list 'gb/list-of-faces-to-set it)))))))
   #+END_SRC
 * figlet (text->ascii art)
   - 'M-x figlet' to enter a text that is transformed into asci art
@@ -10344,10 +10354,10 @@
          (cond
           ((eq gb/theme-mode 'light) nil) ;; TODO complete
           (t (progn
-               (custom-set-faces
-                '(nswbuff-current-buffer-face ((t (:foreground "GoldenRod1" :weight bold))))
-                '(nswbuff-separator-face ((t (:foreground "GoldenRod1"))))
-                '(nswbuff-special-buffers-face ((t (:foreground "dim gray" :underline nil :weight normal)))))))))
+               (--each '((nswbuff-current-buffer-face ((t (:foreground "GoldenRod1" :weight bold))))
+                         (nswbuff-separator-face ((t (:foreground "GoldenRod1"))))
+                         (nswbuff-special-buffers-face ((t (:foreground "dim gray" :underline nil :weight normal)))))
+                 (add-to-list 'gb/list-of-faces-to-set it))))))
        :bind (("s-<tab>" . nswbuff-switch-to-next-buffer)
               ("S-s-<iso-lefttab>" . nswbuff-switch-to-previous-buffer)))
    #+end_src
@@ -11024,7 +11034,8 @@
      (cond
       ((eq gb/theme-mode 'light) nil) ;; TODO complete
       (t (progn
-           (custom-set-faces '(comint-highlight-prompt ((t (:foreground "peru"))))))))
+           (--each '( (comint-highlight-prompt ((t (:foreground "peru")))))
+             (add-to-list 'gb/list-of-faces-to-set it)))))
      (setq comint-input-ring-file-name "~/.comint_hist")
      (setq comint-input-ring-size 8192)
    #+end_src
@@ -12498,7 +12509,8 @@
       (cond
        ((eq gb/theme-mode 'light) nil) ;; TODO complete
        (t (progn
-            (custom-set-faces '(treemacs-root-face ((t (:inherit font-lock-variable-name-face :weight bold :height 1.2))))))))
+            (--each '( (treemacs-root-face ((t (:inherit font-lock-variable-name-face :weight bold :height 1.2)))))
+              (add-to-list 'gb/list-of-faces-to-set it)))))
       (defun gb/tremacs-themes-setup-tab-width (&rest _)
         "Set `tab-width' to 1, so tab characters don't ruin formatting."
         (setq tab-width 1))
@@ -13466,11 +13478,12 @@
     (cond
      ((eq gb/theme-mode 'light) nil) ;; TODO complete
      (t (progn
-          (custom-set-faces '(agda2-highlight-datatype-face ((t (:foreground "light blue"))))
-                            '(agda2-highlight-primitive-type-face ((t (:foreground "light blue"))))
-                            '(agda2-highlight-operator-face ((t (:foreground "light blue"))))
-                            '(agda2-highlight-function-face ((t (:foreground "light blue"))))
-                            '(agda2-highlight-primitive-face ((t (:foreground "light blue"))))))))
+          (--each '((agda2-highlight-datatype-face ((t (:foreground "light blue"))))
+                    (agda2-highlight-primitive-type-face ((t (:foreground "light blue"))))
+                    (agda2-highlight-operator-face ((t (:foreground "light blue"))))
+                    (agda2-highlight-function-face ((t (:foreground "light blue"))))
+                    (agda2-highlight-primitive-face ((t (:foreground "light blue")))))
+            (add-to-list 'gb/list-of-faces-to-set it)))))
   #+end_src
 * EVAL grugru - rotate thing at point dependent on mode through list of items defined
   - see https://github.com/ROCKTAKEY/grugru
@@ -14152,10 +14165,10 @@
              (cond
               ((eq gb/theme-mode 'light) nil) ;; TODO complete
               (t (progn
-                   (custom-set-faces
-                    '(sidebar-primary-color ((t (:background "dark goldenrod" :foreground "black"))))
-                    '(sidebar-select-line ((t (:background "dark goldenrod" :foreground "black" :box nil))))
-                    '(sidebar-suffix-path-header ((t (:foreground "#404040"))))))))))))
+                   (--each '((sidebar-primary-color ((t (:background "dark goldenrod" :foreground "black"))))
+                             (sidebar-select-line ((t (:background "dark goldenrod" :foreground "black" :box nil))))
+                             (sidebar-suffix-path-header ((t (:foreground "#404040")))))
+                     (add-to-list 'gb/list-of-faces-to-set it)))))))))
    #+END_SRC
 ** helm-selector - util functions for easy buffer selection - discarded: dwim behaviour is not what I want
    #+begin_src emacs-lisp :tangle no
@@ -14218,14 +14231,14 @@
      (cond
       ((eq gb/theme-mode 'light) nil) ;; TODO complete
       (t (progn
-           (custom-set-faces
-            '(hl-line ((t (:background "gray18"))))
-            '(highlight ((t (:background "gray18"))))
-            '(region ((t (:background "gray24"))))
-            '(font-lock-doc-face ((t (:foreground "gray52"))))
-            '(font-lock-comment-face ((t (:foreground "gray50"))))
-            '(font-lock-comment-delimiter-face ((t (:foreground "gray50"))))
-            '(font-lock-string-face ((t (:foreground "#4080b0")))))))))
+           (--each '((hl-line ((t (:background "gray18"))))
+                     (highlight ((t (:background "gray18"))))
+                     (region ((t (:background "gray24"))))
+                     (font-lock-doc-face ((t (:foreground "gray52"))))
+                     (font-lock-comment-face ((t (:foreground "gray50"))))
+                     (font-lock-comment-delimiter-face ((t (:foreground "gray50"))))
+                     (font-lock-string-face ((t (:foreground "#4080b0")))))
+             (add-to-list 'gb/list-of-faces-to-set it))))))
     (setq gc-cons-threshold 80000000)
     (midnight-mode 1)
     (report-elapsed "exit finish - up")
