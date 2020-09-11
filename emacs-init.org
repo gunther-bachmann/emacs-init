@@ -13594,6 +13594,37 @@
       :ensure t
       :config (eshell-syntax-highlighting-enable))
   #+end_src
+* EVAL smeargle - hightlight source depending on age of git changes
+  - see https://github.com/emacsorphanage/smeargle
+  #+begin_src emacs-lisp
+    (use-package smeargle
+      :ensure t
+      :commands (smeargle smeargle-commits smeargle-clear)
+      :config
+      (custom-set-variables
+       '(smeargle-colors '((older-than-1day   . "grey20")
+                           (older-than-3day   . "grey18")
+                           (older-than-1week  . "grey16")
+                           (older-than-2week  . "grey14")
+                           (older-than-1month . "grey12")
+                           (older-than-3month . "grey10")
+                           (older-than-6month . "grey8")
+                           (older-than-1year . "grey6"))))
+      (custom-set-variables
+       '(smeargle-age-colors '((0 . nil)
+                               (1 . "grey80")
+                               (2 . "grey70")
+                               (3 . "grey60")
+                               (4 . "grey50")
+                               (5 . "grey40")
+                               (6 . "grey30")
+                               (7 . "grey20")
+                               (8 . "grey10"))))
+
+      (bind-key "C-c v g" #'smeargle)
+      (bind-key "C-c v c" #'smeargle-commits)
+      (bind-key "C-c v k" #'smeargle-clear))
+  #+end_src
 * eimp (internal)
   #+begin_src emacs-lisp
     (use-package eimp
