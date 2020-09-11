@@ -13684,6 +13684,21 @@
       (setq yascroll:delay-to-hide 0.75)
       (setq yascroll:disabled-modes '(image-mode)))
   #+end_src
+* EVAL quickrun - run (out of babel) code blocks of different languages
+  - https://github.com/emacsorphanage/quickrun
+  #+begin_src emacs-lisp
+    (use-package quickrun
+      :commands (quickrun
+                 quickrun-region
+                 quickrun-with-arg
+                 quickrun-shell
+                 quickrun-compile-only
+                 quickrun-replace-region
+                 quickrun-autorun-mode
+                 helm-quickrun
+                 anything-quickrun)
+      :ensure t)
+  #+end_src
 * eimp (internal)
   #+begin_src emacs-lisp
     (use-package eimp
