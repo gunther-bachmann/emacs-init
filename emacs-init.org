@@ -12470,11 +12470,12 @@
 * filter annoying messages
   #+begin_src emacs-lisp
     ;; filter annoying messages
+    (setq gb/do-filter-annoying-messages nil)
     (defvar message-filter-regexp-list '("^Starting new Ispell process \\[.+\\] \\.\\.\\.$"
                                          "^Ispell process killed$"
                                          "^Omitting...$"
                                          "^Omitted .+ lines?\\.$"
-                                         "\\(.*mitt.*\\)"
+                                         ;; "\\(.*mitt.*\\)"
                                          "^SUBTREE.*$"
                                          "^FOLDED"
                                          "^CHILDREN.*$"
@@ -12484,20 +12485,21 @@
                                          "^\\(Shell command succeeded with no output\\)$"
                                          "^Error during redisplay:.*run-hook-with-args helm--delete-frame-function.*user-error \"No recursive edit is in progress\".*$")
       "filter formatted message string to remove noisy messages")
-    (defadvice message (around message-filter-by-regexp activate)
-      (if (not (ad-get-arg 0))
-          ad-do-it
-        (let ((formatted-string (apply 'format (ad-get-args 0))))
-          (if (and (stringp formatted-string)
+    (when gb/do-filter-annoying-messages
+      (defadvice message (around message-filter-by-regexp activate)
+        (if (not (ad-get-arg 0))
+            ad-do-it
+          (let ((formatted-string (apply 'format (ad-get-args 0))))
+            (if (and (stringp formatted-string)
                    (some (lambda (re) (string-match re formatted-string)) message-filter-regexp-list))
-              (with-current-buffer "*Messages*"
-                (read-only-mode 0)
-                (goto-char (point-max))
-                (insert formatted-string "\n")
-                (read-only-mode 1))
-            (progn
-              (ad-set-args 0 `("%s" ,formatted-string))
-              ad-do-it)))))
+                (with-current-buffer "*Messages*"
+                  (read-only-mode 0)
+                  (goto-char (point-max))
+                  (insert formatted-string "\n")
+                  (read-only-mode 1))
+              (progn
+                (ad-set-args 0 `("%s" ,formatted-string))
+                ad-do-it))))))
   #+end_src
 * EVAL winum (select windows by number, which is shown in the modeline)
   - is useful for native applications in exwm, since ace-window cannot overlay those with the key to select those
