@@ -13487,6 +13487,7 @@
   #+end_src
 * EVAL agda
   - installed agda via ~nix-env -iA nixos.haskellPackages.Agda~
+  - there now is an alternative to the prepackaged agda mode, its called agda2-mode (on melpa)
   #+begin_src emacs-lisp
     (load-file (let ((coding-system-for-read 'utf-8))
                  (shell-command-to-string "agda-mode locate")))
