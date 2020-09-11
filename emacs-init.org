@@ -11172,6 +11172,8 @@
                   ("C-c C-." . #'racket-repl-describe)
                   ("M-." . #'racket-repl-visit-definition))
       :config
+      (when (boundp 'pretty-modes-aliases)
+        (add-to-list 'pretty-modes-aliases '(racket-mode . scheme-mode)))
       (add-hook 'racket-mode-hook 'racket-xp-mode)
       (when (fboundp 'paredit-mode)
         (add-hook 'racket-mode-hook 'paredit-mode)
@@ -11180,7 +11182,8 @@
         (add-hook 'racket-mode-hook
                   (lambda ()
                     (setq prettify-symbols-alist prettify-greek-lower)
-                    (prettify-symbols-mode t))))
+                    (prettify-symbols-mode t)
+                    (pretty-mode 1))))
       (when (fboundp 'gb/enable-ligatures)
         (add-hook 'racket-mode-hook
                   (lambda () (gb/enable-ligatures))))
