@@ -9282,6 +9282,7 @@
        :custom (helm-truncate-lines t "make sure lines are truncated in helm buffers")
        (helm-echo-input-in-header-line t "make sure keyboard entry is displayed in header line of helm buffer")
        (history-delete-duplicates t "make sure helm does not show duplicate entries")
+       (helm-ff-keep-cached-candidates nil "make sure helm does not refresh caches when idle (reduce cpu load)")
        :config
        (progn
          (defun gb/org-center-when-at-bottom (&rest args)
