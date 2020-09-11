@@ -11413,8 +11413,24 @@
               (let ((brightness (s-trim (shell-command-to-string "xbacklight -get"))))
                 (shell-command (format "dunstify -a \"changeBrightness\" -u low -i brightness-high -r \"991048\" \"Brightness: %s%%\" \"$(getProcessingString 20 '●' '◯' %s)\"" brightness brightness))))))
        #+end_src
-    - lock, screen saver
+    - lock, screen saver, compositor
        #+begin_src emacs-lisp
+         (defun gb/netflix ()
+           (interactive)
+           (gb/compositor-enable)
+           (browse-url-chrome "https://www.netflix.com"))
+
+         (defun gb/compositor-enable ()
+           "run compton compositor if not already running"
+           (interactive)
+           (unless (string-equal "running" (s-trim (shell-command-to-string "pgrep compton && echo 'running'")))
+             (async-start-process "compton" "compton" nil)))
+
+         (defun gb/compositor-disable ()
+           "kill compton compositor if already running"
+           (interactive)
+           (shell-command-to-string "pkill compton"))
+
          (defun gb/dunst-notify-disable ()
            "disable dunst desktop notification (temporarily)"
            (interactive)
