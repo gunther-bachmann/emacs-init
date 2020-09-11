@@ -6635,7 +6635,7 @@
               (interactive)
               (let ((vscroll-before (window-vscroll)))
                 (apply orig-func args)
-                (when (eq vscroll-before (window-vscroll)) ;; if scroll position before is exactly the same as after, jump to next page
+                (when (= vscroll-before (window-vscroll)) ;; if scroll position before is exactly the same as after, jump to next page
                   (gb/pdf-view-next-page))))
 
             (advice-add 'pdf-view-scroll-up-or-next-page :around #'gb/pdf-view-scroll-up-or-next-page))))
