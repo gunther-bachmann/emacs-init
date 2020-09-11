@@ -6510,7 +6510,7 @@
                   ;; automatically turns on midnight-mode for pdfs
                   (add-hook 'pdf-view-mode-hook (lambda () (pdf-view-midnight-minor-mode) (pdf-isearch-minor-mode)))
 
-                  (setq pdf-view-midnight-colors '("#ff9900" . "#0a0a12" )) ; set the amber profile as default (see below)
+                  (setq pdf-view-midnight-colors '("#839496" . "#002b36" )) ; set default profile
 
                   (defun gb/pdf-no-filter ()
                     "View pdf without colour filter."
