@@ -11602,6 +11602,29 @@
 
 
        #+end_src
+    - cpu frequency
+      #+begin_src emacs-lisp
+        (defun gb/cpu-freq-max-get ()
+          (string-to-number (s-trim (shell-command-to-string "cat /sys/devices/system/cpu/cpufreq/policy0/cpuinfo_max_freq"))))
+
+        (defun gb/cpu-freq-min-get ()
+          (string-to-number (s-trim (shell-command-to-string "cat /sys/devices/system/cpu/cpufreq/policy0/cpuinfo_min_freq"))))
+
+        (defun gb/cpu-freq-limit ()
+          "set cpu frequency to 1.2GHz limit, to prevent cpu fan"
+          (interactive)
+          (let ((cpu-freq 1600000))
+            (if (and (<= cpu-freq (gb/cpu-freq-max-get))
+                     (>= cpu-freq (gb/cpu-freq-min-get)))
+                (s-trim (shell-command-to-string "cpu-freq-set.sh 1600000"))
+              (message (format "ERROR: requested freq (%i) is not within cpu limits" cpu-freq)))))
+
+        (defun gb/cpu-freq-unlimit ()
+          "set cpu freq to unlimited, (which is the max capable)"
+          (interactive)
+          (shell-command-to-string (format "cpu-freq-set.sh %i" (gb/cpu-freq-max-get))))
+      #+end_src
+
   - exwm configuration
     #+BEGIN_SRC emacs-lisp
       (when gb/use-exwm
