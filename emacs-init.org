@@ -11317,6 +11317,15 @@
            (unless gb/sound-theme-muted
              (start-process-shell-command "play-sound-theme" nil (format "%s %s %s/%s.wav" gb/sound-theme-player gb/sound-theme-volume gb/sound-theme-base-dir sound))))
 
+         (defun gb/audio-volume-set (precent)
+           "set volume to PERCENT%"
+           (with-ignored-messages
+            (let ((output-selected (gb/audio-output-selected)))
+              (shell-command (format "pactl set-sink-volume %s 100%%" output-selected))
+              (while-no-input
+                (gb/play-theme-sound gb/sound-theme-effect-volume)
+                (gb/dunst-report-volume output-selected)))))
+
          (defun gb/audio-lower-volume ()
            "lower volume by 5%"
            (interactive)
