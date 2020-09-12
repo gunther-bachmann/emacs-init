@@ -11409,6 +11409,7 @@
            (shell-command (format "xbacklight -set %i" percent))
            (let ((brightness (s-trim (shell-command-to-string "xbacklight -get"))))
              (message (s-concat "brightness set, now: " brightness " %%"))))
+         (gb/brightness-set 50);; set brightness to 50% on startup
 
          (defun gb/brightness-down ()
            "decrease monitor 0 brightness by 10%"
@@ -12335,14 +12336,24 @@
       (message (s-trim (shell-command-to-string "sudo ifconfig --down enp0s31f6"))))
 
     (defun gb/net-wlan-switch-on ()
-      "switch wireless lan on"
+      "switch wireless lan on, needs tlp to be installed"
       (interactive)
-      (message (s-trim (shell-command-to-string "sudo systemctl start wpa_supplicant.service"))))
+      (message (s-trim (shell-command-to-string "sudo wifi on")))) ;; systemctl start wpa_supplicant.service
 
     (defun gb/net-wlan-switch-off ()
-      "switch wireless lan off"
+      "switch wireless lan off, needs tlp to be installed"
       (interactive)
-      (message (s-trim (shell-command-to-string "sudo systemctl stop wpa_supplicant.service"))))
+      (message (s-trim (shell-command-to-string "sudo wifi off")))) ;; systemctl stop wpa_supplicant.service
+
+    (defun gb/net-bluetooth-switch-on ()
+      "switch bluetooth on, needs tlp to be installed"
+      (interactive)
+      (message (s-trim (shell-command-to-string "sudo bluetooth on"))))
+
+    (defun gb/net-bluetooth-switch-off ()
+      "switch bluetooth off, needs tlp to be installed"
+      (interactive)
+      (message (s-trim (shell-command-to-string "sudo bluetooth off"))))
 
     (defun gb/get-vpns-available ()
       "get a list of available vpns"
