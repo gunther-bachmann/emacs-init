@@ -5790,18 +5790,6 @@
            flycheck-command-map)
          ;; (add-hook 'after-init-hook 'global-flycheck-mode)
          ))
-
-     (use-package flycheck-tip
-       :ensure t
-       :after ( flycheck))
-
-     (use-package flycheck-pos-tip
-       :disabled t
-       :after ( flycheck)
-       :config
-       ;; (setq flycheck-display-errors-function #'flycheck-pos-tip-error-messages)
-       (flycheck-pos-tip-mode)
-       (setq flycheck-tip-avoid-show-func nil))
    #+END_SRC
 ** projects
 *** perspective (disabled - collision with company-box)
@@ -9579,10 +9567,10 @@
    :bind (("C-u s-f" . crux-recentf-ido-find-file)) ;; recent file selection with ido
 )
 #+END_SRC
-* flycheck-tip
-#+BEGIN_SRC emacs-lisp
+* DISABLED flycheck-tip
+#+BEGIN_SRC emacs-lisp :tangle no
   (use-package flycheck-tip
-    :ensure t)
+    :disabled t)
 #+END_SRC
  * hydra
 #+BEGIN_SRC emacs-lisp
@@ -10478,10 +10466,14 @@
 #+END_SRC
 ** flycheck-posframe
    - display flycheck results in posframe (as floating frame at point position)
-   - enable via 'flycheck-posframe-mode' (not enabled by default)
+   - enable via 'flycheck-posframe-mode' (enabled by default)
    #+BEGIN_SRC emacs-lisp
-   (use-package flycheck-posframe
-     :after (posframe))
+     (use-package flycheck-posframe
+       :ensure t
+       :init
+       (with-eval-after-load 'flycheck
+        (require 'flycheck-posframe)
+        (add-hook 'flycheck-mode-hook #'flycheck-posframe-mode)))
    #+END_SRC
 ** flycheck-package (elisp packages)
    #+BEGIN_SRC emacs-lisp
@@ -10708,7 +10700,7 @@
    #+END_SRC
 ** flycheck inline
    - display flycheck error messages inline (not as popup)
-   - check whether this clashes with other flycheck packages (like flycheck-tip and flycheck-pos-tip)
+   - check whether this clashes with other flycheck packages (like flycheck-posframe)
    #+BEGIN_SRC emacs-lisp
      (use-package flycheck-inline
        :ensure t
