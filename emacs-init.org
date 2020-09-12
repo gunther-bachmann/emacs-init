@@ -1858,15 +1858,16 @@
 ** font related stuff
    #+BEGIN_SRC emacs-lisp
      (setq gb/dual-screen-mode 'regular)
-     (setq font-lock-support-mode 'jit-lock-mode)
-     (setq jit-lock-defer-contextually nil ;; t ;; 'syntax-driven
-           jit-lock-context-time 0.1 ;; 0.2
-           jit-lock-defer-time 0.1 ;; 0.2
-           jit-lock-stealth-load 200 ;; 200
-           jit-lock-stealth-nice 0.1 ;; 0.2
-           jit-lock-stealth-time 0.1 ;; 0.2
-           jit-lock-chunk-size 500 ;; default is 500
-           )
+     (require 'jit-lock)
+
+     (setq jit-lock-contextually nil       ;; 'syntax-driven
+           jit-lock-defer-contextually nil  ;; is an alias for 'jit-lock-contextualy
+           jit-lock-context-time 0.5      ;; 0.2
+           jit-lock-defer-time 0          ;; 0.2
+           jit-lock-stealth-load 200      ;; 200
+           jit-lock-stealth-nice 1      ;; 0.2
+           jit-lock-stealth-time 1      ;; 0.2
+           jit-lock-chunk-size 500)       ;; default is 500
      (setq-default font-lock-multiline nil) ;; NEVER EVER SET THIS TO TRUE!!!!, makes opening this file a multi minute thing
 
      ;; exclude all buffers > 10k from being stealth fontified!
@@ -1880,6 +1881,11 @@
 
      (advice-add 'jit-lock-stealth-fontify :after #'gb/jit-lock-stealth-fontify-ignore-buffers)
      ;; (advice-remove 'jit-lock-stealth-fontify #'gb/jit-lock-stealth-fontify-ignore-buffers)
+
+     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+     (setq font-lock-support-mode 'jit-lock-mode)
+     (global-font-lock-mode 1)
 
      (setq fast-but-imprecise-scrolling t)
      (setq inhibit-compacting-font-caches t)
