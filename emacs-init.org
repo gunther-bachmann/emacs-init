@@ -5765,41 +5765,43 @@
    #+END_SRC
 ** flycheck
    #+BEGIN_SRC emacs-lisp
-   (use-package flycheck
-     :ensure t
-     :init
-     (setq flycheck-check-syntax-automatically '(idle-change save mode-enabled new-line))
-     :config
-     (progn
-       (flycheck-define-checker proselint
-         "A linter for prose."
-         :command ("proselint" source-inplace )
-         :error-patterns ((warning line-start (file-name) ":" line ":" column ": " (id (one-or-more (not (any " ")))) (message (one-or-more not-newline) (zero-or-more "\n" (any " ") (one-or-more not-newline))) line-end))
-         :modes (text-mode markdown-mode gfm-mode org-mode message-mode))
+     (use-package flycheck
+       :ensure t
+       :init
+       (setq flycheck-check-syntax-automatically '(idle-change save mode-enabled new-line))
+       :config
+       (progn
+         (flycheck-define-checker proselint
+           "A linter for prose."
+           :command ("proselint" source-inplace )
+           :error-patterns ((warning line-start (file-name) ":" line ":" column ": " (id (one-or-more (not (any " ")))) (message (one-or-more not-newline) (zero-or-more "\n" (any " ") (one-or-more not-newline))) line-end))
+           :modes (text-mode markdown-mode gfm-mode org-mode message-mode))
 
-       (if proselint-installed
-           (add-to-list 'flycheck-checkers 'proselint))
+         (if proselint-installed
+             (add-to-list 'flycheck-checkers 'proselint))
 
-       (if (fboundp 'flycheck-relevant-error-other-file-p) ;; error comes up especially when using proselint
-           (advice-add 'flycheck-relevant-error-other-file-p :override (lambda (&rest args) nil))
-         (defun flycheck-relevant-error-other-file-p (&rest args) ""))
+         (if (fboundp 'flycheck-relevant-error-other-file-p) ;; error comes up especially when using proselint
+             (advice-add 'flycheck-relevant-error-other-file-p :override (lambda (&rest args) nil))
+           (defun flycheck-relevant-error-other-file-p (&rest args) ""))
 
-       (define-key flycheck-mode-map flycheck-keymap-prefix nil)
-       (setq flycheck-keymap-prefix (kbd "C-c k"))
-       (define-key flycheck-mode-map flycheck-keymap-prefix
-         flycheck-command-map)
-       ;; (add-hook 'after-init-hook 'global-flycheck-mode)
-       ))
-   (use-package flycheck-tip
-     :ensure t
-     :after ( flycheck))
-   (use-package flycheck-pos-tip
-     :ensure t
-     :after ( flycheck)
-     :config
-     ;; (setq flycheck-display-errors-function #'flycheck-pos-tip-error-messages)
-     (flycheck-pos-tip-mode)
-     (setq flycheck-tip-avoid-show-func nil))
+         (define-key flycheck-mode-map flycheck-keymap-prefix nil)
+         (setq flycheck-keymap-prefix (kbd "C-c k"))
+         (define-key flycheck-mode-map flycheck-keymap-prefix
+           flycheck-command-map)
+         ;; (add-hook 'after-init-hook 'global-flycheck-mode)
+         ))
+
+     (use-package flycheck-tip
+       :ensure t
+       :after ( flycheck))
+
+     (use-package flycheck-pos-tip
+       :disabled t
+       :after ( flycheck)
+       :config
+       ;; (setq flycheck-display-errors-function #'flycheck-pos-tip-error-messages)
+       (flycheck-pos-tip-mode)
+       (setq flycheck-tip-avoid-show-func nil))
    #+END_SRC
 ** projects
 *** perspective (disabled - collision with company-box)
