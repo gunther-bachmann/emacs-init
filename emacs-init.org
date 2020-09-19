@@ -8794,10 +8794,16 @@
        )
      #+END_SRC
 **** org babel typescript
+     - patch, see https://emacs.stackexchange.com/questions/55690/org-babel-javascript-error
      #+BEGIN_SRC emacs-lisp
-     (use-package ob-typescript
-       :ensure t
-       :after ( org))
+       (use-package ob-typescript
+         :ensure t
+         :config
+         (setq org-babel-js-function-wrapper
+               "console.log(require('util').inspect(function(){\n%s\n}(), { depth: 100 }))")
+
+         (add-to-list 'org-babel-load-languages '(typescript . t))
+         (org-babel-do-load-languages 'org-babel-load-languages org-babel-load-languages))
      #+END_SRC
 **** org babel kotlin
      #+BEGIN_SRC emacs-lisp
