@@ -9088,6 +9088,12 @@
        (slack-user-set-status-request (slack-team-select) ":xtext:" "programming")
        (gb/slack-user-set-active))
 
+     (defun gb/slack-programming-java ()
+       "set slack status"
+       (interactive)
+       (slack-user-set-status-request (slack-team-select) ":java-coffee:" "programming")
+       (gb/slack-user-set-active))
+
      (defun gb/slack-programming-racket ()
        "set slack status"
        (interactive)
@@ -9098,7 +9104,7 @@
        "set slack status"
        (interactive)
        (slack-user-set-status-request (slack-team-select) ":coffee:" "break")
-       (gb/slack-user-set-away))
+       (gb/slack-user-set-active))
 
      (defun gb/slack-food-break ()
        "set slack status"
@@ -9134,33 +9140,50 @@
      :ensure t
      :config
      (defun gb/alert-message-notify-org-file (info)
-        (write-region
-         (s-concat
-          "* TODO "
+       (write-region
+        (s-concat
+         "* TODO "
+         (plist-get info :title)
+         " : "
+         (format
+          "%s %s :slack:"
           (plist-get info :title)
-          " : "
-          (format
-           "%s %s :slack:"
-           (plist-get info :title)
-           (plist-get info :message))
-          "\n"
-          (format "\n <%s>" (format-time-string "%Y-%m-%d %H:%M"))
-          "\n")
-         nil
-         "/home/pe/slack.org"
-         t))
+          (plist-get info :message))
+         "\n"
+         (format "\n <%s>" (format-time-string "%Y-%m-%d %H:%M"))
+         "\n")
+        nil
+        "/home/pe/slack.org"
+        t))
+
+     (defun gb/alert-message-notify-dunst (info)
+       ""
+       (let ((s-com (format "notify-send '%s' '%s'"
+                            (plist-get info :title)
+                            (plist-get info :message)
+                            ;; (symbol-name (plist-get info :severity)) ;; severity does not match
+                            )))
+         (message s-com)
+         (shell-command-to-string s-com)))
 
      (alert-define-style
-      'gb-alert-style
+      'gb-alert-via-org-file
       :title    "Make Org headings for slack messages I receive - Style"
       :notifier #'gb/alert-message-notify-org-file
+      :remover  nil)
+
+     (alert-define-style
+      'gb-alert-via-dunst
+      :title    "Alert via dunstify - Style"
+      :notifier #'gb/alert-message-notify-dunst
       :remover  nil)
 
      (setq alert-default-style 'message)
      ;; ;; disable all alerts
      (setq alert-user-configuration
-           '((((:category . "slack")) ignore nil)
-             (((:title . "\\(nord\\|Slackbot\\|generali\\|nintendo\\|offizielles\\|mpdm-\\)")(:category . "slack")) gb-alert-style nil)))
+           '((((:title . "\\(.*nord\\|Slackbot\\|.*generali\\|.*nintendo-pipe\\|.*offizielles\\|.* mpdm-.*\\)")(:category . "slack")) gb-alert-via-org-file nil)
+             (((:category . "slack")) ignore nil)
+             (((:severity high)) gb-alert-via-dunst nil)))
 
      ;; (add-to-list
      ;;  'alert-user-configuration
