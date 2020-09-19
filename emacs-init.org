@@ -12470,8 +12470,15 @@
           (hl-line-mode -1)
           (when (fboundp 'add-fira-code-symbol-keywords)
             (add-fira-code-symbol-keywords))
+          (setq org-format-latex-options (plist-put org-format-latex-options :scale 2.6))
+          (progn (setq current-prefix-arg '(16))(call-interactively 'org-latex-preview))
           (org-display-inline-images)
           (org-hide-block-all)
+          (save-excursion
+            (goto-char (point-max))
+            (when (re-search-backward (format "^[ \\t]*%s" (regexp-quote "#+begin_src ")) nil t)
+              (org-beginning-of-line))
+            (remove-overlays nil (point) 'invisible 'org-hide-block))
           (org-babel-result-hide-all)
           (read-only-mode +1)
           (flyspell-mode 0) ;; no spell check errors
