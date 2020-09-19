@@ -5505,16 +5505,16 @@
          (tide-hl-identifier-mode +1)
          (company-mode +1)
          (subword-mode +1)
-         (setq typescript-indent-level 2))
+         (setq typescript-indent-level 4))
 
        ;; aligns annotation to the right hand side
        (setq company-tooltip-align-annotations t)
 
        ;; use 2 for indent
-       (setq typescript-indent-level 2)
+       (setq typescript-indent-level 4)
 
-       (setq json-reformat:indent-width 2)
-       (setq js-indent-level 2)
+       (setq json-reformat:indent-width 4)
+       (setq js-indent-level 4)
        ;; formats the buffer before saving
        ;; (add-hook 'before-save-hook 'tide-format-before-save)
 
@@ -5731,8 +5731,8 @@
 * programming related
 ** editorconfig
    #+BEGIN_SRC emacs-lisp
-      (use-package editorconfig
-        :ensure t
+     (use-package editorconfig
+       :ensure t
        :config (editorconfig-mode 1))
    #+END_SRC
 ** yafolding
