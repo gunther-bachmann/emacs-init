@@ -1810,8 +1810,9 @@
        (setq scroll-conservatively 10000)
        (setq scroll-preserve-screen-position t)
        (setq maximum-scroll-margin nil)
-       (setq auto-window-vscroll t)
-       (setq auto-window-hscroll t))
+       ;; (setq auto-window-vscroll t) ;; seem not to exist, remove if irrelevant
+       ;; (setq auto-window-hscroll t) ;; seem not to exist, remove if irrelevant
+       )
      ;; (setq smooth-scroll/vscroll-step-size 3)
    #+END_SRC
 ** graphics
@@ -11153,16 +11154,6 @@
   (use-package vue-mode
     :ensure t)
   #+end_src
-* vue (via lsp)
-  - see https://genehack.blog/2020/08/web-mode-eglot-vetur-vuejs-=-happy/
-  #+begin_src emacs-lisp :tangle no
-    (when (and (fboundp 'eglot) (fboundp 'web-mode))
-      (define-derived-mode gb/vue-mode web-mode "gbVue"
-        "A major mode derived from web-mode, for editing .vue files with LSP support.")
-      (add-to-list 'auto-mode-alist '("\\.vue\\'" . gb/vue-mode))
-      (add-hook 'gb/vue-mode-hook #'eglot-ensure)
-      (add-to-list 'eglot-server-programs '(gb/vue-mode "vls")))
-  #+end_src
 * racket
   #+begin_src emacs-lisp
     (use-package racket-mode
@@ -12499,19 +12490,27 @@
   #+begin_src emacs-lisp
     (use-package jsonrpc
       :ensure t)
-    (use-package flymake
-      :ensure t)
     (use-package eglot
-      :commands eglot
       :ensure t
-      :bind (:map kotlin-mode-map
-             ("C-x `" . flymake-goto-next-error))
       :config
       (setq eglot-connect-timeout 240) ;; eglot takes some time to start if the project is complex
       (setq eglot-send-changes-idle-time 3) ;; wait 3s idle before contacting language server
       ;; (flymake-mode-off)
       ;; (flycheck-mode 1)
       )
+  #+end_src
+* vue (via lsp - eglot, thus this must be defined after eglot)
+  - see https://genehack.blog/2020/08/web-mode-eglot-vetur-vuejs-=-happy/
+  - install vls via ~npm install -g vls~
+  #+begin_src emacs-lisp
+    (when (and (package-installed-p 'eglot) (package-installed-p 'web-mode) (executable-find "vls"))
+      (require 'web-mode)
+      (require 'eglot)
+      (define-derived-mode gb/vue-mode web-mode "gbVue"
+        "A major mode derived from web-mode, for editing .vue files with LSP support.")
+      (add-to-list 'auto-mode-alist '("\\.vue\\'" . gb/vue-mode))
+      (add-hook 'gb/vue-mode-hook #'eglot-ensure)
+      (add-to-list 'eglot-server-programs '(gb/vue-mode "vls")))
   #+end_src
 * filter annoying messages
   #+begin_src emacs-lisp
@@ -12565,7 +12564,7 @@
     :ensure t
     :commands (org-noter))
   #+end_src
-* EVAL treemacs (start with C-x t t)
+* DISABLED treemacs (start with C-x t t)
   - see [[https://github.com/Alexander-Miller/treemacs][here]]
   #+begin_src emacs-lisp :tangle no
     (use-package treemacs
@@ -13473,6 +13472,10 @@
     (use-package helm-ag
       :ensure t)
     (use-package wgrep
+       :ensure t)
+    (use-package wgrep-ag
+      :ensure t)
+    (use-package wgrep-helm
       :ensure t)
   #+end_src
 * scratch comment (insert eval s-expr into scratch buffer as comment)
@@ -14049,6 +14052,8 @@
    - auth-source-xoauth2 - Integrate auth-source with XOAUTH2
    - prettier - code formatting with prettier (see prettier-js)
    - lsp-focus - use focus in lsp (reduce to some region, rest is grayed out)
+   - origami - code folding (several languages, default = indentlevel)
+     see https://github.com/gregsexton/origami.el
 ** graphics
    - vega-view - allow preview of vega graphics (graphics described by json), see https://vega.github.io/vega/ and https://github.com/applied-science/emacs-vega-view
 ** system
