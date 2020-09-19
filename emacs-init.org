@@ -13777,6 +13777,65 @@
       :ensure t
       :commands (tramp-term))
   #+end_src
+* provide battery warning
+  #+begin_src emacs-lisp
+    (when (and (package-installed-p 'alert)
+             (executable-find "upower"))
+
+      (setq gb/battery-id "/org/freedesktop/UPower/devices/battery_BAT0")
+
+      (defun gb/battery-discharging-p ()
+        "is the battery currently in discharging mode?"
+        (not (string-empty-p (s-trim (shell-command-to-string (format  "upower -i %s | grep \"state:[ \t]*discharging\"" gb/battery-id))))))
+
+      (defun gb/battery-charging-p ()
+        "is the battery currently in charging mode?"
+        (not (string-empty-p (s-trim (shell-command-to-string (format "upower -i %s | grep \"state:[ \t]*charging\"" gb/battery-id))))))
+
+      (defun gb/battery-level-get ()
+        "get the current level or charge in percent"
+        (let ((bat-info (s-trim (shell-command-to-string (format "upower -i %s | grep 'percentage:'" gb/battery-id)))))
+          (when (string-match "[^0-9]*\\([0-9]*\\)%" bat-info)
+            (string-to-number (match-string 1 bat-info)))))
+
+      (setq gb/battery-timed-shutdown-run nil)
+      (setq gb/battery-alert-warning-given nil)
+      (setq gb/battery-shutdown-warning-given nil)
+
+      (defun gb/battery-level-check-and-report ()
+        (when (gb/battery-charging-p)
+          (setq gb/battery-timed-shutdown-run nil)
+          (setq gb/battery-alert-warning-given nil)
+          (setq gb/battery-shutdown-warning-given nil))
+        (when (gb/battery-discharging-p)
+          (let ((level (gb/battery-level-get)))
+            (cond ((<= level 4)
+                   (message "shutting down ...")
+                   (gb/shutdown--immediately))
+                  ((and (<= level 6) (not gb/battery-timed-shutdown-run))
+                   (progn
+                     (alert "Running low on power.\nAutomatic shutdown will be run in 30 seconds.\nCan be stopped with M-x list-timers." :severity 'high :title (format "BATTERY VERY LOW (%i perc)" level))
+                     (setq gb/battery-timed-shutdown-run t)
+                     (message "shutting down ...")
+                     (run-at-time 30 nil #'gb/shutdown--immediately)))
+                  ((and (< level 10) (not gb/battery-shutdown-warning-given) (not gb/battery-timed-shutdown-run))
+                   (progn
+                     (alert "Please shutdown (or recharge).\nAutomatic shutdown will be run on 4 percent." :severity 'high :title (format "Battery WARNING (%i perc)" level))
+                     (setq gb/battery-shutdown-warning-given t)
+                     (gb/shutdown)))
+                  ((and (< level 15) (not gb/battery-alert-warning-given) (not gb/battery-shutdown-warning-given) (not gb/battery-timed-shutdown-run))
+                   (progn
+                     (alert "Please shutdown (or recharge).\nAutomatic shutdown will be run on 4 percent." :severity 'high :title (format "Battery warning (%i perc)" level))
+                     (setq gb/battery-alert-warning-given t)))
+                  ((>= level 15)
+                   (progn
+                     (setq gb/battery-alert-warning-given nil)
+                     (setq gb/battery-shutdown-warning-given nil)
+                     (setq gb/battery-timed-shutdown-run nil)))))))
+
+      (run-at-time t 100 #'gb/battery-level-check-and-report))
+  #+end_src
+
 * INTERESTING
 ** blog/presentation
   - org-present using a cell phone to switch pages
