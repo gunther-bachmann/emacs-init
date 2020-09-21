@@ -9458,11 +9458,11 @@
      (use-package helm-git-grep
        :ensure t
        :after ( helm)
-       :bind (("C-c g" . helm-git-grep)
+       :bind (("C-c g h" . helm-git-grep)
               :map isearch-mode-map
-              ("C-c g" . helm-git-grep-from-isearch)
+              ("C-c g h" . helm-git-grep-from-isearch)
               :map helm-map
-              ("C-c g" . helm-git-grep-from-helm))
+              ("C-c g h" . helm-git-grep-from-helm))
        ;; :config
        ;; (bind-key "C-c g" 'helm-git-grep)       
        ;; ;; Invoke `helm-git-grep' from isearch.
@@ -10773,8 +10773,9 @@
 #+END_SRC
 ** ripgrep over directory trees
    #+BEGIN_SRC emacs-lisp
-   (use-package ripgrep
-     :commands ripgrep-regexp) ;; allow M-x ripgrep-regexp (search in directory + subdirectories)
+     (use-package ripgrep
+       :commands ripgrep-regexp
+       :bind (("C-c g r" . ripgrep-regexp))) ;; allow M-x ripgrep-regexp (search in directory + subdirectories)
    #+END_SRC
 #+BEGIN_SRC emacs-lisp
 (report-elapsed "check point - rip grep")
@@ -13784,6 +13785,13 @@
                  helm-quickrun
                  anything-quickrun)
       :ensure t)
+  #+end_src
+* EVAL git grep
+  #+begin_src emacs-lisp
+    (use-package git-grep
+      :commands (git-grep git-grep-repo)
+      :bind (("C-c g g" . git-grep)
+             ("C-c g r" . git-grep-repo)))
   #+end_src
 * eimp (internal)
   #+begin_src emacs-lisp
