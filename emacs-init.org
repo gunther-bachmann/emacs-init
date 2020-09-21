@@ -13729,34 +13729,34 @@
 
 
       (defun gb/git-messenger:popup-message ()
-      (interactive)
-      (let* ((vcs (git-messenger:find-vcs))
-             (file (buffer-file-name (buffer-base-buffer)))
-             (line (line-number-at-pos))
-             (commit-info (git-messenger:commit-info-at-line vcs file line))
-             (commit-id (car commit-info))
-             (author (cdr commit-info))
-             (msg (git-messenger:commit-message vcs commit-id))
-             (popuped-message (if (git-messenger:show-detail-p commit-id)
-                                  (git-messenger:format-detail vcs commit-id author msg)
-                                (cl-case vcs
-                                  (git msg)
-                                  (svn (if (string= commit-id "-")
-                                           msg
-                                         (git-messenger:svn-message msg)))
-                                  (hg msg)))))
-        (setq git-messenger:vcs vcs
-              git-messenger:last-message popuped-message
-              git-messenger:last-commit-id commit-id)
-        (let (finish)
-          (run-hook-with-args 'git-messenger:before-popup-hook popuped-message)
-          ;;(pos-tip-show "some")
-          (let (key-read)
-            (loop-until (eq key-read ?q)
-              (posframe-show "* git messenger *" :string msg)
-              (setq key-read (read-key "[q]uit")))
-            (posframe-delete-all)))
-        (run-hook-with-args 'git-messenger:after-popup-hook popuped-message))))
+        (interactive)
+        (let* ((vcs (git-messenger:find-vcs))
+               (file (buffer-file-name (buffer-base-buffer)))
+               (line (line-number-at-pos))
+               (commit-info (git-messenger:commit-info-at-line vcs file line))
+               (commit-id (car commit-info))
+               (author (cdr commit-info))
+               (msg (git-messenger:commit-message vcs commit-id))
+               (popuped-message (if (git-messenger:show-detail-p commit-id)
+                                    (git-messenger:format-detail vcs commit-id author msg)
+                                  (cl-case vcs
+                                    (git msg)
+                                    (svn (if (string= commit-id "-")
+                                             msg
+                                           (git-messenger:svn-message msg)))
+                                    (hg msg)))))
+          (setq git-messenger:vcs vcs
+                git-messenger:last-message popuped-message
+                git-messenger:last-commit-id commit-id)
+          (let (finish)
+            (run-hook-with-args 'git-messenger:before-popup-hook popuped-message)
+            ;;(pos-tip-show "some")
+            (let (key-read)
+              (loop-until (eq key-read ?q)
+                (posframe-show "* git messenger *" :string msg)
+                (setq key-read (read-key "[q]uit")))
+              (posframe-delete-all)))
+          (run-hook-with-args 'git-messenger:after-popup-hook popuped-message))))
   #+end_src
 * EVAL gitconfig-mode - mode to edit git config files
   - see https://github.com/magit/git-modes
