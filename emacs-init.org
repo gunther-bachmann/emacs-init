@@ -13671,7 +13671,9 @@
   #+end_src
 * EVAL find-file-rg - use ripgrep for find file in projects (can be configured e.g. in ~.ignore~ or ~.gitignore~ files)
   #+begin_src emacs-lisp
-    (use-package find-file-rg)
+    (use-package find-file-rg
+      :ensure t
+      :bind (("C-s-f" . find-file-rg)))
   #+end_src
 * EVAL eshell-syntax-highlighting
   - provide syntax hightlighting in the eshell
