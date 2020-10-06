@@ -12326,9 +12326,7 @@
                                             (,(kbd "<C-left>") . C-S-tab) ;; switch to previous tab
                                             (,(kbd "<C-right>") . C-tab)  ;; switch to next tab
                                             ))))
-                    (exwm-input-set-local-simulation-keys sim-keys))))
-              (when (not exwm-class-name)
-                (message "no exwm keyboard modification applied."))))
+                    (exwm-input-set-local-simulation-keys sim-keys))))))
 
           (add-hook 'helm-after-action-hook #'gb/exwm-after-switch)
           (add-hook 'helm-quit-hook #'gb/exwm-after-switch)
@@ -12603,7 +12601,6 @@
                                          "^CHILDREN.*$"
                                          "^\\(Shell command succeeded with no output\\)$"
                                          "^Invalid face .*$"
-                                         "^no exwm keyboard modification applied.*$"
                                          "^\\(Shell command succeeded with no output\\)$"
                                          "^Error during redisplay:.*run-hook-with-args helm--delete-frame-function.*user-error \"No recursive edit is in progress\".*$")
       "filter formatted message string to remove noisy messages")
