@@ -12128,7 +12128,7 @@
             (interactive)
             (gb/exwm-workspace-switch 0)
             (ignore-errors (windmove-right))
-            (unless (s-equals? (buffer-name) gb/password-store)
+            (unless (s-equals? (buffer-name) (f-filename gb/password-store))
               (split-window-right-and-select-scratch)
               (find-file gb/password-store)))
 
