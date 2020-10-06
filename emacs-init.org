@@ -5456,71 +5456,77 @@
    #+END_SRC
 ** typescript
    #+BEGIN_SRC emacs-lisp
-   ;; run ts repl in typescript-mode, allowing to send expressions to the interpreter
-   ;; M-x run-ts ;; starts a comint buffer with repl
-   (use-package ts-comint
-     :ensure t
-     :after ( typescript-mode)
-     :init
-     (setenv "NODE_NO_READLINE" "1")
-     (defun run-tsun ()
-       (interactive)
-       (let ((buf (get-buffer "*Typescript*")))
-         (if buf
-             (switch-to-buffer buf)
-           (progn
-             (ansi-term (s-trim (shell-command-to-string "command -v bash")) "Typescript")
-             (comint-send-string "*Typescript*" "tsun\n")))))
-     (add-hook 'typescript-mode-hook
-               (lambda ()
-                 (local-set-key (kbd "C-x C-e") 'ts-send-last-sexp)
-                 (local-set-key (kbd "C-M-x") 'ts-send-last-sexp-and-go)
-                 (local-set-key (kbd "C-c b") 'ts-send-buffer)
-                 (local-set-key (kbd "C-c C-b") 'ts-send-buffer-and-go)
-                 (local-set-key (kbd "C-c l") 'ts-load-file-and-go))))
-
-   (use-package typescript-mode
-     :ensure t
-     :mode (("\\.tsx?\\'" . typescript-mode)))
-
-   (use-package tide
-     :ensure t
-     :after ( typescript-mode)
-     :init (progn
-             (add-hook 'typescript-mode-hook #'gb/setup-tide-mode)
-             (add-hook 'js2-mode-hook #'gb/setup-tide-mode)
-             ;; (add-hook 'tide-mode-hook #'gb/setup-tide-mode)
-             (add-hook 'web-mode-hook
-                       (lambda ()
-                         (when (string-equal "tsx" (file-name-extension buffer-file-name))
-                           (gb/setup-tide-mode))))
-             )
-     :config
-     (progn
-       (defun gb/setup-tide-mode ()
+     ;; run ts repl in typescript-mode, allowing to send expressions to the interpreter
+     ;; M-x run-ts ;; starts a comint buffer with repl
+     (use-package ts-comint
+       :ensure t
+       :after ( typescript-mode)
+       :init
+       (setenv "NODE_NO_READLINE" "1")
+       (defun run-tsun ()
          (interactive)
-         (tide-setup)
-         (flycheck-mode +1)
-         (setq flycheck-check-syntax-automatically '(save mode-enabled))
-         (eldoc-mode +1)
-         (tide-hl-identifier-mode +1)
-         (company-mode +1)
-         (subword-mode +1)
-         (setq typescript-indent-level 4))
+         (let ((buf (get-buffer "*Typescript*")))
+           (if buf
+               (switch-to-buffer buf)
+             (progn
+               (ansi-term (s-trim (shell-command-to-string "command -v bash")) "Typescript")
+               (comint-send-string "*Typescript*" "tsun\n")))))
+       (add-hook 'typescript-mode-hook
+                 (lambda ()
+                   (local-set-key (kbd "C-x C-e") 'ts-send-last-sexp)
+                   (local-set-key (kbd "C-M-x") 'ts-send-last-sexp-and-go)
+                   (local-set-key (kbd "C-c b") 'ts-send-buffer)
+                   (local-set-key (kbd "C-c C-b") 'ts-send-buffer-and-go)
+                   (local-set-key (kbd "C-c l") 'ts-load-file-and-go))))
 
-       ;; aligns annotation to the right hand side
-       (setq company-tooltip-align-annotations t)
+     (use-package typescript-mode
+       :ensure t
+       :mode (("\\.tsx?\\'" . typescript-mode)))
 
-       ;; use 2 for indent
-       (setq typescript-indent-level 4)
+     (use-package tide
+       :ensure t
+       :after ( typescript-mode)
+       :init (progn
+               (add-hook 'typescript-mode-hook #'gb/setup-tide-mode)
+               (add-hook 'js2-mode-hook #'gb/setup-tide-mode)
+               ;; (add-hook 'tide-mode-hook #'gb/setup-tide-mode)
+               (add-hook 'web-mode-hook
+                         (lambda ()
+                           (when (string-equal "tsx" (file-name-extension buffer-file-name))
+                             (gb/setup-tide-mode))))
+               )
+       :config
+       (progn
+         (defun gb/setup-tide-mode ()
+           (interactive)
+           (tide-setup)
+           (flycheck-mode +1)
+           (setq flycheck-check-syntax-automatically '(save mode-enabled))
+           (eldoc-mode +1)
+           (tide-hl-identifier-mode +1)
+           (company-mode +1)
+           (subword-mode +1)
+           (setq typescript-indent-level 4))
 
-       (setq json-reformat:indent-width 4)
-       (setq js-indent-level 4)
-       ;; formats the buffer before saving
-       ;; (add-hook 'before-save-hook 'tide-format-before-save)
+         ;; aligns annotation to the right hand side
+         (setq company-tooltip-align-annotations t)
 
-       ;; (flycheck-add-next-checker 'javascript-eslint 'jsx-tide 'append)
-       ))
+         ;; use 2 for indent
+         (setq typescript-indent-level 4)
+
+         (setq json-reformat:indent-width 4)
+         (setq js-indent-level 4)
+
+         (add-hook 'js2-mode-hook #'gb/setup-tide-mode)
+         ;; configure javascript-tide checker to run after your default javascript checker
+         (flycheck-add-next-checker 'javascript-eslint 'javascript-tide 'append)
+
+         ;; configure jsx-tide checker to run after your default jsx checker
+         (flycheck-add-mode 'javascript-eslint 'web-mode)
+         (flycheck-add-next-checker 'javascript-eslint 'jsx-tide 'append)
+         ;; formats the buffer before saving
+         ;; (add-hook 'before-save-hook 'tide-format-before-save)
+         ))
    #+END_SRC
 ** prettier-js (pretty print js)
    #+begin_src emacs-lisp
