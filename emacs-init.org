@@ -13884,6 +13884,13 @@
        '(dir-treeview-indent-unit "|  "))
       (setq dir-treeview-show-in-side-window t))
   #+end_src
+* EVAL fill-page
+  - activate via ~fill-page-mode~
+  - automatically scroll so that no empty space is left at the bottom
+  - interfers with beacon
+  #+begin_src emacs-lisp
+    (use-package fill-page)
+  #+end_src
 * eimp (internal)
   #+begin_src emacs-lisp
     (use-package eimp
