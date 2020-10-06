@@ -13795,7 +13795,7 @@
               (posframe-delete-all)))
           (run-hook-with-args 'git-messenger:after-popup-hook popuped-message))))
   #+end_src
-* EVAL gitconfig-mode - mode to edit git config files
+* gitconfig-mode - mode to edit git config files
   - see https://github.com/magit/git-modes
   #+begin_src emacs-lisp
     (use-package gitconfig-mode
@@ -13808,7 +13808,8 @@
       :ensure t
       :config
       (setq yascroll:delay-to-hide 0.75)
-      (setq yascroll:disabled-modes '(image-mode)))
+      (setq yascroll:disabled-modes '(image-mode))
+      (global-yascroll-bar-mode))
   #+end_src
 * EVAL quickrun - run (out of babel) code blocks of different languages
   - https://github.com/emacsorphanage/quickrun
@@ -13847,7 +13848,6 @@
       (bind-key "0" #'(lambda () (interactive) (setq gb/image-scale 1.0) (image-transform-set-scale gb/image-scale)) eimp-minor-mode-map)
       (bind-key "2" #'(lambda () (interactive) (setq gb/image-scale 2.0) (image-transform-set-scale gb/image-scale)) eimp-minor-mode-map))
   #+end_src
-
 * proced
   #+begin_src emacs-lisp
     (use-package proced
