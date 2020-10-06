@@ -13851,6 +13851,39 @@
                  (buffer-substring-no-properties (car bounds) (cdr bounds)))
               (error "No word at point."))))))
   #+end_src
+* EVAL dir-treeview
+  - patched function ~dir-treeview-get-control~ to return dir-treeview-file-control in case of file node
+    #+begin_src emacs-lisp :tangle no
+      (defun dir-treeview-get-control (node)
+        "Return the control symbol for NODE.
+      If NODE represents a directory, `dir-treeview-folded-dir-control' or
+      `dir-treeview-expanded-dir-control' is returned depending on whether the
+      directory is folded or not.  Otherwise, nil (meaning: no control) is returned."
+        (if (dir-treeview-directory-p node)
+            (if (treeview-node-folded-p node) dir-treeview-folded-dir-control
+              dir-treeview-expanded-dir-control)
+          dir-treeview-file-control))
+    #+end_src
+  - open via ~dir-treeview~
+  #+begin_src emacs-lisp
+    (use-package dir-treeview
+      :config
+      (load-theme 'dir-treeview-pleasant t)
+      (custom-set-variables
+       '(dir-treeview-control-margin-left "")
+       '(dir-treeview-control-margin-right "")
+       '(dir-treeview-dir-label-margin-left "")
+       '(dir-treeview-expanded-dir-control "- ")
+       '(dir-treeview-file-control "  ")
+       '(dir-treeview-file-icon "")
+       '(dir-treeview-file-label-margin-left "")
+       '(dir-treeview-folded-dir-control "+ ")
+       '(dir-treeview-icon-margin-left "")
+       '(dir-treeview-icon-margin-right " ")
+       '(dir-treeview-indent-last-unit "   ")
+       '(dir-treeview-indent-unit "|  "))
+      (setq dir-treeview-show-in-side-window t))
+  #+end_src
 * eimp (internal)
   #+begin_src emacs-lisp
     (use-package eimp
