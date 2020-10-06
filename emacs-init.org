@@ -13833,6 +13833,24 @@
       :bind (("C-c g g" . git-grep)
              ("C-c g r" . git-grep-repo)))
   #+end_src
+* EVAL google-translate
+  #+begin_src emacs-lisp
+    (use-package google-translate
+      :ensure t
+      :config
+      (bind-key "H-h l" #'google-translate-at-point)
+      (bind-key "H-h h" #'gb/translate-at-point-eng-ger)
+      (defun gb/translate-at-point-eng-ger ()
+        "translate region or word at point english->geman"
+        (interactive)
+        (google-translate-translate
+         "en" "de"
+         (if (use-region-p)
+             (buffer-substring-no-properties (region-beginning) (region-end))
+           (or (and (setq bounds (bounds-of-thing-at-point 'word))
+                 (buffer-substring-no-properties (car bounds) (cdr bounds)))
+              (error "No word at point."))))))
+  #+end_src
 * eimp (internal)
   #+begin_src emacs-lisp
     (use-package eimp
