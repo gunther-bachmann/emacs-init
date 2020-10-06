@@ -8985,6 +8985,7 @@
      :commands (gb/slack-start)
      :custom (slack-log-level 'warn "make log less verbose")
      :init
+     (setq slack-enable-global-mode-string t)
      (setq slack-enable-emoji t) ;; if you want to enable emoji, default nil
      ;; (setq slack-room-subscription '(clojurians itemisHamburg))
      (setq slack-prefer-current-team t)
@@ -8992,10 +8993,39 @@
        (bind-key "s-\\" #'tracking-next-buffer tracking-mode-map))
      ;; Ensure the buffer exists when a message arrives on a
      ;; channel that wasn't open.
-     (setq slack-buffer-create-on-notify t)
+     (setq slack-buffer-create-on-notify nil) ;; might be necessary to set to true, to allow buffer tracking!
      :config
      (setq lui-time-stamp-format "[%m-%d %H:%M]")
-     (setq lui-fill-column 80)
+     (setq lui-fill-column 110)
+     (setq slack-thread-also-send-to-room nil) ;; never send thread message to channel, too
+
+     (defun gb/timer-active-p (timer)
+       "check whether the given timer is currently active"
+       (or (memq timer timer-list)
+          (memq timer timer-idle-list)))
+
+     ;; redefine whether team is relevant for modeline display
+     (defun slack-team-modeline-enabledp (team)
+       (if (boundp 'pomodoro-timer)
+           (not (gb/timer-active-p pomodoro-timer))
+         (s-equals? (oref team name) "itemis")))
+     (slack-enable-modeline)
+
+     (defun gb/slack-update-modeline-advice ()
+       (slack-update-modeline))
+
+     (when (fboundp 'pomodoro-start)
+       (advice-add #'gb/slack-update-modeline-advice :after 'pomodoro-start))
+     (when (fboundp 'pomodoro-stop)
+       (advice-add #'gb/slack-update-modeline-advice :after 'pomodoro-stop))
+     (when (fboundp 'pomodoro-pause)
+       (advice-add #'gb/slack-update-modeline-advice :after 'pomodoro-pause))
+     (when (fboundp 'pomodoro-resume)
+       (advice-add #'gb/slack-update-modeline-advice :after 'pomodoro-resume))
+
+     (defun gb/slack-disable-modeline ()
+       "remove slack modeline element from modeline if present, reenable with slack-enable-modeline"
+       (setq global-mode-string (remove '(:eval slack-modeline) global-mode-string)))
 
      (defun gb/slack-init-mode-config ()
        "do some settings for slack"
@@ -9087,42 +9117,31 @@
                          (let ((room-id (plist-get (plist-get (request-response-data ,req-resp) :channel) :id)))
                            (slack-room-display (gb/slack-room-by-id room-id) (slack-team-select)))))))
 
+     (setq gb/slack-status-active-list '("programming :typescript:" "programming :xtext:" "programming :java-coffee:" "enjoying lambdas :racket-lang:" "break :coffee:"))
+     (setq gb/slack-status-away-list '("mampf :knife_fork_plate:" "away :hourglass:"))
+
+     (defun gb/slack-status-set-active ()
+       (interactive)
+       (gb/slack--status-set-to t))
+
+     (defun gb/slack-status-set-inactive ()
+       (interactive)
+       (gb/slack--status-set-to nil))
+
+     (defun gb/slack--status-set-to (active)
+       "set slack status"
+       (when-let* ((selected-status (completing-read "status" (--map (emojify-string it) (if active gb/slack-status-active-list gb/slack-status-away-list))))
+                   (icon-matches    (s-match ":\\([^:]+\\):" selected-status))
+                   (icon            (car icon-matches))
+                   (text-matches    (s-match "\\([^:]+\\):" selected-status))
+                   (text            (s-trim (cadr text-matches))))
+         (message (format "icon %s, text %s" icon text))
+         (slack-user-set-status-request (slack-team-select) icon text)
+         (if active
+             (gb/slack-user-set-active)
+           (gb/slack-user-set-away))))
+
      ;; (gb/slack-room-display "^nord$")
-     (defun gb/slack-programming-xtext ()
-       "set slack status"
-       (interactive)
-       (slack-user-set-status-request (slack-team-select) ":xtext:" "programming")
-       (gb/slack-user-set-active))
-
-     (defun gb/slack-programming-java ()
-       "set slack status"
-       (interactive)
-       (slack-user-set-status-request (slack-team-select) ":java-coffee:" "programming")
-       (gb/slack-user-set-active))
-
-     (defun gb/slack-programming-racket ()
-       "set slack status"
-       (interactive)
-       (slack-user-set-status-request (slack-team-select) ":racket-lang:" "enjoying lambdas")
-       (gb/slack-user-set-active))
-
-     (defun gb/slack-coffee-break ()
-       "set slack status"
-       (interactive)
-       (slack-user-set-status-request (slack-team-select) ":coffee:" "break")
-       (gb/slack-user-set-active))
-
-     (defun gb/slack-food-break ()
-       "set slack status"
-       (interactive)
-       (slack-user-set-status-request (slack-team-select) ":knife_fork_plate:" "mampf")
-       (gb/slack-user-set-away))
-
-     (defun gb/slack-feierabend ()
-       "set slack status"
-       (interactive)
-       (slack-user-set-status-request (slack-team-select) ":hourglass:" "...")
-       (gb/slack-user-set-away))
 
      ;; report slack status to mode line (updating it every ?s
      ;; (slack-user-status (plist-get(gb/slack-user-by-name "gunther") :id) (slack-team-select)) ;; get the status
@@ -9140,23 +9159,38 @@
 
      (defun gb/slack-user-by-name (name)
        "get the slack id of the given name in the current group"
-       (--first (and (s-equals-p name (plist-get it :name)) (eq :json-false (plist-get it :deleted))) (hash-table-values (oref (slack-team-select) users)))))
+       (--first (and (s-equals-p name (plist-get it :name)) (eq :json-false (plist-get it :deleted))) (hash-table-values (oref (slack-team-select) users))))
+
+
+     (defun gb/slack-rooms-unread ()
+       "get all rooms with unread messages"
+       (let* ((team (slack-team-select)))
+         (cl-loop for team in (list team)
+                  append (cl-remove-if
+                          #'(lambda (room)
+                              (not (slack-room-has-unread-p room team)))
+                          (append (slack-team-ims team)
+                                  (slack-team-groups team)
+                                  (slack-team-channels team)))))))
 
    (use-package alert
      :ensure t
      :config
      (defun gb/alert-message-notify-org-file (info)
+       (when (get-buffer "slack.org") (with-current-buffer "slack.org" (save-buffer)))
        (write-region
         (s-concat
          "* TODO "
          (plist-get info :title)
          " : "
          (format
-          "%s %s :slack:"
+          "[[emacs-slack:%s][%s]] :slack:"
           (plist-get info :title)
-          (plist-get info :message))
+          (s-truncate 127 (s-replace "\n" ";" (plist-get info :message))))
          "\n"
          (format "\n <%s>" (format-time-string "%Y-%m-%d %H:%M"))
+         "\n"
+         (plist-get info :message)
          "\n")
         nil
         "/home/pe/slack.org"
