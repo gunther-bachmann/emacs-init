@@ -13888,6 +13888,22 @@
   #+begin_src emacs-lisp
     (use-package fill-page)
   #+end_src
+* EVAL greenbar-mode
+  - puts stripes on the comint output (shell output), making long lines a bit more tractable
+  #+begin_src emacs-lisp
+    (use-package greenbar
+      :ensure t
+      :config
+      (add-hook 'comint-mode-hook #'greenbar-mode)
+      (add-to-list 'greenbar-color-themes
+                   (cons 'dark-gray-bar
+                         (list
+                          (if (eq (frame-parameter nil 'background-mode) 'dark)
+                              "gray10" "gray70")
+                          (face-background 'default))))
+      (setq greenbar-background-colors 'dark-gray-bar)
+      (setq greenbar-lines-per-bar 3))
+  #+end_src
 * eimp (internal)
   #+begin_src emacs-lisp
     (use-package eimp
