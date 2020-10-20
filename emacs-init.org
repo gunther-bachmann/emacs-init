@@ -11669,6 +11669,16 @@
         (defun gb/cpu-freq-min-get ()
           (string-to-number (s-trim (shell-command-to-string "cat /sys/devices/system/cpu/cpufreq/policy0/cpuinfo_min_freq"))))
 
+
+        (defun gb/cpu-freq-lowest ()
+          "set cpu frequency to 800MHz limit, to prevent cpu fan"
+          (interactive)
+          (let ((cpu-freq 800000))
+            (if (and (<= cpu-freq (gb/cpu-freq-max-get))
+                     (>= cpu-freq (gb/cpu-freq-min-get)))
+                (s-trim (shell-command-to-string "cpu-freq-set.sh 800000"))
+              (message (format "ERROR: requested freq (%i) is not within cpu limits" cpu-freq)))))
+
         (defun gb/cpu-freq-limit ()
           "set cpu frequency to 1.2GHz limit, to prevent cpu fan"
           (interactive)
