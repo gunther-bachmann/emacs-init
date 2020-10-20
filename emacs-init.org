@@ -584,7 +584,7 @@
        (progn
          (setq gb/theme-mode 'night)
          (color-theme-sanityinc-tomorrow gb/theme-mode)
-         (toggle-frame-fullscreen)
+         ;; (toggle-frame-fullscreen)
          (cond
           ((eq gb/theme-mode 'light) nil) ;; TODO complete
           (t (progn

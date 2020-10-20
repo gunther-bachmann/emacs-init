@@ -2,6 +2,8 @@
 #+property: header-args :tangle ~/.emacs.d/early-init.el :comments both
 * initialize basic some
   #+begin_src emacs-lisp
+    (custom-set-variables
+     '(initial-frame-alist (quote ((fullscreen . fullwidth)))))
     (menu-bar-mode -1) ;; remove menu bar
     (tool-bar-mode -1) ;; remove tool bar
     (scroll-bar-mode -1) ;; remove scroll bar
