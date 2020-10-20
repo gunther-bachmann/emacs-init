@@ -8949,43 +8949,9 @@
      :hook (slack-mode . emojify-turn-on-emojify-mode)
      (org-mode . emojify-turn-off-emojify-mode ))
 
-   ;; patch on slack-20200830.1021
-   ;; file slack-block.el:53
-   ;; inore errors in creating layout block
-   ;;     (defun slack-create-layout-block (payload)
-   ;;       (ignore-errors ;; <- GBA ADDED
-   ;;         (let ((type (plist-get payload :type)))
-   ;;           (cond
-   ;;            ((string= "section" type)
-   ;;             (slack-create-section-layout-block payload))
-   ;;            ((string= "divider" type)
-   ;;             (slack-create-divider-layout-block payload))
-   ;;            ((string= "image" type)
-   ;;             (slack-create-image-layout-block payload))
-   ;;            ((string= "actions" type)
-   ;;             (slack-create-actions-layout-block payload))
-   ;;            ((string= "context" type)
-   ;;             (slack-create-context-layout-block payload))
-   ;;            ((string= "rich_text" type)
-   ;;             (slack-create-rich-text-block payload))
-   ;;            (t (make-instance 'slack-layout-block
-   ;;                              :type type
-   ;;                              :payload payload))
-   ;;            ;; ;; TODO https://api.slack.com/reference/block-kit/blocks#file
-   ;;            ;; ((string= "file" type)
-   ;;            ;;  (message "TODO: %S" payload)
-   ;;            ;;  nil
-   ;;            ;;  )
-   ;;            ;; ;; TODO https://api.slack.com/reference/block-kit/blocks#input
-   ;;            ;; ((string= "input" type)
-   ;;            ;;  (message "TODO: %S" payload)
-   ;;            ;;  nil
-   ;;            ;;  )
-   ;;            ))))
-
    (use-package slack
-     :ensure t
-     :commands (gb/slack-start)
+     :load-path "~/repo/emacs-slack"
+     :commands (gb/slack-start gb/slack-stop)
      :custom (slack-log-level 'warn "make log less verbose")
      :init
      (setq slack-enable-global-mode-string t)
@@ -9002,6 +8968,13 @@
      (setq lui-fill-column 110)
      (setq slack-thread-also-send-to-room nil) ;; never send thread message to channel, too
 
+     (setq slack-modeline-filter
+           '("^itemis - nintendo-pipe"
+             "^itemis - general$"
+             "^itemis - somethingspecial$"
+             "^itemis - random$"
+             "^itemis - publications$"))
+
      (defun gb/timer-active-p (timer)
        "check whether the given timer is currently active"
        (or (memq timer timer-list)
@@ -9012,7 +8985,6 @@
        (if (boundp 'pomodoro-timer)
            (not (gb/timer-active-p pomodoro-timer))
          (s-equals? (oref team name) "itemis")))
-     (slack-enable-modeline)
 
      (defun gb/slack-update-modeline-advice ()
        (slack-update-modeline))
@@ -9061,6 +9033,11 @@
      (bind-key "C-c C-r" #'slack-thread-show-or-create slack-mode-map)
      (bind-key "C-c C-r" #'slack-thread-show-or-create slack-thread-message-buffer-mode-map)
 
+     ;; add reaction
+     (bind-key "C-c C-a" #'slack-message-add-reaction slack-message-buffer-mode-map)
+     (bind-key "C-c C-a" #'slack-message-add-reaction slack-mode-map)
+     (bind-key "C-c C-a" #'slack-message-add-reaction slack-thread-message-buffer-mode-map)
+
      (setq gb/slack-team-registered nil)
      (defun gb/slack-register-teams ()
        "read slack api tokens and set configuration accordingly"
@@ -9073,10 +9050,16 @@
             :subscribed-channels '(general random))
            (setq gb/slack-team-registered t))))
 
+     (defun gb/slack-stop ()
+       (interactive)
+       (slack-ws-close)
+       (gb/slack-disable-modeline))
+
      (defun gb/slack-start ()
        (interactive)
        (gb/slack-register-teams)
-       (slack-start))
+       (slack-start)
+       (slack-enable-modeline))
 
      ;; make sure to not track common channels (annoying)
      (setq tracking-ignored-buffers '(".*itemis : general.*" ".*itemis : xtext.*" ".*homecooking.*" ".*nintendo-pipe_pr.*" ".*itemis : random.*"))
