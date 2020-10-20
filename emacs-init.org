@@ -13931,6 +13931,15 @@
       (setq greenbar-background-colors 'dark-gray-bar)
       (setq greenbar-lines-per-bar 3))
   #+end_src
+* EVAL continuous scroll mode (disabled, no scroll end detection, not working out of the box)
+  #+begin_src emacs-lisp :tangle no
+    (use-package pdf-continuous-scroll-mode
+      :load-path "~/repo/pdf-continuous-scroll-mode.el/"
+      :config
+      (add-hook 'pdf-view-mode-hook 'pdf-continuous-scroll-mode) ;; pdf-view-mode-hook
+      (setq pdf-view-have-image-mode-pixel-vscroll nil))
+
+  #+end_src
 * eimp (internal)
   #+begin_src emacs-lisp
     (use-package eimp
