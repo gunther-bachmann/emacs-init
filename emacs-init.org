@@ -37,8 +37,8 @@
   (defun gb/play-startup-sound-when-ctrlkey-down ()
     ""
     (when (and (executable-find "getEventDeviceFor")
-             (executable-find "evtest")
-             (not gb/playing-startup-sound))
+               (executable-find "evtest")
+               (not gb/playing-startup-sound))
       (let* ((tp-input (shell-command-to-string "getEventDeviceFor 'TouchPad'"))
              ;; play the sound only if control is pressed on startup!
              (tp-play-ok (shell-command-to-string (format "sudo evtest --query %s EV_KEY 274 || echo -n \"ok\"" tp-input)))
@@ -52,12 +52,12 @@
              ;; play the sound only if middle touchpad button is pressed on startup!
              (kb-bt-play-ok (shell-command-to-string (format "sudo evtest --query %s EV_KEY 29 || echo -n \"ok\"" kb-bt-input))))
         (when (and (or (equal "ok" kb-play-ok)
-                    (equal "ok" tp-play-ok)
-                    (equal "ok" kb-usb-play-ok)
-                    (equal "ok" kb-bt-play-ok))
-                 (executable-find "pactl")
-                 (executable-find "play")
-                 (executable-find "amixer"))
+                       (equal "ok" tp-play-ok)
+                       (equal "ok" kb-usb-play-ok)
+                       (equal "ok" kb-bt-play-ok))
+                   (executable-find "pactl")
+                   (executable-find "play")
+                   (executable-find "amixer"))
           (gb/play-startup-sound)
           (setq gb/playing-startup-sound t)))))
 
@@ -9446,6 +9446,7 @@
                            ((eq 'helm-mini (helm-this-command)) 0.77)
                            ((eq 'helm-M-x (helm-this-command)) 0.77)
                            (t (if (eq gb/dual-screen-mode 'presentation) 0.77 0.5)))))
+           ;; (message (symbol-name (helm-this-command)))
            (setq gb/helm-posframe-min-height (round (* yfac (cdr (assoc 'height (frame-parameters (selected-frame)))))))
            (setq gb/helm-posframe-min-width (round (* xfac (cdr (assoc 'width (frame-parameters (selected-frame)))))))
            (setq gb/posframe-offset (cdr (assoc 'left (frame-parameters (selected-frame)))))
@@ -11724,10 +11725,19 @@
                         (erase-buffer)
                         (setq line-spacing 0)
                         (insert display))
+                      (setq switch-posframe-parameters
+                            `((parent-frame . ,(window-frame))                                                          ;; (works only on single monitor)
+                         (display . ,(cdr (assoc 'display (frame-parameters (selected-frame))))) ;; (hopefully holds display of current monitor)
+                         (font . ,(cdr (assoc 'font (frame-parameters (selected-frame)))))
+                         (alpha 0.3 0.3)
+                         ;; (left-fringe . 10)
+                         ;; (right-fringe . 10)
+                         ))
 
                       (posframe-hide my-posframe-buffer)
                       (posframe-show my-posframe-buffer
                                      :string display
+                                     ;; :override-parameters switch-posframe-parameters
                                      :poshandler 'posframe-poshandler-frame-center
                                      :foreground-color "gray30"
                                      :timeout 2)
