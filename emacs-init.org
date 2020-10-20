@@ -34,8 +34,8 @@
   (defun gb/play-startup-sound-when-ctrlkey-down ()
     ""
     (when (and (executable-find "getEventDeviceFor")
-               (executable-find "evtest")
-               (not gb/playing-startup-sound))
+             (executable-find "evtest")
+             (not gb/playing-startup-sound))
       (let* ((tp-input (shell-command-to-string "getEventDeviceFor 'TouchPad'"))
              ;; play the sound only if control is pressed on startup!
              (tp-play-ok (shell-command-to-string (format "sudo evtest --query %s EV_KEY 274 || echo -n \"ok\"" tp-input)))
@@ -49,12 +49,12 @@
              ;; play the sound only if middle touchpad button is pressed on startup!
              (kb-bt-play-ok (shell-command-to-string (format "sudo evtest --query %s EV_KEY 29 || echo -n \"ok\"" kb-bt-input))))
         (when (and (or (equal "ok" kb-play-ok)
-                       (equal "ok" tp-play-ok)
-                       (equal "ok" kb-usb-play-ok)
-                       (equal "ok" kb-bt-play-ok))
-                   (executable-find "pactl")
-                   (executable-find "play")
-                   (executable-find "amixer"))
+                    (equal "ok" tp-play-ok)
+                    (equal "ok" kb-usb-play-ok)
+                    (equal "ok" kb-bt-play-ok))
+                 (executable-find "pactl")
+                 (executable-find "play")
+                 (executable-find "amixer"))
           (gb/play-startup-sound)
           (setq gb/playing-startup-sound t)))))
 
@@ -988,8 +988,9 @@
        (interactive "P")
        (gb/kill-a-buffer askp)
        ;; only called without prefix argument and not the root window of the frame
-       (if (not (or askp (frame-root-window-p (get-buffer-window))))
-           (delete-window)))
+       (unless (or askp (frame-root-window-p (get-buffer-window)))
+         (ignore-errors
+           (delete-window))))
 
      (defun gb/kill-a-buffer (askp)
        "kill the current buffer (ask if prefix argument is given)"
@@ -1810,6 +1811,7 @@
        (setq scroll-conservatively 10000)
        (setq scroll-preserve-screen-position t)
        (setq maximum-scroll-margin nil)
+       (setq auto-window-vscroll nil)
        ;; (setq auto-window-vscroll t) ;; seem not to exist, remove if irrelevant
        ;; (setq auto-window-hscroll t) ;; seem not to exist, remove if irrelevant
        )
@@ -2237,11 +2239,9 @@
          ;; pdf view mode (does mix up left and right scrolling if active, since repositioning does not work here)
          (add-to-list 'sublimity-handle-scroll-criteria '(not (memq major-mode (list 'ansi-term-mode 'term-mode 'shell-mode 'pdf-view-mode 'image-mode))))
 
-         (setq auto-hscroll-mode t)
          (setq sublimity-auto-hscroll-mode t)
          (setq sublimity-scroll-drift-length 4)
          (setq sublimity-scroll-weight 4)
-         (setq redisplay-dont-pause nil) ;; make sure not to pause until full redraw
          (setq auto-hscroll-mode t) ;; does not work in sublimity scroll mode
          ;; minimap is explicitly not enabled, since another minimap-mode is used for that
          ;; enable minimap
@@ -2532,12 +2532,12 @@
     #+BEGIN_SRC emacs-lisp
       (use-package doom-modeline
         :ensure t
-        :after (all-the-icons)
-        :pin melpa-stable
+        ;; :after (all-the-icons)
         :config
         (setq gb/cached-file-remote-p-hash (make-hash-table :test 'equal))
         (setq gb/original-file-remote-p #'file-remote-p)
         (setq doom-modeline-icon nil)
+        (setq doom-modeline-enable-word-count nil)
         (setq doom-modeline-unicode-fallback nil)
         (setq doom-modeline-checker-simple-format t)
         ;; TODO: transform redefinition into surrounding advice!
@@ -4536,13 +4536,13 @@
    - show help in modeline to text that is propertized as button... (e.g. in customize-.... modes)
    - the timer will make the help appear after x seconds (can be a float)
    #+BEGIN_SRC emacs-lisp
-   (use-package help-at-pt
-     :ensure t
-     :config
-     (progn
-       (custom-set-variables '(help-at-pt-display-when-idle (quote (kbd-help button local-map keymap)) nil (help-at-pt)))
-       (setq help-at-pt-timer-delay 1)
-       (help-at-pt-set-timer)))
+     (use-package help-at-pt
+       ;; :ensure t ;; internal packages seem not load correctly if ensured
+       :config
+       (progn
+         (custom-set-variables '(help-at-pt-display-when-idle (quote (kbd-help button local-map keymap)) nil (help-at-pt)))
+         (setq help-at-pt-timer-delay 1)
+         (help-at-pt-set-timer)))
    #+END_SRC
 * navigation
 ** iy-go-to-char
@@ -4782,37 +4782,37 @@
    #+END_SRC
 ** other (recentf, uniquify)
    #+BEGIN_SRC emacs-lisp
-   ;; These customizations make it easier for you to navigate files,
-   ;; switch buffers, and choose options from the minibuffer.
+     ;; These customizations make it easier for you to navigate files,
+     ;; switch buffers, and choose options from the minibuffer.
 
-   ;; "When several buffers visit identically-named files,
-   ;; Emacs must give the buffers distinct names. The usual method
-   ;; for making buffer names unique adds ‘<2>’, ‘<3>’, etc. to the end
-   ;; of the buffer names (all but one of them).
-   ;; The forward naming method includes part of the file's directory
-   ;; name at the beginning of the buffer name
-   ;; https://www.gnu.org/software/emacs/manual/html_node/emacs/Uniquify.html
-   (use-package uniquify
-     :config
-     (setq uniquify-buffer-name-style 'forward))
+     ;; "When several buffers visit identically-named files,
+     ;; Emacs must give the buffers distinct names. The usual method
+     ;; for making buffer names unique adds ‘<2>’, ‘<3>’, etc. to the end
+     ;; of the buffer names (all but one of them).
+     ;; The forward naming method includes part of the file's directory
+     ;; name at the beginning of the buffer name
+     ;; https://www.gnu.org/software/emacs/manual/html_node/emacs/Uniquify.html
+     (use-package uniquify
+       :config
+       (setq uniquify-buffer-name-style 'forward))
 
-   ;; Turn on recent file mode so that you can more easily switch to
-   ;; recently edited files when you first start emacs
-   (use-package recentf
-     :ensure t
-     :config
-     (progn
-       (setq recentf-save-file (concat user-emacs-directory ".recentf"))
-       ;; since recentf file may grow large, delete it if too large
-       (shell-command (s-concat "touch " recentf-save-file))
-       (let ((rsf-size-str (s-trim (shell-command-to-string (s-concat "ls -la " recentf-save-file " | awk '{ print $5; }'")))))
-         (if (<= 10000 (string-to-number rsf-size-str))
-             (progn
-               (message (s-concat "deleting too large recentf file '" recentf-save-file "' ( size: " rsf-size-str ")"))
-               (shell-command (s-concat "rm " recentf-save-file)))))
-       (setq recentf-exclude (list "^.*/\\.emacs\\.d/.*"))
-       (setq recentf-max-menu-items 40)
-       (recentf-mode 1)))
+     ;; Turn on recent file mode so that you can more easily switch to
+     ;; recently edited files when you first start emacs
+     (use-package recentf
+       ;; :ensure t ;; internal packages seem not load correctly if ensured
+       :config
+       (progn
+         (setq recentf-save-file (concat user-emacs-directory ".recentf"))
+         ;; since recentf file may grow large, delete it if too large
+         (shell-command (s-concat "touch " recentf-save-file))
+         (let ((rsf-size-str (s-trim (shell-command-to-string (s-concat "ls -la " recentf-save-file " | awk '{ print $5; }'")))))
+           (if (<= 10000 (string-to-number rsf-size-str))
+               (progn
+                 (message (s-concat "deleting too large recentf file '" recentf-save-file "' ( size: " rsf-size-str ")"))
+                 (shell-command (s-concat "rm " recentf-save-file)))))
+         (setq recentf-exclude (list "^.*/\\.emacs\\.d/.*"))
+         (setq recentf-max-menu-items 40)
+         (recentf-mode 1)))
    #+END_SRC
 ** swiper
    #+BEGIN_SRC emacs-lisp
@@ -5460,6 +5460,7 @@
      ;; M-x run-ts ;; starts a comint buffer with repl
      (use-package ts-comint
        :ensure t
+       :commands run-tsun run-ts
        :after ( typescript-mode)
        :init
        (setenv "NODE_NO_READLINE" "1")
@@ -5529,23 +5530,27 @@
          ))
    #+END_SRC
 ** prettier-js (pretty print js)
+   - prettier-js-mode (when active) does formattering before save
    #+begin_src emacs-lisp
      (use-package prettier-js
        :ensure t
-       :commands prettier-js-command
+       :commands prettier-js
        :init
-       (eval-after-load 'web-mode
-         '(progn
-            (add-hook 'web-mode-hook #'add-node-modules-path)
-            (add-hook 'web-mode-hook #'prettier-js-mode)))
-       (eval-after-load 'js2-mode-hook
-         '(progn
-            (add-hook 'web-mode-hook #'add-node-modules-path)
-            (add-hook 'web-mode-hook #'prettier-js-mode)))
-       (eval-after-load 'typescript-mode-hook
-         '(progn
-            (add-hook 'web-mode-hook #'add-node-modules-path)
-            (add-hook 'web-mode-hook #'prettier-js-mode))))
+       (setq gb/execute-prettier-on-save nil)
+
+       (when gb/execute-prettier-on-save
+         (eval-after-load 'web-mode
+           '(progn
+              (add-hook 'web-mode-hook #'add-node-modules-path)
+              (add-hook 'web-mode-hook #'prettier-js-mode)))
+         (eval-after-load 'js2-mode-hook
+           '(progn
+              (add-hook 'web-mode-hook #'add-node-modules-path)
+              (add-hook 'web-mode-hook #'prettier-js-mode)))
+         (eval-after-load 'typescript-mode-hook
+           '(progn
+              (add-hook 'web-mode-hook #'add-node-modules-path)
+              (add-hook 'web-mode-hook #'prettier-js-mode)))))
    #+end_src
 ** java script
    #+BEGIN_SRC emacs-lisp
@@ -5834,16 +5839,16 @@
 *** magithub
     - disabled because ghub+ fails to load (some interface failure to git hub)
     #+BEGIN_SRC emacs-lisp :tangle no
-    (if hub-installed
-    (use-package magithub
-      :after ( magit ghub+ apiwrap)
-      :config
-      (progn (magithub-feature-autoinject t))))
+      (when hub-installed
+        (use-package magithub
+          :after ( magit ghub+ apiwrap)
+          :config
+          (progn (magithub-feature-autoinject t))))
     #+END_SRC
 *** magit (and more)
     #+BEGIN_SRC emacs-lisp
       (use-package ediff
-        :ensure t
+        ;; :ensure t ;; internal packages seem not load correctly if ensured
         :config
         ;; make sure that ediff session does not open control window in separate frame, which mixes up exwm
         (setq ediff-window-setup-function (quote ediff-setup-windows-plain))
@@ -6119,9 +6124,9 @@
       whenever one merge conflict is resolved, this can be persisted in the repo (can be published, left off, picked up again ...)
     - for more information look [[https://github.com/mhagger/git-imerge][here]]
     #+BEGIN_SRC emacs-lisp
-      (if git-imerge-installed
-      (use-package magit-imerge
-        :after ( magit)))
+      (when git-imerge-installed
+        (use-package magit-imerge
+          :after ( magit)))
     #+END_SRC
 *** magit lfs
     #+BEGIN_SRC emacs-lisp
@@ -6199,7 +6204,6 @@
 ** markdown code block edit (obsolete since markdown-mode includes code edit now)
    - allows C-' in a markdown code block to edit code in a separate buffer (like org mode does)
    #+BEGIN_SRC emacs-lisp :tangle no
-     (use-package edit-indirect)
      (use-package markdown-edit-indirect
        :after ( markdown-mode edit-indirect)
        :bind (:map markdown-mode-map
@@ -6380,7 +6384,7 @@
    - currently working local (if 'export PS1="[\$PWD]$ "' is set in shell!)
    #+begin_src emacs-lisp
      (use-package dirtrack
-       :ensure t
+       ;; :ensure t  ;; internal packages seem not load correctly if ensured
        :config
        (add-hook 'shell-mode-hook
                  (lambda ()
@@ -6474,7 +6478,7 @@
    #+BEGIN_SRC emacs-lisp
      (use-package sh-script
        :after ( flycheck)
-       :ensure t
+       ;; :ensure t ;; internal packages seem not load correctly if ensured
        :init
        (add-hook 'sh-mode-hook 'flycheck-mode))
    #+END_SRC
@@ -6655,7 +6659,6 @@
    ;; '(gnutls-verify-error nil)
    '(iedit-toggle-key-default nil) ;; disable C-; binding of iedit that is loaded via lispy
    '(ido-mode nil) ;; disable ido mode
-   ;;   '(initial-frame-alist (quote ((fullscreen . maximized))))
    '(jde-jdk-doc-url "https://docs.oracle.com/javase/8/docs/api/")
    '(malabar-repl-grooysh (s-trim (shell-command-to-string "command -v groovysh")))
    '(recentf-max-saved-items 80)
@@ -11854,7 +11857,7 @@
           (require 'exwm-core)
           (defun gb/mouse-pointer-to-cursor ()
             (interactive)
-            (if (and (bound exwm-class-name) exwm-class-name)
+            (if (and (boundp exwm-class-name) exwm-class-name)
                 (exwm-mff-warp-to-selected-window)
               (let ((position (window-absolute-pixel-position)))
                 (set-mouse-absolute-pixel-position
@@ -12303,7 +12306,7 @@
             (progn
               (when (and exwm-class-name
                          (or (string= exwm-class-name "X64")
-                             ;; (string= (downcase exwm-class-name) "eclipse")
+                             (string= (downcase exwm-class-name) "eclipse")
                              (string= exwm-class-name "qutebrowser")
                              (string= exwm-class-name "dosbox")
                              ;; (string= (downcase exwm-class-name) "jetbrains-idea-ce")
@@ -13717,8 +13720,8 @@
   #+begin_src emacs-lisp
     (use-package eshell-syntax-highlighting
       :after esh-mode
-      :ensure t
-      :config (eshell-syntax-highlighting-enable))
+      :demand t
+      :config (eshell-syntax-highlighting-global-mode +1))
   #+end_src
 * EVAL smeargle - hightlight source depending on age of git changes
   - see https://github.com/emacsorphanage/smeargle
@@ -13809,7 +13812,8 @@
       :config
       (setq yascroll:delay-to-hide 0.75)
       (setq yascroll:disabled-modes '(image-mode))
-      (global-yascroll-bar-mode))
+      ;; (global-yascroll-bar-mode) ;; seems to eat lots of memory during scrolling
+      )
   #+end_src
 * EVAL quickrun - run (out of babel) code blocks of different languages
   - https://github.com/emacsorphanage/quickrun
@@ -14011,6 +14015,8 @@
   - selectrum - emacs selection and narrowing framework
   - company-manually - manually provide completio entries
   - company-ledger - fuzzy autocomplete for ledger and friends
+** cloud
+   - axe - aws interface (directly through aws api, no aws-cli)
 ** configuration
   - use-package-ensure-system-package
     - require binaries / packages of the underlying system for installation of package
@@ -14062,6 +14068,7 @@
     #+END_SRC
   - taskrunner - Retrieve build system/taskrunner tasks  (e.g. gradle tasks ....)
   - lsp-metals - lsp for scala (metals)
+  - jmt-mode - java mode tamed provides better syntax highlighting (interesting to find out about syntax highlighting, too)
 ** languages
   - karma test runner integration (upbo)
   - jest-test-mode - running node.js tests using jest
@@ -14072,6 +14079,7 @@
   - ob-elm
   - ob-graphql
   - flycheck-indent
+  - ob-deno - Babel Functions for Javascript/TypeScript with Deno
 *** javascript/json/yaml/html
     - indium (java script development environment) [[https://github.com/NicolasPetton/Indium][home page]]
     - lsp-html - lsp frontend for html serving
@@ -14598,7 +14606,7 @@
       (server-start))
     ;; (maximize-frame)
     (gb/do-after-display-system-init
-     (toggle-frame-fullscreen)
+     ;; (toggle-frame-fullscreen)
      (ido-mode -1)
      (ido-unload-function)
      (midnight-mode 1)
