@@ -9450,7 +9450,8 @@
        (setq helm-posframe-poshandler #'gb/posframe-poshandler-frame-center-top)
        (defun gb/helm-set-posframe-parameters ()
          "set helm-posframe parameters. run previous to display, to ensure right display in multimonitor environments"
-         (let ((xfac (cond ((eq 'helm-for-files (helm-this-command)) 0.77)
+         (let ((xfac (cond ((eq 'helm-git-grep (helm-this-command)) 0.98)
+                           ((eq 'helm-for-files (helm-this-command)) 0.77)
                            ((eq 'helm-mini (helm-this-command)) 0.77)
                            ((eq 'gb/exwm-program-select (helm-this-command)) (if (eq gb/dual-screen-mode 'presentation) 0.77 0.2))
                            ((eq 'helm-M-x (helm-this-command)) (if (eq gb/dual-screen-mode 'presentation) 0.77 0.3))
