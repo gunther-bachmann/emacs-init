@@ -2542,7 +2542,15 @@
         (setq doom-modeline-icon nil)
         (setq doom-modeline-enable-word-count nil)
         (setq doom-modeline-unicode-fallback nil)
+        (setq doom-modeline-modal-icon nil)
+        (setq doom-modeline-irc nil) ;; check
+        (setq doom-modeline-persp-icon nil)
+        (setq doom-modeline-persp-name nil)
+        (setq doom-modeline-gnus-timer nil)
+        (setq doom-modeline-workspace-name nil)
+        (setq doom-modeline-env-version nil)
         (setq doom-modeline-checker-simple-format t)
+        (setq doom-modeline-buffer-file-name-style 'truncate-with-project)
         ;; TODO: transform redefinition into surrounding advice!
         ;; TODO: drop some / clear hash once in a while / e.g. if size > 1000
         ;; overwrite this function
@@ -2561,11 +2569,10 @@
         (defun doom-modeline--font-width ()
           "Cache the font width."
           (or doom-modeline--font-width-cache
-             (let ((width (window-font-width nil 'mode-line)))
-               (setq doom-modeline--font-width-cache width)
-               width)))
+              (let ((width (window-font-width nil 'mode-line)))
+                (setq doom-modeline--font-width-cache width)
+                width)))
 
-        (setq doom-modeline-buffer-file-name-style 'relative-to-project)
         (setq doom-modeline-vcs-max-length 40)
         (setq inhibit-compacting-font-caches t)
         (setq doom-modeline-height 1)
@@ -8558,7 +8565,9 @@
                   org-ref-list-of-tables
                   org-ref-list-of-figures
                   org-ref-helm-insert-label-link
-        :after ( org helm-bibtex pdf-tools ivy hydra helm))
+        :ensure t
+        ;; :after ( org helm-bibtex pdf-tools ivy hydra helm)
+        )
     #+END_SRC
 *** org clip
     - ox-clip-formatted-copy copies selected region of org mode file as rtf into clipboard for insertion into e.g. open office
@@ -9357,9 +9366,10 @@
            "recenter when focussing into an org file at the very bottom"
            (when (and(boundp 'mode-name)(equal mode-name "Org"))
              (save-excursion
-               (goto-char (line-end-position))
-               (unless (pos-visible-in-window-p (+ 1 (point)))
-                 (recenter-top-bottom)))))
+               (ignore-errors
+                 (goto-char (line-end-position))
+                 (unless (pos-visible-in-window-p (+ 1 (point)))
+                   (recenter-top-bottom))))))
          (advice-add 'helm :after #'gb/org-center-when-at-bottom)
          ;;(advice-remove 'helm #'gb/org-center-when-at-bottom)
 
@@ -13218,11 +13228,12 @@
           :ensure t
           :custom
           (org-roam-graph-viewer "emacsclient")
-          (org-notes "~/documents/roam")
+          (org-notes "/home/pe/documents/roam")
           (org-directory org-notes)
           (deft-directory org-notes)
           (notdeft-directories `(,org-notes))
           (org-roam-directory org-notes)
+          (org-ref-bibtex-completion-add-keywords-field nil) ;; make sure that some org helm ref package loads correctly when executing (org-roam-db-build-cache t)
           :config
           (require 'org-roam-protocol)
 
@@ -13285,11 +13296,15 @@
           :config (add-to-list 'company-backends 'company-org-roam))))
 
     ;; failed with "run-hooks: Symbol’s value as variable is void: bibtex-completion-find-note-functions"
+
+    ;; (use-package org-ref-helm-bibtex
+    ;;   :ensure t)
     ;; (use-package org-roam-bibtex
     ;;   :after (org-roam)
     ;;   :hook (org-roam-mode . org-roam-bibtex-mode)
     ;;   :ensure t
     ;;   :config
+    ;;   (setq bibtex-completion-display-formats nil)
     ;;   (setq org-roam-bibtex-preformat-keywords
     ;;         '("=key=" "title" "url" "file" "author-or-editor" "keywords"))
     ;;   (setq orb-templates
@@ -14152,6 +14167,7 @@
   - smart-jump (smart go to definition)
   - all-the-icons-ibuffer (icons in ibuffers)
   - bufler - buffer selection based on groups (see )
+  - atl-long-lines - Turn off truncate-lines when the line is long
 ** org
   - org-wild-notifier, customizable notifier for org agenda entries (global or per entry)
   - orca (org-capture configuration)
@@ -14248,11 +14264,13 @@
    - lsp-focus - use focus in lsp (reduce to some region, rest is grayed out)
    - origami - code folding (several languages, default = indentlevel)
      see https://github.com/gregsexton/origami.el
+   - tree-sitter - tooling to make language toolin within emacs more tractable (see https://github.com/ubolonton/emacs-tree-sitter)
 ** graphics
    - vega-view - allow preview of vega graphics (graphics described by json), see https://vega.github.io/vega/ and https://github.com/applied-science/emacs-vega-view
 ** system
    - arduino-cli-mode - Arduino-CLI command wrapper
    - etc-sudoers-mode - Edit Sudo security policies
+   - ednc - Emacs Desktop Notification Center (pure lisp implementation of freedesktop org notification system, replacement for dunst)
 ** ui
    - modern-fringes - Replaces default fringe bitmaps with better looking ones
    - simple-modeline -
