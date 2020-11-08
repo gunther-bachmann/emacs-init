@@ -22,8 +22,8 @@
 #+begin_src emacs-lisp
   (set-background-color "black")
   (set-foreground-color "white")
-  (insert "                                                                      ")
-  (insert-image (create-image "~/media/gnu.png" nil nil :scale 0.5))
+  (insert "\n")
+  (insert-image (create-image "~/media/gnu-small.png"))
   (insert "\n\n")
   (setq gb/playing-startup-sound nil)
   (defun gb/play-startup-sound ()
