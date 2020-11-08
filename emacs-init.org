@@ -9013,6 +9013,8 @@
              "^itemis - general$"
              "^itemis - somethingspecial$"
              "^itemis - random$"
+             "^itemis - xtext"
+             "^itemis - web-engineering$"
              "^itemis - publications$"))
 
      (defun gb/timer-active-p (timer)
@@ -9087,7 +9089,11 @@
             :name "itemis"
             :default t
             :token (gethash "slack-token" auth-map)
-            :subscribed-channels '(general random))
+            :subscribed-channels '()
+            :full-and-display-names t
+            :mark-as-read-immediately t
+            :visible-threads t
+            :animate-image nil)
            (setq gb/slack-team-registered t))))
 
      (defun gb/slack-stop ()
@@ -9207,14 +9213,15 @@
        (write-region
         (s-concat
          "* TODO "
-         (plist-get info :title)
+         (s-replace (regexp-quote "\\[") "[" (plist-get info :title))
          " : "
          (format
-          "[[emacs-slack:%s][%s]] :slack:"
-          (plist-get info :title)
-          (s-truncate 127 (s-replace "\n" ";" (plist-get info :message))))
+          "[[emacs-slack:%s.%s][%s]] :slack:"
+          (plist-get info :channel)
+          (plist-get info :ts)
+          (s-truncate 80 (s-replace "\n" ";" (plist-get info :message))))
          "\n"
-         (format "\n <%s>" (format-time-string "%Y-%m-%d %H:%M"))
+         (format "<%s>" (format-time-string "%Y-%m-%d %H:%M"))
          "\n"
          (plist-get info :message)
          "\n")
