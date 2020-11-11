@@ -9098,14 +9098,18 @@
 
      (defun gb/slack-stop ()
        (interactive)
-       (slack-ws-close)
-       (gb/slack-disable-modeline))
+       (ignore-errors (gb/slack-user-set-away))
+       (ignore-errors (slack-ws-close))
+       (gb/slack-disable-modeline)
+       (gb/slack-modeline-status-deactivate))
 
      (defun gb/slack-start ()
        (interactive)
        (gb/slack-register-teams)
        (slack-start)
-       (slack-enable-modeline))
+       (slack-enable-modeline)
+       (gb/slack-user-set-active)
+       (gb/slack-modeline-status-activate))
 
      ;; make sure to not track common channels (annoying)
      (setq tracking-ignored-buffers '(".*itemis : general.*" ".*itemis : xtext.*" ".*homecooking.*" ".*nintendo-pipe_pr.*" ".*itemis : random.*"))
@@ -9169,6 +9173,7 @@
                    (text            (s-trim (cadr text-matches))))
          (message (format "icon %s, text %s" icon text))
          (slack-user-set-status-request (slack-team-select) icon text)
+         (run-at-time 5 nil #'gb/slack-modeline-status-update)
          (if active
              (gb/slack-user-set-active)
            (gb/slack-user-set-away))))
@@ -9178,6 +9183,31 @@
      ;; report slack status to mode line (updating it every ?s
      ;; (slack-user-status (plist-get(gb/slack-user-by-name "gunther") :id) (slack-team-select)) ;; get the status
      ;; (emojify-string ":xtext:")
+
+     (defvar gb/slack-modeline--status nil "current user status in slack")
+     (defvar gb/slack-modeline-status--timer nil "running timer for status updates")
+
+     (defun gb/slack-modeline-status-activate ()
+       "activate slack status in modeline"
+       (setq gb/slack-modeline-status--timer (run-at-time 5 60 #'gb/slack-modeline-status-update))
+       (add-to-list 'global-mode-string '(:eval gb/slack-modeline--status) t))
+
+     (defun gb/slack-modeline-status-deactivate ()
+       "remove slack status from modeline"
+       (when gb/slack-modeline-status--timer
+         (cancel-timer gb/slack-modeline-status--timer)
+         (setq gb/slack-modeline-status--timer nil))
+       (setq global-mode-string (remove '(:eval gb/slack-modeline--status) global-mode-string)))
+
+     (defun gb/slack-modeline-status-update ()
+       (setq gb/slack-modeline--status (s-concat " " (emojify-string (slack-user-status (oref (slack-team-select) self-id) (slack-team-select)))))
+       (force-mode-line-update))
+
+     (defun gb/slack-user-presence-get ()
+       (let* ((team (slack-team-select)))
+         (gethash (oref team self-id)
+                  (oref team presence)
+                  "")))
 
      (defun gb/slack-user-set-away ()
        "set my user away in the current team"
