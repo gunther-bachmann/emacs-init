@@ -14022,6 +14022,22 @@
       (bind-key "0" #'(lambda () (interactive) (setq gb/image-scale 1.0) (image-transform-set-scale gb/image-scale)) eimp-minor-mode-map)
       (bind-key "2" #'(lambda () (interactive) (setq gb/image-scale 2.0) (image-transform-set-scale gb/image-scale)) eimp-minor-mode-map))
   #+end_src
+* EVAL delve - org
+  - see https://github.com/publicimageltd/delve
+  - provides a alternative view on
+    - links, backlinks, date last modified, date the link established on, tag usage
+    - format is: <modification> <icon> ( <tags-of-zettel> ) <n-incoming-links> <zettel-title> <m-outgoing-links>
+  #+begin_src emacs-lisp
+    (use-package lister
+      :load-path "~/repo/lister")
+    (use-package delve
+      :load-path "~/repo/delve/"
+      :commands (delve-open-or-select)
+      :config
+       (use-package delve-minor-mode
+        :config
+        (add-hook 'org-mode-hook #'delve-minor-mode-maybe-activate)))
+  #+end_src
 * proced
   #+begin_src emacs-lisp
     (use-package proced
