@@ -12552,6 +12552,17 @@
       (let ((vpn-id (helm-comp-read "vpn:" (gb/get-vpns-available) :must-match t)))
         (message (s-trim (shell-command-to-string (format "sudo systemctl stop %s" vpn-id))))))
 
+    (defun gb/net-vpn-log-show ()
+      "show the log of vpns (this day)"
+      (interactive)
+      (let ((buf (generate-new-buffer "*vpn service log*")))
+        (with-current-buffer buf
+          (switch-to-buffer buf)
+          (setq buffer-offer-save nil)
+          (text-mode)
+          (shell-command "journalctl --since -1d  -u openvpn*" (current-buffer))
+          (end-of-buffer)
+          (read-only-mode 1))))
   #+end_src
 * org tree slide (presenting org mode files as slides)
   - did some modifications to allow for timers during presentation
@@ -14045,6 +14056,32 @@
        (use-package delve-minor-mode
         :config
         (add-hook 'org-mode-hook #'delve-minor-mode-maybe-activate)))
+  #+end_src
+* backup duplicity support
+  #+begin_src emacs-lisp
+    (defun gb/backup-log-open ()
+      "open the backup log"
+      (interactive)
+      (let ((buf (generate-new-buffer "backup log")))
+        (with-current-buffer buf
+          (switch-to-buffer buf)
+          (setq buffer-offer-save nil)
+          (text-mode)
+          (shell-command "journalctl --user-unit backup-drive.service --since -2w" (current-buffer))
+          (end-of-buffer)
+          (read-only-mode 1))))
+
+    (defun gb/backup-collection-status ()
+      "try to read the duplicity collections from backup medium"
+      (interactive)
+      (let ((buf (generate-new-buffer "collection status")))
+        (with-current-buffer buf
+          (switch-to-buffer buf)
+          (setq buffer-offer-save nil)
+          (text-mode)
+          (shell-command "duplicity-backup.sh collection-status" (current-buffer))
+          (end-of-buffer)
+          (read-only-mode 1))))
   #+end_src
 * proced
   #+begin_src emacs-lisp
