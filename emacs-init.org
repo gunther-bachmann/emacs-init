@@ -4185,72 +4185,72 @@
      - TODO: make gb/switch-dictionary use a variable for hooks that are all called when registration took place! langtool then only registers
        an additional hook. the hook should use well defined languages as parameters to let each hook what exactly to set
    #+BEGIN_SRC emacs-lisp
-   (use-package flyspell
-     ;; :after ( org)
-     :init (progn
-             (defun gb/activate-ispell-in-org-mode ()
-               "activate ispell and try to select to right language (e.g. `#+language: de')
-     disable spell checking if `#+PROPERTY: spellcheck no' is set"
-               (let* ((spellCheck (gb/org-global-prop-value "spellcheck")))
-                 (if (string= spellCheck "no")
-                     (progn (flyspell-mode 0))
-                   (require 'ox)
-                   (let* ((fileLang (plist-get (org-export--get-inbuffer-options) :language)))
-                     (if (string= fileLang "de")
-                         (ispell-change-dictionary "deutsch8")
-                       (ispell-change-dictionary "english"))
-                     (turn-on-flyspell)))))
+     (use-package flyspell
+       ;; :after ( org)
+       :init (progn
+               (defun gb/activate-ispell-in-org-mode ()
+                 "activate ispell and try to select to right language (e.g. `#+language: de')
+       disable spell checking if `#+PROPERTY: spellcheck no' is set"
+                 (let* ((spellCheck (gb/org-global-prop-value "spellcheck")))
+                   (if (string= spellCheck "no")
+                       (progn (flyspell-mode 0))
+                     (require 'ox)
+                     (let* ((fileLang (plist-get (org-export--get-inbuffer-options) :language)))
+                       (if (string= fileLang "de")
+                           (ispell-change-dictionary "deutsch8")
+                         (ispell-change-dictionary "english"))
+                       (turn-on-flyspell)))))
 
-             ;; switch between german and english dicionary
-             (defun  gb/switch-dictionary()
-               (interactive)
-               (let* ((oldLang ispell-current-dictionary)
-                      (newLang (if (string= oldLang "deutsch8") "english" "deutsch8"))
-                      (oldLangtool (if (boundp 'langtool-default-language) langtool-default-language nil))
-                      (newLangtool (if (string= oldLangtool "de") "en-US" "de")))
-                 (ispell-change-dictionary newLang)
-                 (if (boundp 'langtool-default-language) (setq langtool-default-language newLangtool))
-                 (message "Dictionary switched from `%s' to `%s'" oldLang newLang)))
+               ;; switch between german and english dicionary
+               (defun  gb/switch-dictionary()
+                 (interactive)
+                 (let* ((oldLang ispell-current-dictionary)
+                        (newLang (if (string= oldLang "deutsch8") "english" "deutsch8"))
+                        (oldLangtool (if (boundp 'langtool-default-language) langtool-default-language nil))
+                        (newLangtool (if (string= oldLangtool "de") "en-US" "de")))
+                   (ispell-change-dictionary newLang)
+                   (if (boundp 'langtool-default-language) (setq langtool-default-language newLangtool))
+                   (message "Dictionary switched from `%s' to `%s'" oldLang newLang)))
 
-             (defun gb/set-dictionary (lang)
-               "set language used for spell checking, lang = {de|en}"
-               (ispell-change-dictionary (cond ((string= lang "de") "deutsch8")
-                                               ((string= lang "en") "english")
-                                               (t "english")))
-               (if (boundp 'langtool-default-language)
-                   (setq langtool-default-language
-                         (cond ((string= lang "de") "de")
-                               ((string= lang "en") "en-US")
-                               (t "en-US")))))
+               (defun gb/set-dictionary (lang)
+                 "set language used for spell checking, lang = {de|en}"
+                 (ispell-change-dictionary (cond ((string= lang "de") "deutsch8")
+                                                 ((string= lang "en") "english")
+                                                 (t "english")))
+                 (if (boundp 'langtool-default-language)
+                     (setq langtool-default-language
+                           (cond ((string= lang "de") "de")
+                                 ((string= lang "en") "en-US")
+                                 (t "en-US")))))
 
-             (add-hook 'message-mode-hook 'turn-on-flyspell)
-             (add-hook 'org-mode-hook 'gb/activate-ispell-in-org-mode)
-             )
-     :bind (("C-x l" . gb/switch-dictionary))
-     :config
-     (progn
-       (require 'ox)
-       (setq ispell-dictionary "deutsch8")
-       (setq ispell-local-dictionary "deutsch8")
-       (setq flyspell-default-dictionary "deutsch8")
+               ;; (add-hook 'message-mode-hook 'turn-on-flyspell)
+               ;; (add-hook 'org-mode-hook 'gb/activate-ispell-in-org-mode)
+               )
+       :bind (("C-x l" . gb/switch-dictionary))
+       :config
+       (progn
+         (require 'ox)
+         (setq ispell-dictionary "deutsch8")
+         (setq ispell-local-dictionary "deutsch8")
+         (setq flyspell-default-dictionary "deutsch8")
 
-       ;; for programmiong modes, switch to english and activate flyspell-prog-mode
-       ;; (dolist (hook '(prog-mode-hook))
-       ;;   (add-hook hook (lambda () (progn (ispell-change-dictionary "english")(flyspell-prog-mode 1)))))
+         ;; for programmiong modes, switch to english and activate flyspell-prog-mode
+         ;; (dolist (hook '(prog-mode-hook))
+         ;;   (add-hook hook (lambda () (progn (ispell-change-dictionary "english")(flyspell-prog-mode 1)))))
 
-       ;; for orgmode, switch to english and activate flyspell
-       ;; (dolist (hook '(org-mode-hook))
-       ;;   (add-hook hook (lambda () (flyspell-mode 1))))
+         ;; for orgmode, switch to english and activate flyspell
+         ;; (dolist (hook '(org-mode-hook))
+         ;;   (add-hook hook (lambda () (flyspell-mode 1))))
 
-       ;; for mails, switch to german dictionary and activate flyspell
-       ;; (dolist (hook '(message-mode-hook))
-       ;;   (add-hook hook (lambda () (progn (ispell-change-dictionary "deutsch8")(flyspell-mode 1)))))
+         ;; for mails, switch to german dictionary and activate flyspell
+         ;; (dolist (hook '(message-mode-hook))
+         ;;   (add-hook hook (lambda () (progn (ispell-change-dictionary "deutsch8")(flyspell-mode 1)))))
 
-       ;; don't print error message for every mispelled word found
-       (setq flyspell-issue-message-flag nil)
+         ;; don't print error message for every mispelled word found
+         (setq flyspell-issue-message-flag nil)
 
 
-       ))
+         ))
    #+END_SRC
 ** dictionary
    - description [[http://mbork.pl/2017-01-14_I'm_now_using_the_right_dictionary][here]]
