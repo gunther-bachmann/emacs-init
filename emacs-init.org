@@ -12737,10 +12737,12 @@
   - i = insert note for page
   - M-i = insert note with precise location (asked to click)
   - M-n/p = jump to next/previous annotated page
-  #+begin_src emacs-lisp :tangle no
-  (use-package org-noter
-    :ensure t
-    :commands (org-noter))
+  #+begin_src emacs-lisp
+    (use-package org-noter
+      :ensure t
+      :commands (org-noter)
+      :config
+      (setq org-noter-default-notes-file-names '("notes.org")))
   #+end_src
 * DISABLED treemacs (start with C-x t t)
   - see [[https://github.com/Alexander-Miller/treemacs][here]]
