@@ -9098,10 +9098,13 @@
 
      (defun gb/slack-stop ()
        (interactive)
+       (ignore-errors
+         (when (-contains? kill-emacs-hook #'gb/slack-stop)
+           (remove-hook 'kill-emacs-hook #'gb/slack-stop)))
        (ignore-errors (gb/slack-user-set-away))
-       (ignore-errors (slack-ws-close))
        (gb/slack-disable-modeline)
-       (gb/slack-modeline-status-deactivate))
+       (gb/slack-modeline-status-deactivate)
+       (ignore-errors (slack-ws-close)))
 
      (defun gb/slack-start ()
        (interactive)
@@ -9109,7 +9112,9 @@
        (slack-start)
        (slack-enable-modeline)
        (gb/slack-user-set-active)
-       (gb/slack-modeline-status-activate))
+       (gb/slack-modeline-status-activate)
+       (unless (-contains? kill-emacs-hook #'gb/slack-stop)
+         (add-hook 'kill-emacs-hook #'gb/slack-stop t)))
 
      ;; make sure to not track common channels (annoying)
      (setq tracking-ignored-buffers '(".*itemis : general.*" ".*itemis : xtext.*" ".*homecooking.*" ".*nintendo-pipe_pr.*" ".*itemis : random.*"))
@@ -9154,7 +9159,7 @@
                            (slack-room-display (gb/slack-room-by-id room-id) (slack-team-select)))))))
 
      (setq gb/slack-status-active-list '("programming :typescript:" "programming :xtext:" "programming :java-coffee:" "enjoying lambdas :racket-lang:" "break :coffee:"))
-     (setq gb/slack-status-away-list '("mampf :knife_fork_plate:" "away :hourglass:"))
+     (setq gb/slack-status-away-list '("mampf :fork_and_knife:" "home :house_with_garden:"))
 
      (defun gb/slack-status-set-active ()
        (interactive)
