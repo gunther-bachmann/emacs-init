@@ -13306,6 +13306,7 @@
           (deft-directory org-notes)
           (notdeft-directories `(,org-notes))
           (org-roam-directory org-notes)
+          (org-roam-db-update-method 'immediate)
           (org-ref-bibtex-completion-add-keywords-field nil) ;; make sure that some org helm ref package loads correctly when executing (org-roam-db-build-cache t)
           :config
           (require 'org-roam-protocol)
