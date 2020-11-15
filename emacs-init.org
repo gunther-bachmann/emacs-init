@@ -8949,12 +8949,12 @@
         (bind-key "C-x k" #'gb/pdf-view-kill pdf-view-mode-map)
         (bind-key "C-x C-k" #'gb/pdf-view-kill-window pdf-view-mode-map))
 
-      (use-package org-noter-pdftools
-        :ensure t
-        :after org-noter
-        :config
-        (with-eval-after-load 'pdf-annot
-          (add-hook 'pdf-annot-activate-handler-functions #'org-noter-pdftools-jump-to-note)))
+      ;; (use-package org-noter-pdftools
+      ;;   :ensure t
+      ;;   :after org-noter
+      ;;   :config
+      ;;   (with-eval-after-load 'pdf-annot
+      ;;     (add-hook 'pdf-annot-activate-handler-functions #'org-noter-pdftools-jump-to-note)))
     #+END_SRC
 *** org magit
     #+BEGIN_SRC emacs-lisp :tangle no
