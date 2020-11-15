@@ -14075,6 +14075,12 @@
 
       (global-hardhat-mode 1))
   #+end_src
+* EVAL refine - interative list value editing
+  #+begin_src emacs-lisp
+    (use-package refine
+      :ensure t
+      :commands (refine))
+  #+end_src
 * backup duplicity support
   #+begin_src emacs-lisp
     (defun gb/backup-log-open ()
