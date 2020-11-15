@@ -11786,6 +11786,9 @@
                  ("<s-f3>" . gb/audio-raise-volume)
                  ("<s-f4>" . gb/audio-mute-mic)
                  ("<s-f1>" . gb/audio-mute-volume))
+          :config
+          (setq exwm-floating-border-color "purple4")
+          (setq exwm-floating-border-width 2)
           :init (progn
                   (defun gb/exwm-visualize-workspace-switch (newidx length display-width)
                     "visualize the switched to workspace by a foreground ascii art"
