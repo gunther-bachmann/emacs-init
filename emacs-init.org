@@ -9020,7 +9020,7 @@
      (defun gb/timer-active-p (timer)
        "check whether the given timer is currently active"
        (or (memq timer timer-list)
-          (memq timer timer-idle-list)))
+           (memq timer timer-idle-list)))
 
      ;; redefine whether team is relevant for modeline display
      (defun slack-team-modeline-enabledp (team)
@@ -11810,13 +11810,13 @@
                         (setq line-spacing 0)
                         (insert display))
                       (setq switch-posframe-parameters
-                            `((parent-frame . ,(window-frame))                                                          ;; (works only on single monitor)
-                         (display . ,(cdr (assoc 'display (frame-parameters (selected-frame))))) ;; (hopefully holds display of current monitor)
-                         (font . ,(cdr (assoc 'font (frame-parameters (selected-frame)))))
-                         (alpha 0.3 0.3)
-                         ;; (left-fringe . 10)
-                         ;; (right-fringe . 10)
-                         ))
+                            `((parent-frame . ,(window-frame))                                        ;; (works only on single monitor)
+                              (display . ,(cdr (assoc 'display (frame-parameters (selected-frame))))) ;; (hopefully holds display of current monitor)
+                              (font . ,(cdr (assoc 'font (frame-parameters (selected-frame)))))
+                              (alpha 0.3 0.3)
+                              ;; (left-fringe . 10)
+                              ;; (right-fringe . 10)
+                              ))
 
                       (posframe-hide my-posframe-buffer)
                       (posframe-show my-posframe-buffer
@@ -11850,7 +11850,7 @@
                     (let* ((workspaceIdx (exwm-workspace--position exwm-workspace--current))
                            (monitor (nth (+ 1 (* 2 workspaceIdx)) exwm-randr-workspace-monitor-plist)))
                       (if (or (s-equals? (gb/get-primary-monitor) monitor)
-                              (string-empty-p (gb/get-second-monitor)))
+                             (string-empty-p (gb/get-second-monitor)))
                           (progn (message "no workspace left of this.") (beacon-blink) nil)
                         (gb/exwm-workspace-switch 0 t workspaceIdx)
                         (gb/play-theme-sound gb/sound-theme-effect-switch-workspace)
@@ -11866,7 +11866,7 @@
                     (let* ((workspaceIdx (exwm-workspace--position exwm-workspace--current))
                            (monitor (nth (+ 1 (* 2 workspaceIdx)) exwm-randr-workspace-monitor-plist)))
                       (if (and (s-equals? (gb/get-primary-monitor) monitor)
-                               (not (string-empty-p (gb/get-second-monitor))))
+                             (not (string-empty-p (gb/get-second-monitor))))
                           (progn ;; (setq gb/exwm--previous-workspace workspaceIdx)
                             (exwm-workspace-switch gb/exwm--previous-workspace t)
                             (gb/play-theme-sound gb/sound-theme-effect-switch-workspace)
@@ -11886,9 +11886,9 @@
                            (lastIndex (- (length exwm-workspace--list) 1))
                            (single-mon-p (string-empty-p (gb/get-second-monitor))))
                       (if (or (and (s-equals? (gb/get-second-monitor) monitor)
-                                   (< workspaceIdx lastIndex))
-                              (and single-mon-p
-                                   (< workspaceIdx lastIndex)))
+                                (< workspaceIdx lastIndex))
+                             (and single-mon-p
+                                (< workspaceIdx lastIndex)))
                           (progn (gb/exwm-workspace-switch (+ 1 workspaceIdx) t)
                                  (while-no-input
                                    (gb/exwm-visualize-workspace-switch (+ workspaceIdx (if single-mon-p 1 0)) (- (length exwm-workspace--list) (if single-mon-p 0 1)) 10)
@@ -11906,9 +11906,9 @@
                            (monitor (nth (+ 1 (* 2 workspaceIdx)) exwm-randr-workspace-monitor-plist))
                            (single-mon-p (string-empty-p (gb/get-second-monitor))))
                       (if (or (and (s-equals? (gb/get-second-monitor) monitor)
-                                   (> workspaceIdx 1))
-                              (and single-mon-p
-                                   (> workspaceIdx 0)))
+                                (> workspaceIdx 1))
+                             (and single-mon-p
+                                (> workspaceIdx 0)))
                           (progn (gb/exwm-workspace-switch (- workspaceIdx 1) t)
                                  (while-no-input
                                    (gb/exwm-visualize-workspace-switch (- workspaceIdx (if single-mon-p 1 2)) (- (length exwm-workspace--list) (if single-mon-p 0 1)) 10)
@@ -14043,7 +14043,7 @@
       (bind-key "0" #'(lambda () (interactive) (setq gb/image-scale 1.0) (image-transform-set-scale gb/image-scale)) eimp-minor-mode-map)
       (bind-key "2" #'(lambda () (interactive) (setq gb/image-scale 2.0) (image-transform-set-scale gb/image-scale)) eimp-minor-mode-map))
   #+end_src
-* EVAL delve - org
+* delve - org
   - see https://github.com/publicimageltd/delve
   - provides a alternative view on
     - links, backlinks, date last modified, date the link established on, tag usage
