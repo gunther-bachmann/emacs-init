@@ -7886,6 +7886,7 @@
         :config
         (setq org-agenda-files '("~/slack.org"))
         (setq gb/use-optimized-folded-src-fontificat nil) ;; fontify src blocks only if they ar not folded!
+        (setq org-catch-invisible-edits t)
 
         (defun gb/get-org-hide-block-status (&optional pos)
           "t if babel block is folded, else nil"
