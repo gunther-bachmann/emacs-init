@@ -14112,6 +14112,12 @@
       :ensure t
       :commands (key-assist))
   #+end_src
+* EVAL gcmh - gc magic hack, defer gc to idle times
+  #+begin_src emacs-lisp
+    (use-package gcmh
+      :ensure t
+      :config (gcmh-mode 1))
+  #+end_src
 * EVAL regexp-expand - show regular expression at point expanded
   - see [[https://github.com/danielmartin/regexp-expand][here]]
   - move cursor in reg ex, execute ~M-x regexp-expand~, inspect regex, press ~q~ to leave expansion
