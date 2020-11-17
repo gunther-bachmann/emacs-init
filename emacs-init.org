@@ -14123,6 +14123,12 @@
       :load-path "~/repo/regexp-expand"
       :commands (regexp-expand))
   #+end_src
+* EVAL rec-mode - show rec files (human readable db)
+  - see [[https://www.gnu.org/software/recutils/][here]]
+  #+begin_src emacs-lisp
+    (use-package rec-mode
+      :ensure t)
+  #+end_src
 * backup duplicity support
   #+begin_src emacs-lisp
     (defun gb/backup-log-open ()
