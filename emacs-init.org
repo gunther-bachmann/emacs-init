@@ -9217,8 +9217,16 @@
          (setq gb/slack-modeline-status--timer nil))
        (setq global-mode-string (remove '(:eval gb/slack-modeline--status) global-mode-string)))
 
+     (defun gb/slack-modeline-status--string-transform (full-status)
+       "transform complete slack status string to the string actually shown in the modeline"
+       (let* ((first-icon (car (s-match ":[^:]+:" full-status))))
+         (if (or (not first-icon)
+                 (string-empty-p first-icon))
+             full-status
+           first-icon)))
+
      (defun gb/slack-modeline-status-update ()
-       (setq gb/slack-modeline--status (s-concat " " (emojify-string (slack-user-status (oref (slack-team-select) self-id) (slack-team-select)))))
+       (setq gb/slack-modeline--status (s-concat " " (emojify-string (gb/slack-modeline-status--string-transform (slack-user-status (oref (slack-team-select) self-id) (slack-team-select))))))
        (force-mode-line-update))
 
      (defun gb/slack-user-presence-get ()
