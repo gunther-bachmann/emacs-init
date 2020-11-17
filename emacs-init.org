@@ -14129,6 +14129,12 @@
     (use-package rec-mode
       :ensure t)
   #+end_src
+* EVAL diredc - dired commander (midnight commander)
+  #+begin_src emacs-lisp
+    (use-package diredc
+      :load-path "~/repo/emacs-diredc"
+      :commands (diredc))
+  #+end_src
 * backup duplicity support
   #+begin_src emacs-lisp
     (defun gb/backup-log-open ()
