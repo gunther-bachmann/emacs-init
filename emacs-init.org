@@ -14112,6 +14112,17 @@
       :ensure t
       :commands (key-assist))
   #+end_src
+* EVAL regexp-expand - show regular expression at point expanded
+  - see [[https://github.com/danielmartin/regexp-expand][here]]
+  - move cursor in reg ex, execute ~M-x regexp-expand~, inspect regex, press ~q~ to leave expansion
+  #+begin_src emacs-lisp
+    (use-package xr
+      :ensure t)
+
+    (use-package regexp-expand
+      :load-path "~/repo/regexp-expand"
+      :commands (regexp-expand))
+  #+end_src
 * backup duplicity support
   #+begin_src emacs-lisp
     (defun gb/backup-log-open ()
