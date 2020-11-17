@@ -8056,10 +8056,6 @@
                                 `(org-level-1 ((t (:foreground "#de935f"))))
                                 `(outline-1 ((t (:foreground "#de935f")))))))
   #+END_SRC
-
-  #+RESULTS:
-  : org-toggle-item
-
 *** org mobile (disabled)
     - this will put all org files (known to the system) into the transfer folder which is not what I want, I don't want all files to be
       synced via Dropwizard
@@ -13798,13 +13794,13 @@
         :load-path "~/.emacs.d/additionals/notate"))
   #+end_src
 
-* EVAL beginend - jump to the right beginning / end, depending on the mode
+* beginend - jump to the right beginning / end, depending on the mode
   #+begin_src emacs-lisp
     (use-package beginend
       :ensure t
       :config (beginend-global-mode))
   #+end_src
-* EVAL scratch - open scratch buffer in the same mode as the current buffer
+* scratch - open scratch buffer in the same mode as the current buffer
   #+begin_src emacs-lisp
     (use-package scratch
       :ensure t
@@ -14001,6 +13997,7 @@
   - open via ~dir-treeview~
   #+begin_src emacs-lisp
     (use-package dir-treeview
+      :commands (dir-treeview)
       :config
       (load-theme 'dir-treeview-pleasant t)
       (custom-set-variables
@@ -14025,7 +14022,7 @@
   #+begin_src emacs-lisp
     (use-package fill-page)
   #+end_src
-* EVAL greenbar-mode
+* greenbar-mode
   - puts stripes on the comint output (shell output), making long lines a bit more tractable
   #+begin_src emacs-lisp
     (use-package greenbar
@@ -14431,6 +14428,7 @@
   - vlc - videoLAN VLC Media Player Control
   - transient-dwim - supposed to be useful to explore keybindings/functions in a major mode
   - smart-input-source - Switch input source smartly
+  - docopt - a docopt implementation in elisp (docopt allows generating cli options for bash scripts)
 ** windowmanager/x-integration
   - edwin (dynamic window manager)
   - zoom
