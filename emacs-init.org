@@ -14105,6 +14105,13 @@
       :ensure t
       :commands (refine))
   #+end_src
+* EVAL key-assist - provide an improved C-h m, additionally program own cheatsheets
+  - see [[https://github.com/Boruch-Baum/emacs-key-assist][here]]
+  #+begin_src emacs-lisp
+    (use-package key-assist
+      :ensure t
+      :commands (key-assist))
+  #+end_src
 * backup duplicity support
   #+begin_src emacs-lisp
     (defun gb/backup-log-open ()
