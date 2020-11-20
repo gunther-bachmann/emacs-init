@@ -27,7 +27,7 @@ work (otherwise those of the snippets are used instead).
      ,* $1
 
 
-     ,* -
+     ,* -                                                                :noexport:
      ,#+begin_src emacs-lisp
        ;; Local Variables:
        ;; eval: (flyspell-mode 0) ;; no spell check errors
@@ -36,6 +36,15 @@ work (otherwise those of the snippets are used instead).
        ;; eval: (gb/org-roam-open-entry-visibility)
        ;; End:
      ,#+end_src
+   #+end_src
+** org roam alias [r-a]
+   provide an alias for an org roam entry
+   #+begin_src text :tangle ~/.emacs.d/snippets/org-mode/roam-alias
+     # -*- mode: snippet -*-
+     # name: roam-alias
+     # key: r-a
+     # --
+     ,#+ROAM_ALIAS: $1
    #+end_src
 ** org tree slide presentation [pres]
    provide local variables to configure org tree slide presentations
