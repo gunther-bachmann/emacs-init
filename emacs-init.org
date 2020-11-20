@@ -10580,12 +10580,13 @@
    - see https://jestjs.io/
    - bind the command 'jest-popup' (main command)
    #+BEGIN_SRC emacs-lisp
-   (use-package jest
-     :ensure t)
-   (use-package flycheck-jest
-     :ensure t
-     :after (flycheck jest)
-     :config (flycheck-jest-setup))
+     (use-package jest
+       :ensure t
+       :commands (jest))
+     (use-package flycheck-jest
+       :ensure t
+       :after (flycheck jest)
+       :config (flycheck-jest-setup))
    #+END_SRC
 ** blimb (image manipulation using imagemagick)
    - lets you interactively select magick commands to manipulate the image in the buffer
@@ -10595,7 +10596,7 @@
    #+BEGIN_SRC emacs-lisp
      (use-package blimp
        :ensure t
-       :init (add-hook 'image-mode-hook 'blimp-mode))
+       :hook (image-mode-hook . blimp-mode))
    #+END_SRC
 ** emms (emacs music system)
    #+BEGIN_SRC emacs-lisp
@@ -10824,10 +10825,10 @@
      (when (locate-library "lsp-ui")
        (use-package lsp-ui
          :ensure t
-         :init
-         (add-hook 'lsp-mode-hook 'lsp-ui-mode)
-         (setq lsp-ui-doc-max-width 100)
-         (setq lsp-ui-doc-position 'bottom)))
+         :hook (lsp-mode-hook . lsp-ui-mode)
+         :custom
+         (lsp-ui-doc-max-width 100)
+         (lsp-ui-doc-position 'bottom)))
    #+END_SRC
 #+BEGIN_SRC emacs-lisp
 (report-elapsed "check point - lsp-ui")
@@ -12696,14 +12697,15 @@
           (global-hl-line-mode 1)
           (setq cursor-type 'box)))
     #+end_src
-  #+begin_src emacs-lisp :tangle no
-    (use-package org-tree-slide
-      :commands org-tree-slide-mode
-      :ensure t
-      :config
-      (setq org-tree-slide-header nil)
-      (setq org-tree-slide-heading-emphasis t))
-  #+end_src
+  - disabled original package
+    #+begin_src emacs-lisp :tangle no
+      (use-package org-tree-slide
+        :commands org-tree-slide-mode
+        :ensure t
+        :config
+        (setq org-tree-slide-header nil)
+        (setq org-tree-slide-heading-emphasis t))
+    #+end_src
 * eglot
   #+begin_src emacs-lisp
     (use-package jsonrpc
@@ -13053,7 +13055,8 @@
   #+end_src
 * EVAL sysctl
   #+begin_src emacs-lisp
-    (use-package sysctl)
+    (use-package sysctl
+      :commands (sysctl))
   #+end_src
 * EVAL dianyou (gnus mail searching see https://github.com/redguardtoo/dianyou/blob/master/dianyou.el)
   #+begin_src emacs-lisp
@@ -13230,11 +13233,13 @@
   #+begin_src emacs-lisp
     (use-package pomodoro
       :ensure t
+      :commands (pomodoro-stop pomodoro-start pomodoro-pause pomodoro-resume)
+      :custom
+      (pomodoro-desktop-notification nil)
+      (pomodoro-play-sounds nil)
+      (pomodoro-sound-player "mpg123")
+      (pomodoro-time-format "%.2m ")
       :config
-      (setq pomodoro-desktop-notification nil)
-      (setq pomodoro-play-sounds nil)
-      (setq pomodoro-sound-player "mpg123")
-      (setq pomodoro-time-format "%.2m ")
       (pomodoro-add-to-mode-line))
   #+end_src
 * EVAL deft
@@ -13695,6 +13700,7 @@
 * file grep and replace
   #+begin_src emacs-lisp
     (use-package helm-ag
+      :commands (helm-ag)
       :ensure t)
     (use-package wgrep
        :ensure t)
@@ -13907,15 +13913,11 @@
   #+begin_src emacs-lisp
     (use-package git-messenger
       :ensure t
-      :config
-      (bind-key "C-c v p" 'gb/git-messenger:popup-message)
-
-      (bind-key "m" 'git-messenger:copy-message git-messenger-map)
-
-      ;; Use magit-show-commit for showing status/diff commands
-      (setq git-messenger:use-magit-popup nil)
-
-
+      :bind (("C-c v p" . gb/git-messenger:popup-message)
+             :map git-messenger-map
+             ("m" . gb/git-messenger:popup-message))
+      :custom (git-messenger:use-magit-popup nil "Use magit-show-commit for showing status/diff commands")
+      :init
       (defun gb/git-messenger:popup-message ()
         (interactive)
         (let* ((vcs (git-messenger:find-vcs))
@@ -13989,9 +13991,9 @@
   #+begin_src emacs-lisp
     (use-package google-translate
       :ensure t
-      :config
-      (bind-key "H-h l" #'google-translate-at-point)
-      (bind-key "H-h h" #'gb/translate-at-point-eng-ger)
+      :bind (("H-h l" . google-translate-at-point)
+             ("H-h h" . gb/translate-at-point-eng-ger))
+      :init
       (defun gb/translate-at-point-eng-ger ()
         "translate region or word at point english->geman"
         (interactive)
