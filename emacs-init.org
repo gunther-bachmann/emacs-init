@@ -9071,6 +9071,9 @@
      (bind-key "C-c @" #'slack-message-embed-mention slack-message-compose-buffer-mode-map)
      (bind-key "C-c @" #'slack-message-embed-mention slack-thread-message-buffer-mode-map)
 
+     ;; mark as read
+     (bind-key "C-c C-c" #'gb/slack-buffer--mark-read slack-mode-map)
+
      ;; insert (embed) emoji
      (bind-key "C-c :" #'emojify-insert-emoji slack-mode-map)
      (bind-key "C-c :" #'emojify-insert-emoji slack-message-compose-buffer-mode-map)
@@ -9101,10 +9104,13 @@
             :token (gethash "slack-token" auth-map)
             :subscribed-channels '()
             :full-and-display-names t
-            :mark-as-read-immediately t
+            :mark-as-read-immediately nil
+            :modeline-name "i"
             :visible-threads t
             :animate-image nil)
            (setq gb/slack-team-registered t))))
+
+     (defvar gb/slack-update-list-timer nil)
 
      (defun gb/slack-stop ()
        (interactive)
@@ -9114,6 +9120,9 @@
        (ignore-errors (gb/slack-user-set-away))
        (gb/slack-disable-modeline)
        (gb/slack-modeline-status-deactivate)
+       (when gb/slack-update-list-timer
+         (ignore-errors (cancel-timer gb/slack-update-list-timer))
+         (setq gb/slack-update-list-timer nil))
        (ignore-errors (slack-ws-close)))
 
      (defun gb/slack-start ()
@@ -9123,6 +9132,10 @@
        (slack-enable-modeline)
        (gb/slack-user-set-active)
        (gb/slack-modeline-status-activate)
+       (when gb/slack-update-list-timer
+         (ignore-errors (cancel-timer gb/slack-update-list-timer))
+         (setq gb/slack-update-list-timer nil))
+       (setq gb/slack-update-list-timer (run-at-time nil 900 #'slack-room-list-update))
        (unless (-contains? kill-emacs-hook #'gb/slack-stop)
          (add-hook 'kill-emacs-hook #'gb/slack-stop t)))
 
@@ -9256,7 +9269,15 @@
                               (not (slack-room-has-unread-p room team)))
                           (append (slack-team-ims team)
                                   (slack-team-groups team)
-                                  (slack-team-channels team)))))))
+                                  (slack-team-channels team))))))
+
+     (defun gb/slack-buffer--mark-read ()
+       (interactive)
+       (when (slack-message-buffer-p slack-current-buffer)
+         (let* ((this slack-current-buffer)
+                (ts (slack-buffer-latest-ts this)))
+           (slack-buffer-update-mark-request this ts)
+           (message (format "Slack buffer %s is no up to date." (slack-buffer-name this)))))))
 
    (use-package alert
      :ensure t
