@@ -12732,8 +12732,8 @@
     #+end_src
 * eglot
   #+begin_src emacs-lisp
-    (use-package jsonrpc
-      :ensure t)
+    ;; (use-package jsonrpc
+    ;;   :ensure t)
     (use-package eglot
       :ensure t
       :config
@@ -14230,6 +14230,12 @@
           (shell-command "duplicity-backup.sh collection-status" (current-buffer))
           (end-of-buffer)
           (read-only-mode 1))))
+  #+end_src
+* org-roam-stack
+  #+begin_src emacs-lisp
+    (use-package org-roam-stack
+      :load-path "~/repo/org-roam-stack/"
+      :config (org-roam-stack-mode 1))
   #+end_src
 * proced
   #+begin_src emacs-lisp
