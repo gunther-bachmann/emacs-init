@@ -1438,9 +1438,16 @@
           (setq browse-url-firefox-program (s-trim (shell-command-to-string "command -v firefox"))))
 
         (when (and chromium-installed firefox-installed)
-          (setq browse-url-browser-function
-                '((".*\\(/meet\\.jit\\.si/\\|/teams\\.microsoft\\|/meet\\.google\\.com/\\).*" . browse-url-chromium) ;; use chromium for jitsi and teams
-                  ( ".*" . browse-url-firefox))))
+          (if (version< emacs-version "28")
+              ;; use (old) browser-url-browser-function for custom url behavior
+              (setq browse-url-browser-function
+                    '((".*\\(/meet\\.jit\\.si/\\|/teams\\.microsoft\\|/meet\\.google\\.com/\\).*" . browse-url-chromium) ;; use chromium for jitsi and teams
+                      ( ".*" . browse-url-firefox)))
+            ;; use (new) browser-url-handlers for custom url behavior
+            (setq browse-url-handlers
+                  '((".*\\(/meet\\.jit\\.si/\\|/teams\\.microsoft\\|/meet\\.google\\.com/\\).*" . browse-url-chromium) ;; use chromium for jitsi and teams
+                    ( ".*" . browse-url-firefox)))
+            (setq browse-url-browser-function 'browse-url-firefox)))
 
         ;; icecat takes precedence (over firefox)
         ;; (if icecat-installed
