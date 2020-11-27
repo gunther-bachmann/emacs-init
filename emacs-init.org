@@ -5804,23 +5804,24 @@
    #+end_src
 ** flymake
    #+BEGIN_SRC emacs-lisp
-   (use-package flymake
-     :ensure t)
-   (use-package flymake-easy
-     :ensure t
-     :after ( flymake))
-   (use-package flymake-yaml
-     :ensure t
-     :after ( flymake-easy)
-     :init (add-hook 'yaml-mode-hook 'flymake-yaml-load))
-   (use-package flymake-shell
-     :ensure t
-     :after ( flymake-easy)
-     :init (add-hook 'sh-set-shell-hook 'flymake-shell-load))
-   (use-package flymake-json
-     :ensure t
-     :after ( flymake-easy)
-     :init (add-hook 'js-mode-hook 'flymake-json-maybe-load))
+     (use-package flymake
+       ;; :ensure t
+       )
+     (use-package flymake-easy
+       :ensure t
+       :after ( flymake))
+     (use-package flymake-yaml
+       :ensure t
+       :after ( flymake-easy)
+       :init (add-hook 'yaml-mode-hook 'flymake-yaml-load))
+     (use-package flymake-shell
+       :ensure t
+       :after ( flymake-easy)
+       :init (add-hook 'sh-set-shell-hook 'flymake-shell-load))
+     (use-package flymake-json
+       :ensure t
+       :after ( flymake-easy)
+       :init (add-hook 'js-mode-hook 'flymake-json-maybe-load))
    #+END_SRC
 ** flycheck
    #+BEGIN_SRC emacs-lisp
