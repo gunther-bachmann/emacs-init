@@ -100,10 +100,23 @@
   #+END_SRC
 * benchmarking
   - simply call M-x profiler-report after loading
-  #+BEGIN_SRC emacs-lisp
-    (if gb/log-startup-timing
-        (profiler-start 'cpu))
-  #+END_SRC
+    #+BEGIN_SRC emacs-lisp
+      (if gb/log-startup-timing
+          (profiler-start 'cpu))
+    #+END_SRC
+  - provide measure-time macro
+    #+begin_src emacs-lisp
+      (defmacro measure-time (&rest body)
+        "Measure the time it takes to evaluate BODY and return this in ms."
+        (let ((time-sym (gensym 'time)))
+          `(let (
+                 (,time-sym (current-time)))
+             ,@body
+             (float-time (time-since ,time-sym)))))
+
+      ;; (measure-time (progn (dotimes (i 100) (1+ 1))))
+
+    #+end_src
 * info
   - information about this file and usages of certain functionalities
 ** el-get packages
@@ -1633,7 +1646,7 @@
          :config
          (when gnutls-cli-installed
            (add-to-list 'tls-program "gnutls-cli -p %p %h")
-           (setq gnutls-log-level 0) ;; (0 = none, 1 = important, 2 = debug)
+           (setq gnutls-log-level 1) ;; (0 = none, 1 = important, 2 = debug)
            (custom-set-variables '(gnutls-verify-error t)))))
    #+END_SRC
    - fetch a certificate and put it into known_hosts
@@ -14382,7 +14395,6 @@
   - jest-test-mode - running node.js tests using jest
   - rustic (major mode for rust)
   - ccls (c++ language server for lsp ui), see here https://github.com/MaskRay/emacs-ccls
-  - eglot - lsp client (for multiple languages)
   - dash-docs
   - ob-elm
   - ob-graphql
@@ -14483,6 +14495,7 @@
   - transient-dwim - supposed to be useful to explore keybindings/functions in a major mode
   - smart-input-source - Switch input source smartly
   - docopt - a docopt implementation in elisp (docopt allows generating cli options for bash scripts)
+  - leo - Interface for dict.leo.org
 ** windowmanager/x-integration
   - edwin (dynamic window manager)
   - zoom
