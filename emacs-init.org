@@ -2603,7 +2603,7 @@
          (t (progn
               (--each '((doom-modeline-bar ((t (:background "#600060"))))
                         (doom-modeline-bar-inactive ((t (:background "#500050"))))
-                        (mode-line ((t (:background "#2C1529" :foreground "#808080" :weight normal))))
+                        (mode-line ((t (:background "#2C1529" :foreground "#808080" :overline "#404040" :weight normal))))
                         (mode-line-inactive ((t (:inherit mode-line :background "#251422" :foreground "#969896" :weight normal)))))
                 (progn (add-to-list 'gb/list-of-faces-to-set it)(custom-set-faces it))))))
         (doom-modeline-mode 1))
