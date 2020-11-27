@@ -2310,59 +2310,82 @@
    #+END_SRC
 ** window/frame
    #+BEGIN_SRC emacs-lisp
-   ;; do window enlarge and shrink
-   (defun shrink-window-horizontally-effect ()
-     "shrink window within a frame with visual effect"
-     (interactive)
-     (save-excursion
-       (let ((speeds '(4 4 4)))
-         (dolist (speed speeds)
-           (shrink-window-horizontally speed)
-           (force-window-update (selected-window))
-           (redisplay)))))
+     (defvar gb/time-of-last-redisplay-s nil
+       "time as float, redisplay took the last time (in s)")
 
-   (defun enlarge-window-horizontally-effect ()
-     "enlarge window within frame with visual effect"
-     (interactive)
-     (save-excursion
-       (let ((speeds '(4 4 4)))
-         (dolist (speed speeds)
-           (enlarge-window-horizontally speed)
-           (force-window-update (selected-window))
-           (redisplay)))))
+     (defun gb/speeds-based-on-last-redisplay (val repetition)
+       (let* ((actual-repetition (min repetition (max 1 (floor (/ repetition (/ (max 0.0001 (or gb/time-of-last-redisplay-s 0.1)) 0.1))))))
+              (actual-val (floor (* val (/ repetition (float actual-repetition)))))
+             result)
+         (dotimes (i actual-repetition)
+           (push actual-val result))
+         result))
 
-   (defun enlarge-window-effect ()
-     "enlarge window vertically with visual effect"
-     (interactive)
-     (save-excursion
-       (let ((speeds '(1 1 1 1)))
-         (dolist (speed speeds)
-           (enlarge-window speed)
-           (force-window-update (selected-window))
-           (redisplay)))))
+     ;; do window enlarge and shrink
+     (defun shrink-window-horizontally-effect (&optional divider)
+       "shrink window within a frame with visual effect"
+       (interactive)
+       (let ((cols (/ (frame-width) (or divider 25))))
+         (save-excursion
+           (let ((speeds (gb/speeds-based-on-last-redisplay cols 3)))
+             (dolist (speed speeds)
+               (shrink-window-horizontally speed)
+               (force-window-update (selected-window))
+               (setq gb/time-of-last-redisplay-s
+                     (measure-time
+                      (redisplay))))))))
 
-   (defun shrink-window-effect ()
-     "shrink window vertically with visual effect"
-     (interactive)
-     (save-excursion
-       (let ((speeds '(1 1 1 1)))
-         (dolist (speed speeds)
-           (shrink-window speed)
-           (force-window-update (selected-window))
-           (redisplay)))))
+     (defun enlarge-window-horizontally-effect (&optional divider)
+       "enlarge window within frame with visual effect"
+       (interactive)
+       (let ((cols (/ (frame-width) (or divider 25))))
+         (save-excursion
+           (let ((speeds (gb/speeds-based-on-last-redisplay cols 3)))
+             (dolist (speed speeds)
+               (enlarge-window-horizontally speed)
+               (force-window-update (selected-window))
+               (setq gb/time-of-last-redisplay-s
+                     (measure-time
+                      (redisplay))))))))
 
-   (defun balance-windows-respecting-speedbar ()
-     "balance all windows but make sure that speedbar is sized to 50 width"
-     (interactive)
-     (balance-windows)
-     (with-selected-window (get-buffer-window "*SPEEDBAR*")
-       (let ((delta (- 50 (window-width (selected-window)))))
-         (if (< 0 delta)
-             (shrink-window-horizontally (- delta))
-           (enlarge-window-horizontally delta)))))
+     (defun enlarge-window-effect (&optional divider)
+       "enlarge window vertically with visual effect"
+       (interactive)
+       (let ((lines (/ (frame-height) (or divider 25))))
+         (save-excursion
+           (let ((speeds (gb/speeds-based-on-last-redisplay lines 3)))
+             (dolist (speed speeds)
+               (enlarge-window speed)
+               (force-window-update (selected-window))
+               (setq gb/time-of-last-redisplay-s
+                     (measure-time
+                      (redisplay))))))))
 
-   ;; make sure that macos mouse scrolling is not too jerky
-   (setq mouse-wheel-scroll-amount '(0.01))
+     (defun shrink-window-effect (&optional divider)
+       "shrink window vertically with visual effect"
+       (interactive)
+       (let ((lines (/ (frame-height) (or divider 25))))
+         (save-excursion
+           (let ((speeds (gb/speeds-based-on-last-redisplay lines 3)))
+             (dolist (speed speeds)
+               (shrink-window speed)
+               (force-window-update (selected-window))
+               (setq gb/time-of-last-redisplay-s
+                     (measure-time
+                      (redisplay))))))))
+
+     ;; (defun balance-windows-respecting-speedbar ()
+     ;;   "balance all windows but make sure that speedbar is sized to 50 width"
+     ;;   (interactive)
+     ;;   (balance-windows)
+     ;;   (with-selected-window (get-buffer-window "*SPEEDBAR*")
+     ;;     (let ((delta (- 50 (window-width (selected-window)))))
+     ;;       (if (< 0 delta)
+     ;;           (shrink-window-horizontally (- delta))
+     ;;         (enlarge-window-horizontally delta)))))
+
+     ;; make sure that macos mouse scrolling is not too jerky
+     (setq mouse-wheel-scroll-amount '(0.01))
    #+END_SRC
 ** maxframe
    #+BEGIN_SRC emacs-lisp
@@ -12310,8 +12333,20 @@
           (exwm-input-set-key (kbd "s-'") #'gb/exwm-workspace-up)
           (exwm-input-set-key (kbd "s-/") #'gb/exwm-workspace-down)
           (exwm-input-set-key (kbd "s-e") #'buffer-expose)
-          (exwm-input-set-key (kbd "C-s-<left>") #'shrink-window-horizontally-effect)
-          (exwm-input-set-key (kbd "C-s-<right>") #'enlarge-window-horizontally-effect)
+
+          ;; shrink selected window horizontally
+          (exwm-input-set-key (kbd "C-s-<left>") 'shrink-window-horizontally-effect)
+          (exwm-input-set-key (kbd "C-S-s-<left>") '(lambda () (interactive) (shrink-window-horizontally-effect 50)))
+          ;; enlarge selected window horizontally
+          (exwm-input-set-key (kbd "C-s-<right>") 'enlarge-window-horizontally-effect)
+          (exwm-input-set-key (kbd "C-S-s-<right>") '(lambda () (interactive) (enlarge-window-horizontally-effect 50)))
+          ;; shrink selected window vertically
+          (exwm-input-set-key (kbd "C-s-<down>") 'shrink-window-effect)
+          (exwm-input-set-key (kbd "C-S-s-<down>") '(lambda () (interactive) (shrink-window-effect 50)))
+          ;; enlarge slected window vertically
+          (exwm-input-set-key (kbd "C-s-<up>") 'enlarge-window-effect)
+          (exwm-input-set-key (kbd "C-S-s-<up>") '(lambda () (interactive) (enlarge-window-effect 50)))
+
           ;; switch buffers
           (exwm-input-set-key (kbd "s-b") #'helm-mini)
           ;; open files
