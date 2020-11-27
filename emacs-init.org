@@ -14161,24 +14161,13 @@
 * EVAL gcmh - gc magic hack, defer gc to idle times
   - works alright, seems to interfer with some other package though, which then uses up to 30s blocking emacs
     one method needed adjust to make idle gc not go over 10s idle time
-    #+begin_src emacs-lisp :tangle no
-      (defun gcmh-register-idle-gc ()
-        "Register a timer to run `gcmh-idle-garbage-collect'.
-      Cancel the previous one if present."
-        (let ((idle-t (if (eq gcmh-idle-delay 'auto)
-                          (min 10 (* gcmh-auto-idle-delay-factor gcmh-last-gc-time))
-                        gcmh-idle-delay)))
-          (when (timerp gcmh-idle-timer)
-            (cancel-timer gcmh-idle-timer))
-          (setf gcmh-idle-timer
-                (run-with-timer idle-t nil #'gcmh-idle-garbage-collect))))
-    #+end_src
   - seems to be fixed by setting the max idle time to 10s, never longer even in auto mode!
   #+begin_src emacs-lisp
     (use-package gcmh
-      :ensure t
+      :load-path "~/repo/gcmh/"
+      :demand t
       :custom
-      (gcmh-verbose nil)
+      (gcmh-verbose t)
       (gcmh-idle-delay 'auto)
       :config (gcmh-mode 1))
   #+end_src
