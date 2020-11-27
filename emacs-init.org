@@ -7939,7 +7939,7 @@
                   (setq buffer-read-only t)))))
 
         :config
-        (setq org-agenda-files '("~/slack.org"))
+        (setq org-agenda-files '("~/slack.org" "~/itemis.org"))
         (setq gb/use-optimized-folded-src-fontificat nil) ;; fontify src blocks only if they ar not folded!
         (setq org-catch-invisible-edits t)
 
