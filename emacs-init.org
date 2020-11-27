@@ -551,8 +551,8 @@
      (use-package use-package-hydra
        :ensure t)
    #+end_src
-** use package chords (use-package extension)
-   #+begin_src emacs-lisp
+** use package chords (use-package extension), disabled
+   #+begin_src emacs-lisp :tangle no
      (use-package use-package-chords
        :ensure t)
    #+end_src
@@ -2493,7 +2493,7 @@
 
          (bind-key "C-h C-m" 'discover-my-major)))
    #+END_SRC
-** symon sytem stats (for minibuffer)
+** symon sytem stats (for minibuffer), disabled
    #+BEGIN_SRC emacs-lisp :tangle no
    (use-package symon
      :commands symon-mode
@@ -5358,8 +5358,8 @@
     #+BEGIN_SRC emacs-lisp
 
     #+END_SRC
-** cypher mode (neo4j)
-   #+BEGIN_SRC emacs-lisp
+** cypher mode (neo4j), disabled
+   #+BEGIN_SRC emacs-lisp :tangle no
    (use-package cypher-mode
      ;; :defer 5
      )
