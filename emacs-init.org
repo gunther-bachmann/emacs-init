@@ -1844,15 +1844,27 @@
    #+begin_src emacs-lisp
      (set-default 'image-use-external-converter t) ;; use external converter for exotic graphics formats
    #+end_src
-** display symbols (pretty-mode, prettify-greek)
+** COMMENT display symbols (pretty-mode, prettify-greek)
    #+BEGIN_SRC emacs-lisp
      (use-package pretty-mode
        :ensure t
        :config
        (progn
-         (global-pretty-mode 1)
-         (global-prettify-symbols-mode 1)
+         ;; (global-pretty-mode 1)
+         ;; (global-prettify-symbols-mode 1)
          (setq prettify-symbols-unprettify-at-point t)
+
+         (--each '(racket-mode-hook
+                   emacs-lisp-mode-hook
+                   latex-mode-hook
+                   kotlin-mode-hook
+                   scala-mode-hook
+                   html-mode-hook
+                   maxima-mode-hook
+                   clojure-mode-hook
+                   python-mode-hook)
+           (when (boundp it)
+             (add-hook it 'turn-on-pretty-mode)))
 
          ;; make sure this does not collide with symbols from fira code symbol replacement (ligatures)
          (pretty-deactivate-groups
