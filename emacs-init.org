@@ -427,7 +427,7 @@
              ht
              maxframe
              bind-key
-             key-chord
+             ;; key-chord
              validate
              use-package
              seq
@@ -2374,77 +2374,81 @@
    #+END_SRC
 ** bind-key
    #+BEGIN_SRC emacs-lisp
-   ;; set global keys for window management
-   (use-package bind-key
-     :after ( ibuffer windmove)
-     :config
-     (progn
+     ;; set global keys for window management
+     (use-package bind-key
+       :after ( ibuffer windmove)
+       :config
+       (progn
 
-       ;; select window (left,right,up or down) relative to current window
-       (bind-key "s-<left>" 'windmove-left)
-       (bind-key "s-<right>" 'windmove-right)
-       (bind-key "s-<up>" 'windmove-up)
-       (bind-key "s-<down>" 'windmove-down)
-       ;; shrink selected window horizontally
-       (bind-key "C-s-<left>" 'shrink-window-horizontally-effect)
-       ;; enlarge selected window horizontally
-       (bind-key "C-s-<right>" 'enlarge-window-horizontally-effect)
-       ;; shrink selected window vertically
-       (bind-key "C-s-<down>" 'shrink-window-effect)
-       ;; enlarge slected window vertically
-       (bind-key "C-s-<up>" 'enlarge-window-effect)
+         ;; select window (left,right,up or down) relative to current window
+         (bind-key "s-<left>" 'windmove-left)
+         (bind-key "s-<right>" 'windmove-right)
+         (bind-key "s-<up>" 'windmove-up)
+         (bind-key "s-<down>" 'windmove-down)
+         ;; shrink selected window horizontally
+         (bind-key "C-s-<left>" 'shrink-window-horizontally-effect)
+         (bind-key "C-S-s-<left>" '(lambda () (interactive) (shrink-window-horizontally-effect 50)))
+         ;; enlarge selected window horizontally
+         (bind-key "C-s-<right>" 'enlarge-window-horizontally-effect)
+         (bind-key "C-S-s-<right>" '(lambda () (interactive) (enlarge-window-horizontally-effect 50)))
+         ;; shrink selected window vertically
+         (bind-key "C-s-<down>" 'shrink-window-effect)
+         (bind-key "C-S-s-<down>" '(lambda () (interactive) (shrink-window-effect 50)))
+         ;; enlarge slected window vertically
+         (bind-key "C-s-<up>" 'enlarge-window-effect)
+         (bind-key "C-S-s-<up>" '(lambda () (interactive) (enlarge-window-effect 50)))
 
-       ;; maximize selected window
-       (bind-key "C-s-<return>" 'maximize-window)
-       ;; balance all windows and the set speedbar to 50 width
-       (bind-key "C-s-<backspace>" 'balance-windows-respecting-speedbar)
+         ;; ;; maximize selected window
+         ;; (bind-key "C-s-<return>" 'maximize-window)
+         ;; ;; balance all windows and the set speedbar to 50 width
+         ;; (bind-key "C-s-<backspace>" 'balance-windows-respecting-speedbar)
 
-       ;; Key binding to use "hippie expand" for text autocompletion
-       ;; http://www.emacswiki.org/emacs/HippieExpand
-       (bind-key "s-7" 'hippie-expand)
-       ;; Interactive search key bindings. By default, C-s runs
-       ;; isearch-forward, so this swaps the bindings.
-       (bind-key "C-s" 'isearch-forward-regexp) ;; currently shadowed by visual-regexp (in test)
-       (bind-key "C-r" 'isearch-backward-regexp) ;; currently shadowed by visual-regexp (in test)
-       ;; (bind-key "C-M-s" 'isearch-forward)
-       ;; (bind-key "C-M-r" 'isearch-backward)
+         ;; Key binding to use "hippie expand" for text autocompletion
+         ;; http://www.emacswiki.org/emacs/HippieExpand
+         (bind-key "s-7" 'hippie-expand)
+         ;; Interactive search key bindings. By default, C-s runs
+         ;; isearch-forward, so this swaps the bindings.
+         (bind-key "C-s" 'isearch-forward-regexp) ;; currently shadowed by visual-regexp (in test)
+         (bind-key "C-r" 'isearch-backward-regexp) ;; currently shadowed by visual-regexp (in test)
+         ;; (bind-key "C-M-s" 'isearch-forward)
+         ;; (bind-key "C-M-r" 'isearch-backward)
 
-       ;; indent relative to the stuff on the previous line
-       ;; overwrite (hide) original binding M-i tab-to-tab-stop
-       ;; (global-set-key (kbd "M-i") 'indent-relative)
-       (bind-key "M-i" 'indent-relative)
+         ;; indent relative to the stuff on the previous line
+         ;; overwrite (hide) original binding M-i tab-to-tab-stop
+         ;; (global-set-key (kbd "M-i") 'indent-relative)
+         (bind-key "M-i" 'indent-relative)
 
 
-       (bind-key "C-c RET" 'gb/remove-dos-eol)
-       (bind-key "C-c <C-return>" 'gb/remove-dos-eol)
+         (bind-key "C-c RET" 'gb/remove-dos-eol)
+         (bind-key "C-c <C-return>" 'gb/remove-dos-eol)
 
-       (bind-key "C-x C-c" 'dont-kill-emacs)
+         (bind-key "C-x C-c" 'dont-kill-emacs)
 
-       ;; (bind-key "s-+" 'decrease-transparency)
-       ;; (bind-key "s--" 'increase-transparency)
-       ;; (bind-key "s-#" 'disable-transparency)
-       ;; (bind-key "s-]" 'decrease-transparency)
+         ;; (bind-key "s-+" 'decrease-transparency)
+         ;; (bind-key "s--" 'increase-transparency)
+         ;; (bind-key "s-#" 'disable-transparency)
+         ;; (bind-key "s-]" 'decrease-transparency)
 
-       (bind-key "C-;" 'toggle-comment-on-line)
+         (bind-key "C-;" 'toggle-comment-on-line)
 
-       (bind-key "C-x b" 'ibuffer-list-buffers-and-switch)
+         (bind-key "C-x b" 'ibuffer-list-buffers-and-switch)
 
-       ;; make sure that C-g behaves just as helm-buffer, aborting the buffer switch
-       ;; TODO ibuffer mode map not known yet
-       ;; (bind-key "C-g" 'quit-window ibuffer-mode-map)
+         ;; make sure that C-g behaves just as helm-buffer, aborting the buffer switch
+         ;; TODO ibuffer mode map not known yet
+         ;; (bind-key "C-g" 'quit-window ibuffer-mode-map)
 
-       ;; (bind-key "<s-up>" 'scroll-up-line)
-       ;; (bind-key "<s-down>" 'scroll-down-line)
-       ;; (bind-key "<M-s-up>" 'scroll-up-line-7)
-       ;; (bind-key "<M-s-down>" 'scroll-down-line-7)
+         ;; (bind-key "<s-up>" 'scroll-up-line)
+         ;; (bind-key "<s-down>" 'scroll-down-line)
+         ;; (bind-key "<M-s-up>" 'scroll-up-line-7)
+         ;; (bind-key "<M-s-down>" 'scroll-down-line-7)
 
-       ;; (bind-key "<s-C-up>" 'scroll-up-line-and-move-cursor)
-       ;; (bind-key "<s-C-down>" 'scroll-down-line-and-move-cursor)
+         ;; (bind-key "<s-C-up>" 'scroll-up-line-and-move-cursor)
+         ;; (bind-key "<s-C-down>" 'scroll-down-line-and-move-cursor)
 
-       ;; (bind-key "<s-C-M-up>" 'scroll-up-line-and-move-cursor-7)
-       ;; (bind-key "<s-C-M-down>" 'scroll-down-line-and-move-cursor-7)
+         ;; (bind-key "<s-C-M-up>" 'scroll-up-line-and-move-cursor-7)
+         ;; (bind-key "<s-C-M-down>" 'scroll-down-line-and-move-cursor-7)
 
-       (bind-key "C-h C-m" 'discover-my-major)))
+         (bind-key "C-h C-m" 'discover-my-major)))
    #+END_SRC
 ** symon sytem stats (for minibuffer)
    #+BEGIN_SRC emacs-lisp :tangle no
@@ -3499,21 +3503,21 @@
    #+BEGIN_SRC emacs-lisp
    (progn
      (require 'bind-key)
-     (require 'key-chord)
+     ;; (require 'key-chord)
      (bind-key "C-\" a" (lambda () (interactive) (insert "ä")))
      (bind-key "C-\' a" (lambda () (interactive) (insert "ä")))
      (bind-key "C-\" A" (lambda () (interactive) (insert "Ä")))
-     (key-chord-define-global "AE" (lambda () (interactive) (insert "Ä")))
+     ;;(key-chord-define-global "AE" (lambda () (interactive) (insert "Ä")))
      ;;(key-chord-define-global "ae" (lambda () (interactive) (insert "ä")))
      (bind-key "C-\" u" (lambda () (interactive) (insert "ü")))
      (bind-key "C-\' u" (lambda () (interactive) (insert "ü")))
      (bind-key "C-\" U" (lambda () (interactive) (insert "Ü")))
-     (key-chord-define-global "UE" (lambda () (interactive) (insert "Ü")))
+     ;;(key-chord-define-global "UE" (lambda () (interactive) (insert "Ü")))
      ;;(key-chord-define-global "ue" (lambda () (interactive) (insert "ü")))
      (bind-key "C-\" o" (lambda () (interactive) (insert "ö")))
      (bind-key "C-\' o" (lambda () (interactive) (insert "ö")))
      (bind-key "C-\" O" (lambda () (interactive) (insert "Ö")))
-     (key-chord-define-global "OE" (lambda () (interactive) (insert "Ö")))
+     ;;(key-chord-define-global "OE" (lambda () (interactive) (insert "Ö")))
      ;; (key-chord-define-global "oe" (lambda () (interactive) (insert "ö")))
      (bind-key "C-\" s" (lambda () (interactive) (insert "ß")))
      (bind-key "C-\' s" (lambda () (interactive) (insert "ß")))
@@ -3824,18 +3828,24 @@
 *** expand region
     expand / shrink region smartly
     #+BEGIN_SRC emacs-lisp
-    (use-package expand-region
-      :ensure t
-      :after (key-chord) ;; optional, install key chords that do region expansion/shrink
-      ;; :defer t ;; valid since init script registeres keys
-      :init
-      (autoload 'expand-region "er/expand-region" nil t)
-      (autoload 'expand-region "er/contract-region" nil t)
-      (when (package-installed-p 'key-chord)
-        (key-chord-define-global "ü+"   'er/expand-region) ;; make the current selection expand to the next outer bounds
-        (key-chord-define-global "]["   'er/expand-region) ;; make the current selection expand to the next outer bounds
-        (key-chord-define-global ".-"   'er/contract-region)
-        (key-chord-define-global "./"   'er/contract-region))) ;; make the current selection collapse again into the inner bounds
+      (use-package expand-region
+        :ensure t
+        :bind (("C-x <up>" . er/expand-region)
+               ("C-x <C-up>" . er/expand-region)
+               ("C-x <down>" . er/contract-region)
+               ("C-x <C-down>" . er/contract-region))
+        ;; :after (key-chord) ;; optional, install key chords that do region expansion/shrink
+        ;; :defer t ;; valid since init script registeres keys
+        :init
+        (autoload 'expand-region "er/expand-region" nil t)
+        (autoload 'expand-region "er/contract-region" nil t)
+
+        ;; (when (package-installed-p 'key-chord)
+        ;;   (key-chord-define-global "ü+"   'er/expand-region) ;; make the current selection expand to the next outer bounds
+        ;;   (key-chord-define-global "]["   'er/expand-region) ;; make the current selection expand to the next outer bounds
+        ;;   (key-chord-define-global ".-"   'er/contract-region) ;; make the current selection collapse again into the inner bounds
+        ;;   (key-chord-define-global "./"   'er/contract-region))
+        )
     #+END_SRC
 ** subword (internal programming minor mode)
    #+BEGIN_SRC emacs-lisp
@@ -3916,14 +3926,14 @@
      :init (bind-key "C-|" #'ace-mc-add-multiple-cursors)
      )
    #+END_SRC
-** key-chord
-   #+BEGIN_SRC emacs-lisp
+** key-chord (disabled)
+   #+BEGIN_SRC emacs-lisp :tangle no
      (use-package key-chord
        :config
        (progn
          (setq key-chord-two-keys-delay 0.07)
          (setq key-chord-one-key-delay 0.07)
-         (key-chord-mode 1)
+         ;; (key-chord-mode 1)
 
          ;; (key-chord-define-global "hj"   'undo)
 
@@ -3951,46 +3961,46 @@
    #+END_SRC
 ** highlight thing
    #+BEGIN_SRC emacs-lisp
-   (use-package highlight-thing
-     :after ( key-chord) ;; optional, install key chord to highlight thing
-     :init (progn
-             ;; make sure that during marking words, the highlighting is switched (temporarily) off
-             (add-hook 'activate-mark-hook 'highlight-thing-mode-temporary-off)
-             (add-hook 'deactivate-mark-hook 'highlight-thing-mode-temporary-on))
-     :config
-     (progn
-       (setq highlight-thing-delay-seconds 1)
-       (setq highlight-thing-what-thing 'symbol)
-       ;; customize face hi-yellow
+     (use-package highlight-thing
+       ;; :after ( key-chord) ;; optional, install key chord to highlight thing
+       :init (progn
+               ;; make sure that during marking words, the highlighting is switched (temporarily) off
+               (add-hook 'activate-mark-hook 'highlight-thing-mode-temporary-off)
+               (add-hook 'deactivate-mark-hook 'highlight-thing-mode-temporary-on))
+       :config
+       (progn
+         (setq highlight-thing-delay-seconds 1)
+         (setq highlight-thing-what-thing 'symbol)
+         ;; customize face hi-yellow
 
-       ;; highlight all identical 'words in view
-       (when (package-installed-p 'key-chord)
-         (key-chord-define-global "\\'" (function highlight-thing-mode))
-         (key-chord-define-global "#ä" (function highlight-thing-mode)))
+         ;; highlight all identical 'words in view
+         ;; (when (package-installed-p 'key-chord)
+         ;;   (key-chord-define-global "\\'" (function highlight-thing-mode))
+         ;;   (key-chord-define-global "#ä" (function highlight-thing-mode)))
 
-       (setq highlight-thing-mode-temporary nil)
+         (setq highlight-thing-mode-temporary nil)
 
-       (defun highlight-thing-mode-temporary-on ()
-         "switch the tepmorary switched off mode on again (if it was on)"
-         (interactive)
-         (if highlight-thing-mode-temporary
-             (progn
-               (setq highlight-thing-mode-temporary nil)
-               (highlight-thing-mode 1)
-               (highlight-thing-schedule-timer))))
-
-       (defun highlight-thing-mode-temporary-off ()
-         "switch highlight thing mode temporary off (if it was on)"
-         (interactive)
-         (let ((hlmode highlight-thing-mode))
-           (if hlmode
+         (defun highlight-thing-mode-temporary-on ()
+           "switch the tepmorary switched off mode on again (if it was on)"
+           (interactive)
+           (if highlight-thing-mode-temporary
                (progn
-                 (setq highlight-thing-mode-temporary t)
-                 (highlight-thing-remove-last)
-                 (highlight-thing-mode 0))
-             )))
+                 (setq highlight-thing-mode-temporary nil)
+                 (highlight-thing-mode 1)
+                 (highlight-thing-schedule-timer))))
 
-       ))
+         (defun highlight-thing-mode-temporary-off ()
+           "switch highlight thing mode temporary off (if it was on)"
+           (interactive)
+           (let ((hlmode highlight-thing-mode))
+             (if hlmode
+                 (progn
+                   (setq highlight-thing-mode-temporary t)
+                   (highlight-thing-remove-last)
+                   (highlight-thing-mode 0))
+               )))
+
+         ))
    #+END_SRC
 ** highlight symbol
    #+BEGIN_SRC emacs-lisp
@@ -4565,38 +4575,39 @@
    #+END_SRC
 ** ace and avy
    #+BEGIN_SRC emacs-lisp
-   (use-package ace-link
-     :ensure t
-     :after (gnus)
-     :bind (
-            ;; bind within org mode
-            :map org-mode-map
-            ("M-o" . ace-link-org)
-            ;; bind within gnus
-            :map gnus-summary-mode-map
-            ("M-o" . ace-link-gnus)
-            :map gnus-article-mode-map
-            ("M-o" . ace-link-gnus))
-     :config
-     (progn
-       ;; bind "o" within info, help, woman, eww compilation and custom mode
-       (ace-link-setup-default)))
+     (use-package ace-link
+       :ensure t
+       :after (gnus)
+       :bind (
+              ;; bind within org mode
+              :map org-mode-map
+              ("M-o" . ace-link-org)
+              ;; bind within gnus
+              :map gnus-summary-mode-map
+              ("M-o" . ace-link-gnus)
+              :map gnus-article-mode-map
+              ("M-o" . ace-link-gnus))
+       :config
+       (progn
+         ;; bind "o" within info, help, woman, eww compilation and custom mode
+         (ace-link-setup-default)))
 
-   (use-package ace-window  ;; select open window with one key
-     :after ( key-chord) ;; optional, key binding
-     :ensure t
-     :init
-     (progn
-       (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
-       (when (package-installed-p 'key-chord)
-         (key-chord-define-global "o0"   'ace-window))))
+     (use-package ace-window  ;; select open window with one key
+       ;; :after ( key-chord) ;; optional, key binding
+       :ensure t
+       :init
+       (progn
+         (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
+         ;; (when (package-installed-p 'key-chord)
+         ;;   (key-chord-define-global "o0"   'ace-window))
+         ))
 
-   (use-package ace-flyspell
-     :ensure t
-     :after ( flyspell avy))
-   ;; available commands 'M-x ace-flyspell-jump-word', jump to incorrect spelling via ace
-   ;; 'M-x ace-flyspell-dwim', autocorrect word
-   ;; 'M-x ace-flyspell-correct-word', no jump but autocorrect
+     (use-package ace-flyspell
+       :ensure t
+       :after ( flyspell avy))
+     ;; available commands 'M-x ace-flyspell-jump-word', jump to incorrect spelling via ace
+     ;; 'M-x ace-flyspell-dwim', autocorrect word
+     ;; 'M-x ace-flyspell-correct-word', no jump but autocorrect
 
    #+END_SRC
    #+BEGIN_SRC emacs-lisp :tangle no
@@ -5034,7 +5045,7 @@
                flycheck ;; optional, when active, clojure switches to this minor mode too
                paredit ;; optional, when active, clojure switches to this minor mode too
                hideshow ;; for folding namespaces (see below)
-               key-chord ;; for defining folding with hide show
+               ;; key-chord ;; for defining folding with hide show
                hydra )
       :interpreter "clojure"
       :mode "\\.clj\\'"
@@ -5070,7 +5081,7 @@
               (defun gb/hs-clojure-mode-hook ()
                 (interactive)
                 (hs-minor-mode 1)
-                (key-chord-define clojure-mode-map "q1" #'hs-toggle-hiding)
+                ;; (key-chord-define clojure-mode-map "q1" #'hs-toggle-hiding)
                 (gb/hs-clojure-hide-namespace-and-folds))
 
               (add-hook 'clojure-mode-hook #'gb/hs-clojure-mode-hook)
