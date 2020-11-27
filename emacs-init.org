@@ -12750,8 +12750,10 @@
     #+end_src
 * eglot
   #+begin_src emacs-lisp
-    ;; (use-package jsonrpc
-    ;;   :ensure t)
+    (when (version< emacs-version "28")
+      ;; starting with emacs 28, jsonrpc is internal and does not need to be loaded here
+      (use-package jsonrpc
+        :ensure t))
     (use-package eglot
       :ensure t
       :config
