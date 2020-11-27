@@ -12531,9 +12531,11 @@
                       (gb/disable-ligatures)
                       (setq pomodoro-mode-line-string nil)
                       ;; (exwm-mff-mode)
-                      (setq global-mode-string '("" appt-mode-string emms-mode-line-string emms-playing-time-string " "
-                                                 (:eval (s-concat "[" (number-to-string (exwm-workspace--position exwm-workspace--current)) "]" ))
-                                                 (:eval (unless (string-empty-p pomodoro-mode-line-string) " ") pomodoro-mode-line-string)))
+                      (setq global-mode-string
+                            (append '("" emms-mode-line-string emms-playing-time-string " "
+                                      (:eval (s-concat "[" (number-to-string (exwm-workspace--position exwm-workspace--current)) "]" ))
+                                      (:eval (unless (string-empty-p pomodoro-mode-line-string) " ") pomodoro-mode-line-string))
+                                    global-mode-string))
                       (setq auto-hscroll-mode t)))
 
           ))
