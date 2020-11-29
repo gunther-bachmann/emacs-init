@@ -3,7 +3,7 @@
 * initialize basic some
   #+begin_src emacs-lisp
     (custom-set-variables
-     '(initial-frame-alist (quote ((fullscreen . fullwidth)(height . 50)(top . 18)))))
+     '(initial-frame-alist (quote ((fullscreen . fullwidth)(height . 50)(top . 22)))))
     (menu-bar-mode -1) ;; remove menu bar
     (tool-bar-mode -1) ;; remove tool bar
     (scroll-bar-mode -1) ;; remove scroll bar
