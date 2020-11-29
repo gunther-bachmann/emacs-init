@@ -4,15 +4,6 @@ files, then execute ~yas-reload-all~ to refresh.  This is actually done
 automatically by the file local add-hook in the following file-local var
 definition.  These file local definitions must be at the head of the file to
 work (otherwise those of the snippets are used instead).
-#+begin_src emacs-lisp
-  ;; Local Variables:
-  ;; eval: (read-only-mode 1) ;; r/o
-  ;; eval: (flyspell-mode 0) ;; no spell check errors
-  ;; eval: (org-show-all) ;; show all headings and content
-  ;; eval: (org-hide-block-all) ;; hide all org babel source blocks
-  ;; eval: (add-hook 'after-save-hook '(lambda () (org-babel-tangle) (yas-reload-all)) nil 'make-it-local)
-  ;; End:
-#+end_src
 * org
 ** org roam entry [r-e]
    provide a default org roam entry, allowing to set the title
@@ -55,6 +46,7 @@ work (otherwise those of the snippets are used instead).
      # --
 
      ,#+begin_src emacs-lisp
+       ;; remember to start the presentation with: M-x gb/presentation-start
        ;; Local Variables:
        ;; org-image-actual-width: 600
        ;; org-tree-slide-header: nil
@@ -63,16 +55,7 @@ work (otherwise those of the snippets are used instead).
        ;; org-tree-slide-presentation-length: 10
        ;; gb/slides-started: nil
        ;; org-tree-slide-content--pos: nil
-       ;; eval: (add-fira-code-symbol-keywords)
-       ;; eval: (org-display-inline-images)
-       ;; eval: (org-hide-block-all)
-       ;; eval: (org-babel-result-hide-all)
-       ;; eval: (setq org-show-notification-handler #'(lambda (msg) (message msg)))
-       ;; eval: (read-only-mode +1)
-       ;; eval: (flyspell-mode 0) ;; no spell check errors
-       ;; eval: (toggle-serif)
-       ;; eval: (org-tree-slide-mode)
-       ;; eval: (org-tree-slide-content)
+       ;; org-show-notification-handler: #'(lambda (msg) (message msg))
        ;; End:
      ,#+end_src
    #+end_src
@@ -126,3 +109,13 @@ work (otherwise those of the snippets are used instead).
      # --
      HandBrakeCLI --no-dvdnav -i /dev/sr0 -2 -e x264 -T -f av_mkv -b 1500 --audio-lang-list "de" -t $1 -o $2.mkv
    #+end_src
+* _                                                                :noexport:
+#+begin_src emacs-lisp
+  ;; Local Variables:
+  ;; eval: (read-only-mode 1) ;; r/o
+  ;; eval: (flyspell-mode 0) ;; no spell check errors
+  ;; eval: (org-show-all) ;; show all headings and content
+  ;; eval: (org-hide-block-all) ;; hide all org babel source blocks
+  ;; eval: (add-hook 'after-save-hook '(lambda () (org-babel-tangle) (yas-reload-all)) nil 'make-it-local)
+  ;; End:
+#+end_src
