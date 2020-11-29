@@ -583,6 +583,10 @@
    #+END_SRC
 ** other
    #+BEGIN_SRC emacs-lisp
+     ;; use echo error for tool tip output
+     (tooltip-mode -1)
+     (setq tooltip-use-echo-area t)
+
      (custom-set-variables
       ;; '(canlock-password "0e8b34f24c62bdf6cc5585ec93c62be865aee099")
       '(custom-safe-themes
@@ -14358,11 +14362,10 @@
   - helm-fuzzy
   - compdef define completion local to a mode (not globally like company does)
     - see  https://gitlab.com/jjzmajic/compdef
-  - company-native-complete - Company completion using native-complete
-  - native-complete - Shell completion using native complete mechanisms
   - selectrum - emacs selection and narrowing framework
   - company-manually - manually provide completio entries
   - company-ledger - fuzzy autocomplete for ledger and friends
+  - helm-org-ql - Helm commands for org-ql
 ** cloud
    - axe - aws interface (directly through aws api, no aws-cli)
 ** configuration
@@ -14381,6 +14384,7 @@
   - texfrag
     - allow tex fragments preview in (almost) any buffer
     - see [[https://github.com/TobiasZawada/texfrag][here]]
+  - org-latex-impatient - show tex preview while you type (using javascript lib) currently in orgmode only (https://github.com/yangsheng6810/org-latex-impatient)
   - virtual-auto-fill (line break without modifying underlying buffer)
   - auctex-cluttex - interface to ClutTeX is a program to automatically process your LaTeX document. If necessary, it re-runs (La)TeX program to resolve cross-references and everything.
   - bibtex-completion - bibtex completion backend
@@ -14985,14 +14989,13 @@
     ;; (add-hook 'minibuffer-setup-hook
     ;;       (lambda ()
     ;;         (make-local-variable 'face-remapping-alist)
-    ;;         (buffer-face-mode 1)
-    ;;         (setq buffer-face-mode-face '(:background "#241422"))
+    ;; ;;         (buffer-face-mode 1)
+    ;; ;;         (setq buffer-face-mode-face '(:background "#241422"))
     ;;         (add-to-list 'face-remapping-alist '(default (:background "#241422")))))
     ;; (dolist (buf '(" *Echo Area 0*" " *Echo Area 1*" " *Minibuf-0*" " *Minibuf-1*"))
     ;;   (ignore-errors
     ;;     (when (get-buffer buf)
     ;;       (with-current-buffer (get-buffer buf)
-    ;;     (message (format "setting buffer %s" buf))
     ;;         (make-local-variable 'face-remapping-alist)
     ;;         ;; (define-symbol-prop 'face-remapping-alist 'permanent-local t)
     ;;         (add-to-list 'face-remapping-alist '(default (:background "#241422")))))))
