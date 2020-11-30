@@ -4161,23 +4161,26 @@
 ** selected (provide special keybindings if selections are active)
    - https://github.com/Kungsgeten/selected.el
    #+BEGIN_SRC emacs-lisp 
-   (use-package selected
-     :ensure t
-     :init (progn
-             (add-hook 'org-mode-hook 'selected-minor-mode)
-             (add-hook 'prog-mode-hook 'selected-minor-mode))
-     :bind (:map selected-keymap
-                 ("a" . mc/mark-all-like-this)
-                 ("d" . downcase-region)
-                 ("i" . indent-region)
-                 ("m" . mc/mark-more-like-this-extended)
-                 ("q" . selected-off)
-                 ("u" . upcase-region)
-                 ("w" . count-words-region)
-                 ("<" . mc/mark-previous-like-this)
-                 (">" . mc/mark-next-like-this))
-     :config
-     (progn ))
+     (use-package selected
+       :ensure t
+       :hook (org-mode . selected-minor-mode) (prog-mode . selected-minor-mode)
+       :config
+       ;; override original, since hook is (somehow) not deregistered => selected active in all modes
+       (defun selected--on ()
+         "Enable `selected-region-active-mode'."
+         (when (and (boundp 'selected-minor-mode)
+                  selected-minor-mode) ;; additional check whether selected-minor-mode is active in this buffer!
+           (selected-region-active-mode 1)))
+
+       (bind-key "a" #'mc/mark-all-like-this selected-keymap)
+       (bind-key "d" #'downcase-region selected-keymap)
+       (bind-key "i" #'indent-region selected-keymap)
+       (bind-key "m" #'mc/mark-more-like-this-extended selected-keymap)
+       (bind-key "q" #'selected-off selected-keymap)
+       (bind-key "u" #'upcase-region selected-keymap)
+       (bind-key "w" #'count-words-region selected-keymap)
+       (bind-key "<" #'mc/mark-previous-like-this selected-keymap)
+       (bind-key ">" #'mc/mark-next-like-this selected-keymap))
    #+END_SRC
 ** german umlaute with quail input method (switch with C-\)
    #+begin_src emacs-lisp
