@@ -10075,7 +10075,17 @@
 #+BEGIN_SRC emacs-lisp
   (use-package helm-backup
     :ensure t
-    :init (add-hook 'after-save-hook #'helm-backup-versioning)) ;; after-save-hook
+    :init (add-hook 'after-save-hook #'helm-backup-versioning)
+    :config
+    (setq helm-backup-excluded-entries
+          `(,(regexp-quote "/home/pe/.emacs-bmk-bmenu-state.el")
+            ,(regexp-quote "/home/pe/.emacs.d/company-statistics-cache.el")
+            ,(s-concat (regexp-quote "/home/pe/.emacs.d/emms/") ".*")
+            ,(regexp-quote "/home/pe/.emacs.d/init.el")
+            ,(regexp-quote "/home/pe/.newsrc.eld")
+            ,(regexp-quote "/home/pe/cal-based-diary")
+            ,(s-concat (regexp-quote "/home/pe/documents/roam/" ) ".*")
+            ,(s-concat (regexp-quote "/home/pe/repo/") ".*"))))
 #+END_SRC
 * latex (auctex)
 ** auctex
