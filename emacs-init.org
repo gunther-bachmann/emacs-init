@@ -2265,6 +2265,7 @@
      #+end_src
 ** sublimity (smooth scrolling)
    - patched ~sublimity--post-command~ commented out ~(recenter)~ after vscroll detection
+   - patched sublimity-scroll--vscroll-effect and  sublimity-scroll--hscroll-effect to ~NOT~ execute ~(force-window-update)~
    #+BEGIN_SRC emacs-lisp
      (use-package sublimity
        :ensure t
@@ -2288,11 +2289,7 @@
          ;; show minimap after x seconds of inactivity
          ;; (sublimity-map-set-delay 3)
 
-         (sublimity-mode 1)
-
-         ;; (add-hook 'after-change-major-mode-hook #'gb/enable-sublimity-mode)
-         ))
-
+         (sublimity-mode 1)))
    #+END_SRC
 ** other
    #+BEGIN_SRC emacs-lisp
@@ -13649,6 +13646,8 @@
       (setq scanner-tesseract-configdir (s-concat (s-trim (shell-command-to-string (s-concat "dirname " scanner-tesseract-program))) "/../share/tessdata/configs")))
   #+end_src
 * EVAL cpu-sos - send invisible buffers SIGSTOP (to prevent background processing)
+  - activate this minor mode on e.g. web browsers that do lots of background processing
+  - this mode will then send signals to limit cpu usage if that buffer is not visible
   #+begin_src emacs-lisp
     (use-package cpu-sos)
   #+end_src
