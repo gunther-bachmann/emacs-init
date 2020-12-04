@@ -14348,6 +14348,14 @@
       (run-at-time t 100 #'gb/battery-level-check-and-report))
   #+end_src
 
+* valign - better table alignment in org-mode and markdown
+  - see https://github.com/casouri/valign
+  #+begin_src emacs-lisp
+    (use-package valign
+      :load-path "~/repo/valign"
+      :hook (org-mode . valign-mode)
+      :config (setq valign-fancy-bar t))
+  #+end_src
 * INTERESTING
 ** blog/presentation
   - org-present using a cell phone to switch pages
