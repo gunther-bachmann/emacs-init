@@ -4183,7 +4183,9 @@
        (bind-key "u" #'upcase-region selected-keymap)
        (bind-key "w" #'count-words-region selected-keymap)
        (bind-key "<" #'mc/mark-previous-like-this selected-keymap)
-       (bind-key ">" #'mc/mark-next-like-this selected-keymap))
+       (bind-key ">" #'mc/mark-next-like-this selected-keymap)
+       (bind-key "," #'mc/skip-to-previous-like-this selected-keymap)
+       (bind-key "." #'mc/skip-to-next-like-this selected-keymap))
    #+END_SRC
 ** german umlaute with quail input method (switch with C-\)
    #+begin_src emacs-lisp
