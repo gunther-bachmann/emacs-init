@@ -3222,6 +3222,8 @@
              org-block-end-line
              org-block
              org-code
+             org-hide
+             org-indent
              ;;
              rainbow-identifiers-identifier-1
              rainbow-identifiers-identifier-2
@@ -3292,6 +3294,8 @@
                                      (face-remap-add-relative
                                       face :family default-fam :height default-height)))
                       (text-scale-increase 2)
+                      (when (derived-mode-p 'org-mode)
+                        (org-indent-mode 1))
                       (message "Turned on serif writing font."))
              ;; undo changes
              (progn (face-remap-remove-relative default-cookie)
@@ -3300,6 +3304,8 @@
                     (setq default-cookie nil)
                     (setq preserve-default-cookies-list nil)
                     (text-scale-decrease 2)
+                    (when (derived-mode-p 'org-mode)
+                      (org-indent-mode -1))
                     (message "Restored default fonts."))))))
    #+END_SRC
 ** form feed
