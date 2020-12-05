@@ -3916,66 +3916,66 @@
    #+END_SRC
 ** multicursor
    #+BEGIN_SRC emacs-lisp
-   (use-package multiple-cursors
-     :after ( hydra highlight-indent-guides)
-     ;; bind currently does not work since some other project loads multiple cursors without req-package actually loading this!
-     :bind (
-            ;; When you have an active region that spans multiple lines, the following will
-            ;; add a cursor to each line:
-            ("C-S-c C-S-c" . mc/edit-lines)
+     (use-package multiple-cursors
+       :after ( hydra highlight-indent-guides)
+       ;; bind currently does not work since some other project loads multiple cursors without req-package actually loading this!
+       :bind (
+              ;; When you have an active region that spans multiple lines, the following will
+              ;; add a cursor to each line:
+              ("C-S-c C-S-c" . mc/edit-lines)
 
-            ;; When you want to add multiple cursors not based on continuous lines, but based on
-            ;; keywords in the buffer, use:
+              ;; When you want to add multiple cursors not based on continuous lines, but based on
+              ;; keywords in the buffer, use:
 
-            ("C->" . mc/mark-next-like-this)
-            ("C-<" . mc/mark-previous-like-this)
-            ("C-c C-<" . mc/mark-all-like-this) ;; mark textually (even substrings)
-            ("C-c C->" . mc/mark-all-symbols-like-this) ;; mark more semantically (no substrings)
-            )
-     :config
-     (progn
-       ;; add a cursor to each line:
-       ;; (bind-key "C-S-c C-S-c" 'mc/edit-lines)
+              ("C->" . mc/mark-next-like-this)
+              ("C-<" . mc/mark-previous-like-this)
+              ("C-c C-<" . mc/mark-all-like-this) ;; mark textually (even substrings)
+              ("C-c C->" . mc/mark-all-symbols-like-this) ;; mark more semantically (no substrings)
+              )
+       :config
+       (progn
+         ;; add a cursor to each line:
+         ;; (bind-key "C-S-c C-S-c" 'mc/edit-lines)
 
-       ;; When you want to add multiple cursors not based on continuous lines, but based on
-       ;; keywords in the buffer, use:
+         ;; When you want to add multiple cursors not based on continuous lines, but based on
+         ;; keywords in the buffer, use:
 
-       ;; (bind-key "C->" 'mc/mark-next-like-this)
-       ;; (bind-key "C-<" 'mc/mark-previous-like-this)
-       ;; (bind-key "C-c C-<" 'mc/mark-all-like-this) ;; mark textually (even substrings)
-       ;; (bind-key "C-c C->" 'mc/mark-all-symbols-like-this) ;; mark more semantically (no substrings)
-       (defhydra hydra-multiple-cursors ()
-         "
-                 ^Up^            ^Down^          ^Other^
-                 ----------------------------------------------
-                 [_p_]   Next    [_n_]   Next    [_l_] Edit lines
-                 [_P_]   Skip    [_N_]   Skip    [_a_] Mark all
-                 [_M-p_] Unmark  [_M-n_] Unmark  [_r_] Mark by regexp
-                 ^ ^             ^ ^             [_m_] Mark by avy
-                 ^ ^             ^ ^             [_q_] Quit
-             %s(hydra-combine-functions-w-key-bindings
-               '((\"    [p]   Up-Next       \" . mc/mark-previous-like-this)
-                 (\"    [P]   Up-Skip       \" . mc/skip-to-previous-like-this)
-                 (\"    [M-p] Up-Unmark     \" . mc/unmark-previous-like-this)
-                 (\"    [n]   Down-Next     \" . mc/mark-next-like-this)
-                 (\"    [N]   Down-Skip     \" . mc/skip-to-next-like-this)
-                 (\"    [M-n] Down-Unmark   \" . mc/unmark-next-like-this)
-                 (\"    [l]   Edit lines    \" . mc/edit-lines)
-                 (\"    [a]   Mark all      \" . mc/mark-all-like-this)
-                 (\"    [r]   Mark by regexp\" . mc/mark-all-in-region-regexp)
-                 (\"    [m]   Mark by avy   \" . ace-mc-add-multiple-cursors)))
-                 "
-         ("l" mc/edit-lines :exit t)
-         ("a" mc/mark-all-like-this :exit t)
-         ("n" mc/mark-next-like-this)
-         ("N" mc/skip-to-next-like-this)
-         ("M-n" mc/unmark-next-like-this)
-         ("p" mc/mark-previous-like-this)
-         ("P" mc/skip-to-previous-like-this)
-         ("M-p" mc/unmark-previous-like-this)
-         ("r" mc/mark-all-in-region-regexp :exit t)
-         ("m" ace-mc-add-multiple-cursors :exit t)
-         ("q" (message "Abort") :exit t))))
+         ;; (bind-key "C->" 'mc/mark-next-like-this)
+         ;; (bind-key "C-<" 'mc/mark-previous-like-this)
+         ;; (bind-key "C-c C-<" 'mc/mark-all-like-this) ;; mark textually (even substrings)
+         ;; (bind-key "C-c C->" 'mc/mark-all-symbols-like-this) ;; mark more semantically (no substrings)
+         (defhydra hydra-multiple-cursors ()
+           "
+                   ^Up^            ^Down^          ^Other^
+                   ----------------------------------------------
+                   [_p_]   Next    [_n_]   Next    [_l_] Edit lines
+                   [_P_]   Skip    [_N_]   Skip    [_a_] Mark all
+                   [_M-p_] Unmark  [_M-n_] Unmark  [_r_] Mark by regexp
+                   ^ ^             ^ ^             [_m_] Mark by avy
+                   ^ ^             ^ ^             [_q_] Quit
+               %s(hydra-combine-functions-w-key-bindings
+                 '((\"    [p]   Up-Next       \" . mc/mark-previous-like-this)
+                   (\"    [P]   Up-Skip       \" . mc/skip-to-previous-like-this)
+                   (\"    [M-p] Up-Unmark     \" . mc/unmark-previous-like-this)
+                   (\"    [n]   Down-Next     \" . mc/mark-next-like-this)
+                   (\"    [N]   Down-Skip     \" . mc/skip-to-next-like-this)
+                   (\"    [M-n] Down-Unmark   \" . mc/unmark-next-like-this)
+                   (\"    [l]   Edit lines    \" . mc/edit-lines)
+                   (\"    [a]   Mark all      \" . mc/mark-all-like-this)
+                   (\"    [r]   Mark by regexp\" . mc/mark-all-in-region-regexp)
+                   (\"    [m]   Mark by avy   \" . ace-mc-add-multiple-cursors)))
+                   "
+           ("l" mc/edit-lines :exit t)
+           ("a" mc/mark-all-like-this :exit t)
+           ("n" mc/mark-next-like-this)
+           ("N" mc/skip-to-next-like-this)
+           ("M-n" mc/unmark-next-like-this)
+           ("p" mc/mark-previous-like-this)
+           ("P" mc/skip-to-previous-like-this)
+           ("M-p" mc/unmark-previous-like-this)
+           ("r" mc/mark-all-in-region-regexp :exit t)
+           ("m" ace-mc-add-multiple-cursors :exit t)
+           ("q" (message "Abort") :exit t))))
    #+END_SRC
 ** IMPLEMENT ace-mc
    - mark multiple cursors using avy to jump to the places that should be multicursored!
