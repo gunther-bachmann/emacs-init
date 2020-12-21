@@ -14126,8 +14126,8 @@
       :load-path maxima-elisp-loadpath
       :commands (imaxima)
       :ensure-system-package maxima
-      :config (setq imaxima-fnt-size "LARGE")
-      )
+      :custom (imaxima-use-maxima-mode-flag t)
+              (imaxima-fnt-size "LARGE"))
     (use-package imath
       :load-path maxima-elisp-loadpath)
     (use-package maxima
