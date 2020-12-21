@@ -14959,6 +14959,7 @@
   - company-manually - manually provide completio entries
   - company-ledger - fuzzy autocomplete for ledger and friends
   - helm-org-ql - Helm commands for org-ql
+  - company-maxima - maxima integration
 ** cloud
    - axe - aws interface (directly through aws api, no aws-cli)
 ** configuration
@@ -14988,6 +14989,8 @@
 ** (function) selection
   - helm-selected
   - helm-org - Helm for org headlines and keywords completion
+  - consult-flycheck - Provides the command `consult-flycheck'
+  - consult-selectrum - Selectrum integration for Consult
 ** git
   - magit-tbdiff (diffing extension for magit)
     - git-tbdiff is a git extension that allows diffs for topic branches
@@ -15120,6 +15123,7 @@
   - smart-input-source - Switch input source smartly
   - docopt - a docopt implementation in elisp (docopt allows generating cli options for bash scripts)
   - leo - Interface for dict.leo.org
+  - diredc - Extensions for dired (acting similar to midnight commander)
 ** windowmanager/x-integration
   - edwin (dynamic window manager)
   - zoom
