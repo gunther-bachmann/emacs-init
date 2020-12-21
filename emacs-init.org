@@ -14924,6 +14924,11 @@
       :hook (org-mode . valign-mode)
       :config (setq valign-fancy-bar t))
   #+end_src
+* org-tree-slide-pause
+  #+begin_src emacs-lisp
+    (use-package org-tree-slide-pauses
+      :load-path "~/repo/org-tree-slide-pauses")
+  #+end_src
 * INTERESTING
 ** blog/presentation
   - org-present using a cell phone to switch pages
