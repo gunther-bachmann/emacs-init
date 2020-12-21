@@ -14929,6 +14929,12 @@
     (use-package org-tree-slide-pauses
       :load-path "~/repo/org-tree-slide-pauses")
   #+end_src
+* EVAL embark - provide context sensitive menu
+  - see https://github.com/oantolin/embark
+  #+begin_src emacs-lisp
+    (use-package embark
+      :ensure t)
+  #+end_src
 * INTERESTING
 ** blog/presentation
   - org-present using a cell phone to switch pages
