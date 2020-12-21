@@ -9504,12 +9504,12 @@
       (use-package org-sidebar
         :ensure t
         :commands (org-sidebar-toggle org-sidebar)
-        :config
-        (setq org-ql-sidebar-buffer-setup-hook
+        :custom
+        (org-ql-sidebar-buffer-setup-hook
               '((lambda ()
                   "Set `mode-line-format' to nil."
                   (setf mode-line-format nil))))
-        (setq org-super-agenda-groups
+        (org-super-agenda-groups
               '(
                 (:todo "TEST" :order 1)
                 (:todo "IMPLEMENT" :order 2)
