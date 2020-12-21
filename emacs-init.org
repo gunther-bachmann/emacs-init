@@ -14839,7 +14839,8 @@
   #+begin_src emacs-lisp
     (use-package org-roam-stack
       :load-path "~/repo/org-roam-stack/"
-      :config (org-roam-stack-mode 1))
+      :custom (org-roam-stack--link-adjustments t)
+      (org-roam-stack--open-ro t))
   #+end_src
 * proced
   #+begin_src emacs-lisp
