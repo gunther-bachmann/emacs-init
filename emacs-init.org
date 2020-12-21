@@ -20,6 +20,7 @@
 #
 * first
 #+begin_src emacs-lisp
+  (setq gb/completion-framework 'ivy) ;; 'helm | 'selectrum | 'ivy
   (set-background-color "black")
   (set-foreground-color "white")
   (insert "\n")
@@ -709,10 +710,9 @@
      (defun gb/cache-gpg (prompt)
        "cache gpg password for the standard key or the selected key if the universal argument was provided"
        (interactive "P")
-       (require 'ivy)
        (if prompt
            (progn
-             (let ((keyId (ivy-read "email: " (--map (string-trim it "<" ">") (available-keys)))))
+             (let ((keyId (completing-read "email: " (--map (string-trim it "<" ">") (available-keys)))))
                (gb/cache-gpg-key keyId)))
          (gb/cache-gpg-key)))
 
@@ -1016,7 +1016,7 @@
        "kill the current buffer (ask if prefix argument is given)"
        (interactive "P")
        (if askp
-           (kill-buffer (ivy-read "Kill buffer: " (mapcar #'buffer-name (buffer-list))))
+           (kill-buffer (completing-read "Kill buffer: " (mapcar #'buffer-name (buffer-list))))
          (if (string= (buffer-name) "*scratch*")
              (message "scratch buffer must be killed explicitly (with prefix argument, then selecting the buffer)")
            (kill-buffer (current-buffer)))))
@@ -1054,8 +1054,7 @@
      (defun gb/query-default-printer ()
        "interactively query for the printer that is then set to be the default printer"
        (interactive)
-       ;; (ivy-read "printer:" (gb/get-known-printers) :preselect (gb/get-standard-printer) :require-match t)
-       (let ((printer-name (helm-comp-read "printer:" (gb/get-known-printers) :default (gb/get-standard-printer) :must-match t)))
+       (let ((printer-name (completing-read "printer:" (gb/get-known-printers) nil t (gb/get-standard-printer))))
          (gb/set-default-printer printer-name)))
 
      (defun gb/print-buffer (x)
@@ -1232,63 +1231,64 @@
   #+end_src
 * ms windows specific stuff
   #+BEGIN_SRC emacs-lisp
-  (when (is-ms-windows-p)
-    (progn
+    (when (is-ms-windows-p)
+      (progn
 
-      (setq gnutls-cli-installed nil)
+        (setq gnutls-cli-installed nil)
 
-      ;; make sure that git asks for the credentials via gui
-      (setenv "GIT_ASKPASS" "git-gui--askpass")
+        ;; make sure that git asks for the credentials via gui
+        (setenv "GIT_ASKPASS" "git-gui--askpass")
 
-      (setq graphviz-installation-path "C:/dev/tools/Graphviz 2.28/")
+        (setq graphviz-installation-path "C:/dev/tools/Graphviz 2.28/")
 
-      (check-windows-program-status graphviz-installed (concat graphviz-installation-path "bin/dot.exe") "Graphviz" "org babel will not be able to prodcess dot files.")
+        (check-windows-program-status graphviz-installed (concat graphviz-installation-path "bin/dot.exe") "Graphviz" "org babel will not be able to prodcess dot files.")
 
-      (if graphviz-installed
-          (add-to-list 'exec-path graphviz-installation-path))
+        (if graphviz-installed
+            (add-to-list 'exec-path graphviz-installation-path))
 
-      (setq org-plantuml-jar-path "c:/dev/tools/plantuml.jar")
+        (setq org-plantuml-jar-path "c:/dev/tools/plantuml.jar")
 
-      (check-file-existence-status plantuml-installed org-plantuml-jar-path "plantuml.jar" "org babel won't be able to produce uml diagrams via plantuml.")
+        (check-file-existence-status plantuml-installed org-plantuml-jar-path "plantuml.jar" "org babel won't be able to produce uml diagrams via plantuml.")
 
-      (setq everthing-installation-path "C:/dev/tools/es/")
-      (check-windows-program-status everything-installed (concat everthing-installation-path "es.exe") "Everything" "Helm locate will not work without 'Everthing' installed")
+        (setq everthing-installation-path "C:/dev/tools/es/")
+        (check-windows-program-status everything-installed (concat everthing-installation-path "es.exe") "Everything" "Helm locate will not work without 'Everthing' installed")
 
-      (if everything-installed
-          (progn
-            (setq everything-cmd "C:/dev/tools/es/es.exe")
-            (setq helm-locate-command "es.exe %s -r %s")))
+        (if everything-installed
+            (progn
+              (setq everything-cmd "C:/dev/tools/es/es.exe")
+              (when (eq gb/completion-framework 'helm)
+                (setq helm-locate-command "es.exe %s -r %s"))))
 
-      (setq magithub-installation-path "c:/dev/tools/hub/bin/")
-      (check-windows-program-status hub-installed (concat magithub-installation-path "hub.exe") "Hub" "cannot use magithub within magit.")
+        (setq magithub-installation-path "c:/dev/tools/hub/bin/")
+        (check-windows-program-status hub-installed (concat magithub-installation-path "hub.exe") "Hub" "cannot use magithub within magit.")
 
-      (if hub-installed
-          (magithub-hub-executable (concat magithub-installation-path "hub.exe")))
+        (if hub-installed
+            (magithub-hub-executable (concat magithub-installation-path "hub.exe")))
 
-      ;; windows specific settings
-      ;; 1. install AutoHotkey
-      ;; 2. remap windows and alt keys (left windows key will be meta, alt key will be super)
-      ;;      LWin::LAlt
-      ;;      LAlt::LWin
-      ;;      Capslock::Ctrl
-      ;; 3. disable windows hot key binding in windows (LWin + f won't open the windows find dialog anymore!)
-      ;;      - start 'regedit'
-      ;;      - got to the key 'HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer'
-      ;;      - create a new DWORD 'NoWinKeys' entry  and set its value to 1
-      ;;      - reboot
+        ;; windows specific settings
+        ;; 1. install AutoHotkey
+        ;; 2. remap windows and alt keys (left windows key will be meta, alt key will be super)
+        ;;      LWin::LAlt
+        ;;      LAlt::LWin
+        ;;      Capslock::Ctrl
+        ;; 3. disable windows hot key binding in windows (LWin + f won't open the windows find dialog anymore!)
+        ;;      - start 'regedit'
+        ;;      - got to the key 'HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer'
+        ;;      - create a new DWORD 'NoWinKeys' entry  and set its value to 1
+        ;;      - reboot
 
-      ;; make sure that autohotkey is run beforehand to map the left windows key to alt!
-      (setq w32-lwindow-modifier 'super)
+        ;; make sure that autohotkey is run beforehand to map the left windows key to alt!
+        (setq w32-lwindow-modifier 'super)
 
-      (setq w3m-installed nil)
+        (setq w3m-installed nil)
 
-      (setq aspell-installation-path "C:/dev/tools/Aspell/")
-      (check-windows-program-status aspell-installed (concat aspell-installation-path "bin/aspell.exe") "Aspell" "no spell checking will be possible")
+        (setq aspell-installation-path "C:/dev/tools/Aspell/")
+        (check-windows-program-status aspell-installed (concat aspell-installation-path "bin/aspell.exe") "Aspell" "no spell checking will be possible")
 
-      (if aspell-installed
-          (progn
-            (add-to-list 'exec-path (concat aspell-installation-path "bin/"))
-            (setq ispell-program-name "aspell")))))
+        (if aspell-installed
+            (progn
+              (add-to-list 'exec-path (concat aspell-installation-path "bin/"))
+              (setq ispell-program-name "aspell")))))
   #+END_SRC
 * mac os x specific stuff
 ** misc
@@ -1495,10 +1495,6 @@
           (eval setq org-format-latex-options
                 (plist-put org-format-latex-options :scale 2.6))
           (gb/slides-started)
-          (eval setq org-show-notification-handler
-                #'(lambda
-                    (msg)
-                    (message msg)))
           (eval org-tree-slide-content)
           (eval goto-char
                 (point-min))
@@ -1811,7 +1807,7 @@
    #+END_SRC
 ** minibuffer
    #+BEGIN_SRC emacs-lisp
-   (setq enable-recursive-minibuffers t)
+   (setq enable-recursive-minibuffers nil) ;; recursive minibuffers may interfere with mini-frame, so it is switched off for now
    (minibuffer-depth-indicate-mode 1)
    #+END_SRC
 ** jumpy scrolling
@@ -3337,38 +3333,42 @@
    #+END_SRC
 ** own ui stuff
    #+BEGIN_SRC emacs-lisp
-   (when (and (package-installed-p 'ace-window) (package-installed-p 'helm))
+        (when (package-installed-p 'ace-window)
 
-     (require 'ace-window)
-     (require 'helm-buffers)
+          (require 'ace-window)
 
-     (defun split-window-below-and-select-scratch ()
-       (interactive)
-       (let* ((new-window (split-window-below)))
-         (set-window-buffer new-window "*scratch*")
-         (aw-switch-to-window new-window)
-         new-window))
-     (bind-key "C-x 2" 'split-window-below-and-select-scratch)
+          (defun split-window-below-and-select-scratch ()
+            (interactive)
+            (let* ((new-window (split-window-below)))
+              (set-window-buffer new-window "*scratch*")
+              (aw-switch-to-window new-window)
+              new-window))
+          (bind-key "C-x 2" 'split-window-below-and-select-scratch)
 
-     (defun split-window-right-and-select-scratch ()
-       (interactive)
-       (let* ((new-window (split-window-right)))
-         (set-window-buffer new-window "*scratch*")
-         (aw-switch-to-window new-window)
-         new-window))
-     (bind-key "C-x 3" 'split-window-right-and-select-scratch)
+          (defun split-window-right-and-select-scratch ()
+            (interactive)
+            (let* ((new-window (split-window-right)))
+              (set-window-buffer new-window "*scratch*")
+              (aw-switch-to-window new-window)
+              new-window))
+          (bind-key "C-x 3" 'split-window-right-and-select-scratch)
 
-     (defun split-window-right-and-select ()
-       (interactive)
-       (split-window-right-and-select-scratch)
-       (helm-mini))
-     (bind-key "C-x C-3" 'split-window-right-and-select)
+          (when (eq gb/completion-framework 'helm)
+            (when  (package-installed-p 'helm)
 
-     (defun split-window-below-and-select ()
-       (interactive)
-       (split-window-below-and-select-scratch)
-       (helm-mini))
-     (bind-key "C-x C-2" 'split-window-below-and-select))
+              (require 'helm-buffers)
+
+              (defun split-window-right-and-select ()
+                (interactive)
+                (split-window-right-and-select-scratch)
+                (helm-mini))
+              (bind-key "C-x C-3" 'split-window-right-and-select)
+
+              (defun split-window-below-and-select ()
+                (interactive)
+                (split-window-below-and-select-scratch)
+                (helm-mini))
+              (bind-key "C-x C-2" 'split-window-below-and-select))))
 
    #+END_SRC
 * play startup sound (check again 3)
@@ -4521,67 +4521,70 @@
    #+END_SRC
 ** helm-company (disabled)
    #+BEGIN_SRC emacs-lisp :tangle no
-   (use-package helm-company
-     :ensure t
-     :after ( helm company)
-     :bind (:map company-mode-map
-                 ("C-:" . helm-company)
-                 :map company-active-map
-                 ("C-:" . helm-company)))
+     (when (eq gb/completion-framework 'helm)
+       (use-package helm-company
+         :ensure t
+         :after ( helm company)
+         :bind (:map company-mode-map
+                     ("C-:" . helm-company)
+                     :map company-active-map
+                     ("C-:" . helm-company))))
    #+END_SRC
 ** helm-descbind
    - describe current keybindings with helm interface
    #+BEGIN_SRC emacs-lisp
-   (use-package helm-descbinds
-     :ensure t
-     :after (helm company)
-     :bind (("\C-h b" . helm-descbinds)))
+     (when (eq gb/completion-framework 'helm)
+       (use-package helm-descbinds
+         :ensure t
+         :after (helm company)
+         :bind (("\C-h b" . helm-descbinds))))
    #+END_SRC
 ** helm-dash
    - add new sources for helm dash via helm-dash-install-docset
    - browse doc set via helm-dash
    #+BEGIN_SRC emacs-lisp
-   (use-package helm-dash
-     :bind (("\C-z SPC d" . helm-dash-at-point))
-     :after ( helm)
-     :init (progn
-             (defun clojure-dash-doc ()
-               (interactive)
-               (setq-local helm-dash-docsets '("Clojure")))
+     (when (eq gb/completion-framework 'helm)
+       (use-package helm-dash
+         :bind (("\C-z SPC d" . helm-dash-at-point))
+         :after ( helm)
+         :init (progn
+                 (defun clojure-dash-doc ()
+                   (interactive)
+                   (setq-local helm-dash-docsets '("Clojure")))
 
 
-             (defun java-dash-doc ()
-               (interactive)
-               (setq-local helm-dash-docsets '("Java_SE8")))
+                 (defun java-dash-doc ()
+                   (interactive)
+                   (setq-local helm-dash-docsets '("Java_SE8")))
 
 
-             (defun bash-dash-doc ()
-               (interactive)
-               (setq-local helm-dash-docset '("Bash")))
+                 (defun bash-dash-doc ()
+                   (interactive)
+                   (setq-local helm-dash-docset '("Bash")))
 
 
-             (add-hook 'clojure-mode-hook 'clojure-dash-doc)
-             (add-hook 'java-mode-hook 'java-dash-doc)
-             (add-hook 'shell-mode-hook 'bash-dash-doc)
-             )
-     :config
-     (progn
-       (if w3m-installed
-           (setq helm-dash-browser-func 'w3m-browse-url))
-       (setq helm-dash-docsets '("Bash"
-                                 "Clojure"
-                                 "Docker"
-                                 "Emacs Lisp"
-                                 "Groovy"
-                                 "Groovy JDK"
-                                 "Gradle Groovy API"
-                                 "Gradle DSL"
-                                 "Gradle User Guide"
-                                 "Java"
-                                 "LaTeX"
-                                 "PostgreSQL"
-                                 "Vagrant"
-                                 "XSLT"))))
+                 (add-hook 'clojure-mode-hook 'clojure-dash-doc)
+                 (add-hook 'java-mode-hook 'java-dash-doc)
+                 (add-hook 'shell-mode-hook 'bash-dash-doc)
+                 )
+         :config
+         (progn
+           (if w3m-installed
+               (setq helm-dash-browser-func 'w3m-browse-url))
+           (setq helm-dash-docsets '("Bash"
+                                     "Clojure"
+                                     "Docker"
+                                     "Emacs Lisp"
+                                     "Groovy"
+                                     "Groovy JDK"
+                                     "Gradle Groovy API"
+                                     "Gradle DSL"
+                                     "Gradle User Guide"
+                                     "Java"
+                                     "LaTeX"
+                                     "PostgreSQL"
+                                     "Vagrant"
+                                     "XSLT")))))
    #+END_SRC
 *** Installing docsets
 
@@ -4606,13 +4609,14 @@
    #+END_SRC
 ** helm-swoop
    #+BEGIN_SRC emacs-lisp
-   (use-package helm-swoop
-     :ensure t
-     :bind (("C-S-s" . helm-swoop)
-            ("C-M-S-s" . helm-multi-swoop-all))
-     :after (helm)
-     :config
-     (setq helm-swoop-split-direction (quote split-window-horizontally)))
+     (when (eq gb/completion-framework 'helm)
+       (use-package helm-swoop
+         :ensure t
+         :bind (("C-S-s" . helm-swoop)
+                ("C-M-S-s" . helm-multi-swoop-all))
+         :after (helm)
+         :config
+         (setq helm-swoop-split-direction (quote split-window-horizontally))))
    #+END_SRC
 ** pos tip
    #+BEGIN_SRC emacs-lisp
@@ -4680,7 +4684,7 @@
    #+BEGIN_SRC emacs-lisp :tangle no
    (use-package ace-isearch
      :ensure t
-     :after ( avy helm-swoop ace-jump-mode)
+     :after ( avy ace-jump-mode)
      :disabled t
      :config
      (progn
@@ -4812,7 +4816,6 @@
 ** jumplist
    #+BEGIN_SRC emacs-lisp
    (use-package jumplist
-     :after (helm helm-swoop)
      :ensure t
      :bind (
             ("C-," . jumplist-previous)
@@ -4902,31 +4905,452 @@
          (setq recentf-max-menu-items 40)
          (recentf-mode 1)))
    #+END_SRC
-** swiper
+** swiper and ivy
    #+BEGIN_SRC emacs-lisp
-     (use-package ivy
-       :after (easy-escape)
-       :ensure t)
-     (use-package swiper
-       :ensure t
-       :after ( ivy))
-     (use-package swiper-helm
-       :bind (("s-s" . swiper-helm))
-       :ensure t)
+     (when (eq gb/completion-framework 'ivy)
+       (require 'comint)
+       (use-package ivy
+         :ensure t
+         :config
+         (defface ivy-current-match
+           '((((class color) (background light))
+              :background "#1a4b77" :foreground "white")
+             (((class color) (background dark))
+              :background "#65a7e2" :foreground "black"))
+           "Face used by Ivy for highlighting first match.")
+
+         (setq ivy-display-style 'fancy)
+         :init
+         (defun gb/collect-external-commands (sort)
+           "collect external commands"
+           (cl-loop
+            for dir in (split-string (getenv "PATH") path-separator)
+            when (and (file-exists-p dir) (file-accessible-directory-p dir))
+            for lsdir = (cl-loop for i in (directory-files dir t)
+                                 for bn = (file-name-nondirectory i)
+                                 when (and (not (member bn completions))
+                                         (not (file-directory-p i))
+                                         (file-executable-p i))
+                                 collect bn)
+            append lsdir into completions
+            finally return
+            (if sort (sort completions 'string-lessp) completions)))
+
+         (defvar gb/external-commands nil)
+
+         (defun gb/exwm--switch-or-run-sel (program &optional alias)
+           "switch to this program if already open or start it"
+           ;; (exwm-reset)
+           (unless (gb/exwm--switch program alias)
+             (start-process-shell-command program nil program)
+             (run-at-time 1 nil `(lambda () (gb/exwm--switch ,program)))))
+
+         (defun gb/ivy--program-select-and-run ()
+           (interactive)
+           (unless gb/external-commands
+             (setq gb/external-commands (gb/collect-external-commands nil)))
+           (gb/exwm--switch-or-run-sel
+            (completing-read "RunProgram: " gb/external-commands nil t)))
+
+         :bind (( "C-x C-b" . ivy-switch-buffer) ;; exwm-workspace-switch-to-buffer
+                ( "s-1"     . gb/ivy--program-select-and-run))
+         :config
+         (setq ivy-height 45))
+       (use-package ivy-prescient
+         :ensure t
+         :config
+         (ivy-prescient-mode 1))
+       (use-package swiper
+         :ensure t
+         :after ( ivy)
+         :bind (( "s-s" . swiper)))
+       (use-package ivy-rich
+         :ensure t
+         :config
+         (setcdr (assq t ivy-format-functions-alist) #'ivy-format-function-line))
+       (use-package all-the-icons-ivy
+         :ensure t)
+       (use-package all-the-icons-ivy-rich
+         :config
+         (setq ivy-rich-display-transformer--buffer
+               '(:columns
+                  ((all-the-icons-ivy-rich-buffer-icon)
+                   (ivy-rich-candidate
+                    (:width 40))
+                   (ivy-rich-switch-buffer-size
+                    (:width 7))
+                   (ivy-rich-switch-buffer-indicators
+                    (:width 4 :face error :align right))
+                   (ivy-rich-switch-buffer-major-mode
+                    (:width 20 :face warning))
+                   (ivy-rich-switch-buffer-project
+                    (:width 15 :face success))
+                   (ivy-rich-switch-buffer-path
+                    (:width
+                     (lambda (x) (ivy-rich-switch-buffer-shorten-path x (ivy-rich-minibuffer-width 0.5))))))
+                  :predicate
+                  (lambda (cand) (get-buffer cand))
+                  :delimiter "	"))
+         (setq ivy-rich-display-transformers-list
+               `(ivy-switch-buffer
+                 ,ivy-rich-display-transformer--buffer
+                 ivy-switch-buffer-other-window
+                 ,ivy-rich-display-transformer--buffer
+                 counsel-switch-buffer
+                 ,ivy-rich-display-transformer--buffer
+                 counsel-switch-buffer-other-window
+                 ,ivy-rich-display-transformer--buffer
+                 counsel-M-x
+                 (:columns
+                  ((all-the-icons-ivy-rich-function-icon)
+                   (counsel-M-x-transformer
+                    (:width 40))
+                   (ivy-rich-counsel-function-docstring
+                    (:face font-lock-doc-face))))
+                 counsel-describe-function
+                 (:columns
+                  ((all-the-icons-ivy-rich-function-icon)
+                   (counsel-describe-function-transformer
+                    (:width 40))
+                   (ivy-rich-counsel-function-docstring
+                    (:face font-lock-doc-face))))
+                 counsel-describe-variable
+                 (:columns
+                  ((all-the-icons-ivy-rich-variable-icon)
+                   (counsel-describe-variable-transformer
+                    (:width 40))
+                   (ivy-rich-counsel-variable-docstring
+                    (:face font-lock-doc-face))))
+                 counsel-describe-symbol
+                 (:columns
+                  ((all-the-icons-ivy-rich-symbol-icon)
+                   (ivy-rich-candidate))
+                  :delimiter "	")
+                 counsel-set-variable
+                 (:columns
+                  ((all-the-icons-ivy-rich-variable-icon)
+                   (counsel-describe-variable-transformer
+                    (:width 40))
+                   (ivy-rich-counsel-variable-docstring
+                    (:face font-lock-doc-face))))
+                 counsel-apropos
+                 (:columns
+                  ((all-the-icons-ivy-rich-symbol-icon)
+                   (ivy-rich-candidate))
+                  :delimiter "	")
+                 counsel-info-lookup-symbol
+                 (:columns
+                  ((all-the-icons-ivy-rich-symbol-icon)
+                   (ivy-rich-candidate))
+                  :delimiter "	")
+                 counsel-descbinds
+                 (:columns
+                  ((all-the-icons-ivy-rich-keybinding-icon)
+                   (ivy-rich-candidate))
+                  :delimiter "	")
+                 counsel-find-file
+                 (:columns
+                  ((all-the-icons-ivy-rich-file-icon)
+                   (ivy-read-file-transformer))
+                  :delimiter "	")
+                 counsel-file-jump
+                 (:columns
+                  ((all-the-icons-ivy-rich-file-icon)
+                   (ivy-rich-candidate))
+                  :delimiter "	")
+                 counsel-dired
+                 (:columns
+                  ((all-the-icons-ivy-rich-file-icon)
+                   (ivy-read-file-transformer))
+                  :delimiter "	")
+                 counsel-dired-jump
+                 (:columns
+                  ((all-the-icons-ivy-rich-file-icon)
+                   (ivy-rich-candidate))
+                  :delimiter "	")
+                 counsel-el
+                 (:columns
+                  ((all-the-icons-ivy-rich-symbol-icon)
+                   (ivy-rich-candidate))
+                  :delimiter "	")
+                 counsel-fzf
+                 (:columns
+                  ((all-the-icons-ivy-rich-file-icon)
+                   (ivy-rich-candidate))
+                  :delimiter "	")
+                 counsel-git
+                 (:columns
+                  ((all-the-icons-ivy-rich-file-icon)
+                   (ivy-rich-candidate))
+                  :delimiter "	")
+                 counsel-recentf
+                 (:columns
+                  ((all-the-icons-ivy-rich-file-icon)
+                   (ivy-rich-candidate
+                    (:width 0.8))
+                   (ivy-rich-file-last-modified-time
+                    (:face font-lock-comment-face)))
+                  :delimiter "	")
+                 counsel-buffer-or-recentf
+                 (:columns
+                  ((all-the-icons-ivy-rich-file-icon)
+                   (counsel-buffer-or-recentf-transformer
+                    (:width 0.65))
+                   (ivy-rich-file-last-modified-time
+                    (:face font-lock-comment-face)))
+                  :delimiter "	")
+                 counsel-bookmark
+                 (:columns
+                  ((all-the-icons-ivy-rich-bookmark-type)
+                   (all-the-icons-ivy-rich-bookmark-name
+                    (:width 40))
+                   (all-the-icons-ivy-rich-bookmark-info))
+                  :delimiter "	")
+                 counsel-bookmarked-directory
+                 (:columns
+                  ((all-the-icons-ivy-rich-file-icon)
+                   (ivy-rich-candidate))
+                  :delimiter "	")
+                 counsel-package
+                 (:columns
+                  ((all-the-icons-ivy-rich-package-icon)
+                   (ivy-rich-candidate
+                    (:width 30))
+                   (all-the-icons-ivy-rich-package-version
+                    (:width 16 :face font-lock-comment-face))
+                   (all-the-icons-ivy-rich-package-archive-summary
+                    (:width 7 :face font-lock-builtin-face))
+                   (all-the-icons-ivy-rich-package-install-summary
+                    (:face font-lock-doc-face)))
+                  :delimiter "	")
+                 counsel-fonts
+                 (:columns
+                  ((all-the-icons-ivy-rich-font-icon)
+                   (ivy-rich-candidate))
+                  :delimiter "	")
+                 counsel-major
+                 (:columns
+                  ((all-the-icons-ivy-rich-function-icon)
+                   (ivy-rich-candidate))
+                  :delimiter "	")
+                 counsel-find-library
+                 (:columns
+                  ((all-the-icons-ivy-rich-library-icon)
+                   (ivy-rich-candidate))
+                  :delimiter "	")
+                 counsel-load-library
+                 (:columns
+                  ((all-the-icons-ivy-rich-library-icon)
+                   (ivy-rich-candidate))
+                  :delimiter "	")
+                 counsel-load-theme
+                 (:columns
+                  ((all-the-icons-ivy-rich-theme-icon)
+                   (ivy-rich-candidate))
+                  :delimiter "	")
+                 counsel-world-clock
+                 (:columns
+                  ((all-the-icons-ivy-rich-world-clock-icon)
+                   (ivy-rich-candidate))
+                  :delimiter "	")
+                 counsel-tramp
+                 (:columns
+                  ((all-the-icons-ivy-rich-tramp-icon)
+                   (ivy-rich-candidate))
+                  :delimiter "	")
+                 counsel-git-checkout
+                 (:columns
+                  ((all-the-icons-ivy-rich-git-branch-icon)
+                   (ivy-rich-candidate))
+                  :delimiter "	")
+                 counsel-list-processes
+                 (:columns
+                  ((all-the-icons-ivy-rich-process-icon)
+                   (ivy-rich-candidate))
+                  :delimiter "	")
+                 counsel-projectile-switch-project
+                 (:columns
+                  ((all-the-icons-ivy-rich-file-icon)
+                   (ivy-rich-candidate))
+                  :delimiter "	")
+                 counsel-projectile-find-file
+                 (:columns
+                  ((all-the-icons-ivy-rich-file-icon)
+                   (counsel-projectile-find-file-transformer))
+                  :delimiter "	")
+                 counsel-projectile-find-dir
+                 (:columns
+                  ((all-the-icons-ivy-rich-project-icon)
+                   (counsel-projectile-find-dir-transformer))
+                  :delimiter "	")
+                 counsel-minor
+                 (:columns
+                  ((all-the-icons-ivy-rich-mode-icon)
+                   (ivy-rich-candidate))
+                  :delimiter "	")
+                 counsel-imenu
+                 (:columns
+                  ((all-the-icons-ivy-rich-imenu-icon)
+                   (ivy-rich-candidate))
+                  :delimiter "	")
+                 counsel-cd
+                 (:columns
+                  ((all-the-icons-ivy-rich-file-icon)
+                   (ivy-rich-candidate))
+                  :delimiter "	")
+                 counsel-company
+                 (:columns
+                  ((all-the-icons-ivy-rich-company-icon)
+                   (ivy-rich-candidate))
+                  :delimiter "	")
+                 package-install
+                 (:columns
+                  ((all-the-icons-ivy-rich-package-icon)
+                   (ivy-rich-candidate
+                    (:width 30))
+                   (ivy-rich-package-version
+                    (:width 16 :face font-lock-comment-face))
+                   (ivy-rich-package-archive-summary
+                    (:width 7 :face font-lock-builtin-face))
+                   (ivy-rich-package-install-summary
+                    (:face font-lock-doc-face)))
+                  :delimiter "	")
+                 package-reinstall
+                 (:columns
+                  ((all-the-icons-ivy-rich-package-icon)
+                   (ivy-rich-candidate
+                    (:width 30))
+                   (ivy-rich-package-version
+                    (:width 16 :face font-lock-comment-face))
+                   (ivy-rich-package-archive-summary
+                    (:width 7 :face font-lock-builtin-face))
+                   (ivy-rich-package-install-summary
+                    (:face font-lock-doc-face)))
+                  :delimiter "	")
+                 package-delete
+                 (:columns
+                  ((all-the-icons-ivy-rich-package-icon)
+                   (ivy-rich-candidate))
+                  :delimiter "	")
+                 persp-switch-to-buffer
+                 ,ivy-rich-display-transformer--buffer
+                 persp-switch
+                 (:columns
+                  ((all-the-icons-ivy-rich-project-icon)
+                   (ivy-rich-candidate))
+                  :delimiter "	")
+                 persp-frame-switch
+                 (:columns
+                  ((all-the-icons-ivy-rich-project-icon)
+                   (ivy-rich-candidate))
+                  :delimiter "	")
+                 persp-window-switch
+                 (:columns
+                  ((all-the-icons-ivy-rich-project-icon)
+                   (ivy-rich-candidate))
+                  :delimiter "	")
+                 persp-kill
+                 (:columns
+                  ((all-the-icons-ivy-rich-project-icon)
+                   (ivy-rich-candidate))
+                  :delimiter "	")
+                 persp-save-and-kill
+                 (:columns
+                  ((all-the-icons-ivy-rich-project-icon)
+                   (ivy-rich-candidate))
+                  :delimiter "	")
+                 persp-import-buffers
+                 (:columns
+                  ((all-the-icons-ivy-rich-project-icon)
+                   (ivy-rich-candidate))
+                  :delimiter "	")
+                 persp-import-win-conf
+                 (:columns
+                  ((all-the-icons-ivy-rich-project-icon)
+                   (ivy-rich-candidate))
+                  :delimiter "	")
+                 persp-kill-buffer
+                 (:columns
+                  ((all-the-icons-ivy-rich-buffer-icon)
+                   (ivy-rich-candidate))
+                  :delimiter "	")
+                 persp-remove-buffer
+                 (:columns
+                  ((all-the-icons-ivy-rich-buffer-icon)
+                   (ivy-rich-candidate))
+                  :delimiter "	")
+                 persp-add-buffer
+                 (:columns
+                  ((all-the-icons-ivy-rich-buffer-icon)
+                   (ivy-rich-candidate))
+                  :delimiter "	")
+                 all-the-icons-ivy-rich-kill-buffer
+                 (:columns
+                  ((all-the-icons-ivy-rich-buffer-icon)
+                   (ivy-rich-candidate))
+                  :delimiter "	")
+                 treemacs-projectile
+                 (:columns
+                  ((all-the-icons-ivy-rich-file-icon)
+                   (ivy-rich-candidate))
+                  :delimiter "	")))
+         (ivy-rich-mode 1)
+         :ensure t))
+
+     (when (eq gb/completion-framework 'helm)
+       (use-package swiper-helm
+         :bind (("s-s" . swiper-helm))
+         :ensure t))
+
    #+END_SRC
 ** counsel
    #+BEGIN_SRC emacs-lisp
-   (use-package counsel
-     :ensure t
-     :after ( swiper)
-     ;; :bind (("M-y" . counsel-yank-pop)
-     ;;        :map ivy-minibuffer-map
-     ;;        ("M-y" . ivy-next-line))
-     :config
-     (progn
-       (bind-key "M-y" #'counsel-yank-pop ) ;; no :bind, since counsel needs to be loaded for magit
-       (bind-key "M-y" #'ivy-next-line ivy-minibuffer-map )
-       (setq counsel-grep-swiper-limit 3000000)))
+     (when (eq gb/completion-framework 'ivy)
+       (require 'comint)
+       (use-package counsel
+         :ensure t
+         :after ( swiper ivy)
+         ;; :bind (("M-y" . counsel-yank-pop)
+         ;;        :map ivy-minibuffer-map
+         ;;        ("M-y" . ivy-next-line))
+         :bind (( "M-x"     . counsel-M-x)
+                ( "C-x C-f" . counsel-find-file)
+                ( "s-f"     . counsel-buffer-or-recentf)
+                ( "s-i"     . counsel-imenu)
+                ( "C-c g h" . counsel-git-grep)
+                ( "C-x d"   . counsel-dired)
+                ( "C-x 8 <RET>" . counsel-unicode-char)
+                :map comint-mode-map
+                ( "<M-up>"  . gb/counsel-shell-history-with-current-line ))
+         :config
+         (progn
+           (require 'comint)
+           (defun gb/counsel-shell-history-with-current-line ()
+             (interactive)
+             (let ((ivy-completion-beg (comint-line-beginning-position))
+                   (ivy-completion-end (point))
+                   (initial-input (buffer-substring (comint-line-beginning-position) (point))))
+               (ivy-read "History: " (ivy-history-contents comint-input-ring)
+                         :keymap ivy-reverse-i-search-map
+                         :initial-input initial-input
+                         :action #'ivy-completion-in-region-action
+                         :caller 'counsel-shell-history)))
+           (bind-key "M-y" #'counsel-yank-pop ) ;; no :bind, since counsel needs to be loaded for magit
+           (bind-key "M-y" #'ivy-next-line ivy-minibuffer-map )
+           (setcdr (assoc 'counsel-M-x ivy-initial-inputs-alist) "") ;; remove ^ from input
+           (setq counsel-grep-swiper-limit 3000000)))
+       (use-package counsel-bbdb
+         :ensure t)
+       (use-package counsel-css
+         :ensure t)
+       (use-package counsel-jq
+         :ensure t)
+       (use-package counsel-org-capture-string
+         :ensure t)
+       (use-package counsel-projectile
+         :ensure t)
+       (use-package counsel-tramp
+         :ensure t))
    #+END_SRC
 ** highlight-thing
    #+BEGIN_SRC emacs-lisp
@@ -5315,11 +5739,12 @@
     #+END_SRC
 *** helm-cider
     #+BEGIN_SRC emacs-lisp
-    (use-package helm-cider
-      :ensure t
-      :after ( helm cider)
-      :config
-      (helm-cider-mode 1))
+      (when (eq gb/completion-framework 'helm)
+        (use-package helm-cider
+          :ensure t
+          :after ( helm cider)
+          :config
+          (helm-cider-mode 1)))
     #+END_SRC
 *** litable
     #+BEGIN_SRC emacs-lisp
@@ -5426,12 +5851,13 @@
    #+END_SRC
 **** erlang company
      #+BEGIN_SRC emacs-lisp :tangle no
-     (use-package ivy-erlang-complete
-       :ensure t
-       :after (ivy counsel erlang async))
-     (use-package company-erlang
-       :ensure t
-       :after ( erlang ivy-erlang-complete company))
+       (when (eq gb/completion-framework 'ivy)
+         (use-package ivy-erlang-complete
+           :ensure t
+           :after (ivy counsel erlang async)))
+       (use-package company-erlang
+         :ensure t
+         :after ( erlang ivy-erlang-complete company))
      #+END_SRC
 ** groovy
    #+BEGIN_SRC emacs-lisp
@@ -5774,8 +6200,9 @@
 ** python
  #+BEGIN_SRC emacs-lisp
    (use-package python)
-   (use-package find-file-in-project
-     :after ( ivy))
+   (when (eq gb/completion-framework 'ivy)
+     (use-package find-file-in-project
+       :after ( ivy)))
    (use-package elpy
      :after ( org flycheck find-file-in-project python)
      :mode (("\\.py\\'" . python-mode))
@@ -5930,12 +6357,13 @@
  #+END_SRC
 *** persp-projectile (disabled - collision with company-box)
  #+BEGIN_SRC emacs-lisp :tangle no
-   (use-package persp-projectile
-     :after ( projectile perspective helm)
-     :bind (
-       ;; switch project on super-s
-       :map  projectile-mode-map
-       ("s-s" . helm-projectile-switch-project)))
+   (when (eq gb/completion-framework 'helm)
+     (use-package persp-projectile
+       :after ( projectile perspective)
+       :bind (
+              ;; switch project on super-s
+              :map  projectile-mode-map
+              ("s-s" . helm-projectile-switch-project))))
  #+END_SRC
 ** git
 *** magithub
@@ -5999,8 +6427,9 @@
                :map magit-mode-map
                ;; ("s-f" . helm-ls-git-ls) ;; TODO: currently get an error (recursive load by helm-ls-git-ls
                ("C-x f" . counsel-git)
-               :map magit-repolist-mode-map
-               ("s-i" . helm-imenu))
+               ;; :map magit-repolist-mode-map
+               ;; ("s-i" . helm-imenu)
+               )
         :init
         (progn
 
@@ -6071,7 +6500,13 @@
                 (stashes . show)
                 (unpulled . show))))
         (setq magit-repository-directories '(( "~/repo" . 3)))
-        (setq magit-completing-read-function 'helm--completing-read-default)  ;; magit-ido-completing-read)
+
+        ;; otherwiese use regular completing read function
+        (when (eq gb/completion-framework 'ido)
+          (setq magit-completing-read-function 'magit-ido-completing-read))
+        (when (eq gb/completion-framework 'helm)
+          (setq magit-completing-read-function 'helm--completing-read-default))
+
         (setq magit-fetch-arguments (quote ("--prune")))
         (setq magit-item-highlight-face nil)
         (setq magit-last-seen-setup-instructions "1.4.0")
@@ -6183,32 +6618,31 @@
         :ensure t
         ) ;; enter git-blamed-mode colors background of lines according to commit (and should echo some info depending on cursor)
 
-      (use-package git-timemachine
-        :ensure t
-        :commands git-timemachine
-        :config
-        (defun gb/git-timemachine-show-selected-revision ()
-          "Show last (current) revision of file."
-          (interactive)
-          (let (collection)
-            (setq collection
-                  (mapcar (lambda (rev)
-                            ;; re-shape list for the ivy-read
-                            (cons (concat (substring (nth 0 rev) 0 7) "|" (nth 5 rev) "|" (nth 6 rev)) rev))
-                          (git-timemachine--revisions)))
-            (ivy-read "commits:"
-                      collection
-                      :action (lambda (rev)
-                                (git-timemachine-show-revision rev)))))
+      (when (eq gb/completion-framework 'ivy)
+        (use-package git-timemachine
+          :ensure t
+          :commands git-timemachine
+          :config
+          (defun gb/git-timemachine-show-selected-revision ()
+            "Show last (current) revision of file."
+            (interactive)
+            (let (collection)
+              (setq collection
+                    (mapcar (lambda (rev)
+                              ;; re-shape list for the ivy-read
+                              (cons (concat (substring (nth 0 rev) 0 7) "|" (nth 5 rev) "|" (nth 6 rev)) rev))
+                            (git-timemachine--revisions)))
+              (ivy-read "commits:"
+                        collection
+                        :action (lambda (rev)
+                                  (git-timemachine-show-revision rev)))))
 
-        (defun gb/git-timemachine ()
-          "Open git snapshot with the selected version.  Based on ivy-mode."
-          (interactive)
-          (unless (featurep 'git-timemachine)
-            (require 'git-timemachine))
-          (git-timemachine--start #'gb/git-timemachine-show-selected-revision)))
-
-
+          (defun gb/git-timemachine ()
+            "Open git snapshot with the selected version.  Based on ivy-mode."
+            (interactive)
+            (unless (featurep 'git-timemachine)
+              (require 'git-timemachine))
+            (git-timemachine--start #'gb/git-timemachine-show-selected-revision))))
     #+END_SRC
 *** magit todo
     - shows todos within the source code in magit overview (disable mode, explicitly enable if wanted)
@@ -6246,9 +6680,10 @@
 ** gitignore (creation with helm)
    simply call helm-gitignore and select language for which to create this gitignore
  #+BEGIN_SRC emacs-lisp
-   (use-package helm-gitignore
-     :commands helm-gitignore
-     :after ( helm))
+   (when (eq gb/completion-framework 'helm)
+     (use-package helm-gitignore
+       :commands helm-gitignore
+       :after ( helm)))
  #+END_SRC
 ** IMPLEMENT code library
    - [ ] add code mappings (java, clojure)
@@ -6466,20 +6901,22 @@
      ;; (setq term-scroll-show-maximum-output nil)
      ;; (setq eshell-scroll-show-maximum-output nil)
      ;; (setq warning-suppress-types '((undo discard-info)))
-     (bind-key "<M-up>" #'helm-comint-input-ring comint-mode-map)
+     (when (eq gb/completion-framework 'helm)
+       (bind-key "<M-up>" #'helm-comint-input-ring comint-mode-map)
+       (bind-key "<C-S-up>" #'helm-comint-prompts comint-mode-map))
      (bind-key "<M-S-up>" #'counsel-shell-history comint-mode-map)
-     (bind-key "<C-S-up>" #'helm-comint-prompts comint-mode-map)
      (bind-key "<tab>" #'company-complete comint-mode-map)
    #+END_SRC
 ** tmux (disabled for now)
    - enables interaction with tmux sessions
    - see https://github.com/syohex/emacs-emamux
    #+BEGIN_SRC emacs-lisp :tangle no
-     (use-package emamux
-       :config
-       ;; (global-set-key (kbd "C-z") emamux:keymap)
-       (custom-set-variables
-        '(emamux:completing-read-type 'helm)))
+     (when (eq gb/completion-framework 'helm)
+       (use-package emamux
+         :config
+         ;; (global-set-key (kbd "C-z") emamux:keymap)
+         (custom-set-variables
+          '(emamux:completing-read-type 'helm))))
    #+END_SRC
 ** dirtrack mode
    - needs some experimentation
@@ -6543,16 +6980,17 @@
    #+BEGIN_SRC emacs-lisp
      (use-package xterm-color
        :ensure t
-       :config
+       :init
        (add-hook 'comint-preoutput-filter-functions 'xterm-color-filter)
        ;; eterm-color-256 expects existence of this function
        ;; detected in: eterm-color-256: 0.3.12, xterm-color 1.7
+       :config
        (defalias 'xterm-color--256 'xterm-color-256)
        ;; (progn (setq comint-output-filter-functions (remove 'ansi-color-process-output comint-output-filter-functions)))
        )
    #+END_SRC
-** friendly iteractive shell
-   #+BEGIN_SRC emacs-lisp
+** friendly iteractive shell (deactivated)
+   #+BEGIN_SRC emacs-lisp :tangle no
      (defun shell-fish ()
        "start a friendly interactive shell (fish) within ansi-term"
        (interactive)
@@ -7636,7 +8074,7 @@
 *** org
   #+BEGIN_SRC emacs-lisp
     (use-package org
-      :after (hydra helm)
+      :after (hydra)
       :bind (:map  org-mode-map
                    ("<f1>" . hydra-org-mode/body)
 
@@ -8229,7 +8667,7 @@
 *** org agenda
   #+BEGIN_SRC emacs-lisp
     (use-package org-agenda
-      :after ( org helm) ;; agenda-accounts are option
+      :after ( org) ;; agenda-accounts are option
       :config
       (progn
 
@@ -8311,7 +8749,7 @@
     #+BEGIN_SRC emacs-lisp
       (when agenda-accounts-exists
         (use-package agenda-accounts
-          :after ( org org-agenda helm)
+          :after ( org org-agenda )
           :load-path "~/.emacs.d/accounts/"
           :config
           (progn
@@ -8320,7 +8758,7 @@
               "enter a new date into diary and allow selection of which calendar this should go into"
               (interactive)
               ;; now select and set org-agenda-diary-file
-              (let* ((filename (helm-comp-read "calendar: " gb/org-calendar-files)) ;; <- provided by agenda-accounts
+              (let* ((filename (completing-read "calendar: " gb/org-calendar-files)) ;; <- provided by agenda-accounts
                      (fullname (concat "~/" filename)))
                 (if (file-exists-p fullname)
                     (setq org-agenda-diary-file fullname)))
@@ -8580,9 +9018,10 @@
 *** helm org rifle
 **** find keybindings
   #+BEGIN_SRC emacs-lisp :tangle no
-    (use-package helm-org-rifle
-       :after ( helm org)
-       :commands helm-org-rifle helm-org-rifle-directories helm-org-rifle-files)
+    (when (eq gb/completion-framework 'helm)
+      (use-package helm-org-rifle
+        :after ( helm org)
+        :commands helm-org-rifle helm-org-rifle-directories helm-org-rifle-files))
   #+END_SRC
 **** available functions
 ***** helm-org-rifle
@@ -9145,6 +9584,53 @@
      (add-hook 'slack-file-info-buffer-mode-hook #'emojify-mode)
      (add-hook 'slack-file-info-buffer-mode-hook #'gb/slack-init-mode-config)
 
+
+     (when (eq gb/completion-framework 'ivy)
+       (defun gb/slack--emojify-insert-emoji ()
+         (interactive)
+         (when-let ((emoji (slack-select-emoji (slack-team-select))))
+           (insert emoji)))
+
+       (defun gb/slack--message-reaction-input (_team)
+         (when-let ((emoji (slack-select-emoji (slack-team-select))))
+           (if (and (string-prefix-p ":" emoji)
+                  (string-suffix-p ":" emoji))
+               (substring emoji 1 -1)
+             emoji)))
+
+       (defun gb/slack--message-add-reaction ()
+         (interactive)
+         (slack-if-let* ((buf slack-current-buffer)
+                         (team (slack-buffer-team buf))
+                         (reaction (gb/slack--message-reaction-input team)))
+             (slack-buffer-add-reaction-to-message buf
+                                                   reaction
+                                                   (slack-get-ts))))
+
+       ;; insert (embed) emoji
+       (bind-key "C-c :" #'gb/slack--emojify-insert-emoji slack-mode-map)
+       (bind-key "C-c :" #'gb/slack--emojify-insert-emoji slack-message-compose-buffer-mode-map)
+       (bind-key "C-c :" #'gb/slack--emojify-insert-emoji slack-thread-message-buffer-mode-map)
+
+       (bind-key "C-c C-a" #'gb/slack--message-add-reaction slack-message-buffer-mode-map)
+       (bind-key "C-c C-a" #'gb/slack--message-add-reaction slack-mode-map)
+       (bind-key "C-c C-a" #'gb/slack--message-add-reaction slack-thread-message-buffer-mode-map))
+
+     (when (eq gb/completion-framework 'helm)
+       (bind-key "C-c :" #'emojify-insert-emoji slack-mode-map)
+       (bind-key "C-c :" #'emojify-insert-emoji slack-message-compose-buffer-mode-map)
+       (bind-key "C-c :" #'emojify-insert-emoji slack-thread-message-buffer-mode-map)
+
+       ;; add reaction
+       (bind-key "C-c C-a" #'slack-message-add-reaction slack-message-buffer-mode-map)
+       (bind-key "C-c C-a" #'slack-message-add-reaction slack-mode-map)
+       (bind-key "C-c C-a" #'slack-message-add-reaction slack-thread-message-buffer-mode-map))
+
+     ;; remove reaction
+     (bind-key "C-c C-S-a" #'slack-message-remove-reaction slack-message-buffer-mode-map)
+     (bind-key "C-c C-S-a" #'slack-message-remove-reaction slack-mode-map)
+     (bind-key "C-c C-S-a" #'slack-message-remove-reaction slack-thread-message-buffer-mode-map)
+
      ;; insert (embed) direct mention of user
      (bind-key "C-c @" #'slack-message-embed-mention slack-mode-map)
      (bind-key "C-c @" #'slack-message-embed-mention slack-message-compose-buffer-mode-map)
@@ -9152,11 +9638,6 @@
 
      ;; mark as read
      (bind-key "C-c C-c" #'gb/slack-buffer--mark-read slack-mode-map)
-
-     ;; insert (embed) emoji
-     (bind-key "C-c :" #'emojify-insert-emoji slack-mode-map)
-     (bind-key "C-c :" #'emojify-insert-emoji slack-message-compose-buffer-mode-map)
-     (bind-key "C-c :" #'emojify-insert-emoji slack-thread-message-buffer-mode-map)
 
      ;; edit message in separate buffer
      (bind-key "C-c '" #'slack-message-write-another-buffer slack-thread-message-buffer-mode-map)
@@ -9166,11 +9647,6 @@
      (bind-key "C-c C-r" #'slack-thread-show-or-create slack-message-buffer-mode-map)
      (bind-key "C-c C-r" #'slack-thread-show-or-create slack-mode-map)
      (bind-key "C-c C-r" #'slack-thread-show-or-create slack-thread-message-buffer-mode-map)
-
-     ;; add reaction
-     (bind-key "C-c C-a" #'slack-message-add-reaction slack-message-buffer-mode-map)
-     (bind-key "C-c C-a" #'slack-message-add-reaction slack-mode-map)
-     (bind-key "C-c C-a" #'slack-message-add-reaction slack-thread-message-buffer-mode-map)
 
      (setq gb/slack-team-registered nil)
      (defun gb/slack-register-teams ()
@@ -9190,33 +9666,6 @@
            (setq gb/slack-team-registered t))))
 
      (defvar gb/slack-update-list-timer nil)
-
-     (defun gb/slack-stop ()
-       (interactive)
-       (ignore-errors
-         (when (-contains? kill-emacs-hook #'gb/slack-stop)
-           (remove-hook 'kill-emacs-hook #'gb/slack-stop)))
-       (ignore-errors (gb/slack-user-set-away))
-       (gb/slack-disable-modeline)
-       (gb/slack-modeline-status-deactivate)
-       (when gb/slack-update-list-timer
-         (ignore-errors (cancel-timer gb/slack-update-list-timer))
-         (setq gb/slack-update-list-timer nil))
-       (ignore-errors (slack-ws-close)))
-
-     (defun gb/slack-start ()
-       (interactive)
-       (gb/slack-register-teams)
-       (slack-start)
-       (slack-enable-modeline)
-       (gb/slack-user-set-active)
-       (gb/slack-modeline-status-activate)
-       (when gb/slack-update-list-timer
-         (ignore-errors (cancel-timer gb/slack-update-list-timer))
-         (setq gb/slack-update-list-timer nil))
-       (setq gb/slack-update-list-timer (run-at-time nil 900 #'slack-room-list-update))
-       (unless (-contains? kill-emacs-hook #'gb/slack-stop)
-         (add-hook 'kill-emacs-hook #'gb/slack-stop t)))
 
      ;; make sure to not track common channels (annoying)
      (setq tracking-ignored-buffers '(".*itemis : general.*" ".*itemis : xtext.*" ".*homecooking.*" ".*nintendo-pipe_pr.*" ".*itemis : random.*"))
@@ -9356,7 +9805,34 @@
          (let* ((this slack-current-buffer)
                 (ts (slack-buffer-latest-ts this)))
            (slack-buffer-update-mark-request this ts)
-           (message (format "Slack buffer %s is no up to date." (slack-buffer-name this)))))))
+           (message (format "Slack buffer %s is no up to date." (slack-buffer-name this))))))
+
+     (defun gb/slack-stop ()
+       (interactive)
+       (ignore-errors
+         (when (-contains? kill-emacs-hook #'gb/slack-stop)
+           (remove-hook 'kill-emacs-hook #'gb/slack-stop)))
+       (ignore-errors (gb/slack-user-set-away))
+       (gb/slack-disable-modeline)
+       (gb/slack-modeline-status-deactivate)
+       (when gb/slack-update-list-timer
+         (ignore-errors (cancel-timer gb/slack-update-list-timer))
+         (setq gb/slack-update-list-timer nil))
+       (ignore-errors (slack-ws-close)))
+
+     (defun gb/slack-start ()
+       (interactive)
+       (gb/slack-register-teams)
+       (slack-start)
+       (slack-enable-modeline)
+       (gb/slack-user-set-active)
+       (gb/slack-modeline-status-activate)
+       (when gb/slack-update-list-timer
+         (ignore-errors (cancel-timer gb/slack-update-list-timer))
+         (setq gb/slack-update-list-timer nil))
+       (setq gb/slack-update-list-timer (run-at-time nil 900 #'slack-room-list-update))
+       (unless (-contains? kill-emacs-hook #'gb/slack-stop)
+         (add-hook 'kill-emacs-hook #'gb/slack-stop t))))
 
    (use-package alert
      :ensure t
@@ -9416,42 +9892,34 @@
      ;;  '(((:title . "\\(nord\\|Slackbot\\|generali\\|nintendo\\)")(:category . "slack")) gb-alert-style nil))
      )
  #+END_SRC
-* ido (disabled, now using helm)
+* ido (disabled)
 ** ido itself (configured to being not used, since it is started anyways)
-   #+BEGIN_SRC emacs-lisp
-     (use-package ido
-       :config
-       ;; ido-mode allows you to more easily navigate choices. For example,
-       ;; when you want to switch buffers, ido presents you with a list
-       ;; of buffers in the the mini-buffer. As you start to type a buffer's
-       ;; name, ido will narrow down the list of buffers to match the text
-       ;; you've typed in
-       ;; http://www.emacswiki.org/emacs/InteractivelyDoThings
-       (ido-mode -1)
-       (setq ido-mode nil)
-       ;; This allows partial matches, e.g. "tl" will match "Tyrion Lannister"
-       (setq ido-enable-flex-matching t)
+   #+BEGIN_SRC emacs-lisp :tangle no
+     (when (eq gb/completion-framework 'ido)
+       (use-package ido
+         :config
+         ;; ido-mode allows you to more easily navigate choices. For example,
+         ;; when you want to switch buffers, ido presents you with a list
+         ;; of buffers in the the mini-buffer. As you start to type a buffer's
+         ;; name, ido will narrow down the list of buffers to match the text
+         ;; you've typed in
+         ;; http://www.emacswiki.org/emacs/InteractivelyDoThings
+         (ido-mode 1)
 
-       ;; Turn this behavior off because it's annoying
-       (setq ido-use-filename-at-point nil)
+         ;; This allows partial matches, e.g. "tl" will match "Tyrion Lannister"
+         (setq ido-enable-flex-matching t)
 
-       ;; Don't try to match file across all "work" directories; only match files
-       ;; in the current directory displayed in the minibuffer
-       (setq ido-auto-merge-work-directories-length -1)
+         ;; Turn this behavior off because it's annoying
+         (setq ido-use-filename-at-point nil)
 
-       ;; Includes buffer names of recently open files, even if they're not
-       ;; open now
-       (setq ido-use-virtual-buffers t)
+         ;; Don't try to match file across all "work" directories; only match files
+         ;; in the current directory displayed in the minibuffer
+         (setq ido-auto-merge-work-directories-length -1)
 
-       (defface ivy-current-match
-         '((((class color) (background light))
-            :background "#1a4b77" :foreground "white")
-           (((class color) (background dark))
-            :background "#65a7e2" :foreground "black"))
-         "Face used by Ivy for highlighting first match.")
-
-       (setq ivy-display-style 'fancy)
-       )
+         ;; Includes buffer names of recently open files, even if they're not
+         ;; open now
+         (setq ido-use-virtual-buffers t)
+         ))
    #+END_SRC
 ** ido grid (disabled)
 #+BEGIN_SRC emacs-lisp :tangle no
@@ -9515,87 +9983,88 @@
      ;;    :ensure t
      ;;    :after ( async)
      ;;    )
-     (use-package helm
-       :ensure t
-       ;; :after ( async popup rainbow-delimiters ido)
-       :bind (("M-x" . helm-M-x)
-              ("C-x C-f" . helm-find-files)
-              ("s-f" . helm-for-files)
-              ("C-x s-f" . helm-for-files)
-              ("C-x C-b" . helm-mini) ;;helm-buffers-list
-              ("C-s-i" . helm-semantic-or-imenu)
-              ;; resume previous helm session whatever it was, with the selection that was active then
-              ;; helm-resume
-              )
-       :init (progn
-               ;; register new function
-               (add-hook 'helm-minibuffer-set-up-hook
-                         'gb/helm-hide-minibuffer-maybe))
-       :custom (helm-truncate-lines t "make sure lines are truncated in helm buffers")
-       (helm-echo-input-in-header-line t "make sure keyboard entry is displayed in header line of helm buffer")
-       (history-delete-duplicates t "make sure helm does not show duplicate entries")
-       (helm-ff-keep-cached-candidates nil "make sure helm does not refresh caches when idle (reduce cpu load)")
-       :config
-       (progn
-         (defun gb/org-center-when-at-bottom (&rest args)
-           "recenter when focussing into an org file at the very bottom"
-           (when (and(boundp 'mode-name)(equal mode-name "Org"))
-             (save-excursion
-               (ignore-errors
-                 (goto-char (line-end-position))
-                 (unless (pos-visible-in-window-p (+ 1 (point)))
-                   (recenter-top-bottom))))))
-         (advice-add 'helm :after #'gb/org-center-when-at-bottom)
-         ;;(advice-remove 'helm #'gb/org-center-when-at-bottom)
+     (when (eq gb/completion-framework 'helm)
+       (use-package helm
+         :ensure t
+         ;; :after ( async popup rainbow-delimiters ido)
+         :bind (("M-x" . helm-M-x)
+                ("C-x C-f" . helm-find-files)
+                ("s-f" . helm-for-files)
+                ("C-x s-f" . helm-for-files)
+                ("C-x C-b" . helm-mini) ;;helm-buffers-list
+                ("C-s-i" . helm-semantic-or-imenu)
+                ;; resume previous helm session whatever it was, with the selection that was active then
+                ;; helm-resume
+                )
+         :init (progn
+                 ;; register new function
+                 (add-hook 'helm-minibuffer-set-up-hook
+                           'gb/helm-hide-minibuffer-maybe))
+         :custom (helm-truncate-lines t "make sure lines are truncated in helm buffers")
+         (helm-echo-input-in-header-line t "make sure keyboard entry is displayed in header line of helm buffer")
+         (history-delete-duplicates t "make sure helm does not show duplicate entries")
+         (helm-ff-keep-cached-candidates nil "make sure helm does not refresh caches when idle (reduce cpu load)")
+         :config
+         (progn
+           (defun gb/org-center-when-at-bottom (&rest args)
+             "recenter when focussing into an org file at the very bottom"
+             (when (and(boundp 'mode-name)(equal mode-name "Org"))
+               (save-excursion
+                 (ignore-errors
+                   (goto-char (line-end-position))
+                   (unless (pos-visible-in-window-p (+ 1 (point)))
+                     (recenter-top-bottom))))))
+           (advice-add 'helm :after #'gb/org-center-when-at-bottom)
+           ;;(advice-remove 'helm #'gb/org-center-when-at-bottom)
 
-         ;; patch helm-keyboard-quit to only abort-recursive-edit if it is really in progress
-         (defun helm-keyboard-quit ()
-           "Quit minibuffer in helm.
+           ;; patch helm-keyboard-quit to only abort-recursive-edit if it is really in progress
+           (defun helm-keyboard-quit ()
+             "Quit minibuffer in helm.
      If action buffer is displayed, kill it."
-           (interactive)
-           (with-helm-alive-p
-             (when (get-buffer-window helm-action-buffer 'visible)
-               (kill-buffer helm-action-buffer))
-             (setq helm-exit-status 1)
-             (when (> (recursion-depth) 0)
-               (abort-recursive-edit))))
-         ;; make sure that minibuffer stays untouched if entry is displayed in top of helm buffer
-         (defun gb/helm-hide-minibuffer-maybe ()
-           "Hide minibuffer in Helm session if we use the header line as input field."
-           (when (with-helm-buffer helm-echo-input-in-header-line)
-             (let ((ov (make-overlay (point-min) (point-max) nil nil t)))
-               (overlay-put ov 'window (selected-window))
-               (overlay-put ov 'face
-                            (let ((bg-color (face-background 'default nil)))
-                              `(:background ,bg-color :foreground ,bg-color)))
-               (setq-local cursor-type nil))))
+             (interactive)
+             (with-helm-alive-p
+               (when (get-buffer-window helm-action-buffer 'visible)
+                 (kill-buffer helm-action-buffer))
+               (setq helm-exit-status 1)
+               (when (> (recursion-depth) 0)
+                 (abort-recursive-edit))))
+           ;; make sure that minibuffer stays untouched if entry is displayed in top of helm buffer
+           (defun gb/helm-hide-minibuffer-maybe ()
+             "Hide minibuffer in Helm session if we use the header line as input field."
+             (when (with-helm-buffer helm-echo-input-in-header-line)
+               (let ((ov (make-overlay (point-min) (point-max) nil nil t)))
+                 (overlay-put ov 'window (selected-window))
+                 (overlay-put ov 'face
+                              (let ((bg-color (face-background 'default nil)))
+                                `(:background ,bg-color :foreground ,bg-color)))
+                 (setq-local cursor-type nil))))
 
 
-         (helm-mode 1)
-         (setq helm-display-function 'pop-to-buffer)
-         (require 'helm-locate)
-         (setq helm-locate-command "locate %s %s")
-         (cond
-          ((eq gb/theme-mode 'light) nil) ;; TODO complete
-          (t (progn
-               (--each '((match ((t (:background "#1d1f21" :foreground "DarkGoldenrod1" :inverse-video nil)))))
-                 (progn (add-to-list 'gb/list-of-faces-to-set it)(custom-set-faces it))))))
-         (setq helm-split-window-default-side 'right)
-         (setq helm-buffer-max-length nil)
-         (setq helm-ff-skip-boring-files t)
-         (require 'helm-files)
-         (add-to-list 'helm-boring-file-regexp-list ".*/\.emacs\.d/elpa/.*")
-         (add-to-list 'helm-boring-file-regexp-list ".*/\.emacs\.d/.*autoloads\.elc?$")
-         (add-to-list 'helm-boring-file-regexp-list "TAGS$")
-         (add-to-list 'helm-boring-file-regexp-list "ido\.last$")
-         (add-to-list 'helm-boring-file-regexp-list "\.emacs\.d/.*cache\.elc?$")
-         (add-to-list 'helm-boring-file-regexp-list "\.emacs\.d/.*bookmarks$")
-         (add-to-list 'helm-boring-file-regexp-list "News/KILL$")
-         (add-to-list 'helm-boring-file-regexp-list "\.emacs\.d/\.session$")
-         (add-to-list 'helm-boring-file-regexp-list "\.newsrc$")
-         (add-to-list 'helm-boring-file-regexp-list "\.newsrc\.eld$")
-         (add-to-list 'helm-boring-file-regexp-list "\.elfeed/index$")
-         (setq helm-M-x-always-save-history t)))
+           (helm-mode 1)
+           (setq helm-display-function 'pop-to-buffer)
+           (require 'helm-locate)
+           (setq helm-locate-command "locate %s %s")
+           (cond
+            ((eq gb/theme-mode 'light) nil) ;; TODO complete
+            (t (progn
+                 (--each '((match ((t (:background "#1d1f21" :foreground "DarkGoldenrod1" :inverse-video nil)))))
+                   (progn (add-to-list 'gb/list-of-faces-to-set it)(custom-set-faces it))))))
+           (setq helm-split-window-default-side 'right)
+           (setq helm-buffer-max-length nil)
+           (setq helm-ff-skip-boring-files t)
+           (require 'helm-files)
+           (add-to-list 'helm-boring-file-regexp-list ".*/\.emacs\.d/elpa/.*")
+           (add-to-list 'helm-boring-file-regexp-list ".*/\.emacs\.d/.*autoloads\.elc?$")
+           (add-to-list 'helm-boring-file-regexp-list "TAGS$")
+           (add-to-list 'helm-boring-file-regexp-list "ido\.last$")
+           (add-to-list 'helm-boring-file-regexp-list "\.emacs\.d/.*cache\.elc?$")
+           (add-to-list 'helm-boring-file-regexp-list "\.emacs\.d/.*bookmarks$")
+           (add-to-list 'helm-boring-file-regexp-list "News/KILL$")
+           (add-to-list 'helm-boring-file-regexp-list "\.emacs\.d/\.session$")
+           (add-to-list 'helm-boring-file-regexp-list "\.newsrc$")
+           (add-to-list 'helm-boring-file-regexp-list "\.newsrc\.eld$")
+           (add-to-list 'helm-boring-file-regexp-list "\.elfeed/index$")
+           (setq helm-M-x-always-save-history t))))
    #+END_SRC
 ** helm posframe
    - show helm completion in a posframe
@@ -9606,151 +10075,160 @@
    - problems, when used with xapp in frame
    - problems, when using it in a shell buffer
    #+begin_src emacs-lisp
-     (use-package helm-posframe
-       :ensure t
-       :config
-       (setq gb/helm-posframe-min-height 50)
-       (setq gb/helm-posframe-min-width 120)
-       (defun helm-posframe-display (buffer &optional _resume)
-         "The display function which is used by `helm-display-function'.
+     (when (eq gb/completion-framework 'helm)
+       (use-package helm-posframe
+         :ensure t
+         :config
+         (setq gb/helm-posframe-min-height 50)
+         (setq gb/helm-posframe-min-width 120)
+         (defun helm-posframe-display (buffer &optional _resume)
+           "The display function which is used by `helm-display-function'.
      Argument BUFFER."
-         (setq helm-posframe-buffer buffer)
-         (posframe-show
-          buffer
-          :position (point)
-          :poshandler helm-posframe-poshandler
-          :width (or helm-posframe-width (+ (window-width) 2))
-          :height (or helm-posframe-height helm-display-buffer-height)
-          :min-height gb/helm-posframe-min-height
-          :min-width gb/helm-posframe-min-width
-          :internal-border-width 2
-          :internal-border-color "#403040"
-          ;; :font-height 14
-          ;; :font gb/default-font
-          :override-parameters helm-posframe-parameters
-          :respect-header-line t)
-         (with-current-buffer buffer
-           (setq-local truncate-lines helm-truncate-lines)))
-       ;; (setq helm-posframe-poshandler #'gb/posframe-poshandler-frame-center)
-       (setq helm-posframe-poshandler #'gb/posframe-poshandler-frame-center-top)
-       (defun gb/helm-set-posframe-parameters ()
-         "set helm-posframe parameters. run previous to display, to ensure right display in multimonitor environments"
-         (let ((xfac (cond ((eq 'helm-git-grep (helm-this-command)) 0.98)
-                           ((eq 'helm-for-files (helm-this-command)) 0.77)
-                           ((eq 'helm-mini (helm-this-command)) 0.77)
-                           ((eq 'gb/exwm-program-select (helm-this-command)) (if (eq gb/dual-screen-mode 'presentation) 0.77 0.2))
-                           ((eq 'helm-M-x (helm-this-command)) (if (eq gb/dual-screen-mode 'presentation) 0.77 0.3))
-                           (t (if (eq gb/dual-screen-mode 'presentation) 0.77 0.5))))
-               (yfac (cond ((eq 'helm-for-files (helm-this-command)) 0.77)
-                           ((eq 'helm-mini (helm-this-command)) 0.77)
-                           ((eq 'helm-M-x (helm-this-command)) 0.77)
-                           (t (if (eq gb/dual-screen-mode 'presentation) 0.77 0.5)))))
-           ;; (message (symbol-name (helm-this-command)))
-           (setq gb/helm-posframe-min-height (round (* yfac (cdr (assoc 'height (frame-parameters (selected-frame)))))))
-           (setq gb/helm-posframe-min-width (round (* xfac (cdr (assoc 'width (frame-parameters (selected-frame)))))))
-           (setq gb/posframe-offset (cdr (assoc 'left (frame-parameters (selected-frame)))))
-           (setq helm-posframe-parameters
-                 `((parent-frame)                                                          ;; (works only on single monitor)
-                   (display . ,(cdr (assoc 'display (frame-parameters (selected-frame))))) ;; (hopefully holds display of current monitor)
-                   (font . ,(cdr (assoc 'font (frame-parameters (selected-frame)))))
-                   (alpha 90 90)
-                   (left-fringe . 10)
-                   (right-fringe . 10)))))
-       (advice-add 'helm-posframe-display :before #'(lambda (orig-func &rest args) (gb/helm-set-posframe-parameters)))
-       (helm-posframe-enable)
-       ;; make sure minibuffer does not use helm completion!
-       (bind-key "TAB" #'(lambda () (interactive) (setq inhibit-message t) (helm-posframe-disable) (helm-mode -1) (completion-at-point) (helm-mode 1) (helm-posframe-enable)(setq inhibit-message nil)) minibuffer-local-map)
-       (bind-key "<tab>" #'(lambda () (interactive) (setq inhibit-message t) (helm-posframe-disable) (helm-mode -1) (completion-at-point) (helm-mode 1) (helm-posframe-enable)(setq inhibit-message nil)) minibuffer-local-map))
+           (setq helm-posframe-buffer buffer)
+           (posframe-show
+            buffer
+            :position (point)
+            :poshandler helm-posframe-poshandler
+            :width (or helm-posframe-width (+ (window-width) 2))
+            :height (or helm-posframe-height helm-display-buffer-height)
+            :min-height gb/helm-posframe-min-height
+            :min-width gb/helm-posframe-min-width
+            :internal-border-width 2
+            :internal-border-color "#403040"
+            ;; :font-height 14
+            ;; :font gb/default-font
+            :override-parameters helm-posframe-parameters
+            :respect-header-line t)
+           (with-current-buffer buffer
+             (setq-local truncate-lines helm-truncate-lines)))
+         ;; (setq helm-posframe-poshandler #'gb/posframe-poshandler-frame-center)
+         (setq helm-posframe-poshandler #'gb/posframe-poshandler-frame-center-top)
+         (defun gb/helm-set-posframe-parameters ()
+           "set helm-posframe parameters. run previous to display, to ensure right display in multimonitor environments"
+           (let ((xfac (cond ((eq 'helm-git-grep (helm-this-command)) 0.98)
+                             ((eq 'helm-for-files (helm-this-command)) 0.77)
+                             ((eq 'helm-mini (helm-this-command)) 0.77)
+                             ((eq 'gb/exwm-program-select (helm-this-command)) (if (eq gb/dual-screen-mode 'presentation) 0.77 0.2))
+                             ((eq 'helm-M-x (helm-this-command)) (if (eq gb/dual-screen-mode 'presentation) 0.77 0.3))
+                             (t (if (eq gb/dual-screen-mode 'presentation) 0.77 0.5))))
+                 (yfac (cond ((eq 'helm-for-files (helm-this-command)) 0.77)
+                             ((eq 'helm-mini (helm-this-command)) 0.77)
+                             ((eq 'helm-M-x (helm-this-command)) 0.77)
+                             (t (if (eq gb/dual-screen-mode 'presentation) 0.77 0.5)))))
+             ;; (message (symbol-name (helm-this-command)))
+             (setq gb/helm-posframe-min-height (round (* yfac (cdr (assoc 'height (frame-parameters (selected-frame)))))))
+             (setq gb/helm-posframe-min-width (round (* xfac (cdr (assoc 'width (frame-parameters (selected-frame)))))))
+             (setq gb/posframe-offset (cdr (assoc 'left (frame-parameters (selected-frame)))))
+             (setq helm-posframe-parameters
+                   `((parent-frame)                                                          ;; (works only on single monitor)
+                     (display . ,(cdr (assoc 'display (frame-parameters (selected-frame))))) ;; (hopefully holds display of current monitor)
+                     (font . ,(cdr (assoc 'font (frame-parameters (selected-frame)))))
+                     (alpha 90 90)
+                     (left-fringe . 10)
+                     (right-fringe . 10)))))
+         (advice-add 'helm-posframe-display :before #'(lambda (orig-func &rest args) (gb/helm-set-posframe-parameters)))
+         (helm-posframe-enable)
+         ;; make sure minibuffer does not use helm completion!
+         (bind-key "TAB" #'(lambda () (interactive) (setq inhibit-message t) (helm-posframe-disable) (helm-mode -1) (completion-at-point) (helm-mode 1) (helm-posframe-enable)(setq inhibit-message nil)) minibuffer-local-map)
+         (bind-key "<tab>" #'(lambda () (interactive) (setq inhibit-message t) (helm-posframe-disable) (helm-mode -1) (completion-at-point) (helm-mode 1) (helm-posframe-enable)(setq inhibit-message nil)) minibuffer-local-map)))
    #+end_src
 ** helm org
    #+begin_src emacs-lisp
-     (use-package helm-org
-       :bind (:map org-mode-map ("s-i" . helm-org-in-buffer-headings))
-       :ensure t)
+     (when (eq gb/completion-framework 'helm)
+       (use-package helm-org
+         :bind (:map org-mode-map ("s-i" . helm-org-in-buffer-headings))
+         :ensure t))
    #+end_src
 ** helm cmd t
    #+begin_src emacs-lisp
-   (use-package helm-cmd-t
-     :ensure t
-     :bind (("s-g" . helm-cmd-t)
-            ("s-t" . helm-cmd-t-repos))
-     :config
-     (setq helm-cmd-t-candidate-number-limit 60))
+     (when (eq gb/completion-framework 'helm)
+       (use-package helm-cmd-t
+         :ensure t
+         :bind (("s-g" . helm-cmd-t)
+                ("s-t" . helm-cmd-t-repos))
+         :config
+         (setq helm-cmd-t-candidate-number-limit 60)))
    #+end_src
 ** helm git grep
    #+begin_src emacs-lisp 
-     (use-package helm-ls-git
-       :ensure t
-       :commands (helm-ls-git-ls))
+     (when (eq gb/completion-framework 'helm)
+       (use-package helm-ls-git
+         :ensure t
+         :commands (helm-ls-git-ls)))
    #+end_src
    #+BEGIN_SRC emacs-lisp
-     (use-package helm-git-grep
-       :ensure t
-       :after ( helm)
-       :bind (("C-c g h" . helm-git-grep)
-              :map isearch-mode-map
-              ("C-c g h" . helm-git-grep-from-isearch)
-              :map helm-map
-              ("C-c g h" . helm-git-grep-from-helm))
-       ;; :config
-       ;; (bind-key "C-c g" 'helm-git-grep)       
-       ;; ;; Invoke `helm-git-grep' from isearch.
-       ;; (bind-key "C-c g" 'helm-git-grep-from-isearch isearch-mode-map)
-       ;; ;; Invoke `helm-git-grep' from other helm.
-       ;; (bind-key "C-c g" 'helm-git-grep-from-helm helm-map)
-       )
+     (when (eq gb/completion-framework 'helm)
+       (use-package helm-git-grep
+         :ensure t
+         :after ( helm)
+         :bind (("C-c g h" . helm-git-grep)
+                :map isearch-mode-map
+                ("C-c g h" . helm-git-grep-from-isearch)
+                :map helm-map
+                ("C-c g h" . helm-git-grep-from-helm))
+         ;; :config
+         ;; (bind-key "C-c g" 'helm-git-grep)
+         ;; ;; Invoke `helm-git-grep' from isearch.
+         ;; (bind-key "C-c g" 'helm-git-grep-from-isearch isearch-mode-map)
+         ;; ;; Invoke `helm-git-grep' from other helm.
+         ;; (bind-key "C-c g" 'helm-git-grep-from-helm helm-map)
+         ))
    #+END_SRC
 ** helm projectile
-#+BEGIN_SRC emacs-lisp
-  (use-package helm-projectile
-    :after ( helm projectile)
-    :config
-    (helm-projectile-on)) ;; enable helm projectile key bindings, helm-projectile-off restores old keybindings
-#+END_SRC
+   #+BEGIN_SRC emacs-lisp
+     (when (eq gb/completion-framework 'helm)
+       (use-package helm-projectile
+         :after ( helm projectile)
+         :config
+         (helm-projectile-on))) ;; enable helm projectile key bindings, helm-projectile-off restores old keybindings
+   #+END_SRC
 ** sort helm with flex
    - helm candidates are sorted using flx (more fuzzy sorting)
  #+BEGIN_SRC emacs-lisp
-   (use-package helm-flx
-     :ensure t
-     :after ( helm)
-     :config
-     (progn
-       (helm-flx-mode +1)
-       ;; optional fuzzy matching for helm-M-x
-       (setq helm-M-x-fuzzy-match t)
-       (setq completion-styles `(basic partial-completion emacs22 initials ,(if (version<= emacs-version "27.0") 'helm-flex 'flex)))
+   (when (eq gb/completion-framework 'helm)
+     (use-package helm-flx
+       :ensure t
+       :after ( helm)
+       :config
+       (progn
+         (helm-flx-mode +1)
+         (setq helm-flx-limit 500)
+         ;; optional fuzzy matching for helm-M-x
+         (setq helm-M-x-fuzzy-match t)
+         (setq completion-styles `(basic partial-completion emacs22 initials ,(if (version<= emacs-version "27.0") 'helm-flex 'flex)))
 
-       (setq helm-bookmark-show-location t)
-       (setq helm-completion-in-region-fuzzy-match t)
-       (setq helm-file-cache-fuzzy-match t)
-       (setq helm-mode-fuzzy-match t)
-       ;; ---
-       (setq helm-ff-fuzzy-matching t)
-       ;; only possible in unix environments (adds -b to locate)
-       ;; (setq helm-locate-fuzzy-match t)
-       (setq helm-etags-fuzzy-match t)
-       (setq helm-recentf-fuzzy-match t)
-       (setq helm-imenu-fuzzy-match t)
-       (setq helm-buffers-fuzzy-matching t)
-       (setq helm-lisp-fuzzy-completion t)
-       (setq helm-apropos-fuzzy-match t)
-       (setq helm-company-fuzzy-match t)
-       (setq helm-projectile-fuzzy-match t)
-       (setq helm-locate-library-fuzzy-match t)))
+         (setq helm-bookmark-show-location t)
+         (setq helm-completion-in-region-fuzzy-match t)
+         (setq helm-file-cache-fuzzy-match t)
+         (setq helm-mode-fuzzy-match t)
+         ;; ---
+         (setq helm-ff-fuzzy-matching t)
+         ;; only possible in unix environments (adds -b to locate)
+         ;; (setq helm-locate-fuzzy-match t)
+         (setq helm-etags-fuzzy-match t)
+         (setq helm-recentf-fuzzy-match t)
+         (setq helm-imenu-fuzzy-match t)
+         (setq helm-buffers-fuzzy-matching t)
+         (setq helm-lisp-fuzzy-completion t)
+         (setq helm-apropos-fuzzy-match t)
+         (setq helm-company-fuzzy-match t)
+         (setq helm-projectile-fuzzy-match t)
+         (setq helm-locate-library-fuzzy-match t))))
  #+END_SRC
 ** helm extensions
    #+BEGIN_SRC emacs-lisp :tangle no
-   (use-package helm-ext
-     :ensure t
-     :after ( helm)
-     :config
-     (progn
-       (helm-ext-ff-enable-skipping-dots nil) ;; skip . and .. directory entries in non-empty directories :: nil because renaming from dired to other open dir would not work
-       (helm-ext-ff-enable-zsh-path-expansion t) ;; allow for /h/q/f/b to expand to /home/qjp/foo/bar
-       (helm-ext-ff-enable-auto-path-expansion t) ;; expansion is done during typing
-       (helm-ext-minibuffer-enable-header-line-maybe t) ;; allow helm expansion in mini buffer (using header line to do so)
-       ;; additional command ace-jump-helm-line
-       ))
+     (when (eq gb/completion-framework 'helm)
+       (use-package helm-ext
+         :ensure t
+         :after ( helm)
+         :config
+         (progn
+           (helm-ext-ff-enable-skipping-dots nil) ;; skip . and .. directory entries in non-empty directories :: nil because renaming from dired to other open dir would not work
+           (helm-ext-ff-enable-zsh-path-expansion t) ;; allow for /h/q/f/b to expand to /home/qjp/foo/bar
+           (helm-ext-ff-enable-auto-path-expansion t) ;; expansion is done during typing
+           (helm-ext-minibuffer-enable-header-line-maybe t) ;; allow helm expansion in mini buffer (using header line to do so)
+           ;; additional command ace-jump-helm-line
+           )))
    #+END_SRC
 * vagrant docker ansible
 ** docker
@@ -9813,10 +10291,11 @@
   - imenu-anyhwere
   - helm-imenu-anywhere
   #+BEGIN_SRC emacs-lisp
-    (use-package imenu-anywhere
-      :ensure t
-      :bind (("s-i" . helm-imenu-anywhere)
-             ("s-I" . helm-imenu-anywhere)))
+    (when (eq gb/completion-framework 'helm)
+      (use-package imenu-anywhere
+        :ensure t
+        :bind (("s-i" . helm-imenu-anywhere)
+               ("s-I" . helm-imenu-anywhere))))
   #+END_SRC
 * crux (disabled)
   - look at https://github.com/bbatsov/crux for additional functions that might be of interest
@@ -9932,9 +10411,10 @@
       ("r" profiler-report :exit t))
 
     ;;--------------------------------------------------------------------------------
-    (when (package-installed-p 'dash) 
-      (defhydra hydra-dash ()
-        "
+    (when (eq gb/completion-framework 'helm)
+      (when (package-installed-p 'dash)
+        (defhydra hydra-dash ()
+          "
            dash
            ^-^---------------------^-^--------------------------
            _h_ helm dash at point  _d_ dash at point
@@ -9945,10 +10425,10 @@
               (\"  [d] dash at point          \" . dash-at-point)
               (\"  [D] dash at point w/ docset\" . dash-at-point-with-docset)))
         "
-        ("h" helm-dash-at-point :exit t)
-        ("d" dash-at-point :exit t)
-        ("D" dash-at-point-with-docset :exit t)
-        ))
+          ("h" helm-dash-at-point :exit t)
+          ("d" dash-at-point :exit t)
+          ("D" dash-at-point-with-docset :exit t)
+          )))
 
     ;;--------------------------------------------------------------------------------
     (when (package-installed-p 'avy-zap)
@@ -9956,7 +10436,7 @@
         "
           avy
           ^-^-------------------^-^-----------------
-          _z_: zap up to char        _c_: jump to word 
+          _z_: zap up to char        _c_: jump to word
           _Z_: zap to including char _l_: jump to line
           ^ ^                        _i_: jump to char within line
 
@@ -9971,7 +10451,7 @@
         ("z" avy-zap-to-char :exit t)
         ("Z" avy-zap-to-char-dwim :exit t)
         ("l" avy-goto-line :exit t)
-        ("i" avy-goto-char-in-line :exit t))) 
+        ("i" avy-goto-char-in-line :exit t)))
 
   (defhydra hydra-ui-info ()
        "
@@ -10015,7 +10495,7 @@
       ("u" hydra-ui-info/body :exit t)
       ("q" (message "Abort") :exit t))
 
-    )  
+    )
 #+END_SRC
 ** major mode hydra
    - define pretty hydras for major modes pretty easy (see [[https://github.com/jerrypnz/major-mode-hydra.el][here]])
@@ -10079,7 +10559,7 @@
   versions can be ediffed with the current
 #+BEGIN_SRC emacs-lisp
   (use-package helm-backup
-    :ensure t
+    :load-path "~/repo/helm-backup"
     :init (add-hook 'after-save-hook #'helm-backup-versioning)
     :config
     (setq helm-backup-excluded-entries
@@ -10145,15 +10625,16 @@
 ** bibtex
    - check https://nickhigham.wordpress.com/2016/01/06/managing-bibtex-files-with-emacs/
    #+BEGIN_SRC emacs-lisp
-   (when (locate-library "parsebib")
-     (use-package parsebib))
-   (use-package let-alist)
-   (use-package biblio-core
-     :after ( let-alist seq dash))
-   (use-package biblio
-     :after ( biblio-core))
-   (use-package helm-bibtex
-     :after ( helm parsebib dash biblio))
+     (when (locate-library "parsebib")
+       (use-package parsebib))
+     (use-package let-alist)
+     (use-package biblio-core
+       :after ( let-alist seq dash))
+     (use-package biblio
+       :after ( biblio-core))
+     (when (eq gb/completion-framework 'helm)
+       (use-package helm-bibtex
+         :after ( helm parsebib dash biblio)))
    #+END_SRC
 ** latex extra
    - see [[https://github.com/Malabarba/latex-extra][here]]
@@ -10297,8 +10778,9 @@
                                 current-file
                               current-dir)))
            (unless (file-remote-p wanted-dir)
-
-             (helm-find-files-1 wanted-dir))))
+             (if (eq gb/completion-framework 'helm)
+                 (helm-find-files-1 wanted-dir)
+               (find-file wanted-dir)))))
 
        (defun gb/terminal (&optional suffix)
          "Switch to terminal. Launch if nonexistent."
@@ -10755,11 +11237,12 @@
 ** ace helm line
    - display ace jump characters on each line (C-') when in helm mode
    #+BEGIN_SRC emacs-lisp
-   (use-package ace-jump-helm-line
-     :after ( helm)
-     :ensure t
-     :bind (:map helm-map
-            ( "C-'" . ace-jump-helm-line)))
+     (when (eq gb/completion-framework 'helm)
+       (use-package ace-jump-helm-line
+         :after ( helm)
+         :ensure t
+         :bind (:map helm-map
+                     ( "C-'" . ace-jump-helm-line))))
    #+END_SRC
 ** screen cast -> gif
    #+BEGIN_SRC emacs-lisp
@@ -10878,17 +11361,18 @@
 ** helm-exwm (allow for helm based change of exwm buffers)
    - see [[https://github.com/emacs-helm/helm-exwm][here]], problems documented [[https://github.com/emacs-helm/helm/issues/1889][here]]
    #+BEGIN_SRC emacs-lisp
-   (use-package helm-exwm
-     :ensure t
-     :after ( exwm helm)
-     :config
-     (progn
-       (setq helm-exwm-emacs-buffers-source (helm-exwm-build-emacs-buffers-source))
-       (setq helm-exwm-source (helm-exwm-build-source))
-       (setq helm-mini-default-sources `(helm-exwm-emacs-buffers-source
-                                         helm-exwm-source
-                                         helm-source-recentf))
-     ))
+     (when (eq gb/completion-framework 'helm)
+       (use-package helm-exwm
+         :ensure t
+         :after ( exwm helm)
+         :config
+         (progn
+           (setq helm-exwm-emacs-buffers-source (helm-exwm-build-emacs-buffers-source))
+           (setq helm-exwm-source (helm-exwm-build-source))
+           (setq helm-mini-default-sources `(helm-exwm-emacs-buffers-source
+                                             helm-exwm-source
+                                             helm-source-recentf))
+           )))
    #+END_SRC
 ** indent-info (deactivated)
    - allows for display of current indent settings in the mode line
@@ -10997,17 +11481,19 @@
    #+END_SRC
 ** helm google
    #+BEGIN_SRC emacs-lisp
-   (use-package helm-google
-     :commands helm-google helm-google-suggest
-     :after ( helm)) ;; quick google searches, really ?
+     (when (eq gb/completion-framework 'helm)
+       (use-package helm-google
+         :commands helm-google helm-google-suggest
+         :after ( helm))) ;; quick google searches, really ?
    #+END_SRC
 #+BEGIN_SRC emacs-lisp
 (report-elapsed "check point - helm google")
 #+END_SRC
 ** ivy swiper hydra
    #+BEGIN_SRC emacs-lisp
-   (use-package ivy-hydra
-     :after ( hydra ivy)) ;; adds an hydra for ivy/swiper TODO: include into own hydras
+     (when (eq gb/completion-framework 'ivy)
+       (use-package ivy-hydra
+         :after ( hydra ivy))) ;; adds an hydra for ivy/swiper TODO: include into own hydras
    #+END_SRC
 #+BEGIN_SRC emacs-lisp
 (report-elapsed "check point - ivy swiper hydra")
@@ -11148,17 +11634,18 @@
    check the [[https://github.com/Kungsgeten/org-brain][home page]]
    #+BEGIN_SRC emacs-lisp :tangle no
      (use-package org-brain
-       :after ( org dash helm-org-rifle)
+       :after ( org dash)
        :commands org-brain-open org-brain-visualize org-brain-insert-link
        :config
        (progn
          (setq org-brain-path "~/brain")
          (if (not (file-exists-p org-brain-path))
              (make-directory org-brain-path t))
-         (defun helm-org-rifle-brain ()
-           "Rifle files in `org-brain-path'."
-           (interactive)
-           (helm-org-rifle-directories (list org-brain-path)))))
+         (when (eq gb/completion-framework 'helm)
+           (defun helm-org-rifle-brain ()
+             "Rifle files in `org-brain-path'."
+             (interactive)
+             (helm-org-rifle-directories (list org-brain-path))))))
    #+END_SRC
 ** org edit latex (edit latex code in separate buffer)
    - see [[https://github.com/et2010/org-edit-latex][here]]
@@ -11171,8 +11658,9 @@
 ** helm books
    - allows searching for book titles using the google book api with helm
    #+BEGIN_SRC emacs-lisp
-   (use-package helm-books
-     :commands helm-books)
+     (when (eq gb/completion-framework 'helm)
+       (use-package helm-books
+         :commands helm-books))
    #+END_SRC
 ** symbol-overlay
    - see [[https://github.com/wolray/symbol-overlay/][here]]
@@ -11197,8 +11685,10 @@
    #+BEGIN_SRC emacs-lisp :tangle no
      (use-package org-recent-headings
        :after ( org)
-       :bind (("M-s-^" . org-recent-headings-helm)) ;; equivalent to M-s-i
        :config
+       (when (eq gb/completion-framework 'helm)
+         (bind-key "M-s-^" org-recent-headings-helm) ;; equivalent to M-s-i
+         )
        (progn
          (org-recent-headings-mode)))
    #+END_SRC
@@ -11389,29 +11879,30 @@
   #+END_SRC
 * kubernetes
   #+begin_src emacs-lisp
-  (use-package k8s-mode
-    :ensure t
-    :hook (k8s-mode . yas-minor-mode)
-    :config
-    ;; Set indent offset
-    (setq k8s-indent-offset nil)
+    (use-package k8s-mode
+      :ensure t
+      :hook (k8s-mode . yas-minor-mode)
+      :config
+      ;; Set indent offset
+      (setq k8s-indent-offset nil)
 
-    ;; The site docs URL
-    (setq k8s-site-docs-url "https://kubernetes.io/docs/reference/generated/kubernetes-api/")
+      ;; The site docs URL
+      (setq k8s-site-docs-url "https://kubernetes.io/docs/reference/generated/kubernetes-api/")
 
-    ;; The defautl API version
-    (setq k8s-site-docs-version "v1.13")
+      ;; The defautl API version
+      (setq k8s-site-docs-version "v1.13")
 
-    ;; The browser funtion to browse the docs site. Default is `browse-url-browser-function`
-    ;; (setq k8s-search-documentation-browser-function nil)
-    (setq k8s-search-documentation-browser-function (quote browse-url-firefox))
-    )
-  (use-package kubernetes
-    :ensure t
-    :commands (kubernetes-overview))
-  (use-package kubernetes-helm
-    :commands (kubernetes-helm-dep-up kubernetes-helm-install kubernetes-helm-upgrade kubernetes-helm-values kubernetes-helm-status kubernetes-helm-template)
-    :ensure t)
+      ;; The browser funtion to browse the docs site. Default is `browse-url-browser-function`
+      ;; (setq k8s-search-documentation-browser-function nil)
+      (setq k8s-search-documentation-browser-function (quote browse-url-firefox))
+      )
+    (use-package kubernetes
+      :ensure t
+      :commands (kubernetes-overview))
+    (when (eq gb/completion-framework 'helm)
+      (use-package kubernetes-helm
+        :commands (kubernetes-helm-dep-up kubernetes-helm-install kubernetes-helm-upgrade kubernetes-helm-values kubernetes-helm-status kubernetes-helm-template)
+        :ensure t))
   #+end_src
   - use C-x C-f /kubectl:container:/path/to/file
   #+begin_src emacs-lisp
@@ -11513,8 +12004,9 @@
       :after company
       :ensure t
       :config (add-to-list 'company-backends 'company-restclient))
-    (use-package restclient-helm
-      :ensure t)
+    (when (eq gb/completion-framework 'helm)
+      (use-package restclient-helm
+        :ensure t))
     (use-package restclient-test
       :ensure t)
   #+end_src
@@ -11639,7 +12131,6 @@
          (defun gb/audio-output-select ()
            "select audio output "
            (interactive)
-           ;; (ivy-read "audio-output:" (gb/audio-outputs-available) :require-match t)
            (let ((sink-name (completing-read "audio-output:" (gb/audio-outputs-available) nil t)))
              (gb/audio-output-set sink-name)
              (message (format "output: %s" (gb/audio-output-selected)))))
@@ -11896,7 +12387,7 @@
     #+BEGIN_SRC emacs-lisp
       (when gb/use-exwm
         (use-package xelb
-          :after (helm-external helm ace-window windmove)
+          :after (ace-window windmove)
           :ensure t))
     #+END_SRC
   - exwm
@@ -12219,7 +12710,7 @@
           (general-define-key
            :keymaps 'override
            :prefix "M-SPC"
-           "s" 'helm-swoop
+           ;; "s" 'helm-swoop
            "SPC" 'avy-goto-char-timer)
           (define-key exwm-mode-map [?\C-q] #'exwm-input-send-next-key)
 
@@ -12274,8 +12765,6 @@
                      (downcase)))
               exwm--id-buffer-alist)))
 
-          (require 'helm-external)
-
           (defun gb/exwm--switch (program &optional alias)
             "try to switch to a running program (nil on failure"
             (let* ((browser-alias (s-concat program "-browser"))
@@ -12288,28 +12777,31 @@
                   (when (-contains? (gb/exwm-distinct-exwm-buffer-names) stable-removed)
                     (exwm-workspace-switch-to-buffer (s-capitalize stable-removed)))))))
 
-          (defun gb/exwm--switch-or-run (program &optional alias)
-            "switch to this program if already open or start it"
-            ;; (exwm-reset)
-            (unless (gb/exwm--switch program alias)
-              (helm-run-external-command program)
-              (run-at-time 1 nil `(lambda () (gb/exwm--switch ,program)))))
+          (when (eq gb/completion-framework 'helm)
+            (require 'helm-external)
 
-          (defun gb/exwm-program-select (program)
-            "select a native (unix) program to execute, select the buffer named as
+            (defun gb/exwm--switch-or-run (program &optional alias)
+              "switch to this program if already open or start it"
+              ;; (exwm-reset)
+              (unless (gb/exwm--switch program alias)
+                (helm-run-external-command program)
+                (run-at-time 1 nil `(lambda () (gb/exwm--switch ,program)))))
+
+            (defun gb/exwm-program-select (program)
+              "select a native (unix) program to execute, select the buffer named as
              the program instead, if such a buffer exists"
-            (interactive (list
-                          (helm-comp-read
-                           "RunProgram: "
-                           (helm-external-commands-list-1 'sort)
-                           :must-match t
-                           :del-input nil
-                           :name "External Commands"
-                           :history helm-external-command-history)))
-            ;; (setq exwm-manage-force-tiling (string-equal program "dosbx"))
-            (gb/exwm--switch-or-run program)
-            ;; (run-at-time 3 nil #'(lambda () (setq exwm-manage-force-tiling nil)))
-            )
+              (interactive (list
+                            (helm-comp-read
+                             "RunProgram: "
+                             (helm-external-commands-list-1 'sort)
+                             :must-match t
+                             :del-input nil
+                             :name "External Commands"
+                             :history helm-external-command-history)))
+              ;; (setq exwm-manage-force-tiling (string-equal program "dosbx"))
+              (gb/exwm--switch-or-run program)
+              ;; (run-at-time 3 nil #'(lambda () (setq exwm-manage-force-tiling nil)))
+              ))
 
           (defun gb/exwm-insert-string-anywhere (string)
             "insert given string in exwm x window, or any other emacs buffer"
@@ -12389,14 +12881,24 @@
           (exwm-input-set-key (kbd "C-s-<up>") 'enlarge-window-effect)
           (exwm-input-set-key (kbd "C-S-s-<up>") '(lambda () (interactive) (enlarge-window-effect 50)))
 
-          ;; switch buffers
-          (exwm-input-set-key (kbd "s-b") #'helm-mini)
-          ;; open files
-          (exwm-input-set-key (kbd "s-f") #'helm-for-files)
+
+          (when (eq gb/completion-framework 'ivy)
+            (exwm-input-set-key (kbd "s-b") #'ivy-switch-buffer)
+            (exwm-input-set-key (kbd "s-f") #'counsel-buffer-or-recentf)
+            (exwm-input-set-key (kbd "s-SPC") #'counsel-M-x))
+
+          (when (eq gb/completion-framework 'helm)
+            ;; start programs
+            (exwm-input-set-key (kbd "s-1") #'gb/exwm-program-select) ;; do not wrap, since it already resets exwm
+            ;; switch buffers
+            (exwm-input-set-key (kbd "s-b") #'helm-mini)
+            ;; open files
+            (exwm-input-set-key (kbd "s-f") #'helm-for-files)
+            ;; helm-M-x
+            (exwm-input-set-key (kbd "s-SPC") #'helm-M-x)) ;; may have problems jumping off from eclipse
+
           ;; select window via ace
           (exwm-input-set-key (kbd "s-o") #'ace-select-window)
-          ;; helm-M-x
-          (exwm-input-set-key (kbd "s-SPC") #'helm-M-x) ;; may have problems jumping off from eclipse
 
           (exwm-input-set-key (kbd "s-<left>") #'gb/windmove-left)
           (exwm-input-set-key (kbd "s-<right>") #'gb/windmove-right)
@@ -12429,9 +12931,6 @@
           (exwm-input-set-key (kbd "C-S-s-o") #'(lambda () (interactive) (gb/exwm-insert-string-anywhere "Ö")))
           (exwm-input-set-key (kbd "C-S-s-a") #'(lambda () (interactive) (gb/exwm-insert-string-anywhere "Ä")))
           (exwm-input-set-key (kbd "C-S-s-u") #'(lambda () (interactive) (gb/exwm-insert-string-anywhere "Ü")))
-
-          ;; start programs
-          (exwm-input-set-key (kbd "s-1") #'gb/exwm-program-select) ;; do not wrap, since it already resets exwm
 
           ;; aws browsing
           (exwm-input-set-key (kbd "C-c a a c") #'gb/aws-code-commit-browse)
@@ -12658,13 +13157,13 @@
     (defun gb/net-vpn-switch-on ()
       "switch vpn on"
       (interactive)
-      (let ((vpn-id (helm-comp-read "vpn:" (gb/get-vpns-available) :must-match t)))
+      (let ((vpn-id (completing-read "vpn:" (gb/get-vpns-available) nil t)))
         (message (s-trim (shell-command-to-string (format "sudo systemctl start %s" vpn-id))))))
 
     (defun gb/net-vpn-switch-off ()
       "switch vpn off"
       (interactive)
-      (let ((vpn-id (helm-comp-read "vpn:" (gb/get-vpns-available) :must-match t)))
+      (let ((vpn-id (completing-read "vpn:" (gb/get-vpns-available) nil t)))
         (message (s-trim (shell-command-to-string (format "sudo systemctl stop %s" vpn-id))))))
 
     (defun gb/net-vpn-log-show ()
@@ -12717,10 +13216,26 @@
         :config
         (setq org-tree-slide-header nil)
         (setq org-tree-slide-heading-emphasis t)
+        (setq original-org-show-notification-handler org-show-notification-handler)
+
+        (defun gb/presentation-toggle-show-cursor ()
+          (interactive)
+          (if cursor-type
+              (progn
+                (setq cursor-type nil)
+                (hl-line-mode -1))
+            (setq cursor-type 'box)
+            (hl-line-mode 1)))
+
+        (bind-key "C-?" #'gb/presentation-toggle-show-cursor org-tree-slide-mode-map)
 
         (defun gb/presentation-start ()
           "make all relevant adjustments to present an org-tree-slide presentation"
           (interactive)
+          (setq org-show-notification-handler
+                      #'(lambda
+                          (msg)
+                          (message msg)))
           (when (boundp 'org-bullets-mode)
             (setq org-bullets-bullet-list '("" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "")))
           (setq cursor-type nil)
@@ -12744,10 +13259,10 @@
           (flyspell-mode 0) ;; no spell check errors
           (when (fboundp 'toggle-serif)
             (toggle-serif))
-          (when (boundp org-padding-mode)
-            (setq org-padding-heading-padding-alist
-                  '((4.0 . 1.5) (3.0 . 0.5) (3.0 . 0.5) (3.0 . 0.5) (2.5 . 0.5) (2.0 . 0.5) (1.5 . 0.5) (0.5 . 0.5)))
-            (org-padding-mode))
+          ;; (when (boundp org-padding-mode)
+          ;;   (setq org-padding-heading-padding-alist
+          ;;         '((4.0 . 1.5) (3.0 . 0.5) (3.0 . 0.5) (3.0 . 0.5) (2.5 . 0.5) (2.0 . 0.5) (1.5 . 0.5) (0.5 . 0.5)))
+          ;;   (org-padding-mode))
           (org-tree-slide-mode)
           (redisplay t)
           (when (boundp beginend-org-mode)
@@ -12765,14 +13280,15 @@
             (setq org-bullets-bullet-list '("●" "⚫" "⚪" "⚬" "∘" "◦" "∙" "◉" "◯" "◎" "○" "◌" "◎" "○" "☉" "￮" "⊙" "❍" "⊚" "⊛")))
           (when (fboundp 'toggle-serif)
             (toggle-serif))
-          (when (fboundp 'org-padding-mode)
-            (org-padding-mode -1)
-            (setq org-padding-heading-padding-alist
-                  '((0 . 0) (0 . 0) (0 . 0) (0 . 0) (0 . 0) (0 . 0) (0 . 0) (0 . 0)))
-            (org-padding-mode 1)
-            (redisplay t))
+          ;; (when (fboundp 'org-padding-mode)
+          ;;   (org-padding-mode -1)
+          ;;   (setq org-padding-heading-padding-alist
+          ;;         '((0 . 0) (0 . 0) (0 . 0) (0 . 0) (0 . 0) (0 . 0) (0 . 0) (0 . 0)))
+          ;;   (org-padding-mode 1)
+          ;;   (redisplay t))
           (global-hl-line-mode 1)
-          (setq cursor-type 'box)))
+          (setq cursor-type 'box)
+          (setq org-show-notification-handler original-org-show-notification-handler)))
     #+end_src
   - disabled original package
     #+begin_src emacs-lisp :tangle no
@@ -13263,10 +13779,11 @@
   #+end_src
 * EVAL helm-rg
   #+begin_src emacs-lisp
-    (use-package helm-rg
-      :commands helm-rg
-      :ensure-system-package rg
-      :ensure t)
+    (when (eq gb/completion-framework 'helm)
+      (use-package helm-rg
+        :commands helm-rg
+        :ensure-system-package rg
+        :ensure t))
   #+end_src
 * EVAL keycast (incomplete) disabled
   #+begin_src emacs-lisp :tangle no
@@ -13293,9 +13810,10 @@
   #+end_src
 * EVAL helm-switch-shell
   #+begin_src emacs-lisp
-    (use-package helm-switch-shell
-      :bind (("s-n" . helm-switch-shell))
-      :ensure t)
+    (when (eq gb/completion-framework 'helm)
+      (use-package helm-switch-shell
+        :bind (("s-n" . helm-switch-shell))
+        :ensure t))
   #+end_src
 * EVAL fzf
   #+begin_src emacs-lisp
@@ -13518,41 +14036,40 @@
 
     ;;            :unnarrowed t))))
   #+end_src
-* EVAL emacs-mini-frame (disabled)
-  - BUG: currently placing the popup window behind other xwindows
-  #+begin_src emacs-lisp :tangle no
+* emacs-mini-frame
+  #+begin_src emacs-lisp
     (use-package mini-frame
-      ;; :load-path "~/.emacs.d/additionals/mini-frame.el"
-      :ensure t
+      :load-path "~/repo/emacs-mini-frame"
       :config
       (custom-set-variables
-       '(mini-frame-show-parameters
-         '((top . 10)
+       '(mini-frame-internal-border-color "#654865")
+       '(mini-frame-completions-show-parameters
+         '((top . 0.7)
            (width . 0.5)
            (left . 0.5)
-           (height . 15)
-           (background-color . "gray12"))))
-      ;; (setq mini-frame-do-commands
-      ;;       ;; '() ;; when using the empty list instead of the other, only the ones explicitly ignored will not use the mini frame
-      ;;       '(exwm-workspace-switch
-      ;;         gb/query-default-printer
-      ;;         gb/net-vpn-switch-on
-      ;;         gb/net-vpn-switch-off
-      ;;         eval-expression
-      ;;         selectrum-read-buffer
-      ;;         selectrum-read-file-name
-      ;;         selectrum-read
-      ;;         selectrum-read-library-name
-      ;;         selectrum-read-directory-name
-      ;;         selectrum-completing-read))
+           (height . 1)
+           (background-color . "#251825")
+           (border-color . "#654865")))
+       '(mini-frame-show-parameters
+         '((top . 0.7)
+           (width . 0.5)
+           (left . 0.5)
+           (height . 1)
+           (background-color . "#251825")
+           (border-color . "#654865"))))
+
+      (setq mini-frame--command-adjusted-show-parameters
+            '((counsel-buffer-or-recentf (width . 0.8))
+              (gb/ivy--program-select-and-run (width . 0.2))
+              (ivy-switch-buffer (width  . 0.8))
+              (counsel-git-grep (width .  0.8))))
+
       (setq mini-frame-ignore-commands
-            '(;;eval-expression
+            '(
               helm-for-files
               helm-M-x
               helm-find-files
               helm-mini
-              describe-function
-              describe-variable
               helm-imenu-anywhere
               byte-compile-file
               gb/helm-bufler-switch
@@ -13565,7 +14082,8 @@
               helm-multi-swoop-all
               helm-cmd-t
               helm-cmd-t-repos))
-      (mini-frame-mode 1))
+      (when (eq gb/completion-framework 'ivy)
+        (mini-frame-mode 1)))
   #+end_src
 * EVAL share2computer
   - allow easy download from handy by simply starting 'M-x share2computer'
@@ -13578,10 +14096,11 @@
   #+begin_src emacs-lisp
     (use-package bufler
       :ensure t)
-    (use-package helm-bufler
-      :bind (("H-b" . #'gb/helm-bufler-switch))
-      :init (defun gb/helm-bufler-switch () "" (interactive)(helm :sources '(helm-bufler-source))) ;; assign this to a command
-      :ensure t)
+    (when (eq gb/completion-framework 'helm)
+      (use-package helm-bufler
+        :bind (("H-b" . #'gb/helm-bufler-switch))
+        :init (defun gb/helm-bufler-switch () "" (interactive)(helm :sources '(helm-bufler-source))) ;; assign this to a command
+        :ensure t))
   #+end_src
 * EVAL vlc (not really useful => disabled)
   #+begin_src emacs-lisp :tangle no
@@ -13617,11 +14136,37 @@
     (use-package ctrlf
       :ensure t)
   #+end_src
-* EVAL selectrum
-  - idea: additional install selectrum-prescient
+* EVAL prescient
   #+begin_src emacs-lisp
-    (use-package selectrum
-      :ensure t)
+    (use-package prescient
+      :ensure t
+      :custom
+      (prescient-aggressive-file-save t)
+      (prescient-persist-mode t))
+  #+end_src
+* EVAL company-prescient
+  #+begin_src emacs-lisp
+    (use-package company-prescient
+      :ensure t
+      :config
+      (company-prescient-mode 1))
+  #+end_src
+* EVAL selectrum (disabled, ivy seems to be ok)
+  - idea: additional install selectrum-prescient
+  #+begin_src emacs-lisp :tangle no
+    (when (eq gb/completion-framework 'selectrum)
+      (use-package selectrum
+        :ensure t
+        :bind (:map selectrum-minibuffer-map
+               ("<tab>"    . selectrum-insert-current-candidate))
+        :config
+        (setq selectrum-num-candidates-displayed 45)
+        (selectrum-mode 1))
+
+      (use-package selectrum-prescient
+        :ensure t
+        :config
+        (selectrum-prescient-mode 1)))
   #+end_src
 * EVAL smtpmail-async
   #+begin_src emacs-lisp
@@ -13781,15 +14326,17 @@
   #+end_src
 * file grep and replace
   #+begin_src emacs-lisp
-    (use-package helm-ag
-      :commands (helm-ag)
-      :ensure t)
+    (when (eq gb/completion-framework 'helm)
+      (use-package helm-ag
+        :commands (helm-ag)
+        :ensure t))
     (use-package wgrep
        :ensure t)
     (use-package wgrep-ag
       :ensure t)
-    (use-package wgrep-helm
-      :ensure t)
+    (when (eq gb/completion-framework 'helm)
+      (use-package wgrep-helm
+        :ensure t))
   #+end_src
 * scratch comment (insert eval s-expr into scratch buffer as comment)
   #+begin_src emacs-lisp
@@ -13835,9 +14382,10 @@
 * helm-icons - show icons in helm selection
   - see https://github.com/yyoncho/helm-icons
   #+begin_src emacs-lisp
-    (use-package helm-icons
-      :ensure t
-      :config (helm-icons-enable))
+    (when (eq gb/completion-framework 'helm)
+      (use-package helm-icons
+        :ensure t
+        :config (helm-icons-enable)))
   #+end_src
 * EVAL ob-mermaid - allow diagram generation via mermaid (javascript lib md->png)
   - install mermaid via ~npm install -g mermaid.cli --no-save~
@@ -14994,6 +15542,8 @@
      ;; (toggle-frame-fullscreen)
      (ido-mode -1)
      (ido-unload-function)
+     (when (eq gb/completion-framework 'ivy)
+       (ivy-mode 1))
      (midnight-mode 1)
      (set-fringe-mode 10)
      (display-time-mode -1)
