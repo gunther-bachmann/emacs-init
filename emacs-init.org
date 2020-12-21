@@ -9525,7 +9525,7 @@
 
    (use-package slack
      :load-path "~/repo/emacs-slack"
-     :commands (gb/slack-start gb/slack-stop)
+     ;; :commands (gb/slack-start gb/slack-stop)
      :custom (slack-log-level 'warn "make log less verbose")
      :init
      (setq slack-enable-global-mode-string t)
@@ -9537,14 +9537,14 @@
      ;; Ensure the buffer exists when a message arrives on a
      ;; channel that wasn't open.
      (setq slack-buffer-create-on-notify nil) ;; might be necessary to set to true, to allow buffer tracking!
+
      :config
      (setq lui-time-stamp-format "[%m-%d %H:%M]")
      (setq lui-fill-column 110)
      (setq slack-thread-also-send-to-room nil) ;; never send thread message to channel, too
 
      (setq slack-modeline-filter
-           '("^itemis - nintendo-pipe"
-             "^itemis - general$"
+           '("^itemis - general$"
              "^itemis - somethingspecial$"
              "^itemis - random$"
              "^itemis - xtext"
@@ -9554,7 +9554,7 @@
      (defun gb/timer-active-p (timer)
        "check whether the given timer is currently active"
        (or (memq timer timer-list)
-           (memq timer timer-idle-list)))
+          (memq timer timer-idle-list)))
 
      ;; redefine whether team is relevant for modeline display
      (defun slack-team-modeline-enabledp (team)
@@ -9716,7 +9716,7 @@
                            (slack-room-display (gb/slack-room-by-id room-id) (slack-team-select)))))))
 
      (setq gb/slack-status-active-list '("programming :typescript:" "programming :xtext:" "programming :java-coffee:" "enjoying lambdas :racket-lang:" "break :coffee:"))
-     (setq gb/slack-status-away-list '("mampf :fork_and_knife:" "home :house_with_garden:"))
+     (setq gb/slack-status-away-list '("mampf :fork_and_knife:" "home :house_with_garden:" "vacationing :mount_fuji:"))
 
      (defun gb/slack-status-set-active ()
        (interactive)
