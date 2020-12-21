@@ -13847,8 +13847,8 @@
       :config
       (pomodoro-add-to-mode-line))
   #+end_src
-* EVAL deft
-  #+begin_src emacs-lisp
+* deft (deactivated, using notdeft instead)
+  #+begin_src emacs-lisp :tangle no
     (use-package deft
       :commands deft
       :ensure t
@@ -13904,20 +13904,23 @@
       :commands (notdeft)
       :bind ("s-d" . notdeft)
       :load-path "~/repo/notdeft"
+      :hook (notdeft-mode . org-roam-stack-mode)
       :custom
       (notdeft-directories '("~/documents/roam"))
       (notdeft-xapian-program "/home/pe/repo/notdeft/xapian/notdeft-xapian")
+      (notdeft-xapian-max-results 1000 "show up to 1000 entries in the notdef query buffer")
       :config
-      (require 'notdeft-org)
+      ;; (require 'notdeft-org)
 
       ;; redefinition of reading deft link, using completing-read instead of ivy
-      (defun notdeft-org-read-deft-link-name ()
-        "Query for a \"deft:\" link name.
-    Do so interactively. Return the name component of a link, without
-    the \"deft:\" prefix."
-        (let ((name-lst (notdeft-make-basename-list)))
-          (when name-lst
-            (completing-read "NotDeft note: " name-lst)))))
+    ;;   (defun notdeft-org-read-deft-link-name ()
+    ;;     "Query for a \"deft:\" link name.
+    ;; Do so interactively. Return the name component of a link, without
+    ;; the \"deft:\" prefix."
+    ;;     (let ((name-lst (notdeft-make-basename-list)))
+    ;;       (when name-lst
+    ;;         (completing-read "NotDeft note: " name-lst))))
+      )
   #+end_src
 * org roam
   - see https://rgoswami.me/posts/org-note-workflow/
