@@ -1677,6 +1677,12 @@
            (setq w3m-toggle-inline-images t))))
    #+END_SRC
 * ui related stuff
+** read only => viewer mode
+   - switch viewer mode on in read only modes
+   - page wise scrolling with space, back space
+   #+begin_src emacs-lisp
+     (setq view-read-only t)
+   #+end_src
 ** clear windows in frame
    #+begin_src emacs-lisp
      (defun gb/clear-frame ()
