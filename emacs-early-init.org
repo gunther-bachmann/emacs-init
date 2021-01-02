@@ -2,6 +2,7 @@
 #+property: header-args :tangle ~/.emacs.d/early-init.el :comments both
 * initialize basic some
   #+begin_src emacs-lisp
+    (set-background-color "black") ;; since dark mode theme is not set yet, do something close
     (custom-set-variables
      '(initial-frame-alist (quote ((fullscreen . fullwidth)(height . 50)(top . 22)))))
     (menu-bar-mode -1) ;; remove menu bar
@@ -9,7 +10,6 @@
     (scroll-bar-mode -1) ;; remove scroll bar
     ;; (add-to-list 'default-frame-alist '(height . 70)) ;; resize to cover most of screen during exwm startup
     ;; (add-to-list 'default-frame-alist '(width . 800))
-    (set-background-color "black") ;; since dark mode theme is not set yet, do something close
   #+end_src
 
 # Local Variables:

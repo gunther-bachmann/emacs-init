@@ -3102,7 +3102,8 @@
          "user for blinking on recenter, which shell mode does constantly => only in other modes"
          (unless (or (memq major-mode (list 'ansi-term-mode 'term-mode 'shell-mode 'comint-mode))
                     (string-prefix-p "slack" (symbol-name major-mode)))
-           (beacon-blink)))
+           (ignore-errors
+             (beacon-blink))))
 
        (advice-add 'recenter :after #'gb/blink-if-not-shell)
        (advice-add 'move-to-window-line-top-bottom :after #'gb/blink-if-not-shell))
@@ -4958,7 +4959,7 @@
          (defun gb/ivy--program-select-and-run ()
            (interactive)
            (unless gb/external-commands
-             (setq gb/external-commands (gb/collect-external-commands nil)))
+             (setq gb/external-commands (remove-duplicates (gb/collect-external-commands nil))))
            (gb/exwm--switch-or-run-sel
             (completing-read "RunProgram: " gb/external-commands nil t)))
 
@@ -6916,6 +6917,7 @@
        (bind-key "<M-up>" #'helm-comint-input-ring comint-mode-map)
        (bind-key "<C-S-up>" #'helm-comint-prompts comint-mode-map))
      (bind-key "<M-S-up>" #'counsel-shell-history comint-mode-map)
+     (bind-key "C-c C-k" #'comint-continue-subjob comint-mode-map)
      (bind-key "<tab>" #'company-complete comint-mode-map)
    #+END_SRC
 ** tmux (disabled for now)
@@ -14093,6 +14095,9 @@
               helm-org-in-buffer-headings
               helm-imenu-anywhere
               gb/exwm-program-select
+              embark-keymap-help
+              embark--completing-read-map
+              ignore
               helm-swoop
               helm-switch-shell
               helm-multi-swoop
@@ -14945,7 +14950,43 @@
   - see https://github.com/oantolin/embark
   #+begin_src emacs-lisp
     (use-package embark
-      :ensure t)
+      :ensure t
+      :bind (("H-<SPC>" . embark-act)))
+  #+end_src
+* udisksctl - TODO: make package of this
+  #+begin_src emacs-lisp
+    (defun gb/udisksctl--info (blk-device)
+      (s-trim (shell-command-to-string (format "udisksctl info -b %s" blk-device))))
+
+    (defun gb/udisksctl--get-devices ()
+      (s-split "\n" (s-trim (shell-command-to-string (format "udisksctl  status | tail -n +3")))))
+
+    (defun gb/udisksctl--completing-read-blk-device ()
+      (s-concat "/dev/" (--last (not (string-empty-p it)) (s-split " " (completing-read "Device: " (gb/udisksctl--get-devices) nil t)))))
+
+    (defun gb/udisksctl--unpower-device (device)
+      ""
+      (message (s-trim (shell-command-to-string (format "udisksctl power-off -b %s" device)))))
+
+    (defun gb/udisksctl--unpower ()
+      (interactive)
+      (when-let ((device (gb/udisksctl--completing-read-blk-device)))
+        (gb/udisksctl--unpower-device device)))
+
+    (defun gb/udisksctl--get-mounts (device)
+      (s-split "\n" (s-trim (shell-command-to-string (format  "mount | grep -e '^%s'" device)))))
+
+    (defun gb/udisksctl--completing-read-mount (device)
+      (--first (not (string-empty-p it)) (s-split " " (completing-read "Mounts: " (gb/udisksctl--get-mounts device) nil t))))
+
+    (defun gb/udisksctl--unmount-mount (mount)
+      (message (s-trim (shell-command-to-string (format "udisksctl unmount -b %s" mount)))))
+
+    (defun gb/udisksctl--unmount ()
+      (interactive)
+      (when-let ((device (gb/udisksctl--completing-read-blk-device)))
+        (when-let ((mount (gb/udisksctl--completing-read-mount device)))
+           (gb/udisksctl--unmount-mount mount))))
   #+end_src
 * INTERESTING
 ** blog/presentation
@@ -15004,6 +15045,7 @@
   - ob-latex-as-png - org babel functions for latex-as-png
   - toc-mode - extract table of contents from a pdf document that has it printed, but not explicit within the pdf structure itself, clean it
     up and add the cleaned up toc to the pdf (such that it is usable). see https://github.com/dalanicolai/toc-mode
+  - org-inline-pdf - inline preview of pdf (similiar to inlined images) in org mode, needs pdf2svg installed
 ** (function) selection
   - helm-selected
   - helm-org - Helm for org headlines and keywords completion
