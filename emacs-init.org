@@ -23,9 +23,10 @@
   (setq gb/completion-framework 'ivy) ;; 'helm | 'selectrum | 'ivy
   (set-background-color "black")
   (set-foreground-color "white")
-  (insert "\n")
-  (insert-image (create-image "~/media/gnu-small.png"))
-  (insert "\n\n")
+  (when (file-exists-p "~/media/gnu-small.png")
+    (insert "\n")
+    (insert-image (create-image "~/media/gnu-small.png"))
+    (insert "\n\n"))
   (setq gb/playing-startup-sound nil)
   (defun gb/play-startup-sound ()
     (interactive)
@@ -67,7 +68,8 @@
 * elpa-mirror (see https://github.com/redguardtoo/elpa-mirror)
   #+begin_src emacs-lisp
     (add-to-list 'load-path "~/.emacs.d/additionals/")
-    (require 'elpa-mirror)
+    (when (file-exists-p "~/.emacs.d/additionals/elpa-mirror")
+      (require 'elpa-mirror))
     (setq elpamr-default-output-directory "~/repo/myelpa")
     (setq use-elpa-mirror nil)
     (setq elpamr-debug t)
@@ -412,7 +414,7 @@
                                    ("melpa" . "http://melpa.org/packages/"))))
 
         (setq package-archive-priorities
-              '(("myelpa" . 50)  ;; local is of highest priority
+              '(("myelpa" . 0)  ;; local is of highest priority
                 ("melpa-stable" . 20)  ;; stable is preferred
                 ("melpa" . 10)
                 ;; ("gnu" . 0)
@@ -651,10 +653,10 @@
          ))
     (let* ((total-ram (if (is-macos-p)
                           (/ (string-to-int (shell-command-to-string "sysctl hw.memsize | sed 's/.*:\s*//'")) (* 1024 1024 1024) )
-                        (/ (nth 0 (memory-info)) (* 1024 1024))))
-           (free-ram (if (is-macos-p) 0 (/ (nth 1 (memory-info)) (* 1024 1024))))
-           (total-ram-str (concat (number-to-string total-ram) "GB" ))
-           (free-ram-str (if (= 0 free-ram) "LOTS OF" (concat (number-to-string free-ram) "GB" )))
+                        (/ (nth 0 (memory-info)) (* 1024.0 1024))))
+           (free-ram (if (is-macos-p) 0 (/ (nth 1 (memory-info)) (* 1024.0 1024))))
+           (total-ram-str (concat (format "%.1f" total-ram) "GB" ))
+           (free-ram-str (if (= 0 free-ram) "LOTS OF" (concat (format "%.1f" free-ram) "GB" )))
            (len-avail-for-memory (+ (length emacs-version) 1))
            (len-needed-for-memory (+ (length free-ram-str) (length total-ram-str)))
            (nix-total (gb/system-info))
@@ -1933,7 +1935,7 @@
 
      (setq fast-but-imprecise-scrolling t)
      (setq inhibit-compacting-font-caches t)
-     (setq-default line-spacing 4) ;; depends a bit on the type of font selected
+     (setq-default line-spacing (if (< (frame-width) 250) 0.1 4)) ;; depends a bit on the type of font selected
 
      (setq gb/default-font "Hack")
      ;; (setq gb/default-font "Source Code Pro")
@@ -1967,7 +1969,9 @@
                 (ht ('default-height 140) ('variable-pitch-height 140)))
                ((> display-width 3400)
                 (ht ('default-height 130) ('variable-pitch-height 130)))
-               ((ht ('default-height 110) ('variable-pitch-height 110))))))
+               ((> display-width 1400)
+                (ht ('default-height 110) ('variable-pitch-height 110)))
+               ((ht ('default-height 85) ('variable-pitch-height 85))))))
 
      (defun gb/get-font-weights (win-system)
        "Get font weights depending on windowing system"
@@ -5343,7 +5347,8 @@
                          :caller 'counsel-shell-history)))
            (bind-key "M-y" #'counsel-yank-pop ) ;; no :bind, since counsel needs to be loaded for magit
            (bind-key "M-y" #'ivy-next-line ivy-minibuffer-map )
-           (setcdr (assoc 'counsel-M-x ivy-initial-inputs-alist) "") ;; remove ^ from input
+           (when-let ((initial-ivy-input (assoc 'counsel-M-x ivy-initial-inputs-alist)))
+             (setcdr initial-ivy-input "")) ;; remove ^ from input
            (setq counsel-grep-swiper-limit 3000000)))
        (use-package counsel-bbdb
          :ensure t)
@@ -6678,7 +6683,7 @@
         :after ( magit)))
     #+END_SRC
 *** forge (magit access to pull requests on github/gitlab)
-    #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp :tangle no
     (use-package forge
       :after magit
       :ensure t)
@@ -6897,7 +6902,7 @@
      (require 'comint) ;; part of emacs
      (setq comint-password-prompt-regexp
            ;; (concat comint-password-prompt-regexp
-           "\\(passphrase: \\|PIN: \\|password: \\).*\\'" ;; [:blank:]?:[:blank:]*
+           "\\(passphrase \\|PIN: \\|password\\|Password\\).*\\'" ;; [:blank:]?:[:blank:]*
            ;; )
            )
 
@@ -9523,380 +9528,381 @@
      :hook (slack-mode . emojify-turn-on-emojify-mode)
      (org-mode . emojify-turn-off-emojify-mode ))
 
-   (use-package slack
-     :load-path "~/repo/emacs-slack"
-     ;; :commands (gb/slack-start gb/slack-stop)
-     :custom (slack-log-level 'warn "make log less verbose")
-     :init
-     (setq slack-enable-global-mode-string t)
-     (setq slack-enable-emoji t) ;; if you want to enable emoji, default nil
-     ;; (setq slack-room-subscription '(clojurians itemisHamburg))
-     (setq slack-prefer-current-team t)
-     (with-eval-after-load 'tracking
-       (bind-key "s-\\" #'tracking-next-buffer tracking-mode-map))
-     ;; Ensure the buffer exists when a message arrives on a
-     ;; channel that wasn't open.
-     (setq slack-buffer-create-on-notify nil) ;; might be necessary to set to true, to allow buffer tracking!
+   (when (file-exists-p "~/repo/emacs-slack/slack.el")
+     (use-package slack
+       :load-path "~/repo/emacs-slack"
+       ;; :commands (gb/slack-start gb/slack-stop)
+       :custom (slack-log-level 'warn "make log less verbose")
+       :init
+       (setq slack-enable-global-mode-string t)
+       (setq slack-enable-emoji t) ;; if you want to enable emoji, default nil
+       ;; (setq slack-room-subscription '(clojurians itemisHamburg))
+       (setq slack-prefer-current-team t)
+       (with-eval-after-load 'tracking
+         (bind-key "s-\\" #'tracking-next-buffer tracking-mode-map))
+       ;; Ensure the buffer exists when a message arrives on a
+       ;; channel that wasn't open.
+       (setq slack-buffer-create-on-notify nil) ;; might be necessary to set to true, to allow buffer tracking!
 
-     :config
-     (setq lui-time-stamp-format "[%m-%d %H:%M]")
-     (setq lui-fill-column 110)
-     (setq slack-thread-also-send-to-room nil) ;; never send thread message to channel, too
+       :config
+       (setq lui-time-stamp-format "[%m-%d %H:%M]")
+       (setq lui-fill-column 110)
+       (setq slack-thread-also-send-to-room nil) ;; never send thread message to channel, too
 
-     (setq slack-modeline-filter
-           '("^itemis - general$"
-             "^itemis - somethingspecial$"
-             "^itemis - random$"
-             "^itemis - xtext"
-             "^itemis - web-engineering$"
-             "^itemis - publications$"))
+       (setq slack-modeline-filter
+             '("^itemis - general$"
+               "^itemis - somethingspecial$"
+               "^itemis - random$"
+               "^itemis - xtext"
+               "^itemis - web-engineering$"
+               "^itemis - publications$"))
 
-     (defun gb/timer-active-p (timer)
-       "check whether the given timer is currently active"
-       (or (memq timer timer-list)
-          (memq timer timer-idle-list)))
+       (defun gb/timer-active-p (timer)
+         "check whether the given timer is currently active"
+         (or (memq timer timer-list)
+            (memq timer timer-idle-list)))
 
-     ;; redefine whether team is relevant for modeline display
-     (defun slack-team-modeline-enabledp (team)
-       (if (boundp 'pomodoro-timer)
-           (not (gb/timer-active-p pomodoro-timer))
-         (s-equals? (oref team name) "itemis")))
+       ;; redefine whether team is relevant for modeline display
+       (defun slack-team-modeline-enabledp (team)
+         (if (boundp 'pomodoro-timer)
+             (not (gb/timer-active-p pomodoro-timer))
+           (s-equals? (oref team name) "itemis")))
 
-     (defun gb/slack-update-modeline-advice ()
-       (slack-update-modeline))
+       (defun gb/slack-update-modeline-advice ()
+         (slack-update-modeline))
 
-     (when (fboundp 'pomodoro-start)
-       (advice-add #'gb/slack-update-modeline-advice :after 'pomodoro-start))
-     (when (fboundp 'pomodoro-stop)
-       (advice-add #'gb/slack-update-modeline-advice :after 'pomodoro-stop))
-     (when (fboundp 'pomodoro-pause)
-       (advice-add #'gb/slack-update-modeline-advice :after 'pomodoro-pause))
-     (when (fboundp 'pomodoro-resume)
-       (advice-add #'gb/slack-update-modeline-advice :after 'pomodoro-resume))
+       (when (fboundp 'pomodoro-start)
+         (advice-add #'gb/slack-update-modeline-advice :after 'pomodoro-start))
+       (when (fboundp 'pomodoro-stop)
+         (advice-add #'gb/slack-update-modeline-advice :after 'pomodoro-stop))
+       (when (fboundp 'pomodoro-pause)
+         (advice-add #'gb/slack-update-modeline-advice :after 'pomodoro-pause))
+       (when (fboundp 'pomodoro-resume)
+         (advice-add #'gb/slack-update-modeline-advice :after 'pomodoro-resume))
 
-     (defun gb/slack-disable-modeline ()
-       "remove slack modeline element from modeline if present, reenable with slack-enable-modeline"
-       (setq global-mode-string (remove '(:eval slack-modeline) global-mode-string)))
+       (defun gb/slack-disable-modeline ()
+         "remove slack modeline element from modeline if present, reenable with slack-enable-modeline"
+         (setq global-mode-string (remove '(:eval slack-modeline) global-mode-string)))
 
-     (defun gb/slack-init-mode-config ()
-       "do some settings for slack"
-       ;; show pictures in one piece (since they are chunked in lines)
-       (setq-local line-spacing 0))
+       (defun gb/slack-init-mode-config ()
+         "do some settings for slack"
+         ;; show pictures in one piece (since they are chunked in lines)
+         (setq-local line-spacing 0))
 
-     (add-hook 'slack-mode-hook #'emojify-mode)
-     (add-hook 'slack-mode-hook #'gb/slack-init-mode-config)
-     (add-hook 'slack-thread-message-buffer-mode-hook #'emojify-mode)
-     (add-hook 'slack-thread-message-buffer-mode-hook #'gb/slack-init-mode-config)
-     (add-hook 'slack-file-info-buffer-mode-hook #'emojify-mode)
-     (add-hook 'slack-file-info-buffer-mode-hook #'gb/slack-init-mode-config)
+       (add-hook 'slack-mode-hook #'emojify-mode)
+       (add-hook 'slack-mode-hook #'gb/slack-init-mode-config)
+       (add-hook 'slack-thread-message-buffer-mode-hook #'emojify-mode)
+       (add-hook 'slack-thread-message-buffer-mode-hook #'gb/slack-init-mode-config)
+       (add-hook 'slack-file-info-buffer-mode-hook #'emojify-mode)
+       (add-hook 'slack-file-info-buffer-mode-hook #'gb/slack-init-mode-config)
 
 
-     (when (eq gb/completion-framework 'ivy)
-       (defun gb/slack--emojify-insert-emoji ()
-         (interactive)
-         (when-let ((emoji (slack-select-emoji (slack-team-select))))
-           (insert emoji)))
+       (when (eq gb/completion-framework 'ivy)
+         (defun gb/slack--emojify-insert-emoji ()
+           (interactive)
+           (when-let ((emoji (slack-select-emoji (slack-team-select))))
+             (insert emoji)))
 
-       (defun gb/slack--message-reaction-input (_team)
-         (when-let ((emoji (slack-select-emoji (slack-team-select))))
-           (if (and (string-prefix-p ":" emoji)
-                  (string-suffix-p ":" emoji))
-               (substring emoji 1 -1)
-             emoji)))
+         (defun gb/slack--message-reaction-input (_team)
+           (when-let ((emoji (slack-select-emoji (slack-team-select))))
+             (if (and (string-prefix-p ":" emoji)
+                      (string-suffix-p ":" emoji))
+                 (substring emoji 1 -1)
+               emoji)))
 
-       (defun gb/slack--message-add-reaction ()
-         (interactive)
-         (slack-if-let* ((buf slack-current-buffer)
-                         (team (slack-buffer-team buf))
-                         (reaction (gb/slack--message-reaction-input team)))
-             (slack-buffer-add-reaction-to-message buf
-                                                   reaction
-                                                   (slack-get-ts))))
+         (defun gb/slack--message-add-reaction ()
+           (interactive)
+           (slack-if-let* ((buf slack-current-buffer)
+                           (team (slack-buffer-team buf))
+                           (reaction (gb/slack--message-reaction-input team)))
+                          (slack-buffer-add-reaction-to-message buf
+                                                                reaction
+                                                                (slack-get-ts))))
 
-       ;; insert (embed) emoji
-       (bind-key "C-c :" #'gb/slack--emojify-insert-emoji slack-mode-map)
-       (bind-key "C-c :" #'gb/slack--emojify-insert-emoji slack-message-compose-buffer-mode-map)
-       (bind-key "C-c :" #'gb/slack--emojify-insert-emoji slack-thread-message-buffer-mode-map)
+         ;; insert (embed) emoji
+         (bind-key "C-c :" #'gb/slack--emojify-insert-emoji slack-mode-map)
+         (bind-key "C-c :" #'gb/slack--emojify-insert-emoji slack-message-compose-buffer-mode-map)
+         (bind-key "C-c :" #'gb/slack--emojify-insert-emoji slack-thread-message-buffer-mode-map)
 
-       (bind-key "C-c C-a" #'gb/slack--message-add-reaction slack-message-buffer-mode-map)
-       (bind-key "C-c C-a" #'gb/slack--message-add-reaction slack-mode-map)
-       (bind-key "C-c C-a" #'gb/slack--message-add-reaction slack-thread-message-buffer-mode-map))
+         (bind-key "C-c C-a" #'gb/slack--message-add-reaction slack-message-buffer-mode-map)
+         (bind-key "C-c C-a" #'gb/slack--message-add-reaction slack-mode-map)
+         (bind-key "C-c C-a" #'gb/slack--message-add-reaction slack-thread-message-buffer-mode-map))
 
-     (when (eq gb/completion-framework 'helm)
-       (bind-key "C-c :" #'emojify-insert-emoji slack-mode-map)
-       (bind-key "C-c :" #'emojify-insert-emoji slack-message-compose-buffer-mode-map)
-       (bind-key "C-c :" #'emojify-insert-emoji slack-thread-message-buffer-mode-map)
+       (when (eq gb/completion-framework 'helm)
+         (bind-key "C-c :" #'emojify-insert-emoji slack-mode-map)
+         (bind-key "C-c :" #'emojify-insert-emoji slack-message-compose-buffer-mode-map)
+         (bind-key "C-c :" #'emojify-insert-emoji slack-thread-message-buffer-mode-map)
 
-       ;; add reaction
-       (bind-key "C-c C-a" #'slack-message-add-reaction slack-message-buffer-mode-map)
-       (bind-key "C-c C-a" #'slack-message-add-reaction slack-mode-map)
-       (bind-key "C-c C-a" #'slack-message-add-reaction slack-thread-message-buffer-mode-map))
+         ;; add reaction
+         (bind-key "C-c C-a" #'slack-message-add-reaction slack-message-buffer-mode-map)
+         (bind-key "C-c C-a" #'slack-message-add-reaction slack-mode-map)
+         (bind-key "C-c C-a" #'slack-message-add-reaction slack-thread-message-buffer-mode-map))
 
-     ;; remove reaction
-     (bind-key "C-c C-S-a" #'slack-message-remove-reaction slack-message-buffer-mode-map)
-     (bind-key "C-c C-S-a" #'slack-message-remove-reaction slack-mode-map)
-     (bind-key "C-c C-S-a" #'slack-message-remove-reaction slack-thread-message-buffer-mode-map)
+       ;; remove reaction
+       (bind-key "C-c C-S-a" #'slack-message-remove-reaction slack-message-buffer-mode-map)
+       (bind-key "C-c C-S-a" #'slack-message-remove-reaction slack-mode-map)
+       (bind-key "C-c C-S-a" #'slack-message-remove-reaction slack-thread-message-buffer-mode-map)
 
-     ;; insert (embed) direct mention of user
-     (bind-key "C-c @" #'slack-message-embed-mention slack-mode-map)
-     (bind-key "C-c @" #'slack-message-embed-mention slack-message-compose-buffer-mode-map)
-     (bind-key "C-c @" #'slack-message-embed-mention slack-thread-message-buffer-mode-map)
+       ;; insert (embed) direct mention of user
+       (bind-key "C-c @" #'slack-message-embed-mention slack-mode-map)
+       (bind-key "C-c @" #'slack-message-embed-mention slack-message-compose-buffer-mode-map)
+       (bind-key "C-c @" #'slack-message-embed-mention slack-thread-message-buffer-mode-map)
 
-     ;; mark as read
-     (bind-key "C-c C-c" #'gb/slack-buffer--mark-read slack-mode-map)
+       ;; mark as read
+       (bind-key "C-c C-c" #'gb/slack-buffer--mark-read slack-mode-map)
 
-     ;; edit message in separate buffer
-     (bind-key "C-c '" #'slack-message-write-another-buffer slack-thread-message-buffer-mode-map)
-     (bind-key "C-c '" #'slack-message-write-another-buffer slack-message-buffer-mode-map)
+       ;; edit message in separate buffer
+       (bind-key "C-c '" #'slack-message-write-another-buffer slack-thread-message-buffer-mode-map)
+       (bind-key "C-c '" #'slack-message-write-another-buffer slack-message-buffer-mode-map)
 
-     ;; reply in thread
-     (bind-key "C-c C-r" #'slack-thread-show-or-create slack-message-buffer-mode-map)
-     (bind-key "C-c C-r" #'slack-thread-show-or-create slack-mode-map)
-     (bind-key "C-c C-r" #'slack-thread-show-or-create slack-thread-message-buffer-mode-map)
+       ;; reply in thread
+       (bind-key "C-c C-r" #'slack-thread-show-or-create slack-message-buffer-mode-map)
+       (bind-key "C-c C-r" #'slack-thread-show-or-create slack-mode-map)
+       (bind-key "C-c C-r" #'slack-thread-show-or-create slack-thread-message-buffer-mode-map)
 
-     (setq gb/slack-team-registered nil)
-     (defun gb/slack-register-teams ()
-       "read slack api tokens and set configuration accordingly"
-       (unless gb/slack-team-registered
-         (let* ((auth-map (jde-read-properties-file "~/.slack.api.token.gpg")))
-           (slack-register-team
-            :name "itemis"
-            :default t
-            :token (gethash "slack-token" auth-map)
-            :subscribed-channels '()
-            :full-and-display-names t
-            :mark-as-read-immediately nil
-            :modeline-name "i"
-            :visible-threads t
-            :animate-image nil)
-           (setq gb/slack-team-registered t))))
+       (setq gb/slack-team-registered nil)
+       (defun gb/slack-register-teams ()
+         "read slack api tokens and set configuration accordingly"
+         (unless gb/slack-team-registered
+           (let* ((auth-map (jde-read-properties-file "~/.slack.api.token.gpg")))
+             (slack-register-team
+              :name "itemis"
+              :default t
+              :token (gethash "slack-token" auth-map)
+              :subscribed-channels '()
+              :full-and-display-names t
+              :mark-as-read-immediately nil
+              :modeline-name "i"
+              :visible-threads t
+              :animate-image nil)
+             (setq gb/slack-team-registered t))))
 
-     (defvar gb/slack-update-list-timer nil)
+       (defvar gb/slack-update-list-timer nil)
 
-     ;; make sure to not track common channels (annoying)
-     (setq tracking-ignored-buffers '(".*itemis : general.*" ".*itemis : xtext.*" ".*homecooking.*" ".*nintendo-pipe_pr.*" ".*itemis : random.*"))
+       ;; make sure to not track common channels (annoying)
+       (setq tracking-ignored-buffers '(".*itemis : general.*" ".*itemis : xtext.*" ".*homecooking.*" ".*nintendo-pipe_pr.*" ".*itemis : random.*"))
 
-     (defun gb/slack-all-room-names ()
-       ""
-       (--map (slack-room-name it (slack-team-select))
-              (cl-loop for team in (list (slack-team-select))
-                       append (append (slack-team-ims team)
-                                      (slack-team-groups team)
-                                      (slack-team-channels team)))))
-
-     (defun gb/slack-room-by-regex (regex)
-       ""
-       (--first (s-matches? regex (slack-room-name it (slack-team-select)))
+       (defun gb/slack-all-room-names ()
+         ""
+         (--map (slack-room-name it (slack-team-select))
                 (cl-loop for team in (list (slack-team-select))
                          append (append (slack-team-ims team)
                                         (slack-team-groups team)
                                         (slack-team-channels team)))))
 
-     (defun gb/slack-room-display (regex)
-       (slack-room-display (gb/slack-room-by-regex regex) (slack-team-select)))
+       (defun gb/slack-room-by-regex (regex)
+         ""
+         (--first (s-matches? regex (slack-room-name it (slack-team-select)))
+                  (cl-loop for team in (list (slack-team-select))
+                           append (append (slack-team-ims team)
+                                          (slack-team-groups team)
+                                          (slack-team-channels team)))))
 
-     (defun gb/slack-room-by-id (id-string)
-       "get room by id"
-       (--first (equal (oref it id) id-string)
-                (cl-loop for team in (list (slack-team-select))
-                         append (append (slack-team-ims team)
-                                        (slack-team-groups team)
-                                        (slack-team-channels team)))))
+       (defun gb/slack-room-display (regex)
+         (slack-room-display (gb/slack-room-by-regex regex) (slack-team-select)))
 
-     (defun gb/slack-group-mpim-open ()
-       "open a the group mpim"
-       (interactive)
-       (let* ((req-resp (slack-group-mpim-open)))
-         (make-thread `(lambda ()
-                         (while (not (request-response-done-p ,req-resp))
-                           (message "wait for room")
-                           (sleep-for 0 100))
-                         (message "open room")
-                         (let ((room-id (plist-get (plist-get (request-response-data ,req-resp) :channel) :id)))
-                           (slack-room-display (gb/slack-room-by-id room-id) (slack-team-select)))))))
+       (defun gb/slack-room-by-id (id-string)
+         "get room by id"
+         (--first (equal (oref it id) id-string)
+                  (cl-loop for team in (list (slack-team-select))
+                           append (append (slack-team-ims team)
+                                          (slack-team-groups team)
+                                          (slack-team-channels team)))))
 
-     (setq gb/slack-status-active-list '("programming :typescript:" "programming :xtext:" "programming :java-coffee:" "enjoying lambdas :racket-lang:" "break :coffee:"))
-     (setq gb/slack-status-away-list '("mampf :fork_and_knife:" "home :house_with_garden:" "vacationing :mount_fuji:"))
+       (defun gb/slack-group-mpim-open ()
+         "open a the group mpim"
+         (interactive)
+         (let* ((req-resp (slack-group-mpim-open)))
+           (make-thread `(lambda ()
+                           (while (not (request-response-done-p ,req-resp))
+                             (message "wait for room")
+                             (sleep-for 0 100))
+                           (message "open room")
+                           (let ((room-id (plist-get (plist-get (request-response-data ,req-resp) :channel) :id)))
+                             (slack-room-display (gb/slack-room-by-id room-id) (slack-team-select)))))))
 
-     (defun gb/slack-status-set-active ()
-       (interactive)
-       (gb/slack--status-set-to t))
+       (setq gb/slack-status-active-list '("programming :typescript:" "programming :xtext:" "programming :java-coffee:" "enjoying lambdas :racket-lang:" "break :coffee:"))
+       (setq gb/slack-status-away-list '("mampf :fork_and_knife:" "home :house_with_garden:" "vacationing :mount_fuji:"))
 
-     (defun gb/slack-status-set-inactive ()
-       (interactive)
-       (gb/slack--status-set-to nil))
+       (defun gb/slack-status-set-active ()
+         (interactive)
+         (gb/slack--status-set-to t))
 
-     (defun gb/slack--status-set-to (active)
-       "set slack status"
-       (when-let* ((selected-status (completing-read "status" (--map (emojify-string it) (if active gb/slack-status-active-list gb/slack-status-away-list))))
-                   (icon-matches    (s-match ":\\([^:]+\\):" selected-status))
-                   (icon            (car icon-matches))
-                   (text-matches    (s-match "\\([^:]+\\):" selected-status))
-                   (text            (s-trim (cadr text-matches))))
-         (message (format "icon %s, text %s" icon text))
-         (slack-user-set-status-request (slack-team-select) icon text)
-         (run-at-time 5 nil #'gb/slack-modeline-status-update)
-         (if active
-             (gb/slack-user-set-active)
-           (gb/slack-user-set-away))))
+       (defun gb/slack-status-set-inactive ()
+         (interactive)
+         (gb/slack--status-set-to nil))
 
-     ;; (gb/slack-room-display "^nord$")
+       (defun gb/slack--status-set-to (active)
+         "set slack status"
+         (when-let* ((selected-status (completing-read "status" (--map (emojify-string it) (if active gb/slack-status-active-list gb/slack-status-away-list))))
+                     (icon-matches    (s-match ":\\([^:]+\\):" selected-status))
+                     (icon            (car icon-matches))
+                     (text-matches    (s-match "\\([^:]+\\):" selected-status))
+                     (text            (s-trim (cadr text-matches))))
+           (message (format "icon %s, text %s" icon text))
+           (slack-user-set-status-request (slack-team-select) icon text)
+           (run-at-time 5 nil #'gb/slack-modeline-status-update)
+           (if active
+               (gb/slack-user-set-active)
+             (gb/slack-user-set-away))))
 
-     ;; report slack status to mode line (updating it every ?s
-     ;; (slack-user-status (plist-get(gb/slack-user-by-name "gunther") :id) (slack-team-select)) ;; get the status
-     ;; (emojify-string ":xtext:")
+       ;; (gb/slack-room-display "^nord$")
 
-     (defvar gb/slack-modeline--status nil "current user status in slack")
-     (defvar gb/slack-modeline-status--timer nil "running timer for status updates")
+       ;; report slack status to mode line (updating it every ?s
+       ;; (slack-user-status (plist-get(gb/slack-user-by-name "gunther") :id) (slack-team-select)) ;; get the status
+       ;; (emojify-string ":xtext:")
 
-     (defun gb/slack-modeline-status-activate ()
-       "activate slack status in modeline"
-       (setq gb/slack-modeline-status--timer (run-at-time 5 60 #'gb/slack-modeline-status-update))
-       (add-to-list 'global-mode-string '(:eval gb/slack-modeline--status) t))
+       (defvar gb/slack-modeline--status nil "current user status in slack")
+       (defvar gb/slack-modeline-status--timer nil "running timer for status updates")
 
-     (defun gb/slack-modeline-status-deactivate ()
-       "remove slack status from modeline"
-       (when gb/slack-modeline-status--timer
-         (cancel-timer gb/slack-modeline-status--timer)
-         (setq gb/slack-modeline-status--timer nil))
-       (setq global-mode-string (remove '(:eval gb/slack-modeline--status) global-mode-string)))
+       (defun gb/slack-modeline-status-activate ()
+         "activate slack status in modeline"
+         (setq gb/slack-modeline-status--timer (run-at-time 5 60 #'gb/slack-modeline-status-update))
+         (add-to-list 'global-mode-string '(:eval gb/slack-modeline--status) t))
 
-     (defun gb/slack-modeline-status--string-transform (full-status)
-       "transform complete slack status string to the string actually shown in the modeline"
-       (let* ((first-icon (car (s-match ":[^:]+:" full-status))))
-         (if (or (not first-icon)
-                 (string-empty-p first-icon))
-             full-status
-           first-icon)))
+       (defun gb/slack-modeline-status-deactivate ()
+         "remove slack status from modeline"
+         (when gb/slack-modeline-status--timer
+           (cancel-timer gb/slack-modeline-status--timer)
+           (setq gb/slack-modeline-status--timer nil))
+         (setq global-mode-string (remove '(:eval gb/slack-modeline--status) global-mode-string)))
 
-     (defun gb/slack-modeline-status-update ()
-       (setq gb/slack-modeline--status (s-concat " " (emojify-string (gb/slack-modeline-status--string-transform (slack-user-status (oref (slack-team-select) self-id) (slack-team-select))))))
-       (force-mode-line-update))
+       (defun gb/slack-modeline-status--string-transform (full-status)
+         "transform complete slack status string to the string actually shown in the modeline"
+         (let* ((first-icon (car (s-match ":[^:]+:" full-status))))
+           (if (or (not first-icon)
+                   (string-empty-p first-icon))
+               full-status
+             first-icon)))
 
-     (defun gb/slack-user-presence-get ()
-       (let* ((team (slack-team-select)))
-         (gethash (oref team self-id)
-                  (oref team presence)
-                  "")))
+       (defun gb/slack-modeline-status-update ()
+         (setq gb/slack-modeline--status (s-concat " " (emojify-string (gb/slack-modeline-status--string-transform (slack-user-status (oref (slack-team-select) self-id) (slack-team-select))))))
+         (force-mode-line-update))
 
-     (defun gb/slack-user-set-away ()
-       "set my user away in the current team"
-       (let* ((team (slack-team-select)))
-         (slack-request-set-presence team "away")))
+       (defun gb/slack-user-presence-get ()
+         (let* ((team (slack-team-select)))
+           (gethash (oref team self-id)
+                    (oref team presence)
+                    "")))
 
-     (defun gb/slack-user-set-active ()
-       "set my user away in the current team"
-       (let* ((team (slack-team-select)))
-         (slack-request-set-presence team "auto")))
+       (defun gb/slack-user-set-away ()
+         "set my user away in the current team"
+         (let* ((team (slack-team-select)))
+           (slack-request-set-presence team "away")))
 
-     (defun gb/slack-user-by-name (name)
-       "get the slack id of the given name in the current group"
-       (--first (and (s-equals-p name (plist-get it :name)) (eq :json-false (plist-get it :deleted))) (hash-table-values (oref (slack-team-select) users))))
+       (defun gb/slack-user-set-active ()
+         "set my user away in the current team"
+         (let* ((team (slack-team-select)))
+           (slack-request-set-presence team "auto")))
+
+       (defun gb/slack-user-by-name (name)
+         "get the slack id of the given name in the current group"
+         (--first (and (s-equals-p name (plist-get it :name)) (eq :json-false (plist-get it :deleted))) (hash-table-values (oref (slack-team-select) users))))
 
 
-     (defun gb/slack-rooms-unread ()
-       "get all rooms with unread messages"
-       (let* ((team (slack-team-select)))
-         (cl-loop for team in (list team)
-                  append (cl-remove-if
-                          #'(lambda (room)
-                              (not (slack-room-has-unread-p room team)))
-                          (append (slack-team-ims team)
-                                  (slack-team-groups team)
-                                  (slack-team-channels team))))))
+       (defun gb/slack-rooms-unread ()
+         "get all rooms with unread messages"
+         (let* ((team (slack-team-select)))
+           (cl-loop for team in (list team)
+                    append (cl-remove-if
+                            #'(lambda (room)
+                                (not (slack-room-has-unread-p room team)))
+                            (append (slack-team-ims team)
+                                    (slack-team-groups team)
+                                    (slack-team-channels team))))))
 
-     (defun gb/slack-buffer--mark-read ()
-       (interactive)
-       (when (slack-message-buffer-p slack-current-buffer)
-         (let* ((this slack-current-buffer)
-                (ts (slack-buffer-latest-ts this)))
-           (slack-buffer-update-mark-request this ts)
-           (message (format "Slack buffer %s is no up to date." (slack-buffer-name this))))))
+       (defun gb/slack-buffer--mark-read ()
+         (interactive)
+         (when (slack-message-buffer-p slack-current-buffer)
+           (let* ((this slack-current-buffer)
+                  (ts (slack-buffer-latest-ts this)))
+             (slack-buffer-update-mark-request this ts)
+             (message (format "Slack buffer %s is no up to date." (slack-buffer-name this))))))
 
-     (defun gb/slack-stop ()
-       (interactive)
-       (ignore-errors
-         (when (-contains? kill-emacs-hook #'gb/slack-stop)
-           (remove-hook 'kill-emacs-hook #'gb/slack-stop)))
-       (ignore-errors (gb/slack-user-set-away))
-       (gb/slack-disable-modeline)
-       (gb/slack-modeline-status-deactivate)
-       (when gb/slack-update-list-timer
-         (ignore-errors (cancel-timer gb/slack-update-list-timer))
-         (setq gb/slack-update-list-timer nil))
-       (ignore-errors (slack-ws-close)))
+       (defun gb/slack-stop ()
+         (interactive)
+         (ignore-errors
+           (when (-contains? kill-emacs-hook #'gb/slack-stop)
+             (remove-hook 'kill-emacs-hook #'gb/slack-stop)))
+         (ignore-errors (gb/slack-user-set-away))
+         (gb/slack-disable-modeline)
+         (gb/slack-modeline-status-deactivate)
+         (when gb/slack-update-list-timer
+           (ignore-errors (cancel-timer gb/slack-update-list-timer))
+           (setq gb/slack-update-list-timer nil))
+         (ignore-errors (slack-ws-close)))
 
-     (defun gb/slack-start ()
-       (interactive)
-       (gb/slack-register-teams)
-       (slack-start)
-       (slack-enable-modeline)
-       (gb/slack-user-set-active)
-       (gb/slack-modeline-status-activate)
-       (when gb/slack-update-list-timer
-         (ignore-errors (cancel-timer gb/slack-update-list-timer))
-         (setq gb/slack-update-list-timer nil))
-       (setq gb/slack-update-list-timer (run-at-time nil 900 #'slack-room-list-update))
-       (unless (-contains? kill-emacs-hook #'gb/slack-stop)
-         (add-hook 'kill-emacs-hook #'gb/slack-stop t))))
+       (defun gb/slack-start ()
+         (interactive)
+         (gb/slack-register-teams)
+         (slack-start)
+         (slack-enable-modeline)
+         (gb/slack-user-set-active)
+         (gb/slack-modeline-status-activate)
+         (when gb/slack-update-list-timer
+           (ignore-errors (cancel-timer gb/slack-update-list-timer))
+           (setq gb/slack-update-list-timer nil))
+         (setq gb/slack-update-list-timer (run-at-time nil 900 #'slack-room-list-update))
+         (unless (-contains? kill-emacs-hook #'gb/slack-stop)
+           (add-hook 'kill-emacs-hook #'gb/slack-stop t))))
 
-   (use-package alert
-     :ensure t
-     :config
-     (defun gb/alert-message-notify-org-file (info)
-       (when (get-buffer "slack.org") (with-current-buffer "slack.org" (save-buffer)))
-       (write-region
-        (s-concat
-         "* TODO "
-         (s-replace (regexp-quote "\\[") "[" (plist-get info :title))
-         " : "
-         (format
-          "[[emacs-slack:%s.%s][%s]] :slack:"
-          (plist-get info :channel)
-          (plist-get info :ts)
-          (s-truncate 80 (s-replace "\n" ";" (plist-get info :message))))
-         "\n"
-         (format "<%s>" (format-time-string "%Y-%m-%d %H:%M"))
-         "\n"
-         (plist-get info :message)
-         "\n")
-        nil
-        "/home/pe/slack.org"
-        t))
+     (use-package alert
+       :ensure t
+       :config
+       (defun gb/alert-message-notify-org-file (info)
+         (when (get-buffer "slack.org") (with-current-buffer "slack.org" (save-buffer)))
+         (write-region
+          (s-concat
+           "* TODO "
+           (s-replace (regexp-quote "\\[") "[" (plist-get info :title))
+           " : "
+           (format
+            "[[emacs-slack:%s.%s][%s]] :slack:"
+            (plist-get info :channel)
+            (plist-get info :ts)
+            (s-truncate 80 (s-replace "\n" ";" (plist-get info :message))))
+           "\n"
+           (format "<%s>" (format-time-string "%Y-%m-%d %H:%M"))
+           "\n"
+           (plist-get info :message)
+           "\n")
+          nil
+          "/home/pe/slack.org"
+          t))
 
-     (defun gb/alert-message-notify-dunst (info)
-       ""
-       (let ((s-com (format "notify-send '%s' '%s'"
-                            (plist-get info :title)
-                            (plist-get info :message)
-                            ;; (symbol-name (plist-get info :severity)) ;; severity does not match
-                            )))
-         (message s-com)
-         (shell-command-to-string s-com)))
+       (defun gb/alert-message-notify-dunst (info)
+         ""
+         (let ((s-com (format "notify-send '%s' '%s'"
+                              (plist-get info :title)
+                              (plist-get info :message)
+                              ;; (symbol-name (plist-get info :severity)) ;; severity does not match
+                              )))
+           (message s-com)
+           (shell-command-to-string s-com)))
 
-     (alert-define-style
-      'gb-alert-via-org-file
-      :title    "Make Org headings for slack messages I receive - Style"
-      :notifier #'gb/alert-message-notify-org-file
-      :remover  nil)
+       (alert-define-style
+        'gb-alert-via-org-file
+        :title    "Make Org headings for slack messages I receive - Style"
+        :notifier #'gb/alert-message-notify-org-file
+        :remover  nil)
 
-     (alert-define-style
-      'gb-alert-via-dunst
-      :title    "Alert via dunstify - Style"
-      :notifier #'gb/alert-message-notify-dunst
-      :remover  nil)
+       (alert-define-style
+        'gb-alert-via-dunst
+        :title    "Alert via dunstify - Style"
+        :notifier #'gb/alert-message-notify-dunst
+        :remover  nil)
 
-     (setq alert-default-style 'message)
-     ;; ;; disable all alerts
-     (setq alert-user-configuration
-           '((((:title . "\\(.*nord\\|Slackbot\\|.*generali\\|.*nintendo-pipe\\|.*offizielles\\|.* mpdm-.*\\)")(:category . "slack")) gb-alert-via-org-file nil)
-             (((:category . "slack")) ignore nil)
-             (((:severity high)) gb-alert-via-dunst nil)))
+       (setq alert-default-style 'message)
+       ;; ;; disable all alerts
+       (setq alert-user-configuration
+             '((((:title . "\\(.*nord\\|Slackbot\\|.*generali\\|.*nintendo-pipe\\|.*offizielles\\|.* mpdm-.*\\)")(:category . "slack")) gb-alert-via-org-file nil)
+               (((:category . "slack")) ignore nil)
+               (((:severity high)) gb-alert-via-dunst nil)))
 
-     ;; (add-to-list
-     ;;  'alert-user-configuration
-     ;;  '(((:title . "\\(nord\\|Slackbot\\|generali\\|nintendo\\)")(:category . "slack")) gb-alert-style nil))
-     )
+       ;; (add-to-list
+       ;;  'alert-user-configuration
+       ;;  '(((:title . "\\(nord\\|Slackbot\\|generali\\|nintendo\\)")(:category . "slack")) gb-alert-style nil))
+       ))
  #+END_SRC
 * ido (disabled)
 ** ido itself (configured to being not used, since it is started anyways)
@@ -10927,9 +10933,9 @@
                      (when omitmode (dired-omit-mode t))))))))
        (progn
          (setq truncate-partial-width-windows 20) ;; ensure that windows smaller than 20 truncate long lines
-         (setq dired-sidebar-width 60)
+         (setq dired-sidebar-width (/ (* 60 (frame-width)) (/ 1920 (default-font-width))))
          (setq dired-sidebar-one-instance-p t) ;; ensure one instance of sidebar per frame
-         (setq dired-sidebar-icon-scale 0.2)
+         (setq dired-sidebar-icon-scale (/ (* 0.2 (frame-width)) (/ 1920 (default-font-width)))) ;;
          (setq dired-sidebar-theme 'vscode)
          (setq dired-sidebar-follow-file-at-point-on-toggle-open t)
          (setq dired-sidebar-should-follow-file nil) ;; follow file in dired sidebar tree, put that on a hotkey
@@ -12561,8 +12567,9 @@
                     (interactive)
                     (gb/exwm-next-workspace (- (or inc 1))))
 
-                  (use-package itemis
-                    :load-path "~/.emacs.d/work/"))
+                  (when (file-exists-p "~/.emacs.d/work/itemis.el")
+                    (use-package itemis
+                      :load-path "~/.emacs.d/work/")))
 
           :ensure t))
     #+END_SRC
@@ -13049,7 +13056,7 @@
                                               simulation-keys nil
                                               char-mode t)
                                              ((or (string= (downcase exwm-class-name) "google-chrome")
-                                                 (string= (downcase exwm-class-name) "firefox")
+                                                 (string-match "^firefox.*" (downcase exwm-class-name))
                                                  (string= (downcase exwm-class-name) "chromium-browser")
                                                  (string= (downcase exwm-class-name) "tor-browser"))
                                               simulation-keys
@@ -14120,7 +14127,10 @@
   #+end_src
 * maxima
   #+begin_src emacs-lisp
-    (setq maxima-elisp-loadpath (s-concat (s-trim (shell-command-to-string "dirname $(readlink -f $(command -v maxima))")) "/../share/emacs/site-lisp"))
+    (setq maxima-elisp-loadpath
+          (if running-nixos
+              (s-concat (s-trim (shell-command-to-string "dirname $(readlink -f $(command -v maxima))")) "/../share/emacs/site-lisp")
+            "~/.emacs.d/additionals/maxima"))
 
     (use-package imaxima
       :load-path maxima-elisp-loadpath
@@ -14409,8 +14419,10 @@
   - installed agda via ~nix-env -iA nixos.haskellPackages.Agda~
   - there now is an alternative to the prepackaged agda mode, its called agda2-mode (on melpa)
   #+begin_src emacs-lisp
-    (load-file (let ((coding-system-for-read 'utf-8))
-                 (shell-command-to-string "agda-mode locate")))
+    (if (executable-find "agda-mode")
+        (load-file (let ((coding-system-for-read 'utf-8))
+                     (shell-command-to-string "agda-mode locate")))
+      (message "WARNING: agda-mode not found"))
     (setq agda2-backend "GHC")
 
     (setq auto-mode-alist
@@ -15612,4 +15624,5 @@
 # eval: (read-only-mode 1)
 # eval: (flyspell-mode 0)
 # eval: (org-hide-block-all)
+# eval: (org-overview)
 # End:
