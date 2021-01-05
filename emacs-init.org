@@ -14988,6 +14988,13 @@
         (when-let ((mount (gb/udisksctl--completing-read-mount device)))
            (gb/udisksctl--unmount-mount mount))))
   #+end_src
+* show-font-mode - shows the font under cursor in the mode line
+  - mode needs to be (re)setted by switching workspaces
+  #+begin_src emacs-lisp
+    (use-package show-font-mode
+      :commands (show-font-mode)
+      :ensure t)
+  #+end_src
 * INTERESTING
 ** blog/presentation
   - org-present using a cell phone to switch pages
