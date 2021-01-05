@@ -10935,7 +10935,7 @@
                      (when omitmode (dired-omit-mode t))))))))
        (progn
          (setq truncate-partial-width-windows 20) ;; ensure that windows smaller than 20 truncate long lines
-         (setq dired-sidebar-width (/ (* 60 (frame-width)) (/ 1920 (default-font-width))))
+         (setq dired-sidebar-width (min 70 (/ (* 60 (frame-width)) (/ 1920 (default-font-width)))))
          (setq dired-sidebar-one-instance-p t) ;; ensure one instance of sidebar per frame
          (setq dired-sidebar-icon-scale (/ (* 0.2 (frame-width)) (/ 1920 (default-font-width)))) ;;
          (setq dired-sidebar-theme 'vscode)
