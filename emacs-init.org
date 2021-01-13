@@ -14995,6 +14995,18 @@
       :commands (show-font-mode)
       :ensure t)
   #+end_src
+* EVAL - transient-posframe -  posframe to show transient
+  #+begin_src emacs-lisp
+    (use-package transient-posframe
+      :ensure t
+      :config
+      (custom-set-faces '(transient-posframe-border ((t (:inherit default :background "#5a205a")))))
+      (transient-posframe-mode 1)
+      :custom (transient-posframe-border-width 2)
+              (transient-posframe-min-height 25)
+              (transient-posframe-min-width 120)
+              (transient-posframe-poshandler #'posframe-poshandler-frame-bottom-center))
+  #+end_src
 * INTERESTING
 ** blog/presentation
   - org-present using a cell phone to switch pages
