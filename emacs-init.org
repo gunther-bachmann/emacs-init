@@ -14081,7 +14081,9 @@
             '((counsel-buffer-or-recentf (width . 0.8))
               (gb/ivy--program-select-and-run (width . 0.2))
               (ivy-switch-buffer (width  . 0.8))
-              (counsel-git-grep (width .  0.8))))
+              (counsel-git-grep (width .  0.8))
+              (counsel-ag-popup-search-here (width . 0.9))
+              (counsel-ag-popup-search (width . 0.9))))
 
       (setq mini-frame-ignore-commands
             '(
@@ -15006,6 +15008,12 @@
               (transient-posframe-min-height 25)
               (transient-posframe-min-width 120)
               (transient-posframe-poshandler #'posframe-poshandler-frame-bottom-center))
+  #+end_src
+* EVAL - counsel-ag-popup - Interactive search with counsel-ag
+  #+begin_src emacs-lisp
+    (use-package counsel-ag-popup
+      :ensure t
+      :commands (counsel-ag-popup))
   #+end_src
 * INTERESTING
 ** blog/presentation
