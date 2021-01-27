@@ -14047,7 +14047,15 @@
 
         (use-package org-roam-server
           :commands (org-roam-server-mode)
-          :ensure t)
+          :custom (org-roam-server-port "8092")
+          :ensure t
+          :config
+          (defun gb/org-roam-server ()
+            "start org roam server mode and open browser"
+            (interactive)
+            (unless org-roam-server-mode
+              (org-roam-server-mode 1))
+            (browse-url "http://localhost:8092")))
 
         (use-package company-org-roam
           :after (org-roam company)
