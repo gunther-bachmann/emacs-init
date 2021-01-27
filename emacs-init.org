@@ -15040,6 +15040,11 @@
       :commands (show-font-mode)
       :ensure t)
   #+end_src
+* EVAL - good-scroll - uses pixel scroll to provide more smooth scrolling behaviour (see https://github.com/io12/good-scroll.el)
+  #+begin_src emacs-lisp
+    (use-package good-scroll
+      :ensure t)
+  #+end_src
 * EVAL - transient-posframe -  posframe to show transient
   #+begin_src emacs-lisp
     (use-package transient-posframe
