@@ -14737,7 +14737,9 @@
   - automatically scroll so that no empty space is left at the bottom
   - interfers with beacon
   #+begin_src emacs-lisp
-    (use-package fill-page)
+    (use-package fill-page
+      :ensure t
+      :config (fill-page-mode 1))
   #+end_src
 * greenbar-mode
   - puts stripes on the comint output (shell output), making long lines a bit more tractable
