@@ -9549,11 +9549,14 @@
        (setq slack-enable-emoji t) ;; if you want to enable emoji, default nil
        ;; (setq slack-room-subscription '(clojurians itemisHamburg))
        (setq slack-prefer-current-team t)
+
        (with-eval-after-load 'tracking
          (bind-key "s-\\" #'tracking-next-buffer tracking-mode-map))
        ;; Ensure the buffer exists when a message arrives on a
        ;; channel that wasn't open.
-       (setq slack-buffer-create-on-notify nil) ;; might be necessary to set to true, to allow buffer tracking!
+
+       ;; buffer tracking takes place only, if slack-buffer-create-on-notify is true!
+       (setq slack-buffer-create-on-notify nil) ;; since tracking buffers is currently not used, this is nil
 
        :config
        (setq lui-time-stamp-format "[%m-%d %H:%M]")
@@ -9691,6 +9694,7 @@
        (defvar gb/slack-update-list-timer nil)
 
        ;; make sure to not track common channels (annoying)
+       ;; this is only relevant if tracking is used (which currently isn't)
        (setq tracking-ignored-buffers '(".*itemis : general.*" ".*itemis : xtext.*" ".*homecooking.*" ".*nintendo-pipe_pr.*" ".*itemis : random.*"))
 
        (defun gb/slack-all-room-names ()
@@ -12338,10 +12342,20 @@
            "get the second monitor if connected"
            (s-trim (shell-command-to-string "xrandr | grep -v disconnected | grep connected | grep -v primary | awk '{ print $1 }'")))
 
+         (when (fboundp 'memoize)
+           (memoize #'gb/get-second-monitor 10))
+
          (defun gb/get-primary-monitor ()
-           "get the second monitor if connected"
+           "get the primary monitor if connected"
            (s-trim (shell-command-to-string "xrandr | grep -v disconnected | grep connected | grep primary | awk '{ print $1 }'")))
 
+         (when (fboundp 'memoize)
+           (memoize #'gb/get-primary-monitor 10))
+
+         (defun gb/reset-primary-monitor ()
+           "get the primary monitor if connected"
+           (interactive)
+           (s-trim (shell-command-to-string (format "xrandr --output %s --auto" (gb/exwm--get-primary-monitor)))))
        #+end_src
     - additional window functions
        #+begin_src emacs-lisp
@@ -12908,6 +12922,7 @@
 
 
           (when (eq gb/completion-framework 'ivy)
+            (exwm-input-set-key (kbd "s-1") #'gb/ivy--program-select-and-run)
             (exwm-input-set-key (kbd "s-b") #'ivy-switch-buffer)
             (exwm-input-set-key (kbd "s-f") #'counsel-buffer-or-recentf)
             (exwm-input-set-key (kbd "s-SPC") #'counsel-M-x))
@@ -13158,7 +13173,8 @@
     (defun gb/net-wlan-switch-on ()
       "switch wireless lan on, needs tlp to be installed"
       (interactive)
-      (message (s-trim (shell-command-to-string "sudo wifi on")))) ;; systemctl start wpa_supplicant.service
+      (shell-command-to-string "sudo systemctl start wpa_supplicant.service ") ;; just to make sure
+      (message (s-trim (shell-command-to-string "sudo wifi on"))))
 
     (defun gb/net-wlan-switch-off ()
       "switch wireless lan off, needs tlp to be installed"
@@ -14118,12 +14134,13 @@
       (when (eq gb/completion-framework 'ivy)
         (mini-frame-mode 1)))
   #+end_src
-* EVAL share2computer
+* share2computer
   - allow easy download from handy by simply starting 'M-x share2computer'
   #+begin_src emacs-lisp
     (use-package share2computer
       :ensure t
-      :commands (share2computer))
+      :commands (share2computer)
+      :custom (share2computer-default-directory "~/Downloads/"))
   #+end_src
 * EVAL bufler see
   #+begin_src emacs-lisp
@@ -15614,7 +15631,7 @@
        :config )
    #+end_src
 * useful but discarded because of drawback that might be fixed
-** EVAL magit-delta (disabled - speed degradation on large change sets)
+** magit-delta (disabled - speed degradation on large change sets)
    #+begin_src emacs-lisp :tangle no
      (use-package magit-delta
        :ensure t
@@ -15624,13 +15641,13 @@
        (setq magit-delta-hide-plus-minus-markers nil)
        (magit-delta-mode))
    #+end_src
-** EVAL (disabled: does not compile) vterm - better terminal emulation
+** (disabled: does not compile) vterm - better terminal emulation
    - installed ~cmake~, ~libvterm~ and ~libtool~ via nix-env
    #+begin_src emacs-lisp :tangle no
      (use-package vterm
        :commands (vterm))
    #+end_src
-** EVAL ytel (youtube interface via invidous) [disabled, needs youtube-dl as extractor, too]
+** ytel (youtube interface via invidous) [disabled, needs youtube-dl as extractor, too]
    #+begin_src emacs-lisp :tangle no
      (use-package ytel
        :config
