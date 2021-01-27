@@ -7256,6 +7256,15 @@
     (setq yas-snippet-dirs
           `(,(concat user-emacs-directory "snippets"))) ;; my snippets library
 
+
+    (cond
+     ((eq gb/theme-mode 'light) nil) ;; TODO complete
+     (t (progn
+          (--each '((yas-field-highlight-face ((t (:background "gray20")))))
+            (progn (add-to-list 'gb/list-of-faces-to-set it)(custom-set-faces it))))))
+
+    (custom-set-faces '(yas-field-highlight-face)) ;; yas-field
+
     (add-hook 'prog-mode-hook #'yas-minor-mode) ;; make it a submode of all programming modes
     (yas-global-mode 1) ;; make it global
 
