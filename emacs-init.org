@@ -15690,6 +15690,13 @@
                           (concat "https://www.youtube.com/watch?v=" id)))
          (message "Starting streaming...")))
    #+end_src
+** compass (interesting, but too many dependencies: docker, python ...)
+  #+begin_src emacs-lisp :tangle no
+    (use-package code-compass
+      :load-path "~/repo/code-compass"
+      ;; :requires diminish bind-key async dash f s simple-httpd
+      )
+  #+end_src
 * finish - up
   #+BEGIN_SRC emacs-lisp
     (report-elapsed "enter finish - up")
