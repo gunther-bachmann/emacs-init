@@ -15058,6 +15058,12 @@
       :ensure t
       :commands (counsel-ag-popup))
   #+end_src
+* EVAL - org-tag-beautify - replace (some) tags with icons
+  #+begin_src emacs-lisp
+    (use-package org-tag-beautify
+      :ensure t
+      :config (org-tag-beautify-mode 1))
+  #+end_src
 * INTERESTING
 ** blog/presentation
   - org-present using a cell phone to switch pages
