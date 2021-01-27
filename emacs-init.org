@@ -14981,16 +14981,23 @@
       :ensure t
       :bind (("H-<SPC>" . embark-act)))
   #+end_src
-* udisksctl - TODO: make package of this
+* TODO udisksctl - make package of this
   #+begin_src emacs-lisp
+    (defvar gb/udisksctl--ignore-devices '("nvme0n1") "list of devices to ignore")
+
     (defun gb/udisksctl--info (blk-device)
       (s-trim (shell-command-to-string (format "udisksctl info -b %s" blk-device))))
 
     (defun gb/udisksctl--get-devices ()
-      (s-split "\n" (s-trim (shell-command-to-string (format "udisksctl  status | tail -n +3")))))
+      (-filter (lambda (device-desc) (when-let ((device (--last (not (string-empty-p it)) (s-split " " device-desc))))
+                                  (not (-contains? gb/udisksctl--ignore-devices device))))
+               (s-split "\n" (s-trim (shell-command-to-string (format "udisksctl  status | tail -n +3"))))))
 
     (defun gb/udisksctl--completing-read-blk-device ()
-      (s-concat "/dev/" (--last (not (string-empty-p it)) (s-split " " (completing-read "Device: " (gb/udisksctl--get-devices) nil t)))))
+      (if-let ((devices (gb/udisksctl--get-devices)))
+          (s-concat "/dev/" (--last (not (string-empty-p it)) (s-split " " (completing-read "Device: " devices nil t))))
+        (message "no device found")
+        nil))
 
     (defun gb/udisksctl--unpower-device (device)
       ""
