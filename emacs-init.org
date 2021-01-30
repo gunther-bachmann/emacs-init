@@ -2461,9 +2461,9 @@
          (bind-key "C-S-s-<up>" '(lambda () (interactive) (enlarge-window-effect 50)))
 
          ;; ;; maximize selected window
-         ;; (bind-key "C-s-<return>" 'maximize-window)
+         (bind-key "C-s-<return>" 'maximize-window)
          ;; ;; balance all windows and the set speedbar to 50 width
-         ;; (bind-key "C-s-<backspace>" 'balance-windows-respecting-speedbar)
+         (bind-key "C-s-<backspace>" 'balance-windows)
 
          ;; Key binding to use "hippie expand" for text autocompletion
          ;; http://www.emacswiki.org/emacs/HippieExpand
