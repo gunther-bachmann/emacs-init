@@ -7204,9 +7204,10 @@
             ;; since the regular routine does not detect the end of page correctly ...
             (defun gb/pdf-view-scroll-up-or-next-page (orig-func &rest args)
               (interactive)
-              (let ((vscroll-before (window-vscroll)))
+              (let ((vscroll-before (window-vscroll))
+                    (cur-page (pdf-view-current-page)))
                 (apply orig-func args)
-                (when (= vscroll-before (window-vscroll)) ;; if scroll position before is exactly the same as after, jump to next page
+                (when (and (= cur-page (pdf-view-current-page)) (= vscroll-before (window-vscroll))) ;; if scroll position before is exactly the same as after, jump to next page
                   (gb/pdf-view-next-page))))
 
             ;; (advice-remove 'pdf-view-scroll-up-or-next-page #'gb/pdf-view-scroll-up-or-next-page)
