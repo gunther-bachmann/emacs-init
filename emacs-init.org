@@ -15072,6 +15072,13 @@
       :ensure t
       :config (org-tag-beautify-mode 1))
   #+end_src
+* EVAL - fdupes - find duplicates in dired
+  - needs installation of fdupes (e.g. nix-env -iA nixos.fdupes)
+  #+begin_src emacs-lisp
+    (use-package find-dupes-dired
+      :ensure t
+      :custom (find-dupes-dired-ls-option '("-q | grep -v -e '^$' | xargs -d \"\\n\" ls -dilsbUN" . "-dilsbUN")))
+  #+end_src
 * INTERESTING
 ** blog/presentation
   - org-present using a cell phone to switch pages
