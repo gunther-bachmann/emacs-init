@@ -14795,6 +14795,8 @@
     (use-package delve
       :load-path "~/repo/delve/"
       :commands (delve-open-or-select)
+      :bind (:map delve-mode-map
+                  ("C-l" . #'recenter-top-bottom))
       :config
        (use-package delve-minor-mode
         :config
