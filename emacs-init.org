@@ -5318,6 +5318,7 @@
    #+BEGIN_SRC emacs-lisp
      (when (eq gb/completion-framework 'ivy)
        (require 'comint)
+       (require 'org)
        (use-package counsel
          :ensure t
          :after ( swiper ivy)
@@ -5327,12 +5328,14 @@
          :bind (( "M-x"     . counsel-M-x)
                 ( "C-x C-f" . counsel-find-file)
                 ( "s-f"     . counsel-buffer-or-recentf)
-                ( "s-i"     . counsel-imenu)
+                ;; ( "s-i"     . counsel-imenu)
                 ( "C-c g h" . counsel-git-grep)
                 ( "C-x d"   . counsel-dired)
                 ( "C-x 8 <RET>" . counsel-unicode-char)
                 :map comint-mode-map
-                ( "<M-up>"  . gb/counsel-shell-history-with-current-line ))
+                ( "<M-up>"  . gb/counsel-shell-history-with-current-line )
+                :map org-mode-map
+                ( "s-i"     . counsel-org-goto))
          :config
          (progn
            (require 'comint)
