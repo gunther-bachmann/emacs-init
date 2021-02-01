@@ -8187,7 +8187,7 @@
 
 
       (progn
-        (add-hook 'after-change-major-mode-hook #'gb/activate-properties-in-org-mode)
+        ;; (add-hook 'after-change-major-mode-hook #'gb/activate-properties-in-org-mode)
         (add-hook 'org-mode-hook #'gb/enable-auto-fill-mode)
         ;; (add-hook 'org-mode-hook
         ;;           (lambda ()
@@ -8420,11 +8420,11 @@
             ret))
 
         ;; TODO: generalize to all properties
-        (defun gb/activate-properties-in-org-mode ()
-          (when (string= major-mode "org-mode")
-            (let* ((readOnly (gb/org-global-prop-value "readonly")))
-              (if (string= readOnly "yes")
-                  (setq buffer-read-only t)))))
+        ;; (defun gb/activate-properties-in-org-mode ()
+        ;;   (when (string= major-mode "org-mode")
+        ;;     (let* ((readOnly (gb/org-global-prop-value "readonly")))
+        ;;       (if (string= readOnly "yes")
+        ;;           (setq buffer-read-only t)))))
 
         :config
         (setq org-agenda-files '("~/slack.org" "~/itemis.org"))
@@ -9250,7 +9250,7 @@
                                 #'add-fira-code-symbol-keywords))
                     ;; check whether readonly should be applied again
                     ;; only if currently not in detailed edit mode
-                    (gb/activate-properties-in-org-mode)
+                    ;; (gb/activate-properties-in-org-mode)
                     ;; the following currently takes about 3 seconds (which I don't want to spend)
                     ;;(when (package-installed-p 'pretty-mode)
                     ;;  (global-pretty-mode 1))
