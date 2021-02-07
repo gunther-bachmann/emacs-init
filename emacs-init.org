@@ -6032,7 +6032,7 @@
        :after ( typescript-mode)
        :init (progn
                (add-hook 'typescript-mode-hook #'gb/setup-tide-mode)
-               (add-hook 'js2-mode-hook #'gb/setup-tide-mode)
+               (add-hook 'js-mode-hook #'gb/setup-tide-mode)
                ;; (add-hook 'tide-mode-hook #'gb/setup-tide-mode)
                (add-hook 'web-mode-hook
                          (lambda ()
@@ -6061,7 +6061,7 @@
          (setq json-reformat:indent-width 4)
          (setq js-indent-level 4)
 
-         (add-hook 'js2-mode-hook #'gb/setup-tide-mode)
+         (add-hook 'js-mode-hook #'gb/setup-tide-mode)
          ;; configure javascript-tide checker to run after your default javascript checker
          (flycheck-add-next-checker 'javascript-eslint 'javascript-tide 'append)
 
@@ -6086,7 +6086,7 @@
            '(progn
               (add-hook 'web-mode-hook #'add-node-modules-path)
               (add-hook 'web-mode-hook #'prettier-js-mode)))
-         (eval-after-load 'js2-mode-hook
+         (eval-after-load 'js-mode-hook
            '(progn
               (add-hook 'web-mode-hook #'add-node-modules-path)
               (add-hook 'web-mode-hook #'prettier-js-mode)))
@@ -6100,12 +6100,12 @@
      ;; (use-package tagedit)
      (use-package add-node-modules-path
        :ensure t)
-     (use-package js2-mode
-       :ensure js2-mode
+     ;; (use-package js2-mode
+     ;;   :ensure js2-mode
 
-       :mode (("\\.js\\'" . js2-mode)
-              ("\\.jsx?\\'" . js2-jsx-mode))
-       :config (setq js-indent-level 2))
+     ;;   :mode (("\\.js\\'" . js2-mode)
+     ;;          ("\\.jsx?\\'" . js2-jsx-mode))
+     ;;   :config (setq js-indent-level 2))
      ;; (use-package js
      ;;   :after ( flycheck tagedit)
      ;;   :defer 5
