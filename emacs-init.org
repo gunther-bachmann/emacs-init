@@ -15101,6 +15101,15 @@
       :ensure t
       :hook (org-mode . org-auto-tangle-mode))
   #+end_src
+* project configuration
+  #+begin_src emacs-lisp
+    (use-package project
+      :ensure t
+      :config
+      (setq vc-handled-backends
+    ;;=> (RCS CVS SVN SCCS SRC Bzr Git Hg)
+     '(Git)))
+  #+end_src
 * INTERESTING
 ** blog/presentation
   - org-present using a cell phone to switch pages
