@@ -1,4 +1,5 @@
 #+title: init.el
+#+auto_tangle: t
 #+property: ^ nil
 #+property: header-args :tangle ~/.emacs.d/init.el :comments both
 #
@@ -9258,7 +9259,7 @@
                       (add-hook 'after-change-major-mode-hook #'yankpad-local-category-to-major-mode))))))))
 
       ;; execute org babel on safe (if major mode is org-mode
-      (add-hook 'after-save-hook 'gb/tangle-on-save-org-mode-file)
+      ;; (add-hook 'after-save-hook 'gb/tangle-on-save-org-mode-file) ;; TODO eval check org-auto-tangle
 
       ;; set default header args for plantuml
       (setq org-babel-default-header-args:PlantUML
@@ -15080,6 +15081,12 @@
     (use-package find-dupes-dired
       :ensure t
       :custom (find-dupes-dired-ls-option '("-q | grep -v -e '^$' | xargs -d \"\\n\" ls -dilsbUN" . "-dilsbUN")))
+  #+end_src
+* EVAL org-auto-tangle - automatically (async) tangle org files on save
+  #+begin_src emacs-lisp
+    (use-package org-auto-tangle
+      :ensure t
+      :hook (org-mode . org-auto-tangle-mode))
   #+end_src
 * INTERESTING
 ** blog/presentation
