@@ -4934,6 +4934,15 @@
            "Face used by Ivy for highlighting first match.")
 
          (setq ivy-display-style 'fancy)
+
+         (defun gb/ivy-partial-or-done ()
+           (interactive)
+           (or (ivy-partial)
+              (ivy-alt-done)))
+
+         (define-key ivy-minibuffer-map (kbd "TAB") 'gb/ivy-partial-or-done)
+
+
          :init
          (defun gb/collect-external-commands (sort)
            "collect external commands"
