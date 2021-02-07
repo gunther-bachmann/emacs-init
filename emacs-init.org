@@ -1484,6 +1484,8 @@
           (eval org-overview)
           (eval org-babel-result-hide-all)
           (eval gb/org-roam-open-entry-visibility)
+          (eval gb/set-org-pretty-entities nil)
+          (eval gb/set-org-pretty-entities t)
           (eval add-fira-code-symbol-keywords)
           (eval save-excursion (goto-char (point-min)) (org-next-visible-heading 1) (org-cycle))
           (eval add-hook 'after-save-hook
