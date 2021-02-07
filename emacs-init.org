@@ -15103,6 +15103,12 @@
       :ensure t
       :custom (find-dupes-dired-ls-option '("-q | grep -v -e '^$' | xargs -d \"\\n\" ls -dilsbUN" . "-dilsbUN")))
   #+end_src
+* EVAL iscroll - Smooth scrolling over images
+  #+begin_src emacs-lisp
+    (use-package iscroll
+      :ensure t
+      :config (iscroll-mode 1))
+  #+end_src
 * EVAL org-auto-tangle - automatically (async) tangle org files on save
   #+begin_src emacs-lisp
     (use-package org-auto-tangle
