@@ -14021,6 +14021,8 @@
           (defun gb/set-tags-in-org-roam-file ()
             "set the following tags on the first org header and on all attributes listed in 'gb/set-tag-config-list'"
             (interactive)
+            (when buffer-read-only
+              (read-only-mode -1))
             (save-excursion
               (goto-char (point-min))
               (org-next-visible-heading 1)
