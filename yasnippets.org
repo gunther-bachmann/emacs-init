@@ -1,5 +1,4 @@
 #+title: yasnippets
-#+auto_tangle: t
 Provide templates for yasnippet in a literate way Execute ~C-c C-v t~ to tangle
 files, then execute ~yas-reload-all~ to refresh.  This is actually done
 automatically by the file local add-hook in the following file-local var

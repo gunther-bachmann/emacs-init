@@ -1,5 +1,4 @@
 #+title: early-init
-#+auto_tangle: t
 #+property: header-args :tangle ~/.emacs.d/early-init.el :comments both
 * initialize basic some
   #+begin_src emacs-lisp
