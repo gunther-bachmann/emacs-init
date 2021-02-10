@@ -15113,6 +15113,34 @@
       :ensure t
       :config (iscroll-mode 1))
   #+end_src
+* EVAL ytdious - Query / Preview YouTube via Invidious
+  #+begin_src emacs-lisp
+    (use-package ytdious
+      :ensure t
+      :commands (ytdious)
+      :bind (:map ytdious-mode-map
+                  ("y" . #'ytdious-watch)
+                  ("<return>" . #'ytdious-watch)
+                  ("x" . #'ytdious-download-2mp3))
+      :custom (ytdious-invidious-api-url "https://invidious.namazso.eu")
+      :config
+      (defun ytdious-download-2mp3 ()
+        "Download video at point and extract mp3"
+        (interactive)
+        (let* ((video (ytdious-get-current-video))
+               (id    (ytdious-video-id-fun video)))
+          (start-process-shell-command "ytdious dl" nil (format "youtube-dl -x --audio-format mp3 %s" id))
+          (message (format "Downloading/Transcoding (%s)..." id))))
+      (defun ytdious-watch ()
+        "Stream video at point in mpv."
+        (interactive)
+        (let* ((video (ytdious-get-current-video))
+               (id    (ytdious-video-id-fun video)))
+          (start-process "ytdious mpv" nil
+                         "mpv"
+                         (concat "https://www.youtube.com/watch?v=" id " --ytdl-format=bestvideo[height<=?720]+bestaudio/best")))
+        (message "Starting streaming...")))
+  #+end_src
 * project configuration
   #+begin_src emacs-lisp
     (use-package project
