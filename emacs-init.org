@@ -3348,43 +3348,39 @@
    #+END_SRC
 ** own ui stuff
    #+BEGIN_SRC emacs-lisp
-        (when (package-installed-p 'ace-window)
+     (defun split-window-below-and-select-scratch ()
+       (interactive)
+       (let* ((new-window (split-window-below)))
+         (set-window-buffer new-window "*scratch*")
+         (aw-switch-to-window new-window)
+         new-window))
+     (bind-key "C-x 2" 'split-window-below-and-select-scratch)
 
-          (require 'ace-window)
+     (defun split-window-above-and-select-scratch ()
+       (interactive)
+       (let* ((old-window (get-buffer-window))
+              (new-window (split-window-below)))
+         (set-window-buffer old-window "*scratch*")
+         (aw-switch-to-window old-window)
+         new-window))
+     (bind-key "C-x C-2" 'split-window-above-and-select-scratch)
 
-          (defun split-window-below-and-select-scratch ()
-            (interactive)
-            (let* ((new-window (split-window-below)))
-              (set-window-buffer new-window "*scratch*")
-              (aw-switch-to-window new-window)
-              new-window))
-          (bind-key "C-x 2" 'split-window-below-and-select-scratch)
+     (defun split-window-right-and-select-scratch ()
+       (interactive)
+       (let* ((new-window (split-window-right)))
+         (set-window-buffer new-window "*scratch*")
+         (aw-switch-to-window new-window)
+         new-window))
+     (bind-key "C-x 3" 'split-window-right-and-select-scratch)
 
-          (defun split-window-right-and-select-scratch ()
-            (interactive)
-            (let* ((new-window (split-window-right)))
-              (set-window-buffer new-window "*scratch*")
-              (aw-switch-to-window new-window)
-              new-window))
-          (bind-key "C-x 3" 'split-window-right-and-select-scratch)
-
-          (when (eq gb/completion-framework 'helm)
-            (when  (package-installed-p 'helm)
-
-              (require 'helm-buffers)
-
-              (defun split-window-right-and-select ()
-                (interactive)
-                (split-window-right-and-select-scratch)
-                (helm-mini))
-              (bind-key "C-x C-3" 'split-window-right-and-select)
-
-              (defun split-window-below-and-select ()
-                (interactive)
-                (split-window-below-and-select-scratch)
-                (helm-mini))
-              (bind-key "C-x C-2" 'split-window-below-and-select))))
-
+     (defun split-window-left-and-select-scratch ()
+       (interactive)
+       (let* ((old-window (get-buffer-window))
+              (new-window (split-window-right)))
+         (set-window-buffer old-window "*scratch*")
+         (aw-switch-to-window old-window)
+         new-window))
+     (bind-key "C-x C-3" 'split-window-left-and-select-scratch)
    #+END_SRC
 * play startup sound (check again 3)
   #+begin_src emacs-lisp
