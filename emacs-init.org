@@ -2665,7 +2665,9 @@
     - (spinner-start 'moon)
     - (spinner-start 'triangle)
     #+BEGIN_SRC emacs-lisp
-    (use-package spinner)
+      (use-package spinner
+        :ensure t
+        :custom (spinner-frames-per-second 2))
     #+END_SRC
 *** spaceline (mode line of spacemacs) (disabled)
     #+BEGIN_SRC emacs-lisp :tangle no
@@ -3334,15 +3336,15 @@
 ** highlight indent
    - Minor mode to highlight indentation
    #+BEGIN_SRC emacs-lisp
-   (use-package highlight-indent-guides
-     :ensure t
-     :init ;; (add-hook 'prog-mode-hook #'highlight-indent-guides-mode)
-     :config
-     (progn
-       (set-face-background 'highlight-indent-guides-odd-face "darkgray")
-       (set-face-background 'highlight-indent-guides-even-face "dimgray")
-       (setq highlight-indent-guides-character ?\|)
-       (setq highlight-indent-guides-method 'character)))
+     (use-package highlight-indent-guides
+       :ensure t
+       :init ;; (add-hook 'prog-mode-hook #'highlight-indent-guides-mode)
+       :config
+       (progn
+         (set-face-background 'highlight-indent-guides-odd-face "darkgray")
+         (set-face-background 'highlight-indent-guides-even-face "dimgray")
+         (setq highlight-indent-guides-character ?\|)
+         (setq highlight-indent-guides-method 'character)))
    #+END_SRC
 ** own ui stuff
    #+BEGIN_SRC emacs-lisp
@@ -9592,6 +9594,7 @@
                "^itemis - random$"
                "^itemis - xtext"
                "^itemis - web-engineering$"
+               "^itemis - nintendo-toad_pr$"
                "^itemis - publications$"))
 
        (defun gb/timer-active-p (timer)
