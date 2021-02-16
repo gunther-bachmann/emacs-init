@@ -13024,6 +13024,7 @@
           (exwm-input-set-key (kbd "H-e") #'gb/emacs-init-open)
           (exwm-input-set-key (kbd "H-/") #'slack-select-rooms)
           (exwm-input-set-key (kbd "H-.") #'slack-select-unread-rooms)
+          (exwm-input-set-key (kbd "H-a") #'gb/org-agenda)
 
           (exwm-input-set-key (kbd "S-s-<up>") #'gb/remove-upper-window)
           (exwm-input-set-key (kbd "S-s-<down>") #'gb/remove-lower-window)
