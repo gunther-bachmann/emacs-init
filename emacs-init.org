@@ -1472,6 +1472,9 @@
    #+begin_src emacs-lisp
      (put 'org-image-actual-width 'safe-local-variable #'integerp)
      (put 'org-tree-slide-presentation-length 'safe-local-variable #'integerp)
+     (put 'typescript-indent-level 'safe-local-variable #'integerp)
+     (put 'js-indent-level 'safe-local-variable #'integerp)
+     (put 'json-reformat:indent-width 'safe-local-variable #'integerp)
      (custom-set-variables
       '(safe-local-variable-values
         '((org-tree-slide-content--pos)
@@ -1509,9 +1512,7 @@
           (eval org-display-inline-images)
           (eval gb/set-dictionary "de")
           (tide-format-options quote
-                               (:insertSpaceAfterFunctionKeywordForAnonymousFunctions t :placeOpenBraceOnNewLineForFunctions nil))
-          (json-reformat:indent-width . 4)
-          (typescript-indent-level . 4))))
+                               (:insertSpaceAfterFunctionKeywordForAnonymousFunctions t :placeOpenBraceOnNewLineForFunctions nil)))))
    #+end_src
 * check emacs capabilities
   #+BEGIN_SRC emacs-lisp
