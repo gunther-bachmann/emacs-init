@@ -14205,6 +14205,7 @@
               embark-keymap-help
               embark--completing-read-map
               ignore
+              calcDigit-start
               helm-swoop
               helm-switch-shell
               helm-multi-swoop
