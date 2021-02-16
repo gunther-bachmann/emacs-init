@@ -9597,7 +9597,9 @@
        (setq slack-prefer-current-team t)
 
        (with-eval-after-load 'tracking
-         (bind-key "s-\\" #'tracking-next-buffer tracking-mode-map))
+         (bind-key "s-\\" #'tracking-next-buffer tracking-mode-map)
+         (bind-key "C-c C-SPC" #'avy-goto-char-timer tracking-mode-map) ;; restore original binding
+         (bind-key "C-c SPC" #'avy-goto-char-timer tracking-mode-map))
        ;; Ensure the buffer exists when a message arrives on a
        ;; channel that wasn't open.
 
