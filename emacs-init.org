@@ -4927,6 +4927,8 @@
        (require 'comint)
        (use-package ivy
          :ensure t
+         :bind (:map ivy-mode-map
+                     ("M-y" . #'counsel-yank-pop))
          :config
          (defface ivy-current-match
            '((((class color) (background light))
