@@ -8011,6 +8011,12 @@
                (lambda ()
                  (define-key gnus-summary-mode-map (kbd ";") 'bbdb-mua-edit-field)
                  )))
+     :bind (:map bbdb-mode-map
+                 ("S s" . #'bbdb-search-name)
+                 ("S n" . #'bbdb-search-name)
+                 ("S m" . #'bbdb-search-mail)
+                 ("S p" . #'bbdb-search-phone)
+                 ("S a" . #'bbdb-search-address))
      :config
 
      ;; initialization
