@@ -10789,7 +10789,7 @@
            (setq insert-directory-program gnu-ls-bin-path))
        (setq  dired-omit-files "^\\.?#\\|^\\.$\\|^\\.\\.$\\|^\\..*\\|^build$\\|^out$")
        (setq dired-guess-shell-alist-user '(
-                                            ("\\.mkv\\'\\|\\.mpe?g\\'\\|\\.avi\\'\\|\\.mp4\\'\\|\\.flv\\'" "cvlc")
+                                            ("\\.webm\\'\\|\\.mkv\\'\\|\\.mpe?g\\'\\|\\.avi\\'\\|\\.mp4\\'\\|\\.flv\\'" "cvlc")
                                             ("\\.sid\\'" "sidplayfp")
                                             ("\\.html?\\'" "firefox")
                                             ("\\.docx?\\'\\|\\.xlsx?\\'\\|\\.pptx?\\'\\|\\.odt\\'" "soffice")
