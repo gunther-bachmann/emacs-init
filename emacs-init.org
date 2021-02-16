@@ -15185,6 +15185,14 @@
                          (concat "https://www.youtube.com/watch?v=" id " --ytdl-format=bestvideo[height<=?720]+bestaudio/best")))
         (message "Starting streaming...")))
   #+end_src
+* EVAL edebug-inline-result - display edebug results inline (via posframe)
+  #+begin_src emacs-lisp
+    (use-package edebug-inline-result
+      :ensure t
+      :defer t
+      :custom (edebug-inline-result-backend 'posframe)
+      :hook (edebug-mode . edebug-inline-result-mode))
+  #+end_src
 * project configuration
   #+begin_src emacs-lisp
     (use-package project
