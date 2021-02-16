@@ -3349,36 +3349,40 @@
    #+END_SRC
 ** own ui stuff
    #+BEGIN_SRC emacs-lisp
-     (defun split-window-below-and-select-scratch ()
-       (interactive)
+     (defun split-window-below-and-select-scratch (&optional arg)
+       (interactive "P")
        (let* ((new-window (split-window-below)))
-         (set-window-buffer new-window "*scratch*")
+         (unless arg
+           (set-window-buffer new-window "*scratch*"))
          (aw-switch-to-window new-window)
          new-window))
      (bind-key "C-x 2" 'split-window-below-and-select-scratch)
 
-     (defun split-window-above-and-select-scratch ()
-       (interactive)
+     (defun split-window-above-and-select-scratch (&optional arg)
+       (interactive "P")
        (let* ((old-window (get-buffer-window))
               (new-window (split-window-below)))
-         (set-window-buffer old-window "*scratch*")
+         (unless arg
+           (set-window-buffer old-window "*scratch*"))
          (aw-switch-to-window old-window)
          new-window))
      (bind-key "C-x C-2" 'split-window-above-and-select-scratch)
 
-     (defun split-window-right-and-select-scratch ()
-       (interactive)
+     (defun split-window-right-and-select-scratch (&optional arg)
+       (interactive "P")
        (let* ((new-window (split-window-right)))
-         (set-window-buffer new-window "*scratch*")
+         (unless arg
+           (set-window-buffer new-window "*scratch*"))
          (aw-switch-to-window new-window)
          new-window))
      (bind-key "C-x 3" 'split-window-right-and-select-scratch)
 
-     (defun split-window-left-and-select-scratch ()
-       (interactive)
+     (defun split-window-left-and-select-scratch (&optional arg)
+       (interactive "P")
        (let* ((old-window (get-buffer-window))
               (new-window (split-window-right)))
-         (set-window-buffer old-window "*scratch*")
+         (unless arg
+           (set-window-buffer old-window "*scratch*"))
          (aw-switch-to-window old-window)
          new-window))
      (bind-key "C-x C-3" 'split-window-left-and-select-scratch)
