@@ -7461,6 +7461,8 @@
            (progn
              (when-let ((buffer (get-file-buffer it)))
                (kill-buffer buffer))
+             (when-let ((buffer (get-file-buffer (format "%s-temp" it))))
+               (kill-buffer buffer))
              (when (file-exists-p it) ;; delete diary-calendar-file also, since it needs to be rewritten!
                (delete-file it))))
          (--each `(,gb/private-calendar-file ,gb/itemis-calendar-file)
@@ -7478,6 +7480,10 @@
              (shell-command-to-string (format "cat %s | python3 -c \"import sys; from urllib.parse import unquote; print(unquote(sys.stdin.read()));\" > %s" (format "%s-temp" gb/diary-calendar-file) gb/diary-calendar-file))
            (warn "cannot urldecode agenda file (python3 missing)")
            (rename-file (format "%s-temp" gb/diary-calendar-file) gb/diary-calendar-file))
+         (shell-command-to-string (format "sed -e \"s/<br\\s*\\/\\?>/\\n /g\" -i %s" gb/diary-calendar-file))
+         (shell-command-to-string (format "sed -e \"s/\\&nbsp\\;/ /g\" -i %s" gb/diary-calendar-file))
+         (when (file-exists-p (format "%s-temp" gb/diary-calendar-file))
+           (delete-file (format "%s-temp" gb/diary-calendar-file)))
          (setq diary-file gb/diary-calendar-file)
          (appt-activate 1)
          (message (format "agenda refresh done (at %s)." (current-time-string))))
