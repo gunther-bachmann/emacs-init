@@ -10995,7 +10995,12 @@
        ;; (advice-add 'dired-sidebar-revert :after #'(lambda (&rest args) (message "TRACE: dired-sidebar-revert")))
        ;; (advice-remove 'dired-sidebar-tui-update #'gb/dired-keep-cursor-during-tui-update)
 
-       (advice-add 'dired-sidebar-toggle-sidebar :after #'(lambda (&rest args) (toggle-truncate-lines '(1))(setq line-spacing 0)))
+       (advice-add 'dired-sidebar-toggle-sidebar :after
+                   #'(lambda (&rest args)
+                       (when (and (dired-sidebar-showing-sidebar-p)
+                                (eq (current-buffer) (dired-sidebar-buffer)))
+                         (toggle-truncate-lines '(1))
+                         (setq line-spacing 0))))
 
        (defun gb/dired-sidebar-follow-file ()
          "ensure sidebar is open and position cursor on file from which this function was called"
