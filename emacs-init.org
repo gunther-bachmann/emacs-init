@@ -13329,7 +13329,7 @@
     #+begin_src emacs-lisp
       (use-package org-tree-slide
         :load-path "~/repo/org-tree-slide"
-        :commands (gb/presentation-start gb/presentation-end)
+        :commands (gb/presentation-on gb/presentation-off)
         :config
         (setq org-tree-slide-header nil)
         (setq org-tree-slide-heading-emphasis t)
@@ -13346,7 +13346,7 @@
 
         (bind-key "C-?" #'gb/presentation-toggle-show-cursor org-tree-slide-mode-map)
 
-        (defun gb/presentation-start ()
+        (defun gb/presentation-on ()
           "make all relevant adjustments to present an org-tree-slide presentation"
           (interactive)
           (setq org-show-notification-handler
@@ -13387,7 +13387,7 @@
           (setq org-tree-slide-content--pos nil)
           (org-tree-slide-content))
 
-        (defun gb/presentation-end ()
+        (defun gb/presentation-off ()
           "revert all adjustments done to present an org-tree-slide presentation"
           (interactive)
           (org-tree-slide-mode -1)
