@@ -9588,7 +9588,7 @@
    (when (file-exists-p "~/repo/emacs-slack/slack.el")
      (use-package slack
        :load-path "~/repo/emacs-slack"
-       ;; :commands (gb/slack-start gb/slack-stop)
+       ;; :commands (gb/slack-on gb/slack-off)
        :custom (slack-log-level 'warn "make log less verbose")
        :init
        (setq slack-enable-global-mode-string t)
@@ -9883,11 +9883,11 @@
              (slack-buffer-update-mark-request this ts)
              (message (format "Slack buffer %s is no up to date." (slack-buffer-name this))))))
 
-       (defun gb/slack-stop ()
+       (defun gb/slack-off ()
          (interactive)
          (ignore-errors
-           (when (-contains? kill-emacs-hook #'gb/slack-stop)
-             (remove-hook 'kill-emacs-hook #'gb/slack-stop)))
+           (when (-contains? kill-emacs-hook #'gb/slack-off)
+             (remove-hook 'kill-emacs-hook #'gb/slack-off)))
          (ignore-errors (gb/slack-user-set-away))
          (gb/slack-disable-modeline)
          (gb/slack-modeline-status-deactivate)
@@ -9896,7 +9896,7 @@
            (setq gb/slack-update-list-timer nil))
          (ignore-errors (slack-ws-close)))
 
-       (defun gb/slack-start ()
+       (defun gb/slack-on ()
          (interactive)
          (gb/slack-register-teams)
          (slack-start)
@@ -9907,8 +9907,8 @@
            (ignore-errors (cancel-timer gb/slack-update-list-timer))
            (setq gb/slack-update-list-timer nil))
          (setq gb/slack-update-list-timer (run-at-time nil 900 #'slack-room-list-update))
-         (unless (-contains? kill-emacs-hook #'gb/slack-stop)
-           (add-hook 'kill-emacs-hook #'gb/slack-stop t))))
+         (unless (-contains? kill-emacs-hook #'gb/slack-off)
+           (add-hook 'kill-emacs-hook #'gb/slack-off t))))
 
      (use-package alert
        :ensure t
