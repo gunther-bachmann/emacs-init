@@ -15192,6 +15192,28 @@
     ;;=> (RCS CVS SVN SCCS SRC Bzr Git Hg)
      '(Git)))
   #+end_src
+* compilation mode configuration
+  #+begin_src emacs-lisp
+    (use-package compile
+      :init
+      ;; Shut up compile saves
+      (setq compilation-ask-about-save nil)
+      ;; Don't save *anything*
+      (setq compilation-save-buffers-predicate '(lambda () nil))
+      :hook (comint-mode . compilation-shell-minor-mode)
+      :config
+      ;; Add NodeJS error format
+      (setq compilation-error-regexp-alist-alist
+            ;; Tip: M-x re-builder to test this out
+            (cons '(node "^[  ]+at \\(?:[^\(\n]+ \(\\)?\\([a-zA-Z\.0-9_/-]+\\):\\([0-9]+\\):\\([0-9]+\\)\)?$"
+                               1 ;; file
+                               2 ;; line
+                               3 ;; column
+                               )
+                  compilation-error-regexp-alist-alist))
+      (setq compilation-error-regexp-alist
+            (cons 'node compilation-error-regexp-alist)))
+  #+end_src
 * INTERESTING
 ** blog/presentation
   - org-present using a cell phone to switch pages
