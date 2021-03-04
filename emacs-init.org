@@ -15192,6 +15192,12 @@
     ;;=> (RCS CVS SVN SCCS SRC Bzr Git Hg)
      '(Git)))
   #+end_src
+* EVAL docstr - adding documentation strings automatically for several languages
+  #+begin_src emacs-lisp
+    (use-package docstr
+      :ensure t
+      :config (global-docstr-mode 1))
+  #+end_src
 * compilation mode configuration
   #+begin_src emacs-lisp
     (use-package compile
