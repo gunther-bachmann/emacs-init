@@ -12453,36 +12453,38 @@
     - cpu frequency
       #+begin_src emacs-lisp
         (defun gb/cpu-freq-max-get ()
+          "get the maximal cpu frequency possible"
           (string-to-number (s-trim (shell-command-to-string "cat /sys/devices/system/cpu/cpufreq/policy0/cpuinfo_max_freq"))))
 
         (defun gb/cpu-freq-min-get ()
+          "get the minimal cpu frequency possible"
           (string-to-number (s-trim (shell-command-to-string "cat /sys/devices/system/cpu/cpufreq/policy0/cpuinfo_min_freq"))))
 
-
         (defun gb/cpu-freq-lowest ()
-          "set cpu frequency to 800MHz limit, to prevent cpu fan"
+          "set cpu frequency to the lowest possible value (800MHz)"
           (interactive)
-          (let ((cpu-freq 800000))
-            (if (and (<= cpu-freq (gb/cpu-freq-max-get))
-                     (>= cpu-freq (gb/cpu-freq-min-get)))
-                (s-trim (shell-command-to-string "cpu-freq-set.sh 800000"))
-              (message (format "ERROR: requested freq (%i) is not within cpu limits" cpu-freq)))))
+          (gb/cpu-freq-set (gb/cpu-freq-min-get)))
 
-        (defun gb/cpu-freq-limit ()
-          "set cpu frequency to 1.2GHz limit, to prevent cpu fan"
-          (interactive)
-          (let ((cpu-freq 1600000))
-            (if (and (<= cpu-freq (gb/cpu-freq-max-get))
-                     (>= cpu-freq (gb/cpu-freq-min-get)))
-                (s-trim (shell-command-to-string "cpu-freq-set.sh 1600000"))
-              (message (format "ERROR: requested freq (%i) is not within cpu limits" cpu-freq)))))
+        (defun gb/cpu-freq-limit (&optional arg)
+          "set cpu frequency, default is 2GHz"
+          (interactive "P")
+          (let* ((cpu-freq-s (if arg (completing-read "Hz: " '("1600000" "2800000" "2400000" "2000000" "1000000" "800000")) "2000000"))
+                 (cpu-freq (string-to-number cpu-freq-s)))
+            (gb/cpu-freq-set cpu-freq)))
+
+        (defun gb/cpu-freq-set (cpu-freq)
+          "set cpu(s) to the given frequency"
+          (if (or (> cpu-freq (gb/cpu-freq-max-get))
+                 (< cpu-freq (gb/cpu-freq-min-get)))
+              (message (format "ERROR: requested freq (%i) is not within cpu limits" cpu-freq))
+            (s-trim (shell-command-to-string (format "cpu-freq-set.sh %i" cpu-freq)))
+            (message (format "cpu freq set to %i" cpu-freq))))
 
         (defun gb/cpu-freq-unlimit ()
           "set cpu freq to unlimited, (which is the max capable)"
           (interactive)
-          (shell-command-to-string (format "cpu-freq-set.sh %i" (gb/cpu-freq-max-get))))
+          (gb/cpu-freq-set (gb/cpu-freq-max-get)))
       #+end_src
-
   - exwm configuration
     #+BEGIN_SRC emacs-lisp
       (when gb/use-exwm
