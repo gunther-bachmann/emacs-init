@@ -7335,8 +7335,8 @@
        (setq yankpad-file "~/yankpad.org")))
    #+END_SRC
 * organizational (org, mail, news)
-** elfeed
- #+BEGIN_SRC emacs-lisp
+** elfeed (disabled)
+ #+BEGIN_SRC emacs-lisp :tangle no
    (use-package elfeed
      :ensure t
      :commands elfeed
@@ -9604,6 +9604,7 @@
                "^itemis - xtext"
                "^itemis - web-engineering$"
                "^itemis - nintendo-toad_pr$"
+               "^itemis - nintendo-toad$"
                "^itemis - publications$"))
 
        (defun gb/timer-active-p (timer)
@@ -11292,6 +11293,7 @@
      (use-package posframe
        ;; :load-path "~/repo/posframe"
        :ensure t
+       :bind ("H-k" . #'gb/delete-all-open-posframes)
        :init
        (defun gb/delete-all-open-posframes ()
          "Delete all open posframes"
@@ -14893,7 +14895,7 @@
       :ensure t
       :commands (key-assist))
   #+end_src
-* EVAL gcmh - gc magic hack, defer gc to idle times
+* gcmh - gc magic hack, defer gc to idle times
   - works alright, seems to interfer with some other package though, which then uses up to 30s blocking emacs
     one method needed adjust to make idle gc not go over 10s idle time
   - seems to be fixed by setting the max idle time to 10s, never longer even in auto mode!
@@ -15110,7 +15112,7 @@
     (use-package good-scroll
       :ensure t)
   #+end_src
-* EVAL - transient-posframe -  posframe to show transient
+* transient-posframe -  posframe to show transient (e.g. magit transient menus)
   #+begin_src emacs-lisp
     (use-package transient-posframe
       :ensure t
@@ -15156,7 +15158,7 @@
                   ("y" . #'ytdious-watch)
                   ("<return>" . #'ytdious-watch)
                   ("x" . #'ytdious-download-2mp3))
-      :custom (ytdious-invidious-api-url "https://invidious.namazso.eu")
+      :custom (ytdious-invidious-api-url "https://invidious.snopyta.org")
       :config
       (defun ytdious-download-2mp3 ()
         "Download video at point and extract mp3"
@@ -15330,7 +15332,8 @@
           #+BEGIN_SRC emacs-lisp :tangle no
           (use-package yaml-imode)
           #+END_SRC
-** lisp/racket/haskell/clojure
+** lisp/racket/haskell/clojure/scheme
+  - macrostep-geiser
   - ob-clojure-literate
   - highlight-function-calls
     - highlight functions in lisp specially
