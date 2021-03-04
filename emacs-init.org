@@ -11305,22 +11305,21 @@
 #+BEGIN_SRC emacs-lisp
 (report-elapsed "check point - posframe")
 #+END_SRC
-** flycheck-posframe
+** flycheck-posframe (disabled)
    - display flycheck results in posframe (as floating frame at point position)
    - enable via 'flycheck-posframe-mode' (enabled by default)
-   #+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp :tangle no
      (use-package flycheck-posframe
        :ensure t
-       :init
-       (with-eval-after-load 'flycheck
-        (require 'flycheck-posframe)
-        (add-hook 'flycheck-mode-hook #'flycheck-posframe-mode)))
+       :after flycheck
+       :hook (flycheck-mode . flycheck-posframe-mode)
+       :config (flycheck-posframe-configure-pretty-defaults))
    #+END_SRC
 ** flycheck-package (elisp packages)
    #+BEGIN_SRC emacs-lisp
-   (use-package flycheck-package
-     :ensure t
-     :after (flycheck))
+     (use-package flycheck-package
+       :ensure t
+       :after (flycheck))
    #+END_SRC
 ** ace helm line
    - display ace jump characters on each line (C-') when in helm mode
