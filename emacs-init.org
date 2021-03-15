@@ -14146,8 +14146,16 @@
           :after (org-roam company)
           :ensure t
           :config
-          :config (add-to-list 'company-backends 'company-org-roam))))
+          :config (add-to-list 'company-backends 'company-org-roam))
 
+        (use-package nroam
+          :load-path "/home/pe/repo/nroam/"
+          :config
+          (defun gb/nroam-insert-line-separator ()
+            (insert "\n"))
+          (add-hook 'nroam-sections #'gb/nroam-insert-line-separator)
+          (add-hook 'org-mode-hook #'nroam-setup-maybe)
+          (custom-set-faces  '(form-feed-line ((t (:strike-through "dim gray"))))))))
     ;; failed with "run-hooks: Symbol’s value as variable is void: bibtex-completion-find-note-functions"
 
     ;; (use-package org-ref-helm-bibtex
