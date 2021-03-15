@@ -2450,6 +2450,12 @@
          (bind-key "s-<right>" 'windmove-right)
          (bind-key "s-<up>" 'windmove-up)
          (bind-key "s-<down>" 'windmove-down)
+
+         (bind-key "C-M-s-<left>" 'windmove-swap-states-left)
+         (bind-key "C-M-s-<right>" 'windmove-swap-states-right)
+         (bind-key "C-M-s-<up>" 'windmove-swap-states-up)
+         (bind-key "C-M-s-<down>" 'windmove-swap-states-down)
+
          ;; shrink selected window horizontally
          (bind-key "C-s-<left>" 'shrink-window-horizontally-effect)
          (bind-key "C-S-s-<left>" '(lambda () (interactive) (shrink-window-horizontally-effect 50)))
@@ -13010,6 +13016,11 @@
           (exwm-input-set-key (kbd "s-<right>") #'gb/windmove-right)
           (exwm-input-set-key (kbd "s-<up>") #'windmove-up)
           (exwm-input-set-key (kbd "s-<down>") #'windmove-down)
+
+          (exwm-input-set-key (kbd "C-M-s-<left>") #'windmove-swap-states-left)
+          (exwm-input-set-key (kbd "C-M-s-<right>") #'windmove-swap-states-right)
+          (exwm-input-set-key (kbd "C-M-s-<up>") #'windmove-swap-states-up)
+          (exwm-input-set-key (kbd "C-M-s-<down>") #'windmove-swap-states-down)
 
           (exwm-input-set-key (kbd "H-l") #'gb/lock-screen)
           (exwm-input-set-key (kbd "H-c") #'gb/mouse-pointer-to-cursor)
