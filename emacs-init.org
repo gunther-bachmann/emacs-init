@@ -9149,13 +9149,19 @@
     #+BEGIN_SRC emacs-lisp
       (use-package org-ref
         :commands org-ref-insert-link
-                  org-ref-helm-insert-ref-link
                   org-ref-list-of-tables
                   org-ref-list-of-figures
-                  org-ref-helm-insert-label-link
+                  org-ref-ivy-cite
+                  org-ref-reftex
         :ensure t
         ;; :after ( org helm-bibtex pdf-tools ivy hydra helm)
-        )
+        :custom (org-latex-pdf-process (list "latexmk -shell-escape -bibtex -f -pdf %f"))
+        (reftex-default-bibliography '("~/bibliography/references.bib"))
+        (org-ref-bibliography-notes "~/bibliography/notes.org")
+        (org-ref-default-bibliography '("~/bibliography/references.bib"))
+        (org-ref-pdf-directory "~/bibliography/bibtex-pdfs/")
+      ;; see org-ref for use of these variables
+      )
     #+END_SRC
 *** org clip
     - ox-clip-formatted-copy copies selected region of org mode file as rtf into clipboard for insertion into e.g. open office
