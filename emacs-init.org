@@ -3183,7 +3183,7 @@
            "Call `flash-crosshairs' after switching with `ace-window'"
            (cursor-ping 1)))))
    #+END_SRC
-** window arrangement
+** window arrangement (shackle)
    - [[https://github.com/wasamasa/shackle][github]]
    - [[https://github.com/kaushalmodi/.emacs.d/blob/master/setup-files/setup-shackle.el][example usage]]
    #+BEGIN_SRC emacs-lisp
@@ -15419,6 +15419,7 @@
   - ox-leanpub - Export Org documents to Leanpub book format
   - org-ml - Functional Org Mode API
   - orgstrap - allow elisp usage in org source blocks more freely (less cryptic header configuration) see https://github.com/tgbugs/orgstrap)
+  - org-appear - Auto-toggle visibility of Org elements
 ** os/system
   - network-watch (allows hooks to run when network is goiing down/up)
   - scp (use scp to transfer files)
@@ -15461,6 +15462,7 @@
     - keeps balanced windows, zooming the one currently having the focus
   - windswap - swap window buffers (with left, right, up, down)
   - windmove - move to window (left, right, up, down)
+  - popper - Summon and dismiss buffers as popups
 ** unsorted
   - flycheck-indicator - A fancy mode line indicator for `flycheck-mode'
   - helm-tail - tailing of several sources
