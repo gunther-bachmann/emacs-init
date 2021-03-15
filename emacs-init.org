@@ -15229,6 +15229,13 @@
       :ensure t
       :config (global-docstr-mode 1))
   #+end_src
+* cloud formation
+  #+begin_src emacs-lisp
+    (use-package cfn-mode
+      :ensure t)
+    (use-package flycheck-cfn
+      :ensure t)
+  #+end_src
 * compilation mode configuration
   #+begin_src emacs-lisp
     (use-package compile
