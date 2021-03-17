@@ -9705,6 +9705,11 @@
        (bind-key "C-c C-S-a" #'slack-message-remove-reaction slack-mode-map)
        (bind-key "C-c C-S-a" #'slack-message-remove-reaction slack-thread-message-buffer-mode-map)
 
+       ;; edit the message at point
+       (bind-key "C-c C-e" #'slack-message-edit slack-message-buffer-mode-map)
+       (bind-key "C-c C-e" #'slack-message-edit slack-mode-map)
+       (bind-key "C-c C-e" #'slack-message-edit slack-thread-message-buffer-mode-map)
+
        ;; insert (embed) direct mention of user
        (bind-key "C-c @" #'slack-message-embed-mention slack-mode-map)
        (bind-key "C-c @" #'slack-message-embed-mention slack-message-compose-buffer-mode-map)
@@ -9875,12 +9880,32 @@
                                     (slack-team-channels team))))))
 
        (defun gb/slack-buffer--mark-read ()
+         "mark current slack buffer as being completely read"
          (interactive)
          (when (slack-message-buffer-p slack-current-buffer)
            (let* ((this slack-current-buffer)
                   (ts (slack-buffer-latest-ts this)))
              (slack-buffer-update-mark-request this ts)
-             (message (format "Slack buffer %s is no up to date." (slack-buffer-name this))))))
+             (message (format "Slack buffer %s is now up to date." (slack-buffer-name this))))))
+
+       (defun gb/slack-catchup-all-less-important-rooms ()
+         "mark all rooms as read that are 'less important' (filtered by SLACK-MODELINE-FILTER"
+         (interactive)
+         (let* ((team (slack-team-select))
+                (team-name (slack-team-name team))
+                (rooms-w-unreads (gb/slack-rooms-unread))
+                (less-important-rooms-w-unreads
+                 (--filter
+                  (-any (lambda (reg) (string-match-p reg (format "%s - %s" team-name (slack-room-name it team)))) slack-modeline-filter)
+                  rooms-w-unreads)))
+           (--each less-important-rooms-w-unreads
+             (let* ((ts (slack-room-latest it team))
+                    (room-name (slack-room-name it team)))
+               (oset it last-read ts)
+               (slack-conversations-mark it team ts)))
+           (if less-important-rooms-w-unreads
+               (message "caught up on slack channels: %s." (string-join (--map (slack-room-name it team) less-important-rooms-w-unreads) ", "))
+             (message "no unreads to catch up to."))))
 
        (defun gb/slack-off ()
          (interactive)
@@ -13037,6 +13062,7 @@
           (exwm-input-set-key (kbd "H-e") #'gb/emacs-init-open)
           (exwm-input-set-key (kbd "H-/") #'slack-select-rooms)
           (exwm-input-set-key (kbd "H-.") #'slack-select-unread-rooms)
+          (exwm-input-set-key (kbd "H-s-.") #'gb/slack-catchup-all-less-important-rooms)
           (exwm-input-set-key (kbd "H-a") #'gb/org-agenda)
 
           (exwm-input-set-key (kbd "S-s-<up>") #'gb/remove-upper-window)
