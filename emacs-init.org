@@ -2105,12 +2105,12 @@
                                                   ;; The first argument to concat is a string containing a literal tab
                                                   ,(concat "	" (list (decode-char 'ucs (cadr regex-char-pair)))))))))
                          '(("\\(www\\)"                   #Xe100)
-                           ("[^/\\*]\\(\\*\\*\\)[^\\*/]"        #Xe101) ;; double **
-                           ("\\(\\*\\*\\*\\)"             #Xe102) ;; triple stars ***
+                           ;; ("[^/\\*]\\(\\*\\*\\)[^\\*/]"        #Xe101) ;; double **
+                           ;; ("\\(\\*\\*\\*\\)"             #Xe102) ;; triple stars ***
                            ("\\(\\*\\*/\\)"               #Xe103) ;; double comment end **/
                            ("\\(\\*>\\)"                  #Xe104)
                            ("[^*]\\(\\*/\\)"              #Xe105) ;; single comment end */
-                           ("\\(*\\)" #Xe16f) ;; single *
+                           ;; ("\\(*\\)" #Xe16f) ;; single *
                            ("\\(\\\\\\\\\\)"              #Xe106)
                            ("\\(\\\\\\\\\\\\\\)"          #Xe107)
                            ("\\({-\\)"                    #Xe108)
@@ -8227,7 +8227,8 @@
         (cond
          ((eq gb/theme-mode 'light) nil) ;; TODO complete
          (t (progn
-              (--each '( (header-line ((t (:inherit org-table-face :foreground "#8abeb7")))))
+              (--each '( (header-line ((t (:inherit org-table-face :foreground "#8abeb7"))))
+                         (org-tag ((t (:foreground "dimgray")))))
                 (progn (add-to-list 'gb/list-of-faces-to-set it)(custom-set-faces it)))))) ;; set (non scrolling) header to inhiert font from org mode tables (not mode line, which is to small on multi monitor w/ current config)
         (setq org-image-actual-width nil)
         (setq org-format-latex-options (plist-put org-format-latex-options :scale 2.0))
@@ -14138,16 +14139,18 @@
           (defun gb/org-roam-open-entry-visibility ()
             "setup initial org visibility in org-roam entries"
             (interactive)
+            (add-fira-code-symbol-keywords)
             (org-hide-block-all)
             (org-babel-result-hide-all)
-            (add-fira-code-symbol-keywords)
+
             (org-display-inline-images)
             (org-content)
             (progn (setq current-prefix-arg '(16))(call-interactively 'org-latex-preview))
             (save-excursion
               (goto-char (point-min))
               (org-next-visible-heading 1)
-              (org-show-entry)))
+              (org-show-entry))
+            (toggle-serif))
           :bind (:map org-roam-mode-map
                       (("C-c n l" . org-roam)
                        ("C-c n f" . org-roam-find-file)
@@ -14178,6 +14181,9 @@
           :load-path "/home/pe/repo/nroam/"
           :config
           (defun gb/nroam-insert-line-separator ()
+            (hack-local-variables)
+            (goto-char (point-max))
+            (org-show-entry)
             (insert "\n"))
           (add-hook 'nroam-sections #'gb/nroam-insert-line-separator)
           (add-hook 'org-mode-hook #'nroam-setup-maybe)
