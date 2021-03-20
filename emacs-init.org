@@ -3285,10 +3285,20 @@
              font-lock-variable-name-face
              font-lock-warning-face))
 
+     (defun gb/serif-on ()
+       (interactive)
+       (when (not (bound-and-true-p default-cookie))
+         (toggle-serif)))
+
+     (defun gb/serif-off ()
+       (interactive)
+       (when (bound-and-true-p default-cookie)
+         (toggle-serif)))
+
      (defun toggle-serif ()
        "Change the default face of the current buffer to use a serif family."
        (interactive)
-       (when (display-graphic-p)  ;; this is only for graphical emacs
+       (when (display-graphic-p) ;; this is only for graphical emacs
          ;; the serif font familiy and height, save the default attributes
          (let ((serif-fam "Liberation Serif")
                (serif-height (if (eq gb/dual-screen-mode 'presentation)
@@ -3311,7 +3321,7 @@
                         (add-to-list 'preserve-default-cookies-list
                                      (face-remap-add-relative
                                       face :family default-fam :height default-height)))
-                      (text-scale-increase 2)
+                      (text-scale-increase 1)
                       (when (derived-mode-p 'org-mode)
                         (org-indent-mode 1))
                       (message "Turned on serif writing font."))
@@ -3321,7 +3331,7 @@
                       (face-remap-remove-relative cookie))
                     (setq default-cookie nil)
                     (setq preserve-default-cookies-list nil)
-                    (text-scale-decrease 2)
+                    (text-scale-decrease 1)
                     (when (derived-mode-p 'org-mode)
                       (org-indent-mode -1))
                     (message "Restored default fonts."))))))
@@ -14139,18 +14149,23 @@
           (defun gb/org-roam-open-entry-visibility ()
             "setup initial org visibility in org-roam entries"
             (interactive)
-            (add-fira-code-symbol-keywords)
-            (org-hide-block-all)
-            (org-babel-result-hide-all)
+            (when (not (bound-and-true-p gb-roam-visibility-set))
+              (progn
+                (make-local-variable 'gb-roam-visibility-set)
+                (setq gb-roam-visibility-set t)
+                (add-fira-code-symbol-keywords)
+                (org-hide-block-all)
+                (org-babel-result-hide-all)
+                (org-display-inline-images)
+                (org-content)
+                (progn (setq current-prefix-arg '(16))(call-interactively 'org-latex-preview))
+                (save-excursion
+                  (goto-char (point-min))
+                  (org-next-visible-heading 1)
+                  (org-show-entry))
+                (gb/serif-on)
+                (run-at-time 0.5 nil #'(lambda () (progn (setq current-prefix-arg '(4)) (call-interactively 'org-reveal)))))))
 
-            (org-display-inline-images)
-            (org-content)
-            (progn (setq current-prefix-arg '(16))(call-interactively 'org-latex-preview))
-            (save-excursion
-              (goto-char (point-min))
-              (org-next-visible-heading 1)
-              (org-show-entry))
-            (toggle-serif))
           :bind (:map org-roam-mode-map
                       (("C-c n l" . org-roam)
                        ("C-c n f" . org-roam-find-file)
