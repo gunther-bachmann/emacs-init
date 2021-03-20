@@ -3321,7 +3321,8 @@
                         (add-to-list 'preserve-default-cookies-list
                                      (face-remap-add-relative
                                       face :family default-fam :height default-height)))
-                      (text-scale-increase 1)
+                      (cond ((>= (frame-pixel-width) 4000) (text-scale-increase 2))
+                            ((>= (frame-pixel-width) 1400) (text-scale-increase 1)))
                       (when (derived-mode-p 'org-mode)
                         (org-indent-mode 1))
                       (message "Turned on serif writing font."))
@@ -3331,7 +3332,8 @@
                       (face-remap-remove-relative cookie))
                     (setq default-cookie nil)
                     (setq preserve-default-cookies-list nil)
-                    (text-scale-decrease 1)
+                      (cond ((>= (frame-pixel-width) 4000) (text-scale-decrease 2))
+                            ((>= (frame-pixel-width) 1400) (text-scale-decrease 1)))
                     (when (derived-mode-p 'org-mode)
                       (org-indent-mode -1))
                     (message "Restored default fonts."))))))
