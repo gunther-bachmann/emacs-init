@@ -14197,14 +14197,18 @@
           :config (add-to-list 'company-backends 'company-org-roam))
 
         (use-package nroam
-          :load-path "/home/pe/repo/nroam/"
+          ;; :load-path "/home/pe/repo/nroam/"
+          :ensure t
           :config
           (defun gb/nroam-insert-line-separator ()
             (hack-local-variables)
             (goto-char (point-max))
             (org-show-entry)
-            (insert "\n"))
-          (add-hook 'nroam-sections #'gb/nroam-insert-line-separator)
+            (previous-line)
+            (beginning-of-line)
+            (insert "\n\n")
+            (goto-char (point-max)))
+          (add-hook 'nroam--sections #'gb/nroam-insert-line-separator) ;; nroam--sections
           (add-hook 'org-mode-hook #'nroam-setup-maybe)
           (custom-set-faces  '(form-feed-line ((t (:strike-through "dim gray"))))))))
     ;; failed with "run-hooks: Symbol’s value as variable is void: bibtex-completion-find-note-functions"
