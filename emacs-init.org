@@ -4948,6 +4948,7 @@
          :bind (:map ivy-mode-map
                      ("M-y" . #'counsel-yank-pop))
          :config
+         (setq ivy--display-transformers-list '())
          (defface ivy-current-match
            '((((class color) (background light))
               :background "#1a4b77" :foreground "white")
