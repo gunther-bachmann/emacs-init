@@ -13411,6 +13411,7 @@
           (setq org-format-latex-options (plist-put org-format-latex-options :scale 2.6))
           (progn (setq current-prefix-arg '(16))(call-interactively 'org-latex-preview))
           (org-display-inline-images)
+          (gb/set-org-pretty-entities t)
           (org-show-all)
           (org-show-block-all)
           (save-excursion
