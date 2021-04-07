@@ -3111,7 +3111,7 @@
 
        (defun gb/blink-if-not-shell (&rest args)
          "user for blinking on recenter, which shell mode does constantly => only in other modes"
-         (unless (or (memq major-mode (list 'ansi-term-mode 'term-mode 'shell-mode 'comint-mode))
+         (unless (or (memq major-mode (list 'ansi-term-mode 'term-mode 'shell-mode 'comint-mode 'eshell-mode))
                     (string-prefix-p "slack" (symbol-name major-mode)))
            (ignore-errors
              (beacon-blink))))
@@ -14362,7 +14362,6 @@
       (company-prescient-mode 1))
   #+end_src
 * EVAL selectrum (disabled, ivy seems to be ok)
-  - idea: additional install selectrum-prescient
   #+begin_src emacs-lisp :tangle no
     (when (eq gb/completion-framework 'selectrum)
       (use-package selectrum
@@ -15142,7 +15141,29 @@
       :ensure t
       :bind (("H-<SPC>" . embark-act)))
   #+end_src
-* TODO udisksctl - make package of this
+* (disabled) marginalia - provides context to candidates (even embark)
+  - makes only sense when using selectrum and embark in combination
+  #+begin_src emacs-lisp :tangle no
+    (when (eq gb/completion-framework 'selectrum)
+      (use-package marginalia
+        :ensure t
+        :bind (("M-A" . marginalia-cycle))
+
+        ;; The :init configuration is always executed (Not lazy!)
+        :init
+
+        ;; Must be in the :init section of use-package such that the mode gets
+        ;; enabled right away. Note that this forces loading the package.
+        (marginalia-mode)
+
+        ;; When using Selectrum, ensure that Selectrum is refreshed when cycling annotations.
+        (advice-add #'marginalia-cycle :after
+                    (lambda () (when (bound-and-true-p selectrum-mode) (selectrum-exhibit 'keep-selected))))
+
+        (setq marginalia-annotators '(marginalia-annotators-heavy marginalia-annotators-light nil))
+        ))
+  #+end_src
+* udisksctl - make package of this
   #+begin_src emacs-lisp
     (defvar gb/udisksctl--ignore-devices '("nvme0n1") "list of devices to ignore")
 
@@ -15434,6 +15455,8 @@
   - elisp-depmap - Generate an elisp dependency map in graphviz
   - clojure-essential-ref - the essential reference
   - clojure-essential-ref-nov - browse the essential ref offline (via epub)
+  - geiser-mit - MIT/GNU Scheme's implementation of the geiser protocols
+  - geiser-guile - Guile's implementation of the geiser protocols 
 ** mail
    - autocrypt - automatically encrypts and distributes encrypted emails (usable in gnus) https://git.sr.ht/~zge/autocrypt
 ** navigation
@@ -15475,6 +15498,7 @@
   - org-ml - Functional Org Mode API
   - orgstrap - allow elisp usage in org source blocks more freely (less cryptic header configuration) see https://github.com/tgbugs/orgstrap)
   - org-appear - Auto-toggle visibility of Org elements
+  - org-notifications - Creates notifications for org-mode entries
 ** os/system
   - network-watch (allows hooks to run when network is goiing down/up)
   - scp (use scp to transfer files)
@@ -15543,6 +15567,7 @@
    - origami - code folding (several languages, default = indentlevel)
      see https://github.com/gregsexton/origami.el
    - tree-sitter - tooling to make language toolin within emacs more tractable (see https://github.com/ubolonton/emacs-tree-sitter)
+   - yaml - YAML parser for Elisp
 ** graphics
    - vega-view - allow preview of vega graphics (graphics described by json), see https://vega.github.io/vega/ and https://github.com/applied-science/emacs-vega-view
 ** system
@@ -15552,6 +15577,7 @@
 ** ui
    - modern-fringes - Replaces default fringe bitmaps with better looking ones
    - simple-modeline -
+   - theme-anchor - Apply theme in current buffer only
 * discarded
 ** dired-posframe (disabled) preview is disrupting
    #+begin_src emacs-lisp :tangle no
