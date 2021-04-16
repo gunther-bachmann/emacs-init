@@ -6467,7 +6467,7 @@
                ("C-c v s" . magit-status)
                ("C-c v l" . magit-list-repositories)
                :map magit-mode-map
-               ;; ("s-f" . helm-ls-git-ls) ;; TODO: currently get an error (recursive load by helm-ls-git-ls
+               ("s-f" . projectile-find-file)
                ("C-x f" . counsel-git)
                ;; :map magit-repolist-mode-map
                ;; ("s-i" . helm-imenu)
