@@ -7457,6 +7457,7 @@
        (defun gb/sync-update-agenda-with-google-calendar ()
          "synchronous update diary with google calendar"
          (shell-command-to-string (format "wget -q -O %s-temp %s" gb/itemis-calendar-file gb/itemis-google-calendar-url))
+         (shell-command-to-string (format "wget -q -O %s-temp %s" gb/itemis-nord-calendar-file gb/itemis-nord-google-calendar-url))
          (shell-command-to-string (format "wget -q -O %s-temp %s" gb/private-calendar-file gb/private-google-calendar-url))
          (gb/import-diary-from-google-calendar-files))
 
@@ -7466,7 +7467,7 @@
          (setq diary-file "~/.emacs.d/diary")
          (when (file-exists-p (format "%s-temp" gb/diary-calendar-file))
            (delete-file (format "%s-temp" gb/diary-calendar-file)))
-         (--each `(,gb/diary-calendar-file ,gb/itemis-calendar-file ,gb/private-calendar-file)
+         (--each `(,gb/diary-calendar-file ,gb/itemis-calendar-file ,gb/itemis-nord-calendar-file ,gb/private-calendar-file)
            (progn
              (when-let ((buffer (get-file-buffer it)))
                (kill-buffer buffer))
@@ -7474,13 +7475,16 @@
                (kill-buffer buffer))
              (when (file-exists-p it) ;; delete diary-calendar-file also, since it needs to be rewritten!
                (delete-file it))))
-         (--each `(,gb/private-calendar-file ,gb/itemis-calendar-file)
+         (--each `(,gb/private-calendar-file ,gb/itemis-calendar-file ,gb/itemis-nord-calendar-file)
            (let ((temp-file (format "%s-temp" it)))
              (when (file-exists-p temp-file)
                (copy-file temp-file it)
                (delete-file temp-file))))
          (with-temp-buffer
            (insert-file gb/itemis-calendar-file)
+           (icalendar-import-buffer (format "%s-temp" gb/diary-calendar-file) t t))
+         (with-temp-buffer
+           (insert-file gb/itemis-nord-calendar-file)
            (icalendar-import-buffer (format "%s-temp" gb/diary-calendar-file) t t))
          (with-temp-buffer
            (insert-file gb/private-calendar-file)
@@ -7501,11 +7505,14 @@
          "async function to update cal based dictionary"
          (message (format "running agenda refresh (at %s)" (current-time-string)))
          (gb/async-execute-costly-shell-command
-          (format "wget -q -O %s-temp %s" gb/itemis-calendar-file gb/itemis-google-calendar-url)
+          (format "wget -q -O %s-temp %s" gb/itemis-nord-calendar-file gb/itemis-nord-google-calendar-url)
           '(lambda ()
              (gb/async-execute-costly-shell-command
-              (format "wget -q -O %s-temp %s" gb/private-calendar-file gb/private-google-calendar-url)
-              '(lambda () (gb/import-diary-from-google-calendar-files))))))
+              (format "wget -q -O %s-temp %s" gb/itemis-calendar-file gb/itemis-google-calendar-url)
+              '(lambda ()
+                 (gb/async-execute-costly-shell-command
+                  (format "wget -q -O %s-temp %s" gb/private-calendar-file gb/private-google-calendar-url)
+                  '(lambda () (gb/import-diary-from-google-calendar-files))))))))
 
        (defun gb/async-execute-costly-shell-command (acommand &optional lambda-on-success lambda-on-failure timeout-s)
          "execute a costly shell function asynchronously.
