@@ -1476,10 +1476,14 @@
      (put 'typescript-indent-level 'safe-local-variable #'integerp)
      (put 'js-indent-level 'safe-local-variable #'integerp)
      (put 'json-reformat:indent-width 'safe-local-variable #'integerp)
+     (put 'web-mode-code-indent-offset 'safe-local-variable #'integerp)
+     (put 'web-mode-script-padding 'safe-local-variable #'integerp)
+     (put 'web-mode-markup-indent-offset 'safe-local-variable #'integerp)
      (custom-set-variables
       '(safe-local-variable-values
         '((org-tree-slide-content--pos)
           (org-confirm-babel-evaluate)
+          (web-mode-enable-auto-identation nil)
           (eval toggle-serif)
           (eval gb/set-dictionary "en")
           (eval org-show-all)
@@ -5991,21 +5995,20 @@
     #+END_SRC
 ** web-mode
    #+BEGIN_SRC emacs-lisp
-   (use-package web-mode
-     :ensure t
-     :mode (("\\.phtml\\'" . web-mode)
-            ("\\.tpl\\.php\\'" . web-mode)
-            ("\\.[agj]sp\\'" . web-mode)
-            ("\\.as[cp]x\\'" . web-mode)
-            ("\\.erb\\'" . web-mode)
-            ("\\.mustache\\'" . web-mode)
-            ("\\.dhtml\\'" . web-mode)
-            ("\\.html?\\'" . web-mode))
-     :config
-     (progn
-       (setq web-mode-markup-indent-offset 2)
-       (setq web-mode-css-indent-offset 2)
-       (setq web-mode-code-indent-offset 2)))
+     (use-package web-mode
+       :ensure t
+       :mode (("\\.phtml\\'" . web-mode)
+              ("\\.tpl\\.php\\'" . web-mode)
+              ("\\.[agj]sp\\'" . web-mode)
+              ("\\.as[cp]x\\'" . web-mode)
+              ("\\.erb\\'" . web-mode)
+              ("\\.mustache\\'" . web-mode)
+              ("\\.dhtml\\'" . web-mode)
+              ("\\.html?\\'" . web-mode))
+       :custom ((web-mode-enable-auto-identation nil)
+                (web-mode-markup-indent-offset 2)
+                (web-mode-css-indent-offset 2)
+                (web-mode-code-indent-offset 2)))
    #+END_SRC
 ** typescript
    #+BEGIN_SRC emacs-lisp
