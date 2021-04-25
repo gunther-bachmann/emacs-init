@@ -15143,7 +15143,6 @@
         (setq marginalia-annotators '(marginalia-annotators-heavy marginalia-annotators-light nil))
         ))
   #+end_src
-* udisksctl - make package of this
 * TODO backup duplicity support - make package
   #+begin_src emacs-lisp
     (defun gb/backup-log-open ()
@@ -15476,8 +15475,11 @@
     ;; - TODO: add testing
 
   #+end_src
+* TODO udisksctl - make package of this
   #+begin_src emacs-lisp
     (defvar gb/udisksctl--ignore-devices '("nvme0n1") "list of devices to ignore")
+    ;; provide a way to configure things to exclude (like backup running)
+    ;; move backup running to other place
 
     (defun gb/udisksctl--info (blk-device)
       (s-trim (shell-command-to-string (format "udisksctl info -b %s" blk-device))))
@@ -15503,7 +15505,9 @@
         (gb/udisksctl--unpower-device device)))
 
     (defun gb/udisksctl--get-mounts (device)
-      (s-split "\n" (s-trim (shell-command-to-string (format  "mount | grep -e '^%s'" device)))))
+      (--filter
+       (not (and (string-match-p (format ".*%s$" (gb/backup-mount)) (nth 2 (split-string it " "))) (gb/backup-is-running)))
+       (s-split "\n" (s-trim (shell-command-to-string (format  "mount | grep -e '^%s'" device))))))
 
     (defun gb/udisksctl--completing-read-mount (device)
       (--first (not (string-empty-p it)) (s-split " " (completing-read "Mounts: " (gb/udisksctl--get-mounts device) nil t))))
