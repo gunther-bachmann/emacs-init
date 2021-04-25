@@ -472,13 +472,6 @@
              use-package-ensure-system-package
              s))
 
-    (use-package benchmark-init
-      :ensure t
-      :demand t
-      :config
-      ;; To disable collection of benchmark data after init is done.
-      (add-hook 'after-init-hook 'benchmark-init/deactivate))
-
     ;; add mac specific packages
     (when (is-macos-p)
       (add-to-list 'package-to-install-initially 'exec-path-from-shell))
@@ -487,6 +480,13 @@
       (progn
         (message (concat "Preinstall/require " (symbol-name package)))
         (require-package package)))
+
+    (use-package benchmark-init
+      :ensure t
+      :demand t
+      :config
+      ;; To disable collection of benchmark data after init is done.
+      (add-hook 'after-init-hook 'benchmark-init/deactivate))
 
     ;; TODO: recheck now and then. error is present in req-package version 1.2
     ;; initialize unbound req-package variable (otherwise an error happens during startup)
@@ -3122,6 +3122,7 @@
    #+BEGIN_SRC emacs-lisp
      ;; mark cursor when switching buffers/windows/frames
      (use-package beacon
+       :ensure t
        :config
        (setq beacon-blink-when-window-scrolls nil)
        (setq beacon-blink-when-window-changes t)
@@ -3209,39 +3210,39 @@
    - [[https://github.com/wasamasa/shackle][github]]
    - [[https://github.com/kaushalmodi/.emacs.d/blob/master/setup-files/setup-shackle.el][example usage]]
    #+BEGIN_SRC emacs-lisp
-   (use-package shackle
-     :config
-     (progn
-       (shackle-mode 1)
-       (setq shackle-rules
-             '(
-               ("*helm M-x*"            :align right :size 0.3)
-               ("*helm imenu-anywhere*" :align right :size 0.5)
-               ("*helm for files*"      :align right :size 0.5)
-               ("*undo-tree*"           :align right :size 0.25)
-               ))))
+     (use-package shackle
+       :ensure t
+       :config
+       (progn
+         (shackle-mode 1)
+         (setq shackle-rules
+               '(
+                 ("*helm M-x*"            :align right :size 0.3)
+                 ("*helm imenu-anywhere*" :align right :size 0.5)
+                 ("*helm for files*"      :align right :size 0.5)
+                 ("*undo-tree*"           :align right :size 0.25)
+                 ))))
    #+END_SRC
 ** linenumbers
    #+BEGIN_SRC emacs-lisp
-   (use-package nlinum
-     :bind (("M-g M-g" . goto-line-with-feedback))
-     :init (progn
-             (defun goto-line-with-feedback ()
-               "Show line numbers temporarily, while prompting for the line number input"
-               (interactive)
-               (unwind-protect
-                   (progn
-                     (setq display-line-numbers t)
-                     (goto-line (read-number "Goto line: ")))
-                 (setq display-line-numbers nil)))
-             )
-     :config
-     (progn
-       (setq linum-delay t)
-       ;; (global-set-key [remap goto-line] 'goto-line-with-feedback)
+     (when (version< emacs-version "27")
+       (use-package nlinum
+         :bind (("M-g M-g" . goto-line-with-feedback))
+         :config
+         (progn
+           (setq linum-delay t)
+           ;; (global-set-key [remap goto-line] 'goto-line-with-feedback)
+           ;; (setq global-nlinum-mode t)
+           )))
 
-       ;; (setq global-nlinum-mode t)
-       ))
+     (defun goto-line-with-feedback ()
+       "Show line numbers temporarily, while prompting for the line number input"
+       (interactive)
+       (unwind-protect
+           (progn
+             (setq display-line-numbers t)
+             (goto-line (read-number "Goto line: ")))
+         (setq display-line-numbers nil)))
    #+END_SRC
 ** toggle serif font
    #+BEGIN_SRC emacs-lisp
@@ -3371,8 +3372,9 @@
 ** hide show org like
    - if tab does not indent, folding is done
    #+BEGIN_SRC emacs-lisp
-   (use-package hideshow-org
-     :init (add-hook 'text-mode #'hs-org/minor-mode))
+     (use-package hideshow-org
+       :ensure t
+       :init (add-hook 'text-mode #'hs-org/minor-mode))
    #+END_SRC
 ** highlight indent
    - Minor mode to highlight indentation
@@ -3810,10 +3812,11 @@
 ** browse kill ring
    - allow to browse kill ring via M-y and insert from arbitrary positions
    #+BEGIN_SRC emacs-lisp
-   (use-package browse-kill-ring
-     ;; bind M-y to interactively browsing the kill ring buffer
-     :config
-     (browse-kill-ring-default-keybindings))
+     (use-package browse-kill-ring
+       ;; bind M-y to interactively browsing the kill ring buffer
+       :ensure t
+       :config
+       (browse-kill-ring-default-keybindings))
    #+END_SRC
 ** save-place
    - When you visit a file, point goes to the last place where it
@@ -3854,9 +3857,10 @@
 ** very large files
    - edit very large files in chunks (see [[https://github.com/m00natic/vlfi][here]])
    #+BEGIN_SRC emacs-lisp
-   (use-package vlf
-     ;; :defer 7
-     :config (require 'vlf-setup))
+     (use-package vlf
+       ;; :defer 7
+       :ensure t
+       :config (require 'vlf-setup))
    #+END_SRC
 ** volatile hightlighting
    - highlight blocks associated with buffer commands until any key is pressed
@@ -4453,13 +4457,14 @@
    #+END_SRC
 ** keyfreq
    #+BEGIN_SRC emacs-lisp
-   (use-package keyfreq
-     :config
-     (progn
-       (keyfreq-mode 1)
-       (keyfreq-autosave-mode 1)
-       ;; use M-x keyfreq-show to show the frequency of key usages
-       ))
+     (use-package keyfreq
+       :ensure t
+       :config
+       (progn
+         (keyfreq-mode 1)
+         (keyfreq-autosave-mode 1)
+         ;; use M-x keyfreq-show to show the frequency of key usages
+         ))
    #+END_SRC
 ** company
    #+BEGIN_SRC emacs-lisp
@@ -6261,9 +6266,11 @@
    (use-package python)
    (when (eq gb/completion-framework 'ivy)
      (use-package find-file-in-project
+       :ensure t
        :after ( ivy)))
    (use-package elpy
      :after ( org flycheck find-file-in-project python)
+     :ensure t
      :mode (("\\.py\\'" . python-mode))
      :init
      (add-hook 'python-mode-hook #'elpy-enable)
@@ -6284,7 +6291,7 @@
    (use-package scala-mode
      :mode "\\.s\\(cala\\|bt\\)$")
 
-   (use-package scalariform)
+   ;; (use-package scalariform)
 
    (use-package lsp-metals
      :ensure t
@@ -6840,31 +6847,26 @@
         :config
         (dumb-jump-mode))
     #+END_SRC
-** cucumber tests for emacs
+** (deactivated) cucumber tests for emacs
    mode for editing cucumber tests (*.feature)
    see [[https://github.com/ecukes/ecukes][here]]
    example project [[file:~/devel/emacs/Cask][here]]
-   #+BEGIN_SRC emacs-lisp
-   (use-package feature-mode
-     ;; :defer 7
-     )
-   (use-package ecukes
-     ;; :defer 7
-     )
-   (use-package espuds
-     ;;:defer 7
-     )
+   #+BEGIN_SRC emacs-lisp :tangle no
+   (use-package feature-mode)
+   (use-package ecukes)
+   (use-package espuds)
    #+END_SRC
 * shell
 ** eshell
    #+begin_src emacs-lisp 
      ;; provide eldoc within eshell (and some more help)
      (use-package esh-help
+       :ensure t
        :after ( eshell)
        :config (setup-esh-help-eldoc))
-     ;; provide z command in eshell  
-     (use-package eshell-z
-       :after ( eshell))
+     ;; provide z command in eshell
+     ;; (use-package eshell-z
+     ;;   :after ( eshell))
      (use-package eshell
        :config
        (progn
@@ -7620,7 +7622,8 @@
  #+BEGIN_SRC emacs-lisp
    ;; add support to send from different smtp accounts
    ;; do this before custom variables are set, otherwise send-mail-function won't be set correctly!
-   (use-package smtpmail-multi)
+   (use-package smtpmail-multi
+     :ensure t)
 
    ;; closed by gnu-lastentry!
    (use-package gnus
@@ -8113,6 +8116,7 @@
 *** csv export/import
  #+BEGIN_SRC emacs-lisp
    (use-package bbdb-csv-import
+     :ensure t
      :after ( bbdb))
  #+END_SRC
 *** extensive regex search in bbdb
@@ -9020,8 +9024,8 @@
             :after ( org)
             :load-path "~/.emacs.d/accounts/"))
     #+END_SRC
-*** german holidays into calendar
-    #+BEGIN_SRC emacs-lisp
+*** (inactive) german holidays into calendar
+    #+BEGIN_SRC emacs-lisp :tangle no
       (use-package german-holidays
         :after ( org)
         :config
@@ -9425,9 +9429,10 @@
      - use e.g. '#+BEGIN_SRC lfe :session mysession'
      - see [[https://github.com/zweifisch/ob-lfe][homepage]]
      #+BEGIN_SRC emacs-lisp
-     (use-package ob-lfe
-       ;; :defer 10
-       :after ( org))
+       (use-package ob-lfe
+         ;; :defer 10
+         :ensure t
+         :after ( org))
      #+END_SRC
 **** org babel mongo
      - use with following parameters for begin_src block
@@ -9439,9 +9444,10 @@
        :mongoexec Mongo executable
      - see [[https://github.com/krisajenkins/ob-mongo][homepage]]
      #+BEGIN_SRC emacs-lisp
-     (use-package ob-mongo
-       ;; :defer 10
-       :after ( org))
+       (use-package ob-mongo
+         :ensure t
+         ;; :defer 10
+         :after ( org))
      #+END_SRC
 **** org babel redis
      - use e.g. '#+BEGIN_SRC redis db: 127.0.0.1:6379'
@@ -9458,10 +9464,11 @@
      - src can be omitted (is then auto)
      - see [[https://github.com/krisajenkins/ob-translate][homepage]]
      #+BEGIN_SRC emacs-lisp
-     (use-package ob-translate
-       ;; :defer 10
-       ;; :after ( org)
-       )
+       (use-package ob-translate
+         ;; :defer 10
+         ;; :after ( org)
+         :ensure t
+         )
      #+END_SRC
 **** org babel typescript
      - patch, see https://emacs.stackexchange.com/questions/55690/org-babel-javascript-error
@@ -9489,10 +9496,11 @@
      #+END_SRC
 **** org babel browser
      #+BEGIN_SRC emacs-lisp
-     (use-package ob-browser
-       ;; :defer 10
-       ;; :after ( org)
-       )
+       (use-package ob-browser
+         ;; :defer 10
+         ;; :after ( org)
+         :ensure t
+         )
      #+END_SRC
 *** ob async
     - add ':async t' to #begin_src header, execution of block (C-c C-c within babel block) executes asynchronously)
@@ -11120,11 +11128,12 @@
    #+END_SRC
 ** dired quick sort
    #+BEGIN_SRC emacs-lisp
-   (when gnu-ls-installed
-     (use-package dired-quick-sort
-       :after ( dired hydra)
-       :config
-       (dired-quick-sort-setup)))
+     (when gnu-ls-installed
+       (use-package dired-quick-sort
+         :ensure t
+         :after ( dired hydra)
+         :config
+         (dired-quick-sort-setup)))
    #+END_SRC
 ** dired sort
    #+BEGIN_SRC emacs-lisp
@@ -11136,13 +11145,12 @@
 ** dired+
    - adds nice coloring to expanded view of dired (coloring date part etc.)
    #+BEGIN_SRC emacs-lisp
-   ;; adds lots of functions all starting with diredp-
-   (use-package dired+
-     :load-path "~/.emacs.d/additionals/"
-     :config (bind-key "s-!" 'diredp-async-shell-command-this-file dired-mode-map)
-             (bind-key "C-p" 'diredp-previous-line dired-mode-map)
-
-     )
+     ;; adds lots of functions all starting with diredp-
+     (when (file-exists-p "~/.emacs.d/additionals/dired+.el")
+       (use-package dired+
+         :load-path "~/.emacs.d/additionals/"
+         :config (bind-key "s-!" 'diredp-async-shell-command-this-file dired-mode-map)
+         (bind-key "C-p" 'diredp-previous-line dired-mode-map)))
    #+END_SRC
 ** dired rainbow
    #+BEGIN_SRC emacs-lisp
@@ -11231,6 +11239,7 @@
         :init (add-to-list 'company-backends 'company-nixos-options))
       (use-package nix-mode))
     (use-package direnv
+      :ensure t
       :config
       (direnv-mode)
       (setq direnv-use-faces-in-summary nil)
@@ -11248,10 +11257,11 @@
    #+end_src
 ** switch buffer expose
    #+begin_src emacs-lisp
-   (use-package buffer-expose
-     :load-path "~/.emacs.d/additionals/buffer-expose/"
-     :bind (( "s-e" . #'buffer-expose))
-     :config (setq buffer-expose-show-current-buffer t))
+     (when (file-exists-p "~/.emacs.d/additionals/buffer-expose/buffer-expose.el")
+       (use-package buffer-expose
+         :load-path "~/.emacs.d/additionals/buffer-expose/"
+         :bind (( "s-e" . #'buffer-expose))
+         :config (setq buffer-expose-show-current-buffer t)))
    #+end_src
 ** switch buffers
    #+begin_src emacs-lisp
@@ -11456,9 +11466,10 @@
    #+END_SRC
 ** flycheck gradle
    #+BEGIN_SRC emacs-lisp
-   (use-package flycheck-gradle
-     :after ( flycheck)
-     :config (flycheck-gradle-setup))
+     (use-package flycheck-gradle
+       :ensure t
+       :after ( flycheck)
+       :config (flycheck-gradle-setup))
    #+END_SRC
 ** cakecrumbs (show hierarchy in header for css and html)
    #+BEGIN_SRC emacs-lisp
@@ -11597,7 +11608,8 @@
 ** edit-at-point
    - edit(copy,cut..) current things(word,symbol..) under cursor
    #+BEGIN_SRC emacs-lisp
-   (use-package edit-at-point)
+     (use-package edit-at-point
+       :ensure t)
    #+END_SRC
 ** eno, ace like copy, cut, past and move
    #+BEGIN_SRC emacs-lisp
@@ -11665,6 +11677,7 @@
    #+BEGIN_SRC emacs-lisp
      (when (eq gb/completion-framework 'ivy)
        (use-package ivy-hydra
+         :ensure t
          :after ( hydra ivy))) ;; adds an hydra for ivy/swiper TODO: include into own hydras
    #+END_SRC
 #+BEGIN_SRC emacs-lisp
@@ -11688,8 +11701,9 @@
 #+END_SRC
 ** company bib tex
    #+BEGIN_SRC emacs-lisp
-   (use-package company-bibtex
-     :after ( company tex-mode)) ;; add bibtex references using company
+     (use-package company-bibtex
+       :ensure t
+       :after ( company tex-mode)) ;; add bibtex references using company
    #+END_SRC
 #+BEGIN_SRC emacs-lisp
 (report-elapsed "check point - bib tex")
@@ -11822,10 +11836,11 @@
 ** org edit latex (edit latex code in separate buffer)
    - see [[https://github.com/et2010/org-edit-latex][here]]
    #+BEGIN_SRC emacs-lisp
-   (use-package org-edit-latex
-     ;; :after ( org tex-mode)
-     ;; :defer 60
-     )
+     (use-package org-edit-latex
+       :ensure t
+       ;; :after ( org tex-mode)
+       ;; :defer 60
+       )
    #+END_SRC
 ** helm books
    - allows searching for book titles using the google book api with helm
@@ -12137,12 +12152,13 @@
       :init
       (add-hook 'scribble-mode-hook #'racket-mode))
 
-    (use-package ob-racket
-      :load-path "~/.emacs.d/additionals/ob-racket/"
-      :after org
-      :config
-      (add-to-list 'org-babel-load-languages '(racket . t))
-      (org-babel-do-load-languages 'org-babel-load-languages org-babel-load-languages))
+    (when (file-exists-p "~/.emacs.d/additionals/ob-racket/ob-racket.el")
+      (use-package ob-racket
+        :load-path "~/.emacs.d/additionals/ob-racket/"
+        :after org
+        :config
+        (add-to-list 'org-babel-load-languages '(racket . t))
+        (org-babel-do-load-languages 'org-babel-load-languages org-babel-load-languages)))
   #+end_src
 * shell-pop
   #+begin_src emacs-lisp
@@ -13853,8 +13869,8 @@
        :keymap 'debugger-mode-map
        :transient t))
   #+end_src
-* EVAL scihub (access to otherwise under copyright inaccessible research papers etc.)
-  #+begin_src emacs-lisp
+* (inactive) EVAL scihub (access to otherwise under copyright inaccessible research papers etc.)
+  #+begin_src emacs-lisp :tangle no
     (use-package scihub
       :config
       (setq scihub-download-directory "~/Downloads"))
@@ -14323,21 +14339,23 @@
   #+end_src
 * maxima
   #+begin_src emacs-lisp
-    (setq maxima-elisp-loadpath
-          (if running-nixos
-              (s-concat (s-trim (shell-command-to-string "dirname $(readlink -f $(command -v maxima))")) "/../share/emacs/site-lisp")
-            "~/.emacs.d/additionals/maxima"))
+    (eval-when-compile
+      (defun gb/maxima-elisp-loadpath ()
+        (cond ((or running-nixos (string-match-p "guix-profile" (executable-find "maxima")))
+               (s-concat (s-trim (shell-command-to-string "dirname $(readlink -f $(command -v maxima))")) "/../share/emacs/site-lisp"))
+              (t "~/.emacs.d/additionals/maxima"))))
 
-    (use-package imaxima
-      :load-path maxima-elisp-loadpath
-      :commands (imaxima)
-      :ensure-system-package maxima
-      :custom (imaxima-use-maxima-mode-flag t)
-              (imaxima-fnt-size "LARGE"))
-    (use-package imath
-      :load-path maxima-elisp-loadpath)
-    (use-package maxima
-      :load-path maxima-elisp-loadpath)
+    (when (gb/maxima-elisp-loadpath)
+      (use-package imaxima
+        :load-path (lambda () (gb/maxima-elisp-loadpath))
+        :commands (imaxima)
+        :ensure-system-package maxima
+        :custom (imaxima-use-maxima-mode-flag t)
+        (imaxima-fnt-size "LARGE"))
+      (use-package imath
+        :load-path (lambda () (gb/maxima-elisp-loadpath)))
+      (use-package maxima
+        :load-path (lambda () (gb/maxima-elisp-loadpath))))
 
 
 
@@ -14418,7 +14436,8 @@
   - activate this minor mode on e.g. web browsers that do lots of background processing
   - this mode will then send signals to limit cpu usage if that buffer is not visible
   #+begin_src emacs-lisp
-    (use-package cpu-sos)
+    (use-package cpu-sos
+      :ensure t)
   #+end_src
 * EVAL bookmark+
   - for more info, see https://www.emacswiki.org/emacs/BookmarkPlus
@@ -14509,6 +14528,7 @@
   - see https://github.com/chenyanming/shrface
   #+begin_src emacs-lisp
     (use-package shrface
+      :ensure t
       :config
       (shrface-basic) ; enable shrfaces, must be called before loading eww/dash-docs/nov.el
       (shrface-trial) ; enable shrface experimental face(s), must be called before loading eww/dash-docs/nov.el
@@ -14650,6 +14670,7 @@
 * EVAL ess - statistics package for emacs
   #+begin_src emacs-lisp
     (use-package ess
+      :ensure t
       :config (require 'ess-r-mode))
   #+end_src
 * fragtog - replace latex fragments with graphics, entering the original text cursor moves over the graphics
@@ -14700,15 +14721,16 @@
   #+end_src
 * EVAL org-padding - define padding for each org mode heading level
   #+begin_src emacs-lisp
-    (use-package org-padding
-      :load-path "~/.emacs.d/additionals/"
-      :config
-      ;; (remove-hook 'org-mode-hook #'org-padding-mode)
-      (setq org-padding-block-begin-line-padding '(2.0 . nil))
-      (setq org-padding-block-end-line-padding '(nil . 1.0))
-      (setq org-padding-heading-padding-alist
-            '((4.0 . 1.5) (3.0 . 0.5) (3.0 . 0.5) (3.0 . 0.5) (2.5 . 0.5) (2.0 . 0.5) (1.5 . 0.5) (0.5 . 0.5)))
-      )
+    (when (file-exists-p "~/.emacs.d/additionals/org-padding.el")
+      (use-package org-padding
+        :load-path "~/.emacs.d/additionals/"
+        :config
+        ;; (remove-hook 'org-mode-hook #'org-padding-mode)
+        (setq org-padding-block-begin-line-padding '(2.0 . nil))
+        (setq org-padding-block-end-line-padding '(nil . 1.0))
+        (setq org-padding-heading-padding-alist
+              '((4.0 . 1.5) (3.0 . 0.5) (3.0 . 0.5) (3.0 . 0.5) (2.5 . 0.5) (2.0 . 0.5) (1.5 . 0.5) (0.5 . 0.5)))
+        ))
   #+end_src
 * EVAL find-file-rg - use ripgrep for find file in projects (can be configured e.g. in ~.ignore~ or ~.gitignore~ files)
   #+begin_src emacs-lisp
@@ -14941,17 +14963,19 @@
     - links, backlinks, date last modified, date the link established on, tag usage
     - format is: <modification> <icon> ( <tags-of-zettel> ) <n-incoming-links> <zettel-title> <m-outgoing-links>
   #+begin_src emacs-lisp
-    (use-package lister
-      :load-path "~/repo/lister")
-    (use-package delve
-      :load-path "~/repo/delve/"
-      :commands (delve-open-or-select)
-      :bind (:map delve-mode-map
-                  ("C-l" . #'recenter-top-bottom))
-      :config
-       (use-package delve-minor-mode
+    (when (and (file-exists-p "~/repo/lister/lister.el")
+             (file-exists-p "~/repo/delve/delve.el"))
+      (use-package lister
+        :load-path "~/repo/lister")
+      (use-package delve
+        :load-path "~/repo/delve/"
+        :commands (delve-open-or-select)
+        :bind (:map delve-mode-map
+                    ("C-l" . #'recenter-top-bottom))
         :config
-        (add-hook 'org-mode-hook #'delve-minor-mode-maybe-activate)))
+        (use-package delve-minor-mode
+          :config
+          (add-hook 'org-mode-hook #'delve-minor-mode-maybe-activate))))
   #+end_src
 * EVAL hardhat - make files r/o that should not be editable
   #+begin_src emacs-lisp
@@ -14989,13 +15013,14 @@
     one method needed adjust to make idle gc not go over 10s idle time
   - seems to be fixed by setting the max idle time to 10s, never longer even in auto mode!
   #+begin_src emacs-lisp
-    (use-package gcmh
-      :load-path "~/repo/gcmh/"
-      :demand t
-      :custom
-      (gcmh-verbose t)
-      (gcmh-idle-delay 'auto)
-      :config (gcmh-mode 1))
+    (when (file-exists-p "~/repo/gcmh/gcmh.el")
+      (use-package gcmh
+        :load-path "~/repo/gcmh/"
+        :demand t
+        :custom
+        (gcmh-verbose t)
+        (gcmh-idle-delay 'auto)
+        :config (gcmh-mode 1)))
   #+end_src
 * EVAL regexp-expand - show regular expression at point expanded
   - see [[https://github.com/danielmartin/regexp-expand][here]]
@@ -15022,10 +15047,11 @@
   #+end_src
 * org-roam-stack
   #+begin_src emacs-lisp
-    (use-package org-roam-stack
-      :load-path "~/repo/org-roam-stack/"
-      :custom (org-roam-stack--link-adjustments t)
-      (org-roam-stack--open-ro t))
+    (when (file-exists-p "~/repo/org-roam-stack/org-roam-stack.el")
+      (use-package org-roam-stack
+        :load-path "~/repo/org-roam-stack/"
+        :custom (org-roam-stack--link-adjustments t)
+        (org-roam-stack--open-ro t)))
   #+end_src
 * proced
   #+begin_src emacs-lisp
@@ -15179,7 +15205,9 @@
   #+end_src
 * TODO dired-annotator - make package of this
   #+begin_src emacs-lisp
-    ;; scratchpad
+    (use-package uuid
+      :ensure t)
+
     (require 'simple)
     (require 'all-the-icons) ;; TODO: make optional (use unicode char)
     (require 'uuid)
