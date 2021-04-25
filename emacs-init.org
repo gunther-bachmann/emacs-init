@@ -12419,7 +12419,7 @@
            "put laptop into suspension (soft off, still uses power to keep memory up to date)"
            (interactive)
            (shell-command-to-string "sudo systemctl stop bluetooth.service") ;; just to make sure
-           (if (not (string-empty-p (shell-command-to-string "pgrep duplicity")))
+           (if (gb/backup-is-running)
                (message "Running duplicity (backup), suspend aborted.")
              (when (gnus-buffers)
                (message "exiting gnus")
@@ -15020,32 +15020,6 @@
       :load-path "~/repo/emacs-diredc"
       :commands (diredc))
   #+end_src
-* backup duplicity support
-  #+begin_src emacs-lisp
-    (defun gb/backup-log-open ()
-      "open the backup log"
-      (interactive)
-      (let ((buf (generate-new-buffer "backup log")))
-        (with-current-buffer buf
-          (switch-to-buffer buf)
-          (setq buffer-offer-save nil)
-          (text-mode)
-          (shell-command "journalctl --user-unit backup-drive.service --since -2w" (current-buffer))
-          (end-of-buffer)
-          (read-only-mode 1))))
-
-    (defun gb/backup-collection-status ()
-      "try to read the duplicity collections from backup medium"
-      (interactive)
-      (let ((buf (generate-new-buffer "collection status")))
-        (with-current-buffer buf
-          (switch-to-buffer buf)
-          (setq buffer-offer-save nil)
-          (text-mode)
-          (shell-command "duplicity-backup.sh collection-status" (current-buffer))
-          (end-of-buffer)
-          (read-only-mode 1))))
-  #+end_src
 * org-roam-stack
   #+begin_src emacs-lisp
     (use-package org-roam-stack
@@ -15170,6 +15144,40 @@
         ))
   #+end_src
 * udisksctl - make package of this
+* TODO backup duplicity support - make package
+  #+begin_src emacs-lisp
+    (defun gb/backup-log-open ()
+      "open the backup log"
+      (interactive)
+      (let ((buf (generate-new-buffer "backup log")))
+        (with-current-buffer buf
+          (switch-to-buffer buf)
+          (setq buffer-offer-save nil)
+          (text-mode)
+          (shell-command "journalctl --user-unit backup-drive.service --since -2w" (current-buffer))
+          (end-of-buffer)
+          (read-only-mode 1))))
+
+    (defun gb/backup-collection-status ()
+      "try to read the duplicity collections from backup medium"
+      (interactive)
+      (let ((buf (generate-new-buffer "collection status")))
+        (with-current-buffer buf
+          (switch-to-buffer buf)
+          (setq buffer-offer-save nil)
+          (text-mode)
+          (shell-command "duplicity-backup.sh collection-status" (current-buffer))
+          (end-of-buffer)
+          (read-only-mode 1))))
+
+    (defun gb/backup-is-running ()
+      "is a backup currently running?"
+      (not (string-empty-p (shell-command-to-string "pgrep duplicity"))))
+
+    (defun gb/backup-mount ()
+      "get the mount into which a backup is usually writing"
+      "684110cc-325f-4307-bce0-843930ff7de6")
+  #+end_src
   #+begin_src emacs-lisp
     (defvar gb/udisksctl--ignore-devices '("nvme0n1") "list of devices to ignore")
 
