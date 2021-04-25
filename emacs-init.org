@@ -1694,7 +1694,7 @@
 * browser
 ** w3m
    #+BEGIN_SRC emacs-lisp
-   (if w3m-installed
+   (when w3m-installed
        (use-package w3m
          :commands w3m w3m-search w3m-browse-url
          :ensure t
@@ -6950,12 +6950,13 @@
      (require 'comint) ;; part of emacs
      (setq comint-password-prompt-regexp
            ;; (concat comint-password-prompt-regexp
-           "\\(passphrase \\|PIN: \\|password\\|Password\\).*\\'" ;; [:blank:]?:[:blank:]*
+           "\\(passphrase\\|PIN: \\|password\\|Password\\).*\\'" ;; [:blank:]?:[:blank:]*
            ;; )
            )
 
      (setq-default sh-basic-offset 2)
      (setq-default sh-indentation 2)
+     (setq async-shell-command-display-buffer t)
      ;; (setq comint-scroll-show-maximum-output nil)
      ;; (setq term-scroll-show-maximum-output nil)
      ;; (setq eshell-scroll-show-maximum-output nil)
@@ -8497,6 +8498,7 @@
         ;;           (setq buffer-read-only t)))))
 
         :config
+        (setq org-startup-folded 'fold) ;; "ensure opened org files are opened in overview (folded)"
         (setq org-agenda-files '("~/slack.org" "~/itemis.org"))
         (setq gb/use-optimized-folded-src-fontificat nil) ;; fontify src blocks only if they ar not folded!
         (setq org-catch-invisible-edits t)
@@ -8893,7 +8895,7 @@
     - org-gcal-fetch: initially fetch all calendar events into org files (before fetch, the org files should be completely empty!)
     - org-gcal-post-at-point: post/edit org block at point to google calendar
     - org-gcal-referesh-token: refresh oauth token (expires in 1h)
-    #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp :tangle no
     (when calendar-accounts-exists
       (use-package org-gcal
         :after ( calendar-accounts org)
@@ -8904,7 +8906,7 @@
             (gb/load-calendar-credentials))))
     #+END_SRC
 *** caldav sync
-    #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp :tangle no
     (when calendar-accounts-exists
       (use-package org-caldav
         :after ( org calendar-accounts oauth2)
@@ -9080,17 +9082,15 @@
 *** hide passwords in org files
     - loaded from [[https://raw.githubusercontent.com/jekor/hidepw/master/hidepw.el][here]]
     - hides passwords in password manager (any entry with ':PASSWORD:')
-    - TODO: now in melpa (use-package hidepw)
     #+BEGIN_SRC emacs-lisp
-      (if (file-exists-p "~/.emacs.d/additionals/hidepw.el")
-          (use-package hidepw
-            :load-path "~/.emacs.d/additionals/"
-            :after ( org)
-            ;; :init (progn (add-hook 'org-mode-hook  'hidepw-mode))
-            :config
-            (progn
-              (setq hidepw-pattern ":.*PASS.*: \\(.*\\)")))
-        (message "WARNING: hidepw.el not found. passwords will not be hidden in gpg files."))
+      (use-package hidepw
+        ;; :load-path "~/.emacs.d/additionals/"
+        :ensure t
+        :after ( org)
+        ;; :init (progn (add-hook 'org-mode-hook  'hidepw-mode))
+        :config
+        (progn
+          (setq hidepw-pattern ":.*PASS.*: \\(.*\\)")))
     #+END_SRC
 *** export modules (e.g. ox-confluence)
  #+BEGIN_SRC emacs-lisp :tangle no
@@ -13125,30 +13125,6 @@
           (exwm-input-set-key (kbd "C-S-s-a") #'(lambda () (interactive) (gb/exwm-insert-string-anywhere "Ä")))
           (exwm-input-set-key (kbd "C-S-s-u") #'(lambda () (interactive) (gb/exwm-insert-string-anywhere "Ü")))
 
-          ;; aws browsing
-          (exwm-input-set-key (kbd "C-c a a c") #'gb/aws-code-commit-browse)
-          (exwm-input-set-key (kbd "C-c a a e") #'gb/aws-ec2-browse)
-          (exwm-input-set-key (kbd "C-c a a p") #'gb/aws-pipeline-browse)
-          (exwm-input-set-key (kbd "C-c a a s") #'gb/aws-s3-browse)
-
-          (setq gb/aws-region "eu-central-1")
-          (defun gb/aws-code-commit-browse ()
-            "browse to aws service console for code commit"
-            (interactive)
-            (browse-url (format "https://eu-central-1.console.aws.amazon.com/codesuite/codecommit/repositories?region=%s" gb/aws-region)))
-          (defun gb/aws-ec2-browse ()
-            "browse to aws service console for ec2"
-            (interactive)
-            (browse-url (format "https://eu-central-1.console.aws.amazon.com/ec2/v2/home?region=%s" gb/aws-region)))
-          (defun gb/aws-pipeline-browse ()
-            "browse to aws service console for code pipline"
-            (interactive)
-            (browse-url (format "https://eu-central-1.console.aws.amazon.com/codesuite/codepipeline/pipelines?region=%s" gb/aws-region)))
-          (defun gb/aws-s3-browse ()
-            "browse to aws service console for s3"
-            (interactive)
-            (browse-url (format "https://s3.console.aws.amazon.com/s3/home?region=%s" gb/aws-region)))
-
           (setq gb/simulation-keys
                 `(
                   ;; see http://ergoemacs.org/emacs/keystroke_rep.html for syntax of key definition
@@ -13847,8 +13823,8 @@
     (use-package sysctl
       :commands (sysctl))
   #+end_src
-* EVAL dianyou (gnus mail searching see https://github.com/redguardtoo/dianyou/blob/master/dianyou.el)
-  #+begin_src emacs-lisp
+* EVAL (DISABLED) dianyou (gnus mail searching see https://github.com/redguardtoo/dianyou/blob/master/dianyou.el)
+  #+begin_src emacs-lisp :tangle no
     (use-package dianyou
       :ensure t)
   #+end_src
@@ -15395,6 +15371,7 @@
   - company-ledger - fuzzy autocomplete for ledger and friends
   - helm-org-ql - Helm commands for org-ql
   - company-maxima - maxima integration
+  - consult-lsp - LSP-mode Consult integration
 ** cloud
    - axe - aws interface (directly through aws api, no aws-cli)
 ** configuration
