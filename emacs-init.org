@@ -9094,7 +9094,7 @@
         ;; :init (progn (add-hook 'org-mode-hook  'hidepw-mode))
         :config
         (progn
-          (setq hidepw-pattern ":.*PASS.*: \\(.*\\)")))
+          (setq hidepw-patterns '(":.*PASS.*: \\(.*\\)"))))
     #+END_SRC
 *** export modules (e.g. ox-confluence)
  #+BEGIN_SRC emacs-lisp :tangle no
