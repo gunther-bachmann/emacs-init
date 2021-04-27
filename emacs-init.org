@@ -15256,6 +15256,10 @@
 
     (defvar-local dired-annotator--icons-shown nil "are icons currently shown in the dired buffer")
 
+    ;; make sure folder exists
+    (unless (file-directory-p dired-annotator-annotations-folder)
+      (make-directory dired-annotator-annotations-folder t))
+
     ;; --------------------------------------------------------------------------------
     (defun dired-annotator--os-prerequisites-met? ()
       "are all os prerequisites met?"
