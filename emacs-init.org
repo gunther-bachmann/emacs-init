@@ -6344,6 +6344,7 @@
 ** yafolding
    #+begin_src emacs-lisp
      (use-package yafolding
+       :ensure t
        :hook (prog-mode . yafolding-mode)
        :config
        (advice-add 'yafolding-hide-region :after #'(lambda (&rest args) (when (and (fboundp 'minimap-mode) minimap-mode) (minimap-sync-overlays))))
@@ -13343,13 +13344,19 @@
     (defun gb/net-vpn-switch-on ()
       "switch vpn on"
       (interactive)
-      (let ((vpn-id (completing-read "vpn:" (gb/get-vpns-available) nil t)))
+      (let* ((available-vpns (gb/get-vpns-available))
+             (vpn-id (if (= 1 (list-length available-vpns))
+                         (car available-vpns)
+                       (completing-read "vpn:" available-vpns nil t))))
         (message (s-trim (shell-command-to-string (format "sudo systemctl start %s" vpn-id))))))
 
     (defun gb/net-vpn-switch-off ()
       "switch vpn off"
       (interactive)
-      (let ((vpn-id (completing-read "vpn:" (gb/get-vpns-available) nil t)))
+      (let* ((available-vpns (gb/get-vpns-available))
+             (vpn-id (if (= 1 (list-length available-vpns))
+                         (car available-vpns)
+                       (completing-read "vpn:" available-vpns nil t))))
         (message (s-trim (shell-command-to-string (format "sudo systemctl stop %s" vpn-id))))))
 
     (defun gb/net-vpn-log-show ()
@@ -14341,9 +14348,10 @@
   #+begin_src emacs-lisp
     (eval-when-compile
       (defun gb/maxima-elisp-loadpath ()
-        (cond ((or running-nixos (string-match-p "guix-profile" (executable-find "maxima")))
-               (s-concat (s-trim (shell-command-to-string "dirname $(readlink -f $(command -v maxima))")) "/../share/emacs/site-lisp"))
-              (t "~/.emacs.d/additionals/maxima"))))
+        (when-let ((maxima-executable (executable-find "maxima")))
+          (cond ((or running-nixos (string-match-p "guix-profile" maxima-executable))
+                 (s-concat (s-trim (shell-command-to-string "dirname $(readlink -f $(command -v maxima))")) "/../share/emacs/site-lisp"))
+                (t "~/.emacs.d/additionals/maxima")))))
 
     (when (gb/maxima-elisp-loadpath)
       (use-package imaxima
@@ -15171,17 +15179,41 @@
   #+end_src
 * TODO backup duplicity support - make package
   #+begin_src emacs-lisp
-    (defun gb/backup-log-open ()
-      "open the backup log"
-      (interactive)
-      (let ((buf (generate-new-buffer "backup log")))
+    (defvar gb/backup-service-name "backup-drive.service" "the systemd service name that is used to start backups")
+    (defvar gb/backup-mount "684110cc-325f-4307-bce0-843930ff7de6" "get the mount into which a backup is usually writing")
+
+    (cl-defun gb/systemd-service-log-open (service-name &key user-service? weeks)
+      "open a log for the given SERIVCE-NAME which can be a USER-SERVICE? for the last WEEKS"
+      (let ((buf (generate-new-buffer (format "%s log" service-name))))
         (with-current-buffer buf
           (switch-to-buffer buf)
           (setq buffer-offer-save nil)
           (text-mode)
-          (shell-command "journalctl --user-unit backup-drive.service --since -2w" (current-buffer))
+          (let ((user-parameter (if user-service? "--user-unit" ""))
+                (actual-weeks (or weeks "2")))
+            (shell-command (format "journalctl %s %s --since -%sw" user-parameter service-name actual-weeks) (current-buffer)))
           (end-of-buffer)
           (read-only-mode 1))))
+
+    (cl-defun gb/systemd-service-command (service-name command &key user-service?)
+      "execute COMMAND using systemd on SERIVCE-NAME"
+      (let ((user-param (if user-service? "--user" "")))
+        (shell-command-to-string (format "systemctl %s %s %s" user-param command service-name))))
+
+    (defun gb/backup-stop-timer-service-off ()
+      "stop the timer that starts backups"
+      (interactive)
+      (gb/systemd-service-command gb/backup-service-name "stop" :user-service? t))
+
+    (defun gb/backup-timer-service-on ()
+      "start the timer that starts backups"
+      (interactive)
+      (gb/systemd-service-command gb/backup-service-name "start" :user-service? t))
+
+    (defun gb/backup-log-open ()
+      "open the backup log"
+      (interactive)
+      (gb/systemd-service-log-open gb/backup-service-name :user-service? t))
 
     (defun gb/backup-collection-status ()
       "try to read the duplicity collections from backup medium"
@@ -15198,10 +15230,6 @@
     (defun gb/backup-is-running ()
       "is a backup currently running?"
       (not (string-empty-p (shell-command-to-string "pgrep duplicity"))))
-
-    (defun gb/backup-mount ()
-      "get the mount into which a backup is usually writing"
-      "684110cc-325f-4307-bce0-843930ff7de6")
   #+end_src
 * TODO dired-annotator - make package of this
   #+begin_src emacs-lisp
@@ -15534,7 +15562,7 @@
 
     (defun gb/udisksctl--get-mounts (device)
       (--filter
-       (not (and (string-match-p (format ".*%s$" (gb/backup-mount)) (nth 2 (split-string it " "))) (gb/backup-is-running)))
+       (not (and (string-match-p (format ".*%s$" gb/backup-mount) (nth 2 (split-string it " "))) (gb/backup-is-running)))
        (s-split "\n" (s-trim (shell-command-to-string (format  "mount | grep -e '^%s'" device))))))
 
     (defun gb/udisksctl--completing-read-mount (device)
