@@ -1,0 +1,514 @@
+#+title: polybar config
+* TODO config
+  #+begin_src conf :eval no :tangle ~/.config/polybar/config
+    ; see https://github.com/polybar/polybar/wiki
+    [colors]
+    ;background = ${xrdb:color0:#222}
+    background = #251422
+    background-alt = #444
+    ;foreground = ${xrdb:color7:#222}
+    foreground = #8f8f8f
+    foreground-alt = #555
+    primary = #ffb52a
+    secondary = #e60053
+    alert = #bd2c40
+
+    [bar/default]
+    monitor = ${env:MONITOR:}
+    width = 100%
+    height = 20
+    ;offset-x = 1%
+    ;offset-y = 1%
+    radius = 6.0
+    fixed-center = false
+
+    background = ${colors.background}
+    foreground = ${colors.foreground}
+
+    ; line-size = 3
+    ; line-color = #f00
+
+    ; underline-size = 1
+    ; underline-color = #606060
+
+    border-bottom-size = 1
+    border-bottom-color = #504050
+
+    padding-left = 0
+    padding-right = 2
+
+    module-margin-left = 1
+    module-margin-right = 2
+
+    font-0 = Terminus:size=9;0
+    ; font-0 = Terminus:size=10;0
+    ; font-0 = fixed:pixelsize=10;1
+    ; font-1 = unifont:fontformat=truetype:size=8:antialias=false;0
+    ; font-2 = FontAwesome:size=10;0
+    ; font-3 = material\-wifi:size=10;0
+    ; font-4 = Terminus:size=10;0
+    ; font-5 = siji:pixelsize=10;0
+    ; font-6 = MaterialIcons:size=10;0
+
+    modules-left = date filesystem mounts
+    ; modules-center = date
+    modules-right = backup memory cpu system-cpu-temppercore system-fan-speed cpu-clock vpn-service wired-network wireless-network power-consumption battery
+    ; xbacklight volume xkeyboard temperature date powermenu
+    tray-position = none
+    ;tray-padding = 2
+    ;tray-transparent = true
+    ;tray-background = #0063ff
+
+    [module/filesystem]
+    type = internal/fs
+    mount-0 = /
+    mount-1 = /home
+    interval = 10
+    fixed-values = true
+    spacing = 1
+    format-mounted = <label-mounted>
+
+    ; Available tags:
+    ;   <label-unmounted> (default)
+    format-unmounted = <label-unmounted>
+
+    ; Available tokens:
+    ;   %mountpoint%
+    ;   %type%
+    ;   %fsname%
+    ;   %percentage_free%
+    ;   %percentage_used%
+    ;   %total%
+    ;   %free%
+    ;   %used%
+    ; Default: %mountpoint% %percentage_free%%
+    label-mounted = [%mountpoint% %free%]
+
+
+    [module/memory]
+    type = internal/memory
+
+    ; Seconds to sleep between updates
+    ; Default: 1
+    interval = 3
+
+    format = <label> <bar-used>
+
+    label = %gb_used%
+
+    ; Only applies if <bar-used> is used
+    bar-used-indicator =
+    bar-used-width = 10
+    bar-used-foreground-0 = #55aa55
+    bar-used-foreground-1 = #557755
+    bar-used-foreground-2 = #f5a70a
+    bar-used-foreground-3 = #ff5555
+    bar-used-fill = ▐
+    bar-used-empty = ▐
+    bar-used-empty-foreground = #444444
+
+    ; Only applies if <ramp-used> is used
+    ramp-used-0 = ▁
+    ramp-used-1 = ▂
+    ramp-used-2 = ▃
+    ramp-used-3 = ▄
+    ramp-used-4 = ▅
+    ramp-used-5 = ▆
+    ramp-used-6 = ▇
+    ramp-used-7 = █
+
+    ; Only applies if <ramp-free> is used
+    ramp-free-0 = ▁
+    ramp-free-1 = ▂
+    ramp-free-2 = ▃
+    ramp-free-3 = ▄
+    ramp-free-4 = ▅
+    ramp-free-5 = ▆
+    ramp-free-6 = ▇
+    ramp-free-7 = █
+
+    [module/cpu]
+    type = internal/cpu
+
+    ; Seconds to sleep between updates
+    ; Default: 1
+    interval = 1
+
+    ; Available tags:
+    ;   <label> (default)
+    ;   <bar-load>
+    ;   <ramp-load>
+    ;   <ramp-coreload>
+    format = <label> <ramp-coreload>
+
+    ; Available tokens:
+    ;   %percentage% (default) - total cpu load averaged over all cores
+    ;   %percentage-sum% - Cumulative load on all cores
+    ;   %percentage-cores% - load percentage for each core
+    ;   %percentage-core[1-9]% - load percentage for specific core
+    label = α %percentage:3%%
+
+    ; Spacing between individual per-core ramps
+    ramp-coreload-spacing = 0
+    ramp-coreload-0 = ▁
+    ramp-coreload-1 = ▂
+    ramp-coreload-2 = ▃
+    ramp-coreload-3 = ▄
+    ramp-coreload-4 = ▅
+    ramp-coreload-5 = ▆
+    ramp-coreload-6 = ▇
+    ramp-coreload-7 = █
+
+    [module/wired-network]
+    type = internal/network
+    interface = enp0s31f6
+
+    ; Available tags:
+    ;   <label-connected> (default)
+    ;   <ramp-signal>
+    format-connected = <label-connected>
+
+    ; Available tags:
+    ;   <label-disconnected> (default)
+    format-disconnected = <label-disconnected>
+
+    ; Available tags:
+    ;   <label-connected> (default)
+    ;   <label-packetloss>
+    ;   <animation-packetloss>
+    format-packetloss = <animation-packetloss> <label-connected>
+
+    ; All labels support the following tokens:
+    ;   %ifname%    [wireless+wired]
+    ;   %local_ip%  [wireless+wired]
+    ;   %local_ip6% [wireless+wired]
+    ;   %essid%     [wireless]
+    ;   %signal%    [wireless]
+    ;   %upspeed%   [wireless+wired]
+    ;   %downspeed% [wireless+wired]
+    ;   %linkspeed% [wired]
+
+    ; Default: %ifname% %local_ip%
+    label-connected = %ifname% %downspeed:8%↓ %upspeed:8%↑
+    label-connected-foreground = #8f8f8f
+
+    ; Default: (none)
+    label-disconnected = lan
+    label-disconnected-foreground = #46ffffff
+
+    [module/tethered-network]
+    type = internal/network
+    interface = enp0s20f0u5
+
+    ; Available tags:
+    ;   <label-connected> (default)
+    ;   <ramp-signal>
+    format-connected = <label-connected>
+
+    ; Available tags:
+    ;   <label-disconnected> (default)
+    format-disconnected = <label-disconnected>
+
+    ; Available tags:
+    ;   <label-connected> (default)
+    ;   <label-packetloss>
+    ;   <animation-packetloss>
+    format-packetloss = <animation-packetloss> <label-connected>
+
+    ; All labels support the following tokens:
+    ;   %ifname%    [wireless+wired]
+    ;   %local_ip%  [wireless+wired]
+    ;   %local_ip6% [wireless+wired]
+    ;   %essid%     [wireless]
+    ;   %signal%    [wireless]
+    ;   %upspeed%   [wireless+wired]
+    ;   %downspeed% [wireless+wired]
+    ;   %linkspeed% [wired]
+
+    ; Default: %ifname% %local_ip%
+    label-connected = %ifname% %downspeed:8%↓ %upspeed:8%↑
+    label-connected-foreground = #8f8f8f
+
+    ; Default: (none)
+    label-disconnected = teth
+    label-disconnected-foreground = #46ffffff
+
+    [module/wireless-network]
+    type = internal/network
+    interface = wlp4s0
+
+    ; Available tags:
+    ;   <label-connected> (default)
+    ;   <ramp-signal>
+    format-connected = <ramp-signal> <label-connected>
+
+    ; Available tags:
+    ;   <label-disconnected> (default)
+    format-disconnected = <label-disconnected>
+
+    ; Available tags:
+    ;   <label-connected> (default)
+    ;   <label-packetloss>
+    ;   <animation-packetloss>
+    format-packetloss = <animation-packetloss> <label-connected>
+
+    ; All labels support the following tokens:
+    ;   %ifname%    [wireless+wired]
+    ;   %local_ip%  [wireless+wired]
+    ;   %local_ip6% [wireless+wired]
+    ;   %essid%     [wireless]
+    ;   %signal%    [wireless]
+    ;   %upspeed%   [wireless+wired]
+    ;   %downspeed% [wireless+wired]
+    ;   %linkspeed% [wired]
+
+    ; Default: %ifname% %local_ip%
+    label-connected = %essid% %downspeed:8%↓ %upspeed:8%↑
+    label-connected-foreground = #8f8f8f
+
+    ; Default: (none)
+    label-disconnected = wlan
+    label-disconnected-foreground = #46ffffff
+
+    ; Only applies if <ramp-signal> is used
+    ramp-signal-0 = _
+    ramp-signal-1 = ▁
+    ramp-signal-2 = ▂
+    ramp-signal-3 = ▃
+    ramp-signal-4 = ▄
+    ramp-signal-5 = ▅
+    ramp-signal-6 = ▆
+    ramp-signal-7 = ▇
+    ramp-signal-8 = █
+    ; ramp-font = 5
+
+    ; ramp-signal-0 = 
+    ; ramp-signal-1 = 
+    ; ramp-signal-2 = 
+    ; ramp-signal-3 = 
+    ; ramp-signal-4 = 
+    ; ramp-signal-5 = 
+    ; ramp-signal-6 = 
+    ; ramp-signal-7 = 
+    ; ramp-signal-8 = 
+    ;ramp-signal-0 = ▁___
+    ;ramp-signal-1 = ▂___
+    ;ramp-signal-2 = ▂▄__
+    ;ramp-signal-3 = ▂▄▆_
+    ;ramp-signal-4 = ▂▄▆█
+
+
+    ; Only applies if <animation-packetloss> is used
+    animation-packetloss-0 = ⚠
+    animation-packetloss-0-foreground = #ffa64c
+    animation-packetloss-1 = ⚠
+    animation-packetloss-1-foreground = #000000
+    ; Framerate in milliseconds
+    animation-packetloss-framerate = 500
+
+    [module/battery]
+    type = internal/battery
+
+    ; This is useful in case the battery never reports 100% charge
+    full-at = 99
+
+    ; Use the following command to list batteries and adapters:
+    ; $ ls -1 /sys/class/power_supply/
+    battery = BAT0
+    adapter = AC
+
+    ; If an inotify event haven't been reported in this many
+    ; seconds, manually poll for new values.
+    ;
+    ; Needed as a fallback for systems that don't report events
+    ; on sysfs/procfs.
+    ;
+    ; Disable polling by setting the interval to 0.
+    ;
+    ; Default: 5
+    poll-interval = 5
+
+    ; see "man date" for details on how to format the time string
+    ; NOTE: if you want to use syntax tags here you need to use %%{...}
+    ; Default: %H:%M:%S
+    time-format = %H:%M
+
+    ; Available tags:
+    ;   <label-charging> (default)
+    ;   <bar-capacity>
+    ;   <ramp-capacity>
+    ;   <animation-charging>
+    format-charging = <label-charging>
+
+    ; Available tags:
+    ;   <label-discharging> (default)
+    ;   <bar-capacity>
+    ;   <ramp-capacity>
+    ;   <animation-discharging>
+    format-discharging = <ramp-capacity> <label-discharging>
+
+    ; Available tags:
+    ;   <label-full> (default)
+    ;   <bar-capacity>
+    ;   <ramp-capacity>
+    format-full = <ramp-capacity>
+
+    ; Available tokens:
+    ;   %percentage% (default) - is set to 100 if full-at is reached
+    ;   %percentage_raw%
+    ;   %time%
+    ;   %consumption% (shows current charge rate in watts)
+    label-charging = + %percentage%%
+
+    ; Available tokens:
+    ;   %percentage% (default) - is set to 100 if full-at is reached
+    ;   %percentage_raw%
+    ;   %time%
+    ;   %consumption% (shows current discharge rate in watts)
+    label-discharging = - %percentage%%
+
+    ; Available tokens:
+    ;   %percentage% (default) - is set to 100 if full-at is reached
+    ;   %percentage_raw%
+    label-full = Fully charged
+
+    ; ramp-capacity-0 = ▁
+    ; ramp-capacity-1 = ▂
+    ; ramp-capacity-2 = ▃
+    ; ramp-capacity-3 = ▄
+    ; ramp-capacity-4 = ▅
+    ; ramp-capacity-5 = ▆
+    ; ramp-capacity-6 = ▇
+    ; ramp-capacity-7 = █
+    ramp-capacity-0 = 
+    ramp-capacity-1 = 
+    ramp-capacity-2 = 
+    ramp-capacity-3 = 
+    ramp-capacity-4 = 
+    ramp-font = 2
+
+    [module/date]
+    type = internal/date
+
+    ; Seconds to sleep between updates
+    interval = 10
+
+    ; See "http://en.cppreference.com/w/cpp/io/manip/put_time" for details on how to format the date string
+    ; NOTE: if you want to use syntax tags here you need to use %%{...}
+    date = %Y-%m-%d%
+
+    ; Optional time format
+    time = %H:%M
+
+    ; if `date-alt` or `time-alt` is defined, clicking
+    ; the module will toggle between formats
+    date-alt = %A, %d %B %Y
+    time-alt = %H:%M:%S
+
+    ; Available tags:
+    ;   <label> (default)
+    format = <label>
+
+    ; Available tokens:
+    ;   %date%
+    ;   %time%
+    ; Default: %date%
+    label = %date% %time%
+    ;label-font = 3
+
+    [module/pulseaudio]
+    type = internal/pulseaudio
+
+    ; Sink to be used, if it exists (find using `pacmd list-sinks`, name field)
+    ; If not, uses default sink
+    sink = alsa_output.pci-0000_00_1f.3.analog-stereo
+
+    ; Use PA_VOLUME_UI_MAX (~153%) if true, or PA_VOLUME_NORM (100%) if false
+    ; Default: true
+    use-ui-max = true
+
+    ; Interval for volume increase/decrease (in percent points)
+    ; Default: 5
+    interval = 5
+
+    ; Available tags:
+    ;   <label-volume> (default)
+    ;   <ramp-volume>
+    ;   <bar-volume>
+    format-volume = <ramp-volume> <label-volume>
+
+    ; Available tags:
+    ;   <label-muted> (default)
+    ;   <ramp-volume>
+    ;   <bar-volume>
+    ;format-muted = <label-muted>
+
+    ; Available tokens:
+    ;   %percentage% (default)
+    ;label-volume = %percentage%%
+
+    ; Available tokens:
+    ;   %percentage% (default)
+    label-muted = muted
+    label-muted-foreground = #666
+
+    ; Only applies if <ramp-volume> is used
+    ramp-volume-0 = ▁
+    ramp-volume-1 = ▂
+    ramp-volume-2 = ▃
+    ramp-volume-3 = ▄
+    ramp-volume-4 = ▅
+    ramp-volume-5 = ▆
+    ramp-volume-6 = ▇
+    ramp-volume-7 = █
+
+    [module/system-cpu-temppercore]
+    type = custom/script
+    exec = ~/.config/polybar/system-cpu-temppercore.sh
+    interval = 5
+    format-prefix = ""
+
+    [module/system-fan-speed]
+    type = custom/script
+    exec = ~/.config/polybar/system-fan-speed.sh
+    interval = 10
+    format-prefix = ""
+
+    [module/mounts]
+    type = custom/script
+    exec = ~/.config/polybar/mounts.sh
+    interval = 10
+
+    [module/backup]
+    type = custom/script
+    exec = ~/.config/polybar/backup-status.sh
+    interval = 120
+    format-prefix="β "
+    click-left = $EDITOR --eval '(gb/backup-log-open)'
+    click-right = $EDITOR --eval '(gb/backup-collection-status)'
+
+    [module/cpu-clock]
+    type = custom/script
+    exec = ~/.config/polybar/system-cpu-clock.sh
+    interval = 5
+    ; format-font = 5
+    click-left = ~/.config/polybar/system-cpu-clock.sh -s
+
+    [module/power-consumption]
+    type = custom/script
+    exec = ~/.config/polybar/power-consumption.sh
+    interval = 10
+    ; format-font = 5
+
+    [module/vpn-service]
+    type = custom/script
+    exec  = ~/.config/polybar/service-type-status.sh "openvpn*" "VPN↑" "vpn↓"
+    interval = 15
+    click-right = $EDITOR --eval '(gb/net-vpn-log-show)'
+  #+end_src
+
+# Local Variables:
+# eval: (read-only-mode 1)
+# eval: (flyspell-mode 0)
+# eval: (org-content)
+# End:
