@@ -1,0 +1,12 @@
+#+title: power consumption
+* shell script
+  #+begin_src sh :eval no :tangle ~/.config/polybar/power-consumption.sh
+    # /usr/bin/env bash
+    WATT=`cat /sys/class/power_supply/BAT0/power_now | awk '{print $1*10^-6}'`
+    printf "%4.1f W" "$WATT"
+  #+end_src
+
+# Local Variables:
+# eval: (read-only-mode 1)
+# eval: (flyspell-mode 0)
+# End:

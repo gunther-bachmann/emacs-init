@@ -1,0 +1,47 @@
+#+title: backup status
+* shell script
+  #+begin_src sh :eval no :tangle ~/.config/polybar/backup-status.sh
+    #!/usr/bin/env bash
+    #
+    # display the age of the last backup
+    # + ... if duplicity is runnings
+    # + the time to the next scheduled backup (if actually scheduled)
+    #
+    RUNNING=$(pgrep "duplicity")
+    export PATH=${HOME}/bin:$PATH
+
+    if [ "$RUNNING" ]; then
+      echo "..."
+    else
+      LASTDATE=$(cat ${HOME}/.duplicity/default.last_run)
+      LASTDATE_FMT=$(date --date="$LASTDATE" +'%Y-%m-%dT%H:%M:%S')
+      NOW=$(date +'%Y-%m-%dT%H:%M:%S')
+      HOUR_DIFF=$(datediff "$LASTDATE_FMT" "$NOW" -f "%H")
+      MINUTE_DIFF=$(datediff "$LASTDATE_FMT" "$NOW" -f "%H:%0M")
+      if [ $HOUR_DIFF -le 1 ]; then
+        DISPLAYED_DIFF="${MINUTE_DIFF}h"
+      else
+        DISPLAYED_DIFF="${HOUR_DIFF}h+"
+      fi
+      TRIGGER_IN=$(systemctl --user status backup-drive.timer | grep 'Trigger:' | sed 's/.*[;:] \([^ ]*\).*/\1/g')
+      DISPLAYED_TRIGGER=""
+      if [ "$TRIGGER_IN" != "n/a" ]; then
+        DISPLAYED_TRIGGER="--${TRIGGER_IN}"
+      fi
+      if (( $HOUR_DIFF > 96 )); then
+        duplicity-backup.sh key-status
+        if [ $? -eq 0 ]; then
+          echo "BACKUP ${DISPLAYED_DIFF}${DISPLAYED_TRIGGER}"
+        else
+          echo "UNLOCK ${DISPLAYED_DIFF}${DISPLAYED_TRIGGER}"
+        fi
+      else
+        echo "ok ${DISPLAYED_DIFF}${DISPLAYED_TRIGGER}"
+      fi
+    fi
+  #+end_src
+
+# Local Variables:
+# eval: (read-only-mode 1)
+# eval: (flyspell-mode 0)
+# End:

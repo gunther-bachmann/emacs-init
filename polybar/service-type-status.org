@@ -1,0 +1,29 @@
+#+title: service type status
+* shell script
+  #+begin_src sh :eval no :tangle ~/.config/polybar/system-type-status.sh
+    #! /usr/bin/env bash
+    service_type=$1
+    up_msg=$2
+    down_msg=$3
+    echo_service=${4:-""}
+
+    [ "$1" = "" -o "$2" = "" -o "$3" = "" ] && { echo "Usage: $0 <service-type> <up-msg> <down-msg>"; exit 1; }
+    services=$(systemctl --all list-unit-files "$service_type*"  | grep $service_type | cut -f1 -d' ')
+    for service in $services; do
+      service_running=$(systemctl status $service | grep "Active: active (running)")
+      if [ "$service_running" != "" ]; then
+        if [ "$echo_service" != "" ]; then
+          echo $up_msg $service
+        else
+          echo $up_msg
+        fi
+        exit 0
+      fi
+    done
+    echo $down_msg
+  #+end_src
+
+# Local Variables:
+# eval: (read-only-mode 1)
+# eval: (flyspell-mode 0)
+# End:

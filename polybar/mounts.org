@@ -1,0 +1,14 @@
+#+title: mounts
+* shell script
+  #+begin_src sh :eval no :tangle ~/.config/polybar/mounts.sh
+    #!/usr/bin/env sh
+
+    mounts=$(for mount in $(mount | grep "/dev/sd[a-z]"| cut -d' ' -f 3); do echo "[$(echo $mount | sed 's|/run/media/pe|-<|g') $(df $mount --output -h | tr -s ' '  | grep -v 'Filesystem' | cut -d' ' -f 9)]"; done | tr '\n' ' ')
+
+    echo "$mounts"
+  #+end_src
+
+# Local Variables:
+# eval: (read-only-mode 1)
+# eval: (flyspell-mode 0)
+# End:

@@ -1,0 +1,20 @@
+#+title: system-fan-speed
+
+* shell script
+  #+begin_src sh :eval no :tangle ~/.config/polybar/system-fan-speed.sh
+    #!/usr/bin/env sh
+
+    speed=$(sensors | grep fan1 | cut -d " " -f 9)
+
+    if [ "$speed" != "" ]; then
+        speed_round=$(echo "scale=1;$speed/1000" | bc -l )
+        echo "$speed_round"
+    else
+       echo "off"
+    fi
+  #+end_src
+
+# Local Variables:
+# eval: (read-only-mode 1)
+# eval: (flyspell-mode 0)
+# End:
