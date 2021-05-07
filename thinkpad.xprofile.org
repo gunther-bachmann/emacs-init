@@ -1,0 +1,220 @@
+#+title: thinkpad xprofile
+* xprofile
+** set guix profile(s)
+  #+begin_src sh :eval no :tangle ~/.xprofile.new
+    # GUIX_PROFILE="/home/pe/.config/guix/current"
+    # source "$GUIX_PROFILE/etc/profile"
+    # export GUIX_PROFILE="$HOME/.guix-profile"
+    # source "$GUIX_PROFILE/etc/profile"
+
+    # Arrange so that ~/.config/guix/current comes first.
+    for profile in "$HOME/.guix-profile" "$HOME/.config/guix/current"
+    do
+      if [ -f "$profile/etc/profile" ]
+      then
+        # Load the user profile's settings.
+        GUIX_PROFILE="$profile" ; \
+        source "$profile/etc/profile"
+      else
+        # At least define this one so that basic things just work
+        # when the user installs their first package.
+        export PATH="$profile/bin:$PATH"
+      fi
+    done
+  #+end_src
+** guix configuration for ssl certificates
+  #+begin_src sh :eval no :tangle ~/.xprofile.new
+    # with the installation of nss-cert the following env vars are useful otherwise
+    # I get 'tls_process_server_certificate:certificate verify failed' errors
+    export SSL_CERT_DIR="$HOME/.guix-profile/etc/ssl/certs"
+    export SSL_CERT_FILE="$HOME/.guix-profile/etc/ssl/certs/ca-certificates.crt"
+    export GIT_SSL_CAINFO="$SSL_CERT_FILE"
+
+  #+end_src
+** exwm - java / configuration
+  #+begin_src sh :eval no :tangle ~/.xprofile.new
+    # Make Java applications aware this is a non-reparenting window manager.
+    export _JAVA_AWT_WM_NONREPARENTING=1
+  #+end_src
+** path
+  #+begin_src sh :eval no :tangle ~/.xprofile.new
+
+    # make sure that custom scripts are reachable
+    export PATH=${HOME}/bin:${HOME}/bin/bin:${HOME}/.local/bin:$PATH
+  #+end_src
+** compositor (disabled)
+  #+begin_src sh :eval no :tangle ~/.xprofile.new
+
+    # compositor
+    # compton & # start only if wanted (e.g. for window effects and watching videos)
+  #+end_src
+** kmonad (disabled)
+  #+begin_src sh :eval no :tangle ~/.xprofile.new
+
+    # keyboard configuration (now done via systemctl)
+    # $HOME/bin/kmonad-0.3.0-linux $HOME/.kmonad/thinkpad.internal.kbd &
+    # $HOME/bin/kmonad-0.3.0-linux $HOME/.kmonad/filco.kbd &
+  #+end_src
+** set powersave to silence cpu fan a bit
+  #+begin_src sh :eval no :tangle ~/.xprofile.new
+
+    # power consumption
+    power-save.sh
+  #+end_src
+** restore background picture
+  #+begin_src sh :eval no :tangle ~/.xprofile.new
+
+    # restore background image configuration
+    nitrogen --restore
+  #+end_src
+** set common environment variables (editor, wine)
+  #+begin_src sh :eval no :tangle ~/.xprofile.new
+
+    # Themes, etc
+    # gnome-settings-daemon &
+
+    export EMACS_SOCKET="/run/user/1000/emacs/server" # `lsof -w -c /.*emacs.*/ | grep 'server type' | tr -s " " | cut -d' ' -f9`
+    export VISUAL=emacsclient
+    export EDITOR="$VISUAL -s $EMACS_SOCKET"
+    export TERM=linux
+    export LC_COLLATE="C" # sort dot files by ls first
+    export WINEPREFIX="${HOME}/.wine32"
+
+  #+end_src
+** start polybar
+  #+begin_src sh :eval no :tangle ~/.xprofile.new
+    # bar
+    ${HOME}/.config/polybar/launch.sh
+  #+end_src
+** fallback cursor, keyboard repeat rate
+  #+begin_src sh :eval no :tangle ~/.xprofile.new
+
+    # Fallback cursor
+    xsetroot -cursor_name left_ptr
+
+    # Keyboard repeat rate
+    xset r rate 500 40  # r rate delay (ms) (repeats/second)
+    # xset r off # switch repeat off
+  #+end_src
+** configure powermanager for lid-close
+  #+begin_src sh :eval no :tangle ~/.xprofile.new
+
+    # make sure that lid closed will actually do what is configured (currently hibernate on battery, suspend on ac)
+    xfconf-query -c xfce4-power-manager -p /xfce4-power-manager/logind-handle-lid-switch -s false
+  #+end_src
+** start ssh-agent and preload some keys
+  #+begin_src sh :eval no :tangle ~/.xprofile.new
+
+    # make sure ssh has all (default) keys loaded
+    pkill ssh-agent
+    eval `ssh-agent -s`
+    for i in ${HOME}/.ssh/preload/*; do ssh-add $i; done
+  #+end_src
+** enable screensaver i3lock
+  #+begin_src sh :eval no :tangle ~/.xprofile.new
+
+    # enable screen saver
+    xset 300 60
+    xss-lock -n ~/bin/dim-screen.sh -- i3lock -c 000000 &
+  #+end_src
+** configure touchpad (to be not too touchy)
+  #+begin_src sh :eval no :tangle ~/.xprofile.new
+
+    # touchpad tweaks
+    # ---------------
+    syndaemon -i 0.5 -k -R -d   # wait 1 seconds after typing until touchpad works again
+    synclient VertTwoFingerScroll=1   # allow two finger scrolling
+    synclient HorizTwoFingerScroll=1
+    synclient PalmDetect=1 PalmMinZ=0 PalmMinWidth=7   # allow palm detection
+    synclient VertScrollDelta=50
+    synclient HorizScrollDelta=200
+    synclient MinSpeed=2
+    synclient AccelFactor=0.03
+    synclient MaxSpeed=10
+    synclient AreaRightEdge=5000 AreaLeftEdge=2000 AreaTopEdge=2000 AreaBottomEdge=5000   # limit area of touchpad to initial gesture detection
+    # list all options with 'synclient -l'
+  #+end_src
+** configure wacom tablet
+  #+begin_src sh :eval no :tangle ~/.xprofile.new
+
+    # wacom tablet tweaks
+    # -------------------
+    xsetwacom set "Wacom BambooPT 2FG 4x5 Pen stylus" RawSample 9 # reduce jitter when using the pen/stylus
+    xsetwacom set "Wacom BambooPT 2FG 4x5 Pen stylus" Suppress 10 #
+    xsetwacom set "Wacom BambooPT 2FG 4x5 Pad pad" AbsWheelUp 0   #
+    xsetwacom set "Wacom BambooPT 2FG 4x5 Pad pad" AbsWheelDown 0 #
+    xsetwacom set "Wacom BambooPT 2FG 4x5 Pen stylus" Threshold 600 # make sure that pen needs some pressure before actully painting
+  #+end_src
+** disable middle mouse button
+  #+begin_src sh :eval no :tangle ~/.xprofile.new
+
+    # disable middle mouse button
+    xmodmap -e "pointer = 1 25 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24"
+  #+end_src
+** mx ergo mouse speed adjustments
+  #+begin_src sh :eval no :tangle ~/.xprofile.new
+
+    # make adjustments to mx ergo mouse
+    xinput --set-prop 21 "Device Accel Constant Deceleration" 0.5
+    xinput --set-prop 21 "Evdev Scrolling Distance" 1 1 1
+  #+end_src
+** imwheel configuration (disabled)
+  #+begin_src sh :eval no :tangle ~/.xprofile.new
+
+    # allow for application specific scroll speed (currently experiencing problems with google-chrome-stable watching netflix and eclipse [cpu load going up])
+    # -g: Disable the use of Focus Events for button grabs
+    # imwheel # configured in ~/.imwheelrc
+
+  #+end_src
+** start xfce power manager
+  #+begin_src sh :eval no :tangle ~/.xprofile.new
+    # Programs to start upon startup
+    xfce4-power-manager &
+  #+end_src
+** udiskie
+  #+begin_src sh :eval no :tangle ~/.xprofile.new
+    # pasystray --include-monitors &   # Pulseaudio volume control from tray, started via emacs init.el
+    udiskie -t &                     # Disk mount utility
+  #+end_src
+** redshift
+  #+begin_src sh :eval no :tangle ~/.xprofile.new
+
+    # add red to color on night hours (location = berlin/hamburg)
+    pkill redshift
+    redshift -l 52.5:13.4 &
+  #+end_src
+** altr2hype
+  #+begin_src sh :eval no :tangle ~/.xprofile.new
+
+    # now completely covered by kmonad!
+    # swap windows and alt left, used to be configured in nix configuration, now kmonad takes care of that!
+    # sleep 10s && ~/bin/switchAltWin &
+
+    # make altgr functions as hyper key
+    # TODO: this does not function all the time
+    # disable for gaming
+    altr2hyper &
+  #+end_src
+** experimentals (disabled)
+  #+begin_src sh :eval no :tangle ~/.xprofile.new
+
+    # now completely covered by kmonad!
+    # switched off for gaming {
+    # make space function as ctrl if pressed in conjunction with another key
+    # sleep 10s && ~/bin/space2ctrl &
+    # } end of switched off for gaming
+
+    # disabled
+    #export XMODIFIERS=@im=exwm-xim
+    #export GTK_IM_MODULE=xim
+    #export QT_IM_MODULE=xim
+    #export CLUTTER_IM_MODULE=xim
+
+  #+end_src
+
+
+# Local Variables:
+# eval: (read-only-mode 1)
+# eval: (flyspell-mode 0)
+# eval: (org-content)
+# End:
