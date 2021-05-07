@@ -15551,49 +15551,59 @@
   #+end_src
 * TODO udisksctl - make package of this
   #+begin_src emacs-lisp
-    (defvar gb/udisksctl--ignore-devices '("nvme0n1") "list of devices to ignore")
-    ;; provide a way to configure things to exclude (like backup running)
-    ;; move backup running to other place
+    (when (executable-find "udisksctl")
+      (require 'dash)
 
-    (defun gb/udisksctl--info (blk-device)
-      (s-trim (shell-command-to-string (format "udisksctl info -b %s" blk-device))))
+      (defun gb/unmount-check--backup-relevant-mount? (mount-string)
+        (and (string-match-p (format ".*%s$" gb/backup-mount) mount-string)
+           (gb/backup-is-running)))
 
-    (defun gb/udisksctl--get-devices ()
-      (-filter (lambda (device-desc) (when-let ((device (--last (not (string-empty-p it)) (s-split " " device-desc))))
-                                  (not (-contains? gb/udisksctl--ignore-devices device))))
-               (s-split "\n" (s-trim (shell-command-to-string (format "udisksctl  status | tail -n +3"))))))
+      (defvar gb/udisksctl--ignore-devices '("nvme0n1") "list of devices to ignore")
+      (defvar gb/udisksctl-unmount-check-hook '(#'gb/unmount-check--backup-running))
+      ;; provide a way to configure things to exclude (like backup running)
+      ;; move backup running to other place
 
-    (defun gb/udisksctl--completing-read-blk-device ()
-      (if-let ((devices (gb/udisksctl--get-devices)))
-          (s-concat "/dev/" (--last (not (string-empty-p it)) (s-split " " (completing-read "Device: " devices nil t))))
-        (message "no device found")
-        nil))
+      (defun gb/udisksctl--info (blk-device)
+        (string-trim (shell-command-to-string (format "udisksctl info -b %s" blk-device))))
 
-    (defun gb/udisksctl--unpower-device (device)
-      ""
-      (message (s-trim (shell-command-to-string (format "udisksctl power-off -b %s" device)))))
+      (defun gb/udisksctl--get-devices ()
+        (-filter (lambda (device-desc) (when-let ((device (--last (not (string-empty-p it)) (s-split " " device-desc))))
+                                    (not (-contains? gb/udisksctl--ignore-devices device))))
+                 (split-string (string-trim (shell-command-to-string (format "udisksctl  status | tail -n +3")))  "\n")))
 
-    (defun gb/udisksctl--unpower ()
-      (interactive)
-      (when-let ((device (gb/udisksctl--completing-read-blk-device)))
-        (gb/udisksctl--unpower-device device)))
+      (defun gb/udisksctl--completing-read-blk-device ()
+        (if-let ((devices (gb/udisksctl--get-devices)))
+            (concat "/dev/" (--last (not (string-empty-p it)) (split-string (completing-read "Device: " devices nil t) " ")))
+          (message "no device found")
+          nil))
 
-    (defun gb/udisksctl--get-mounts (device)
-      (--filter
-       (not (and (string-match-p (format ".*%s$" gb/backup-mount) (nth 2 (split-string it " "))) (gb/backup-is-running)))
-       (s-split "\n" (s-trim (shell-command-to-string (format  "mount | grep -e '^%s'" device))))))
+      (defun gb/udisksctl--unpower-device (device)
+        ""
+        (message (string-trim (shell-command-to-string (format "udisksctl power-off -b %s" device)))))
 
-    (defun gb/udisksctl--completing-read-mount (device)
-      (--first (not (string-empty-p it)) (s-split " " (completing-read "Mounts: " (gb/udisksctl--get-mounts device) nil t))))
+      (defun gb/udisksctl--unpower ()
+        (interactive)
+        (when-let ((device (gb/udisksctl--completing-read-blk-device)))
+          (gb/udisksctl--unpower-device device)))
 
-    (defun gb/udisksctl--unmount-mount (mount)
-      (message (s-trim (shell-command-to-string (format "udisksctl unmount -b %s" mount)))))
+      (defun gb/udisksctl--get-mounts (device)
+        (--filter
+         (not (gb/unmount-check--backup-relevant-mount? (nth 2 (split-string it " "))))
+         (split-string (string-trim (shell-command-to-string (format  "mount | grep -e '^%s'" device))) "\n")))
 
-    (defun gb/udisksctl--unmount ()
-      (interactive)
-      (when-let ((device (gb/udisksctl--completing-read-blk-device)))
-        (when-let ((mount (gb/udisksctl--completing-read-mount device)))
-           (gb/udisksctl--unmount-mount mount))))
+      (defun gb/udisksctl--completing-read-mount (device)
+        (when-let ((mounts (gb/udisksctl--get-mounts device)))
+          (--first (not (string-empty-p it)) (s-split " " (completing-read "Mounts: " mounts nil t)))))
+
+      (defun gb/udisksctl--unmount-mount (mount)
+        (message (string-trim (shell-command-to-string (format "udisksctl unmount -b %s" mount)))))
+
+      (defun gb/udisksctl--unmount ()
+        (interactive)
+        (if-let* ((device (gb/udisksctl--completing-read-blk-device))
+                  (mount (gb/udisksctl--completing-read-mount device)))
+            (gb/udisksctl--unmount-mount mount)
+          (message "nothing found eligable for unmount"))))
   #+end_src
 * show-font-mode - shows the font under cursor in the mode line
   - mode needs to be (re)setted by switching workspaces
