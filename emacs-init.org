@@ -11057,7 +11057,8 @@
               ( "C-x C-d" . gb/dired-open-file-from-here)
               ( "C-x d" . gb/dired-open-file-from-here)
               ( "C-x C-f" . counsel-find-file)
-              ( "<tab>" . gb/dired-toggle-expanding-single-dirs))
+              ( "<tab>" . gb/dired-toggle-expanding-single-dirs)
+              ( "+" . dired-create-directory))
        ;; :after (dired all-the-icons vscode-icon)
        :config
        ;; make sure that long lines are truncated in sidebar
