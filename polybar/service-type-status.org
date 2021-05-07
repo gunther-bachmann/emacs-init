@@ -1,7 +1,10 @@
 #+title: service type status
 * shell script
-  #+begin_src sh :eval no :tangle ~/.config/polybar/service-type-status.sh :tangle-mode (identity #o755)
-    #! /usr/bin/env bash
+  #+begin_src sh :comments link :shebang "#!/usr/bin/env bash" :eval no :tangle ~/.config/polybar/service-type-status.sh :tangle-mode (identity #o755)
+    #------------------------------------------------------------------
+    # THIS FILE IS GENERATED (To edit please open file from link above)
+    #------------------------------------------------------------------
+
     service_type=$1
     up_msg=$2
     down_msg=$3

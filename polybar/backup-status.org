@@ -1,7 +1,9 @@
 #+title: backup status
 * shell script
-  #+begin_src sh :eval no :tangle ~/.config/polybar/backup-status.sh :tangle-mode (identity #o755)
-    #!/usr/bin/env bash
+  #+begin_src sh :comments link :shebang "#!/usr/bin/env bash" :eval no :tangle ~/.config/polybar/backup-status.sh :tangle-mode (identity #o755)
+    #------------------------------------------------------------------
+    # THIS FILE IS GENERATED (To edit please open file from link above)
+    #------------------------------------------------------------------
     #
     # display the age of the last backup
     # + ... if duplicity is runnings

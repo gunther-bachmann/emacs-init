@@ -1,8 +1,10 @@
 #+title: system-fan-speed
 
 * shell script
-  #+begin_src sh :eval no :tangle ~/.config/polybar/system-fan-speed.sh :tangle-mode (identity #o755)
-    #!/usr/bin/env sh
+  #+begin_src sh :comments link :shebang "#!/usr/bin/env sh" :eval no :tangle ~/.config/polybar/system-fan-speed.sh :tangle-mode (identity #o755)
+    #------------------------------------------------------------------
+    # THIS FILE IS GENERATED (To edit please open file from link above)
+    #------------------------------------------------------------------
 
     speed=$(sensors | grep fan1 | cut -d " " -f 9)
 

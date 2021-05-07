@@ -1,8 +1,11 @@
 #+title: system cpu clock
 
 * shell script
-  #+begin_src sh :eval no :tangle ~/.config/polybar/system-cpu-clock.sh :tangle-mode (identity #o755)
-    #!/usr/bin/env bash
+  #+begin_src sh :comments link :shebang "#!/usr/bin/env bash" :eval no :tangle ~/.config/polybar/system-cpu-clock.sh :tangle-mode (identity #o755)
+    #------------------------------------------------------------------
+    # THIS FILE IS GENERATED (To edit please open file from link above)
+    #------------------------------------------------------------------
+
     FOLDER=$(dirname $0)
     if [ -f $FOLDER/.system-cpu-clock ]; then
       OPTION=$(cat $FOLDER/.system-cpu-clock)

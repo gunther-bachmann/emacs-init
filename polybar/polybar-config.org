@@ -1,6 +1,10 @@
 #+title: polybar config
 * TODO config
-  #+begin_src conf :eval no :tangle ~/.config/polybar/config
+  #+begin_src conf :comments link :eval no :tangle ~/.config/polybar/config
+    ;------------------------------------------------------------------
+    ; THIS FILE IS GENERATED (To edit please open file from link above)
+    ;------------------------------------------------------------------
+
     ; see https://github.com/polybar/polybar/wiki
     [colors]
     ;background = ${xrdb:color0:#222}

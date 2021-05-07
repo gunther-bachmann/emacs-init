@@ -1,4 +1,10 @@
 #+title: thinkpad xprofile
+* fileheader
+  #+begin_src sh :comments link :eval no :tangle ~/.xprofile
+    #------------------------------------------------------------------
+    # THIS FILE IS GENERATED (To edit please open file from link above)
+    #------------------------------------------------------------------
+  #+end_src
 * xprofile
 ** set guix profile(s)
   #+begin_src sh :eval no :tangle ~/.xprofile
@@ -14,7 +20,7 @@
       then
         # Load the user profile's settings.
         GUIX_PROFILE="$profile" ; \
-        source "$profile/etc/profile"
+          source "$profile/etc/profile"
       else
         # At least define this one so that basic things just work
         # when the user installs their first package.

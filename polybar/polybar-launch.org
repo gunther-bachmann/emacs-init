@@ -1,9 +1,9 @@
 #+title: polybar launch
 * shell script
-  #+begin_src sh :eval no :tangle ~/bin/polybar-launch :tangle-mode (identity #o755)
-    #!/usr/bin/env bash
-
-    # GENERATED FILE please check
+  #+begin_src sh :comments link :shebang "#!/usr/bin/env bash" :eval no :tangle ~/bin/polybar-launch :tangle-mode (identity #o755)
+    #------------------------------------------------------------------
+    # THIS FILE IS GENERATED (To edit please open file from link above)
+    #------------------------------------------------------------------
 
     # Terminate already running bar instances
     killall -q polybar
