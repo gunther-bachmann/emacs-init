@@ -1506,6 +1506,7 @@
           (eval org-show-all)
           (eval org-hide-block-all)
           (eval org-overview)
+          (eval org-content)
           (eval org-babel-result-hide-all)
           (eval gb/org-roam-open-entry-visibility)
           (eval gb/set-org-pretty-entities nil)
@@ -13260,7 +13261,9 @@
                                       (:eval (s-concat "[" (number-to-string (exwm-workspace--position exwm-workspace--current)) "]" ))
                                       (:eval (unless (string-empty-p pomodoro-mode-line-string) " ") pomodoro-mode-line-string))
                                     global-mode-string))
-                      (setq auto-hscroll-mode t)))
+                      (setq auto-hscroll-mode t)
+                      (when (eq gb/completion-framework 'ivy)
+                        (ivy-mode 1))))
 
           ))
     #+END_SRC
@@ -15047,7 +15050,7 @@
   #+end_src
 * EVAL rec-mode - show rec files (human readable db)
   - see [[https://www.gnu.org/software/recutils/][here]]
-  #+begin_src emacs-lisp
+  #+begin_src emacs-lisp :tangle no
     (use-package rec-mode
       :ensure t)
   #+end_src
