@@ -12820,7 +12820,9 @@
             "reset the (multi) monitor setup for exwm"
             (interactive)
             (shell-command-to-string "xrandr --auto")
-            (gb/refresh-exwm-monitor-setup))
+            (gb/refresh-exwm-monitor-setup)
+            (when (executable-find "polybar-launch")
+              (shell-command-to-string "polybar-launch")))
 
           (defun gb/exwm--get-connected-monitors ()
             ""
