@@ -1,7 +1,7 @@
 #+title: system-fan-speed
 
 * shell script
-  #+begin_src sh :eval no :tangle ~/.config/polybar/system-fan-speed.sh
+  #+begin_src sh :eval no :tangle ~/.config/polybar/system-fan-speed.sh :tangle-mode (identity #o755)
     #!/usr/bin/env sh
 
     speed=$(sensors | grep fan1 | cut -d " " -f 9)

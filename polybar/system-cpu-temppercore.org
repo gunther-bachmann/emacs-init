@@ -1,8 +1,7 @@
 #+title: system cpu temp per core
 * shell script
-  #+begin_src sh
+  #+begin_src sh :eval no :tangle ~/.config/polybar/system-cpu-temppercore.sh :tangle-mode (identity #o755)
     #!/usr/bin/env sh
-
     sensors | grep Core | awk '{print substr($3, 2, length($3)-5)}' | tr "\\n" " " | sed 's/ / /g' | sed 's/ $/ °C/'
   #+end_src
 

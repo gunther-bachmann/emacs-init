@@ -1,7 +1,7 @@
 #+title: system cpu clock
 
 * shell script
-  #+begin_src sh :eval no :tangle ~/.config/polybar/system-cpu-clock.sh
+  #+begin_src sh :eval no :tangle ~/.config/polybar/system-cpu-clock.sh :tangle-mode (identity #o755)
     #!/usr/bin/env bash
     FOLDER=$(dirname $0)
     if [ -f $FOLDER/.system-cpu-clock ]; then

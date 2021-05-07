@@ -1,6 +1,6 @@
 #+title: mounts
 * shell script
-  #+begin_src sh :eval no :tangle ~/.config/polybar/mounts.sh
+  #+begin_src sh :eval no :tangle ~/.config/polybar/mounts.sh :tangle-mode (identity #o755)
     #!/usr/bin/env sh
 
     mounts=$(for mount in $(mount | grep "/dev/sd[a-z]"| cut -d' ' -f 3); do echo "[$(echo $mount | sed 's|/run/media/pe|-<|g') $(df $mount --output -h | tr -s ' '  | grep -v 'Filesystem' | cut -d' ' -f 9)]"; done | tr '\n' ' ')

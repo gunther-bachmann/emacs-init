@@ -1,6 +1,6 @@
 #+title: backup status
 * shell script
-  #+begin_src sh :eval no :tangle ~/.config/polybar/backup-status.sh
+  #+begin_src sh :eval no :tangle ~/.config/polybar/backup-status.sh :tangle-mode (identity #o755)
     #!/usr/bin/env bash
     #
     # display the age of the last backup

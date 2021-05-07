@@ -1,6 +1,6 @@
 #+title: service type status
 * shell script
-  #+begin_src sh :eval no :tangle ~/.config/polybar/system-type-status.sh
+  #+begin_src sh :eval no :tangle ~/.config/polybar/service-type-status.sh :tangle-mode (identity #o755)
     #! /usr/bin/env bash
     service_type=$1
     up_msg=$2

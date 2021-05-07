@@ -15605,6 +15605,29 @@
             (gb/udisksctl--unmount-mount mount)
           (message "nothing found eligable for unmount"))))
   #+end_src
+* TODO org babel tangle utilities
+  #+begin_src emacs-lisp
+    (require 'dired-x)
+    (require 'dash)
+
+    (defun gb/org-babel-tangle-folder (folder)
+      "tangle all files ending on .org in the given FOLDER and return a list of target file names"
+      (when (file-directory-p folder)
+        (->> (directory-files folder)
+          (--filter (string-match-p ".*\.org$" it) )
+          (--map (org-babel-tangle-file (format "%s/%s" folder it)))
+          (-flatten))))
+
+    (defun gb/diredp--babel-tangle-folder ()
+      "interactively try guess the folder and tangle all org files within"
+      (interactive)
+      (if-let* ((folder (dired-x-guess-file-name-at-point))
+                  (_ (file-directory-p folder)))
+          (let ((target-files (gb/org-babel-tangle-folder folder)))
+            (message (format "generated %d files." (length target-files))))
+        (message "seems not to be a folder")))
+
+  #+end_src
 * show-font-mode - shows the font under cursor in the mode line
   - mode needs to be (re)setted by switching workspaces
   #+begin_src emacs-lisp
