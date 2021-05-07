@@ -1461,7 +1461,7 @@
           (setq browse-url-firefox-program (s-trim (shell-command-to-string "command -v firefox"))))
 
         (when (and chromium-installed firefox-installed)
-          (let ((chrome-regex ".*\\(/meet\\.jit\\.si/\\|/teams\\.microsoft\\|/adventures\\.\\|/meet\\.google\\.com/\\).*"))
+          (let ((chrome-regex ".*\\(/meet\\.jit\\.si/\\|/teams\\.microsoft\\|adventure-hh\\|/meet\\.google\\.com/\\).*"))
             (if (version< emacs-version "28")
                 ;; use (old) browser-url-browser-function for custom url behavior
                 (setq browse-url-browser-function
