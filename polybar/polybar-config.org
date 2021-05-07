@@ -372,20 +372,20 @@
     ;   %percentage_raw%
     label-full = Fully charged
 
-    ; ramp-capacity-0 = ▁
-    ; ramp-capacity-1 = ▂
-    ; ramp-capacity-2 = ▃
-    ; ramp-capacity-3 = ▄
-    ; ramp-capacity-4 = ▅
-    ; ramp-capacity-5 = ▆
-    ; ramp-capacity-6 = ▇
-    ; ramp-capacity-7 = █
-    ramp-capacity-0 = 
-    ramp-capacity-1 = 
-    ramp-capacity-2 = 
-    ramp-capacity-3 = 
-    ramp-capacity-4 = 
-    ramp-font = 2
+    ramp-capacity-0 = ▁
+    ramp-capacity-1 = ▂
+    ramp-capacity-2 = ▃
+    ramp-capacity-3 = ▄
+    ramp-capacity-4 = ▅
+    ramp-capacity-5 = ▆
+    ramp-capacity-6 = ▇
+    ramp-capacity-7 = █
+    ; ramp-capacity-0 = 
+    ; ramp-capacity-1 = 
+    ; ramp-capacity-2 = 
+    ; ramp-capacity-3 = 
+    ; ramp-capacity-4 = 
+    ; ramp-font = 2
 
     [module/date]
     type = internal/date
