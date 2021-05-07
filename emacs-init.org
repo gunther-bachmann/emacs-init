@@ -15186,7 +15186,8 @@
   #+end_src
 * TODO backup duplicity support - make package
   #+begin_src emacs-lisp
-    (defvar gb/backup-service-name "backup-drive.service" "the systemd service name that is used to start backups")
+    (defvar gb/backup-timer-name "backup-drive.timer" "the systemd service name that is used to start backups")
+    (defvar gb/backup-service-name "backup-drive.service" "the systemd service name that does backups")
     (defvar gb/backup-mount "684110cc-325f-4307-bce0-843930ff7de6" "get the mount into which a backup is usually writing")
 
     (cl-defun gb/systemd-service-log-open (service-name &key user-service? weeks)
@@ -15204,18 +15205,24 @@
 
     (cl-defun gb/systemd-service-command (service-name command &key user-service?)
       "execute COMMAND using systemd on SERIVCE-NAME"
-      (let ((user-param (if user-service? "--user" "")))
-        (shell-command-to-string (format "systemctl %s %s %s" user-param command service-name))))
+      (let* ((user-param (if user-service? "--user" ""))
+             (command (format "systemctl %s %s %s" user-param command service-name)))
+        (string-trim (shell-command-to-string command))))
 
-    (defun gb/backup-stop-timer-service-off ()
+    (defun gb/backup-timer-off ()
       "stop the timer that starts backups"
       (interactive)
-      (gb/systemd-service-command gb/backup-service-name "stop" :user-service? t))
+      (gb/systemd-service-command gb/backup-timer-name "stop" :user-service? t))
 
-    (defun gb/backup-timer-service-on ()
+    (defun gb/backup-timer-on ()
       "start the timer that starts backups"
       (interactive)
-      (gb/systemd-service-command gb/backup-service-name "start" :user-service? t))
+      (gb/systemd-service-command gb/backup-timer-name "start" :user-service? t))
+
+    (defun gb/backup-timer-status ()
+      "stop the timer that starts backups"
+      (interactive)
+      (gb/systemd-service-command gb/backup-timer-name "status" :user-service? t))
 
     (defun gb/backup-log-open ()
       "open the backup log"
