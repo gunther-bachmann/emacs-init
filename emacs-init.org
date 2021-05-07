@@ -11053,7 +11053,9 @@
               ( "s-a" . gb/dired-sidebar-follow-file)
               :map dired-sidebar-mode-map
               ( "c-s" . nonincremental-search-forward)
-              ( "C-x C-f" . gb/dired-open-file-from-here)
+              ( "C-x C-d" . gb/dired-open-file-from-here)
+              ( "C-x d" . gb/dired-open-file-from-here)
+              ( "C-x C-f" . counsel-find-file)
               ( "<tab>" . gb/dired-toggle-expanding-single-dirs))
        ;; :after (dired all-the-icons vscode-icon)
        :config
