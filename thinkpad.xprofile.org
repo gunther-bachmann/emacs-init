@@ -90,7 +90,7 @@
 ** start polybar
   #+begin_src sh :eval no :tangle ~/.xprofile
     # bar
-    polybar-launch.sh
+    polybar-launch
   #+end_src
 ** fallback cursor, keyboard repeat rate
   #+begin_src sh :eval no :tangle ~/.xprofile

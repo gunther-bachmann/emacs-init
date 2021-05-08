@@ -9397,6 +9397,7 @@
          'org-babel-load-languages
          '((java . t)
            (clojure . t)
+           (C . t)
            ;; (clojurescript . t)
            (ditaa . t)
            (dot . t)
@@ -13834,6 +13835,9 @@
     :load-path "~/.emacs.d/additionals/browse-kill-ring"
     :commands (browse-kill-ring))
   #+end_src
+#+BEGIN_SRC emacs-lisp
+(report-elapsed "check-point - browse kill ring")
+#+END_SRC
 * EVAL pdf-view-restore (disabled)
   - stores .pdf-view-restore in each folder where pdfs are opned!
   #+begin_src emacs-lisp :tangle no
@@ -13926,6 +13930,9 @@
           :commands csv-mode
           :load-path "~/.emacs.d/additionals"))
   #+end_src
+#+BEGIN_SRC emacs-lisp
+(report-elapsed "check-point - csv mode")
+#+END_SRC
 * EVAL terraform-lsp
   #+begin_src emacs-lisp
     (with-eval-after-load 'lsp-mode
@@ -14273,6 +14280,9 @@
 
     ;;            :unnarrowed t))))
   #+end_src
+#+BEGIN_SRC emacs-lisp
+(report-elapsed "check-point - org roam")
+#+END_SRC
 * emacs-mini-frame
   #+begin_src emacs-lisp
     (use-package mini-frame
@@ -14455,6 +14465,9 @@
     (use-package cpu-sos
       :ensure t)
   #+end_src
+#+BEGIN_SRC emacs-lisp
+(report-elapsed "check-point - cpu sos")
+#+END_SRC
 * EVAL bookmark+
   - for more info, see https://www.emacswiki.org/emacs/BookmarkPlus
   #+begin_src emacs-lisp
@@ -14672,6 +14685,9 @@
                     (agda2-highlight-primitive-face ((t (:foreground "light blue")))))
             (progn (add-to-list 'gb/list-of-faces-to-set it)(custom-set-faces it))))))
   #+end_src
+#+BEGIN_SRC emacs-lisp
+(report-elapsed "check-point - agda")
+#+END_SRC
 * EVAL grugru - rotate thing at point dependent on mode through list of items defined
   - see https://github.com/ROCKTAKEY/grugru
   #+begin_src emacs-lisp
@@ -14735,6 +14751,9 @@
       :ensure t
       :commands (esup))
   #+end_src
+#+BEGIN_SRC emacs-lisp
+(report-elapsed "check-point - esup")
+#+END_SRC
 * EVAL org-padding - define padding for each org mode heading level
   #+begin_src emacs-lisp
     (when (file-exists-p "~/.emacs.d/additionals/org-padding.el")
@@ -14949,6 +14968,9 @@
       (setq greenbar-background-colors 'dark-gray-bar)
       (setq greenbar-lines-per-bar 3))
   #+end_src
+#+BEGIN_SRC emacs-lisp
+(report-elapsed "check-point - greenbar mode")
+#+END_SRC
 * EVAL continuous scroll mode (disabled, no scroll end detection, not working out of the box)
   #+begin_src emacs-lisp :tangle no
     (use-package pdf-continuous-scroll-mode
@@ -15069,6 +15091,9 @@
         :custom (org-roam-stack--link-adjustments t)
         (org-roam-stack--open-ro t)))
   #+end_src
+#+BEGIN_SRC emacs-lisp
+(report-elapsed "check-point - org-roam-stack")
+#+END_SRC
 * proced
   #+begin_src emacs-lisp
     (use-package proced
@@ -15163,6 +15188,9 @@
       :ensure t
       :bind (("H-<SPC>" . embark-act)))
   #+end_src
+#+BEGIN_SRC emacs-lisp
+(report-elapsed "check-point - embark")
+#+END_SRC
 * (disabled) marginalia - provides context to candidates (even embark)
   - makes only sense when using selectrum and embark in combination
   #+begin_src emacs-lisp :tangle no
@@ -15246,6 +15274,9 @@
       "is a backup currently running?"
       (not (string-empty-p (shell-command-to-string "pgrep duplicity"))))
   #+end_src
+#+BEGIN_SRC emacs-lisp
+(report-elapsed "check-point - backup duplicity support")
+#+END_SRC
 * TODO dired-annotator - make package of this
   #+begin_src emacs-lisp
     (use-package uuid
@@ -15361,13 +15392,14 @@
       (setq dired-annotator--fiepath-2-annotation (make-hash-table :test 'equal))
       (-each (directory-files dired-annotator-annotations-folder nil ".*\.org")
         (lambda (annotation-file-name)
-          (--> (format "head -c 512 \"%s/%s\" | grep '^#+property: file-information ' | sed -e 's/#+property: file-information \\(.*\\)/\\1/g'" dired-annotator-annotations-folder annotation-file-name)
-            (shell-command-to-string it)
-            (string-trim it)
-            (read-from-string it)
-            (car it)
-            (eval it)
-            (dired-annotator--hash-file-information it annotation-file-name)))))
+          (ignore-errors
+            (--> (format "head -c 512 \"%s/%s\" | grep '^#+property: file-information ' | sed -e 's/#+property: file-information \\(.*\\)/\\1/g'" dired-annotator-annotations-folder annotation-file-name)
+              (shell-command-to-string it)
+              (string-trim it)
+              (read-from-string it)
+              (car it)
+              (eval it)
+              (dired-annotator--hash-file-information it annotation-file-name))))))
 
     (defun dired-annotator--unhash-file (md5-key absolute-file-name)
       "remove given keys from hash
@@ -15540,6 +15572,8 @@
     ;; --------------------------------------------------------------------------------
     (dired-annotator--load-annotation-info-from-folder)
 
+
+
     ;; additional ideas
     ;; - idea: how to change pinning mode for files ?
     ;; - BUG: make sure that posframe is displayed over x-windows (parent frame = 0 + heed multi screen offset)
@@ -15550,6 +15584,9 @@
     ;; - TODO: add testing
 
   #+end_src
+#+BEGIN_SRC emacs-lisp
+(report-elapsed "check-point - dired annotator")
+#+END_SRC
 * TODO udisksctl - make package of this
   #+begin_src emacs-lisp
     (when (executable-find "udisksctl")
@@ -15606,6 +15643,9 @@
             (gb/udisksctl--unmount-mount mount)
           (message "nothing found eligable for unmount"))))
   #+end_src
+#+BEGIN_SRC emacs-lisp
+(report-elapsed "check-point - udiskctl")
+#+END_SRC
 * TODO org babel tangle utilities
   #+begin_src emacs-lisp
     (require 'dired-x)
@@ -15620,15 +15660,18 @@
           (-flatten))))
 
     (defun gb/diredp--babel-tangle-folder ()
-      "interactively try guess the folder and tangle all org files within"
+      "interactively guess the folder and tangle all org files within"
       (interactive)
       (if-let* ((folder (dired-x-guess-file-name-at-point))
-                  (_ (file-directory-p folder)))
+                (_      (file-directory-p folder)))
           (let ((target-files (gb/org-babel-tangle-folder folder)))
             (message (format "generated %d files." (length target-files))))
         (message "seems not to be a folder")))
 
   #+end_src
+#+BEGIN_SRC emacs-lisp
+(report-elapsed "check-point - org babel utilities")
+#+END_SRC
 * show-font-mode - shows the font under cursor in the mode line
   - mode needs to be (re)setted by switching workspaces
   #+begin_src emacs-lisp
@@ -15636,6 +15679,9 @@
       :commands (show-font-mode)
       :ensure t)
   #+end_src
+#+BEGIN_SRC emacs-lisp
+(report-elapsed "check-point - show-font-mode")
+#+END_SRC
 * EVAL - good-scroll - uses pixel scroll to provide more smooth scrolling behaviour (see https://github.com/io12/good-scroll.el)
   #+begin_src emacs-lisp
     (use-package good-scroll
@@ -15672,6 +15718,9 @@
       :ensure t
       :custom (find-dupes-dired-ls-option '("-q | grep -v -e '^$' | xargs -d \"\\n\" ls -dilsbUN" . "-dilsbUN")))
   #+end_src
+#+BEGIN_SRC emacs-lisp
+(report-elapsed "check-point - fdupes")
+#+END_SRC
 * EVAL iscroll - Smooth scrolling over images
   #+begin_src emacs-lisp
     (use-package iscroll
@@ -15758,6 +15807,9 @@
       (setq compilation-error-regexp-alist
             (cons 'node compilation-error-regexp-alist)))
   #+end_src
+#+BEGIN_SRC emacs-lisp
+(report-elapsed "check-point - compilation mode configuration")
+#+END_SRC
 * INTERESTING
 ** blog/presentation
   - org-present using a cell phone to switch pages
@@ -16098,7 +16150,7 @@
    - surf is a webkit based browser that works as embedded x application and can thus be embedded into emacs directly
    - don't need this, since chromium or firefox can be directly embedded into exwm
 #+BEGIN_SRC emacs-lisp
-(report-elapsed "check point 4")
+(report-elapsed "check-point - exwm-surf")
 #+END_SRC
 ** ranger (file browser/previewer, using dired)
    #+BEGIN_SRC emacs-lisp :tangle no
