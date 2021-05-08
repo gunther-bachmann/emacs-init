@@ -1,10 +1,13 @@
 #+title: polybar config
-* TODO config
+* header
   #+begin_src conf :comments link :eval no :tangle ~/.config/polybar/config
     ;------------------------------------------------------------------
     ; THIS FILE IS GENERATED (To edit please open file from link above)
     ;------------------------------------------------------------------
 
+  #+end_src
+* colors
+  #+begin_src conf :eval no :tangle ~/.config/polybar/config
     ; see https://github.com/polybar/polybar/wiki
     [colors]
     ;background = ${xrdb:color0:#222}
@@ -17,6 +20,9 @@
     secondary = #e60053
     alert = #bd2c40
 
+  #+end_src
+* default bar
+  #+begin_src conf :eval no :tangle ~/.config/polybar/config
     [bar/default]
     monitor = ${env:MONITOR:}
     width = 100%
@@ -63,6 +69,9 @@
     ;tray-transparent = true
     ;tray-background = #0063ff
 
+  #+end_src
+* filesystem
+  #+begin_src conf :eval no :tangle ~/.config/polybar/config
     [module/filesystem]
     type = internal/fs
     mount-0 = /
@@ -89,6 +98,9 @@
     label-mounted = [%mountpoint% %free%]
 
 
+  #+end_src
+* memory
+  #+begin_src conf :eval no :tangle ~/.config/polybar/config
     [module/memory]
     type = internal/memory
 
@@ -131,6 +143,9 @@
     ramp-free-6 = ▇
     ramp-free-7 = █
 
+  #+end_src
+* cpu
+  #+begin_src conf :eval no :tangle ~/.config/polybar/config
     [module/cpu]
     type = internal/cpu
 
@@ -163,6 +178,9 @@
     ramp-coreload-6 = ▇
     ramp-coreload-7 = █
 
+  #+end_src
+* wired network
+  #+begin_src conf :eval no :tangle ~/.config/polybar/config
     [module/wired-network]
     type = internal/network
     interface = enp0s31f6
@@ -200,6 +218,9 @@
     label-disconnected = lan
     label-disconnected-foreground = #46ffffff
 
+  #+end_src
+* tethered network
+  #+begin_src conf :eval no :tangle ~/.config/polybar/config
     [module/tethered-network]
     type = internal/network
     interface = enp0s20f0u5
@@ -237,6 +258,9 @@
     label-disconnected = teth
     label-disconnected-foreground = #46ffffff
 
+  #+end_src
+* wireless network
+  #+begin_src conf :eval no :tangle ~/.config/polybar/config
     [module/wireless-network]
     type = internal/network
     interface = wlp4s0
@@ -310,6 +334,9 @@
     ; Framerate in milliseconds
     animation-packetloss-framerate = 500
 
+  #+end_src
+* battery
+  #+begin_src conf :eval no :tangle ~/.config/polybar/config
     [module/battery]
     type = internal/battery
 
@@ -391,6 +418,9 @@
     ; ramp-capacity-4 = 
     ; ramp-font = 2
 
+  #+end_src
+* date
+  #+begin_src conf :eval no :tangle ~/.config/polybar/config
     [module/date]
     type = internal/date
 
@@ -420,6 +450,9 @@
     label = %date% %time%
     ;label-font = 3
 
+  #+end_src
+* pulseaudio
+  #+begin_src conf :eval no :tangle ~/.config/polybar/config
     [module/pulseaudio]
     type = internal/pulseaudio
 
@@ -466,23 +499,35 @@
     ramp-volume-6 = ▇
     ramp-volume-7 = █
 
+  #+end_src
+* cpu temp per core
+  #+begin_src conf :eval no :tangle ~/.config/polybar/config
     [module/system-cpu-temppercore]
     type = custom/script
     exec = ~/.config/polybar/system-cpu-temppercore.sh
     interval = 5
     format-prefix = ""
 
+  #+end_src
+* fan speed
+  #+begin_src conf :eval no :tangle ~/.config/polybar/config
     [module/system-fan-speed]
     type = custom/script
     exec = ~/.config/polybar/system-fan-speed.sh
     interval = 10
     format-prefix = ""
 
+  #+end_src
+* mounts
+  #+begin_src conf :eval no :tangle ~/.config/polybar/config
     [module/mounts]
     type = custom/script
     exec = ~/.config/polybar/mounts.sh
     interval = 10
 
+  #+end_src
+* backup
+  #+begin_src conf :eval no :tangle ~/.config/polybar/config
     [module/backup]
     type = custom/script
     exec = ~/.config/polybar/backup-status.sh
@@ -491,6 +536,9 @@
     click-left = $EDITOR --eval '(gb/backup-log-open)'
     click-right = $EDITOR --eval '(gb/backup-collection-status)'
 
+  #+end_src
+* cpu clock
+  #+begin_src conf :eval no :tangle ~/.config/polybar/config
     [module/cpu-clock]
     type = custom/script
     exec = ~/.config/polybar/system-cpu-clock.sh
@@ -498,12 +546,18 @@
     ; format-font = 5
     click-left = ~/.config/polybar/system-cpu-clock.sh -s
 
+  #+end_src
+* power consumption
+  #+begin_src conf :eval no :tangle ~/.config/polybar/config
     [module/power-consumption]
     type = custom/script
     exec = ~/.config/polybar/power-consumption.sh
     interval = 10
     ; format-font = 5
 
+  #+end_src
+* vpn service
+  #+begin_src conf :eval no :tangle ~/.config/polybar/config
     [module/vpn-service]
     type = custom/script
     exec  = ~/.config/polybar/service-type-status.sh "openvpn" "VPN↑" "vpn↓"

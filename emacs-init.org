@@ -15759,7 +15759,6 @@
   #+begin_src emacs-lisp
     (use-package edebug-inline-result
       :ensure t
-      :defer t
       :custom (edebug-inline-result-backend 'posframe)
       :hook (edebug-mode . edebug-inline-result-mode))
   #+end_src
@@ -16479,7 +16478,8 @@
                      (font-lock-comment-face ((t (:foreground "gray50"))))
                      (font-lock-comment-delimiter-face ((t (:foreground "gray50"))))
                      (font-lock-string-face ((t (:foreground "#4080b0")))))
-             (progn (add-to-list 'gb/list-of-faces-to-set it)(custom-set-faces it)))))))
+             (progn (add-to-list 'gb/list-of-faces-to-set it)(custom-set-faces it))))))
+     (report-elapsed "check-point after display system init"))
     (setq gc-cons-threshold 80000000)
     (midnight-mode 1)
     ;; ;; set color of echo/mini buffer area (in some cases)
