@@ -7000,26 +7000,27 @@
    #+end_src
 ** shell here
    #+BEGIN_SRC emacs-lisp
-   ;; open a shell at the current directory
-   (use-package shell-here
-     ;; :after (eldoc-overlay)
-     :config
-     (defun gb/install-proc-listener (&rest r)
-       "install process listener to close window ofter exited or finished message"
-       (message "advicing to exit buffer")
-       (let ((process (get-buffer-process (current-buffer))))
-         (when process
-           (set-process-sentinel
-            process
-            (lambda (_proc change)
-              (when (string-match-p "\\(?:finished\\|exited\\)" change)
-                (progn
-                  (kill-buffer (current-buffer)))))))))
-     (advice-add 'shell-here :after #'gb/install-proc-listener)
-     :bind (("C-x C-h" . shell-here)
-            :map dired-mode-map
-            ("C-x C-h" . shell-here)))
-   ;;      (define-key (current-global-map) "\C-c!" 'shell-here) ;
+     ;; open a shell at the current directory
+     (use-package shell-here
+       ;; :after (eldoc-overlay)
+       :ensure t
+       :config
+       (defun gb/install-proc-listener (&rest r)
+         "install process listener to close window ofter exited or finished message"
+         (message "advicing to exit buffer")
+         (let ((process (get-buffer-process (current-buffer))))
+           (when process
+             (set-process-sentinel
+              process
+              (lambda (_proc change)
+                (when (string-match-p "\\(?:finished\\|exited\\)" change)
+                  (progn
+                    (kill-buffer (current-buffer)))))))))
+       (advice-add 'shell-here :after #'gb/install-proc-listener)
+       :bind (("C-x C-h" . shell-here)
+              :map dired-mode-map
+              ("C-x C-h" . shell-here)))
+     ;;      (define-key (current-global-map) "\C-c!" 'shell-here) ;
    #+END_SRC
 ** shell ansi colors configuration (disabled)
    #+BEGIN_SRC emacs-lisp :tangle no
@@ -11115,11 +11116,12 @@
    #+END_SRC
 ** dired-du (size calc in dired)
    #+BEGIN_SRC emacs-lisp
-   (use-package dired-du
-     :ensure t
-     :config
-     (setq dired-du-size-format t)
-     (setq dired-du-on-find-dired-ok t))
+     (use-package dired-du
+       :ensure t
+       :custom
+       (dired-du-bind-human-toggle nil)
+       (dired-du-size-format t)
+       (dired-du-on-find-dired-ok t))
    #+END_SRC
 ** dired ls (lisp emulation)
    #+BEGIN_SRC emacs-lisp
@@ -12168,13 +12170,16 @@
   #+end_src
 * shell-pop
   #+begin_src emacs-lisp
-  (use-package shell-pop
-    :config
-    (defun gb/shell-pop-new ()
-      (interactive)
-      (let ((current-prefix-arg '(4))) ;; emulate C-u
-        (call-interactively 'shell-pop)))
-    :bind (("C-c C-h" . gb/shell-pop-new)))
+    (use-package shell-pop
+      :ensure t
+      :config
+      (defun gb/shell-pop-new ()
+        (interactive)
+        (let ((current-prefix-arg '(4))) ;; emulate C-u
+          (call-interactively 'shell-pop)))
+      :bind (("C-c C-h" . gb/shell-pop-new)
+             :map dired-mode-map
+             ("C-c C-h" . gb/shell-pop-new)))
   #+end_src
 * restclient
   - provide a mode that allows for rest calls and result presentation
