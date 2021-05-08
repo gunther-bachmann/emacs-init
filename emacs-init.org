@@ -15298,6 +15298,8 @@
     ;; -------------------------------------------------------------------------------- package: make this customizable
     (defvar dired-annotator-annotations-folder "/home/pe/documents/annotations" "location for annotation files")
     (defvar dired-annotator-note-icon (all-the-icons-faicon "sticky-note") "icon to use for note indication in dired buffer")
+    (defvar dired-annotator-note-popup-width 56 "width of the note that pops up")
+    (defvar dired-annotator-note-popup-height 40 "height of the note that pops up")
 
     ;; internal only
     (defvar dired-annotator--pinning-modes '(immutable-file immutable-location) "list of symbols used as pinning-mode")
@@ -15562,7 +15564,8 @@
       (when-let* ((absolute-file-name (dired-x-guess-file-name-at-point))
                   (annotation (dired-annotator--get-annotation-for absolute-file-name))
                   (annotation-abs-file-name (format "%s/%s" dired-annotator-annotations-folder annotation)))
-        (let ((pf (posframe-show (find-file-noselect annotation-abs-file-name) :position (point) :lines-truncate t :width 40 :height 40
+        (let ((pf (posframe-show (find-file-noselect annotation-abs-file-name) :position (point) :lines-truncate t
+                                 :width dired-annotator-note-popup-width :height dired-annotator-note-popup-height
                                  :border-color "plum4" :border-width 2 :left-fringe 3 :right-fringe 3 )))
           (add-hook 'pre-command-hook #'dired-annotator--remove-all-posframes))))
 
