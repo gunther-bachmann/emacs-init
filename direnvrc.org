@@ -1,0 +1,35 @@
+#+title: direnvrc
+* header
+  #+begin_src sh :comments link :eval no :tangle ~/.direnvrc
+    #------------------------------------------------------------------
+    # THIS FILE IS GENERATED (To edit please open file from link above)
+    #------------------------------------------------------------------
+  #+end_src
+* alias
+  #+begin_src sh :eval no :tangle ~/.direnvrc
+    # work around to define aliases within .envrc
+    # (see https://github.com/direnv/direnv/issues/73#issuecomment-174295790)
+    #
+    # Example: export_alias zz "ls -la"
+    export_alias() {
+      local name=$1
+      shift
+      local PROJECT_DIR=$(expand_path .)
+      local alias_dir=$PROJECT_DIR/.direnv/aliases
+      local target="$alias_dir/$name"
+      mkdir -p "$alias_dir"
+      PATH_add "$alias_dir"
+      echo "#! /usr/bin/env -S bash -e" > "$target"
+      echo "$@ \$@" >> "$target"
+      chmod +x "$target"
+    }
+  #+end_src
+* guix
+  #+begin_src sh :eval no :tangle ~/.direnvrc
+    # allow for guix environment execution (e.g. 'use_guix --ad-hoc guile')
+    use_guix() {
+      eval "$(guix environment "$@" --search-paths)"
+    }
+  #+end_src
+* nix
+  - ideas to speed up, see https://github.com/direnv/direnv/wiki/Nix
