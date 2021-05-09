@@ -15817,6 +15817,13 @@
 #+BEGIN_SRC emacs-lisp
 (report-elapsed "check-point - compilation mode configuration")
 #+END_SRC
+* EVAL symbolist
+  - list all bound symbols (and their type) by regexp or prefix
+  #+begin_src emacs-lisp
+    (use-package symbolist
+      :ensure t
+      :commands (symbolist-regexp symbolist-prefix))
+  #+end_src
 * INTERESTING
 ** blog/presentation
   - org-present using a cell phone to switch pages
