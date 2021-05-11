@@ -331,6 +331,9 @@
       (use-package private
         :load-path "~/.emacs.d/accounts/"))
 
+    (when (file-exists-p "~/.emacs.d/work/itemis.el")
+      (use-package itemis
+        :load-path "~/.emacs.d/work/"))
   #+END_SRC
 * initial setting of vars
   #+BEGIN_SRC emacs-lisp
@@ -9646,7 +9649,6 @@
          :init
          (setq slack-enable-global-mode-string t)
          (setq slack-enable-emoji t) ;; if you want to enable emoji, default nil
-         ;; (setq slack-room-subscription '(clojurians itemisHamburg))
          (setq slack-prefer-current-team t)
 
          (with-eval-after-load 'tracking
@@ -9664,16 +9666,6 @@
          (setq lui-fill-column 110)
          (setq slack-thread-also-send-to-room nil) ;; never send thread message to channel, too
 
-         (setq slack-modeline-filter
-               '("^itemis - general$"
-                 "^itemis - somethingspecial$"
-                 "^itemis - random$"
-                 "^itemis - xtext"
-                 "^itemis - web-engineering$"
-                 "^itemis - nintendo-toad_pr$"
-                 "^itemis - nintendo-toad$"
-                 "^itemis - publications$"))
-
          (defun gb/timer-active-p (timer)
            "check whether the given timer is currently active"
            (or (memq timer timer-list)
@@ -9683,7 +9675,7 @@
          (defun slack-team-modeline-enabledp (team)
            (if (boundp 'pomodoro-timer)
                (not (gb/timer-active-p pomodoro-timer))
-             (s-equals? (oref team name) "itemis")))
+             (s-equals? (oref team name) gb/slack--default-team)))
 
          (defun gb/slack-update-modeline-advice ()
            (slack-update-modeline))
@@ -9788,7 +9780,7 @@
            (unless gb/slack-team-registered
              (let* ((auth-map (jde-read-properties-file "~/.slack.api.token.gpg")))
                (slack-register-team
-                :name "itemis"
+                :name gb/slack--default-team
                 :default t
                 :token (gethash "slack-token" auth-map)
                 :subscribed-channels '()
@@ -9803,7 +9795,6 @@
 
          ;; make sure to not track common channels (annoying)
          ;; this is only relevant if tracking is used (which currently isn't)
-         (setq tracking-ignored-buffers '(".*itemis : general.*" ".*itemis : xtext.*" ".*homecooking.*" ".*nintendo-pipe_pr.*" ".*itemis : random.*"))
 
          (defun gb/slack-all-room-names ()
            ""
@@ -12763,11 +12754,7 @@
                   (defun gb/exwm-previous-workspace (&optional inc)
                     "jump to the previous (inc) workspace"
                     (interactive)
-                    (gb/exwm-next-workspace (- (or inc 1))))
-
-                  (when (file-exists-p "~/.emacs.d/work/itemis.el")
-                    (use-package itemis
-                      :load-path "~/.emacs.d/work/")))
+                    (gb/exwm-next-workspace (- (or inc 1)))))
 
           :ensure t))
     #+END_SRC
