@@ -15750,25 +15750,26 @@
 #+END_SRC
 * TODO org babel tangle utilities
   #+begin_src emacs-lisp
-    (require 'dired-x)
     (require 'dash)
 
     (defun gb/org-babel-tangle-folder (folder)
       "tangle all files ending on .org in the given FOLDER and return a list of target file names"
       (when (file-directory-p folder)
-        (->> (directory-files folder)
-          (--filter (string-match-p ".*\.org$" it) )
-          (--map (org-babel-tangle-file (format "%s/%s" folder it)))
+        (->> (directory-files folder t "\.org$")
+          (--map (org-babel-tangle-file it))
           (-flatten))))
 
     (defun gb/diredp--babel-tangle-folder ()
       "interactively guess the folder and tangle all org files within"
       (interactive)
-      (if-let* ((folder (dired-x-guess-file-name-at-point))
+      (if-let* ((folder (dired-get-filename))
                 (_      (file-directory-p folder)))
-          (let ((target-files (gb/org-babel-tangle-folder folder)))
-            (message (format "generated %d files." (length target-files))))
+          (when (yes-or-no-p (format "Do you realy want to tangle all org files in %s? " folder))
+            (let ((target-files (gb/org-babel-tangle-folder folder)))
+              (message (format "generated %d files." (length target-files)))))
         (message "seems not to be a folder")))
+
+    (bind-key "C-c C-v C-t" #'gb/diredp--babel-tangle-folder dired-mode-map)
 
   #+end_src
 #+BEGIN_SRC emacs-lisp
