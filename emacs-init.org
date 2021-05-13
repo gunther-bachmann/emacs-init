@@ -12701,6 +12701,48 @@
                         (beacon-blink)
                         nil)))
 
+                  (defun gb/exwm-swap-workspace-through-to-bottom ()
+                    "move all workspaces 'below' this one, one up and put the current workspace all the way to the bottom"
+                    (interactive)
+                    (let* ((workspaceIdx (exwm-workspace--position exwm-workspace--current))
+                           (lastIndex (- (length exwm-workspace--list) 1))
+                           (single-mon-p (string-empty-p (gb/get-second-monitor))))
+                      (when (and (< workspaceIdx lastIndex)
+                               (or single-mon-p (> workspaceIdx 0)))
+                        (dotimes (i (- lastIndex workspaceIdx))
+                          (exwm-workspace-move exwm-workspace--current (+ i 1 workspaceIdx))))))
+
+                  (defun gb/exwm-swap-workspace-up-to-top ()
+                    "move all workspaces 'above' this one, one down and put the current workspace all the way to the top"
+                    (interactive)
+                    (let* ((workspaceIdx (exwm-workspace--position exwm-workspace--current))
+                           (lastIndex (- (length exwm-workspace--list) 1))
+                           (single-mon-p (string-empty-p (gb/get-second-monitor))))
+                      (when (and (> workspaceIdx 0)
+                               (or single-mon-p (> workspaceIdx 1)))
+                        (dotimes (i (- workspaceIdx (if single-mon-p 0 1)))
+                          (exwm-workspace-move exwm-workspace--current (- workspaceIdx 1 i))))))
+
+                  (defun gb/exwm-swap-workspace-down ()
+                    "move the current workspace one down"
+                    (interactive)
+                    (let* ((workspaceIdx (exwm-workspace--position exwm-workspace--current))
+                           (lastIndex (- (length exwm-workspace--list) 1))
+                           (single-mon-p (string-empty-p (gb/get-second-monitor))))
+                      (when (and (< workspaceIdx lastIndex)
+                               (or single-mon-p (> workspaceIdx 0)))
+                        (exwm-workspace-move exwm-workspace--current (1+ workspaceIdx)))))
+
+                  (defun gb/exwm-swap-workspace-up ()
+                    "move the current workspace one up"
+                    (interactive)
+                    (let* ((workspaceIdx (exwm-workspace--position exwm-workspace--current))
+                           (lastIndex (- (length exwm-workspace--list) 1))
+                           (single-mon-p (string-empty-p (gb/get-second-monitor))))
+                      (when (and (> workspaceIdx 0)
+                               (or single-mon-p (> workspaceIdx 1)))
+                        (exwm-workspace-move exwm-workspace--current (1- workspaceIdx)))))
+
                   (defun gb/exwm-workspace-down ()
                     "jump to workspace down of the current one (multi monitor)"
                     (interactive)
@@ -13065,9 +13107,14 @@
           (exwm-input-set-key (kbd "C-M-s-l") #'gb/suspend-laptop)
           (exwm-input-set-key (kbd "C-M-s-s") #'gb/shutdown)
           (exwm-input-set-key (kbd "C-M-s-r") #'gb/reboot)
+          (exwm-input-set-key (kbd "s-e") #'buffer-expose)
+
           (exwm-input-set-key (kbd "s-'") #'gb/exwm-workspace-up)
           (exwm-input-set-key (kbd "s-/") #'gb/exwm-workspace-down)
-          (exwm-input-set-key (kbd "s-e") #'buffer-expose)
+          (exwm-input-set-key (kbd "M-s-'") #'gb/exwm-swap-workspace-up)
+          (exwm-input-set-key (kbd "C-M-s-'") #'gb/exwm-swap-workspace-up-to-top)
+          (exwm-input-set-key (kbd "M-s-/") #'gb/exwm-swap-workspace-down)
+          (exwm-input-set-key (kbd "C-M-s-/") #'gb/exwm-swap-workspace-through-to-bottom)
 
           ;; shrink selected window horizontally
           (exwm-input-set-key (kbd "C-s-<left>") 'shrink-window-horizontally-effect)
