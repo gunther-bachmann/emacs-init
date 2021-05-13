@@ -15329,7 +15329,7 @@
     (require 'dash) ;; TODO: check how to replace this
 
     ;; -------------------------------------------------------------------------------- package: make this customizable
-    (defvar dired-annotator-annotations-folder "/home/pe/documents/annotations" "location for annotation files")
+    (defvar dired-annotator-annotations-folder (expand-file-name "~/documents/annotations") "location for annotation files")
     (defvar dired-annotator-note-icon (all-the-icons-faicon "sticky-note") "icon to use for note indication in dired buffer")
     (defvar dired-annotator-note-popup-width 56 "width of the note that pops up")
     (defvar dired-annotator-note-popup-height 40 "height of the note that pops up")
@@ -15606,7 +15606,7 @@
           (when-let ((fb (get-file-buffer annotation-file-name)))
             (kill-buffer fb))
           (dired-annotator--remove-note-icon-from-line)
-          (dired-annotator--unhash-file (dired-annotator--hash annotated-file-name) annotated-file-name)
+          (dired-annotator--unhash-file (dired-annotator--hash annotated-file-name dired-annotator--hash-mode) annotated-file-name)
           (delete-file annotation-file-name))))
 
     (defun dired-annotator-show-note ()
@@ -15622,6 +15622,7 @@
 
     ;; -------------------------------------------------------------------------------- dired-subtree integration
     (when (package-installed-p 'dired-subtree)
+      (report-elapsed "check-point - dired-annotator: dired subtree integration")
       (eval-after-load 'dired-subtree
         (progn
           (defun dired-annotator--subtree--possibly-show-for-inserted ()
@@ -15631,10 +15632,10 @@
                 (dired-annotator--show-icons-in-region (overlay-start ov) (overlay-end ov)))))
 
           (defun dired-annotator--subtree--cleanup-icons-after-fold ()
-            ""
+            "remove any remaining icons after dired subtree is folded"
             (save-restriction
               (let ((line (point)))
-                (next-line)
+                (forward-line)
                 (beginning-of-line)
                 (let ((end (1+ (point))))
                   (message (format "hide from %d to %d" line end))
@@ -15658,6 +15659,19 @@
 
     ;; --------------------------------------------------------------------------------
     (dired-annotator--load-annotation-info-from-folder)
+
+
+    ;; additional ideas
+    ;; - idea: how to change pinning mode for files ?
+    ;; - BUG: make sure that posframe is displayed over x-windows (parent frame = 0 + heed multi screen offset)
+    ;; - BUG: make sure that reverting buffer cleans up overlays
+    ;; - BUG: make sure that folding subdirs does not leave note overlays
+    ;; - TODO: provide function to copy annotation file name into kill ring
+    ;; - idea: provide function to dired into annotation dir with point at current note
+    ;; - TODO: make a package of it
+    ;; - TODO: add testing
+    ;; - TODO: add hooks for customization
+
 
 
     ;; additional ideas
