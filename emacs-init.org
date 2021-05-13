@@ -7480,11 +7480,15 @@
        (when (file-exists-p gb/diary-calendar-file)
          (setq diary-file gb/diary-calendar-file))
 
+       (defvar calendars `((,gb/itemis-nord-google-calendar-url . ,gb/itemis-nord-calendar-file)
+                           (,gb/itemis-google-calendar-url . ,gb/itemis-calendar-file)
+                           (,gb/private-google-calendar-url . ,gb/private-calendar-file))
+       "list of url file-name pairs of calendars that should be get and put into the agenda")
+
        (defun gb/sync-update-agenda-with-google-calendar ()
          "synchronous update diary with google calendar"
-         (shell-command-to-string (format "wget -q -O %s-temp %s" gb/itemis-calendar-file gb/itemis-google-calendar-url))
-         (shell-command-to-string (format "wget -q -O %s-temp %s" gb/itemis-nord-calendar-file gb/itemis-nord-google-calendar-url))
-         (shell-command-to-string (format "wget -q -O %s-temp %s" gb/private-calendar-file gb/private-google-calendar-url))
+         (--each calendars
+           (shell-command-to-string (format "wget -q -O %s-temp %s" (cdr it) (car it))))
          (gb/import-diary-from-google-calendar-files))
 
        (defun gb/import-diary-from-google-calendar-files ()
@@ -7493,28 +7497,24 @@
          (setq diary-file "~/.emacs.d/diary")
          (when (file-exists-p (format "%s-temp" gb/diary-calendar-file))
            (delete-file (format "%s-temp" gb/diary-calendar-file)))
-         (--each `(,gb/diary-calendar-file ,gb/itemis-calendar-file ,gb/itemis-nord-calendar-file ,gb/private-calendar-file)
-           (progn
-             (when-let ((buffer (get-file-buffer it)))
-               (kill-buffer buffer))
-             (when-let ((buffer (get-file-buffer (format "%s-temp" it))))
-               (kill-buffer buffer))
-             (when (file-exists-p it) ;; delete diary-calendar-file also, since it needs to be rewritten!
-               (delete-file it))))
-         (--each `(,gb/private-calendar-file ,gb/itemis-calendar-file ,gb/itemis-nord-calendar-file)
-           (let ((temp-file (format "%s-temp" it)))
-             (when (file-exists-p temp-file)
-               (copy-file temp-file it)
-               (delete-file temp-file))))
-         (with-temp-buffer
-           (insert-file gb/itemis-calendar-file)
-           (icalendar-import-buffer (format "%s-temp" gb/diary-calendar-file) t t))
-         (with-temp-buffer
-           (insert-file gb/itemis-nord-calendar-file)
-           (icalendar-import-buffer (format "%s-temp" gb/diary-calendar-file) t t))
-         (with-temp-buffer
-           (insert-file gb/private-calendar-file)
-           (icalendar-import-buffer (format "%s-temp" gb/diary-calendar-file) t t))
+         (let* ((calendar-files (--map (cdr it) calendars))
+                (all-files (append (list gb/diary-calendar-file) calendar-files)))
+           (--each all-files
+             (progn
+               (when-let ((buffer (get-file-buffer it)))
+                 (kill-buffer buffer))
+               (when-let ((buffer (get-file-buffer (format "%s-temp" it))))
+                 (kill-buffer buffer))
+               (when (file-exists-p it) ;; delete diary-calendar-file also, since it needs to be rewritten!
+                 (delete-file it))))
+           (--each calendar-files
+             (let ((temp-file (format "%s-temp" it)))
+               (when (file-exists-p temp-file)
+                 (copy-file temp-file it)
+                 (delete-file temp-file)))
+             (with-temp-buffer
+               (insert-file it)
+               (icalendar-import-buffer (format "%s-temp" gb/diary-calendar-file) t t))))
          (if (executable-find "python3")
              (shell-command-to-string (format "cat %s | python3 -c \"import sys; from urllib.parse import unquote; print(unquote(sys.stdin.read()));\" > %s" (format "%s-temp" gb/diary-calendar-file) gb/diary-calendar-file))
            (warn "cannot urldecode agenda file (python3 missing)")
