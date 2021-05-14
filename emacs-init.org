@@ -15316,15 +15316,32 @@
 #+BEGIN_SRC emacs-lisp
 (report-elapsed "check-point - backup duplicity support")
 #+END_SRC
-* TODO dired-annotator - make package of this
+* dired-annotator
   #+begin_src emacs-lisp
     (use-package uuid
       :ensure t)
 
     (use-package dired-annotator
+      :after (posframe all-the-icons)
       :load-path "~/repo/emacs-dired-annotator"
       :custom ((dired-annotator-note-icon (all-the-icons-faicon "sticky-note"))
-               (dired-annotator-annotations-folder (expand-file-name "~/documents/annotations")))
+               (dired-annotator-annotations-folder (expand-file-name "~/documents/annotations"))
+               (dired-annotator-note-popup-hook #'dired-annotator--posframe-note-popup)
+               (dired-annotator-note-popup-remove-hook #'dired-annotator--remove-all-posframes))
+      :init
+      (defun dired-annotator--remove-all-posframes ()
+        "remove all posframes"
+        (unless (eq 'dired-annotator-show-note (lookup-key dired-mode-map (this-single-command-keys)))
+          (setq dired-annotator--note-should-not-popup nil))
+        (ignore-errors
+          (posframe-hide-all)))
+
+      (defun dired-annotator--posframe-note-popup (position annotation-file)
+        (setq dired-annotator--note-should-not-popup t)
+        (posframe-show (find-file-noselect annotation-file) :position position :lines-truncate t
+                       :width dired-annotator-note-popup-width :height dired-annotator-note-popup-height
+                       :border-color "plum4" :border-width 2 :left-fringe 3 :right-fringe 3 ))
+
       :bind (:map dired-mode-map
                   ("C-c a s" . #'dired-annotator-show-icons)
                   ("C-c a h" . #'dired-annotator-hide-icons)
