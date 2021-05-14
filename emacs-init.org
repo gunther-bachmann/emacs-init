@@ -2039,6 +2039,7 @@
        "reinitialize fonts e.g. if resolution changed etc."
        (interactive)
        (setq gb/setup-main-fonts-needs-execution t)
+       (setq doom-modeline--font-width-cache nil)
        (gb/setup-main-fonts))
 
      ;; (gb/setup-main-fonts)
