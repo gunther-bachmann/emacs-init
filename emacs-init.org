@@ -1491,13 +1491,14 @@
 ** allowed dir locals
    - look into [[file:~/.emacs.d/init.el]] search for 'safe-local-variable-values' and set these here accordingly
    #+begin_src emacs-lisp
-     (put 'org-image-actual-width 'safe-local-variable #'integerp)
+     (put 'org-image-actual-width 'safe-local-variable #'listp)
      (put 'org-tree-slide-presentation-length 'safe-local-variable #'integerp)
      (put 'typescript-indent-level 'safe-local-variable #'integerp)
      (put 'js-indent-level 'safe-local-variable #'integerp)
      (put 'json-reformat:indent-width 'safe-local-variable #'integerp)
      (put 'web-mode-code-indent-offset 'safe-local-variable #'integerp)
      (put 'web-mode-script-padding 'safe-local-variable #'integerp)
+     (put 'web-mode-enable-auto-indentation 'safe-local-variable 'booleanp)
      (put 'web-mode-markup-indent-offset 'safe-local-variable #'integerp)
      (custom-set-variables
       '(safe-local-variable-values

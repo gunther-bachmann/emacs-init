@@ -22,7 +22,7 @@ work (otherwise those of the snippets are used instead).
      ,#+begin_src emacs-lisp
        ;; Local Variables:
        ;; eval: (flyspell-mode 0) ;; no spell check errors
-       ;; org-image-actual-width: 100
+       ;; org-image-actual-width: (100)
        ;; fill-column:  80
        ;; eval: (gb/org-roam-open-entry-visibility)
        ;; End:
@@ -48,7 +48,7 @@ work (otherwise those of the snippets are used instead).
      ,#+begin_src emacs-lisp
        ;; remember to start the presentation with: M-x gb/presentation-start
        ;; Local Variables:
-       ;; org-image-actual-width: 600
+       ;; org-image-actual-width: (400)
        ;; org-tree-slide-header: nil
        ;; org-tree-slide-heading-emphasis: t
        ;; org-tree-slide-modeline-display: 'lighter
