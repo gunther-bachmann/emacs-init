@@ -6,7 +6,15 @@
     #------------------------------------------------------------------
 
     WATT=`cat /sys/class/power_supply/BAT0/power_now | awk '{print $1*10^-6}'`
-    printf "%4.1f W" "$WATT"
+    LOW=$(echo "${WATT} < 15" | bc)
+    AVG=$(echo "${WATT} < 25" | bc)
+    if [ $LOW -eq 1 ]; then
+      printf "%%{F#080}%4.1f W" "$WATT"
+    elif [ $AVG -eq 1 ]; then
+      printf "%%{F#888}%4.1f W" "$WATT"
+    else
+      printf "%%{F#800}%4.1f W" "$WATT"
+    fi
   #+end_src
 
 # Local Variables:

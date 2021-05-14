@@ -38,7 +38,7 @@
           echo "UNLOCK ${DISPLAYED_DIFF}${DISPLAYED_TRIGGER}"
         fi
       else
-        echo "ok ${DISPLAYED_DIFF}${DISPLAYED_TRIGGER}"
+        echo "%{F#555}ok ${DISPLAYED_DIFF}${DISPLAYED_TRIGGER}"
       fi
     fi
   #+end_src

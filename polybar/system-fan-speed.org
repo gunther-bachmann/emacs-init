@@ -12,7 +12,7 @@
         speed_round=$(echo "scale=1;$speed/1000" | bc -l )
         echo "$speed_round"
     else
-       echo "off"
+       echo "%{F#555}off"
     fi
   #+end_src
 

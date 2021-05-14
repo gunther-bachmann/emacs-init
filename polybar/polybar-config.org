@@ -369,14 +369,14 @@
     ;   <bar-capacity>
     ;   <ramp-capacity>
     ;   <animation-charging>
-    format-charging = <label-charging>
+    format-charging = <ramp-capacity> %{F#822}<label-charging>
 
     ; Available tags:
     ;   <label-discharging> (default)
     ;   <bar-capacity>
     ;   <ramp-capacity>
     ;   <animation-discharging>
-    format-discharging = <ramp-capacity> <label-discharging>
+    format-discharging =<ramp-capacity> <label-discharging>
 
     ; Available tags:
     ;   <label-full> (default)
@@ -389,28 +389,28 @@
     ;   %percentage_raw%
     ;   %time%
     ;   %consumption% (shows current charge rate in watts)
-    label-charging = + %percentage%%
+    label-charging = %percentage%% +
 
     ; Available tokens:
     ;   %percentage% (default) - is set to 100 if full-at is reached
     ;   %percentage_raw%
     ;   %time%
     ;   %consumption% (shows current discharge rate in watts)
-    label-discharging = - %percentage%%
+    label-discharging = %percentage%% -
 
     ; Available tokens:
     ;   %percentage% (default) - is set to 100 if full-at is reached
     ;   %percentage_raw%
     label-full = Fully charged
 
-    ramp-capacity-0 = ▁
-    ramp-capacity-1 = ▂
-    ramp-capacity-2 = ▃
+    ramp-capacity-0 = %{F#ff0}▁
+    ramp-capacity-1 = %{F#ff0}▂
+    ramp-capacity-2 = %{F#880}▃
     ramp-capacity-3 = ▄
     ramp-capacity-4 = ▅
     ramp-capacity-5 = ▆
-    ramp-capacity-6 = ▇
-    ramp-capacity-7 = █
+    ramp-capacity-6 = %{F#282}▇
+    ramp-capacity-7 = %{F#282}█
     ; ramp-capacity-0 = 
     ; ramp-capacity-1 = 
     ; ramp-capacity-2 = 
@@ -560,7 +560,7 @@
   #+begin_src conf :eval no :tangle ~/.config/polybar/config
     [module/vpn-service]
     type = custom/script
-    exec  = ~/.config/polybar/service-type-status.sh "openvpn" "VPN↑" "vpn↓"
+    exec  = ~/.config/polybar/service-type-status.sh "openvpn" "%{F#fff}VPN↑" "%{F#555}vpn↓"
     interval = 15
     click-right = $EDITOR --eval '(gb/net-vpn-log-show)'
   #+end_src
