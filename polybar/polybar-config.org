@@ -560,7 +560,7 @@
   #+begin_src conf :eval no :tangle ~/.config/polybar/config
     [module/vpn-service]
     type = custom/script
-    exec  = ~/.config/polybar/service-type-status.sh "openvpn" "%{F#fff}VPN↑" "%{F#555}vpn↓"
+    exec  = ~/.config/polybar/service-type-status.sh "openvpn" "%{F#fff}VPN" "%{F#555}vpn"
     interval = 15
     click-right = $EDITOR --eval '(gb/net-vpn-log-show)'
   #+end_src
