@@ -305,9 +305,9 @@
     ramp-signal-3 = %{F#da2}▃
     ramp-signal-4 = %{F#da2}▄
     ramp-signal-5 = ▅
-    ramp-signal-6 = %{F#282}▆
-    ramp-signal-7 = %{F#282}▇
-    ramp-signal-8 = %{F#282}
+    ramp-signal-6 = %{F#558d48}▆
+    ramp-signal-7 = %{F#558d48}▇
+    ramp-signal-8 = %{F#558d48}█
 
     ; ramp-font = 5
 
@@ -370,14 +370,14 @@
     ;   <bar-capacity>
     ;   <ramp-capacity>
     ;   <animation-charging>
-    format-charging = <ramp-capacity> %{F#da2}<label-charging>
+    format-charging = %{F#a82}<label-charging> <ramp-capacity>
 
     ; Available tags:
     ;   <label-discharging> (default)
     ;   <bar-capacity>
     ;   <ramp-capacity>
     ;   <animation-discharging>
-    format-discharging =<ramp-capacity> <label-discharging>
+    format-discharging = %{F#888}<label-discharging> <ramp-capacity>
 
     ; Available tags:
     ;   <label-full> (default)
@@ -390,14 +390,14 @@
     ;   %percentage_raw%
     ;   %time%
     ;   %consumption% (shows current charge rate in watts)
-    label-charging = %percentage%% +
+    label-charging = %percentage%%
 
     ; Available tokens:
     ;   %percentage% (default) - is set to 100 if full-at is reached
     ;   %percentage_raw%
     ;   %time%
     ;   %consumption% (shows current discharge rate in watts)
-    label-discharging = %percentage%% -
+    label-discharging = %percentage%%
 
     ; Available tokens:
     ;   %percentage% (default) - is set to 100 if full-at is reached
@@ -410,8 +410,8 @@
     ramp-capacity-3 = %{F#880}▄
     ramp-capacity-4 = ▅
     ramp-capacity-5 = ▆
-    ramp-capacity-6 = %{F#282}▇
-    ramp-capacity-7 = %{F#282}█
+    ramp-capacity-6 = %{F#558d48}▇
+    ramp-capacity-7 = %{F#558d48}█
     ; ramp-capacity-0 = 
     ; ramp-capacity-1 = 
     ; ramp-capacity-2 = 
