@@ -8680,6 +8680,12 @@
         ;;      (base-font-color     (face-foreground 'default nil 'default))
         ;;      (headline           `(:inherit default :weight bold )))
 
+        (cond
+         ((eq gb/theme-mode 'light) nil) ;; TODO complete
+         (t (progn
+              (--each '((org-meta-line ((t (:height 0.8 :foreground "gray50")))))
+                (progn (add-to-list 'gb/list-of-faces-to-set it)(custom-set-faces it))))))
+
         (custom-theme-set-faces 'user
                                 ;;                          `(org-document-title ((t ( :height 1.5 :underline nil))))
                                 ;;                          `(org-level-8 ((t (,@headline ,@variable-tuple))))
