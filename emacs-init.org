@@ -14310,6 +14310,16 @@
               (beginning-of-line)
               (insert "\n\n")
               (goto-char (point-max)))
+
+            ;; redefine this function to execute org-content at the end
+            (defun nroam--set-sections-visibility ()
+              "Set nroam section visibility according to `org-set-startup-visibility'."
+              (when (nroam--sections-inserted-p)
+                (save-restriction
+                  (narrow-to-region nroam-start-marker nroam-end-marker)
+                  (org-set-startup-visibility)
+                  (org-content 2))))
+
             (add-hook 'nroam--sections #'gb/nroam-insert-line-separator) ;; nroam--sections
             (add-hook 'org-mode-hook #'nroam-setup-maybe)
             (custom-set-faces  '(form-feed-line ((t (:strike-through "dim gray")))))))))
