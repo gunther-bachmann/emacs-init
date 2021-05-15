@@ -1491,7 +1491,10 @@
 ** allowed dir locals
    - look into [[file:~/.emacs.d/init.el]] search for 'safe-local-variable-values' and set these here accordingly
    #+begin_src emacs-lisp
-     (put 'org-image-actual-width 'safe-local-variable #'listp)
+     (defun int-or-listp (&rest args)
+       (or (apply #'listp args) (apply #'integerp args)))
+
+     (put 'org-image-actual-width 'safe-local-variable #'int-or-listp)
      (put 'org-tree-slide-presentation-length 'safe-local-variable #'integerp)
      (put 'typescript-indent-level 'safe-local-variable #'integerp)
      (put 'js-indent-level 'safe-local-variable #'integerp)
@@ -13541,7 +13544,7 @@
         :ensure t
         :config
         (setq org-tree-slide-header nil)
-        (setq org-tree-slide-heading-emphasis t))
+        (setq org-tree-slide-heading-emphasis nil))
     #+end_src
 * eglot
   #+begin_src emacs-lisp
@@ -15220,7 +15223,8 @@
 * org-tree-slide-pause
   #+begin_src emacs-lisp
     (use-package org-tree-slide-pauses
-      :load-path "~/repo/org-tree-slide-pauses")
+      :load-path "~/repo/org-tree-slide-pauses"
+      :bind (:map  org-tree-slide-mode-map ("C-M->" . #'org-tree-slide-pause-goto-end-pause)))
   #+end_src
 * EVAL embark - provide context sensitive menu
   - see https://github.com/oantolin/embark
