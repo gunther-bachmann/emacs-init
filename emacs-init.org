@@ -14276,13 +14276,21 @@
             :commands (org-roam-server-mode)
             :custom (org-roam-server-port "8092")
             :ensure t
+            :bind (("C-c n b b" . gb/org-roam-server)
+                   ("C-c n b k" . gb/org-roam-server-kill))
             :config
             (defun gb/org-roam-server ()
               "start org roam server mode and open browser"
               (interactive)
               (unless org-roam-server-mode
                 (org-roam-server-mode 1))
-              (browse-url "http://localhost:8092")))
+              (browse-url "http://localhost:8092"))
+
+            (defun gb/org-roam-server-kill ()
+              "start org roam server mode and open browser"
+              (interactive)
+              (when org-roam-server-mode
+                (org-roam-server-mode -1))))
 
           (use-package company-org-roam
             :after (org-roam company)
