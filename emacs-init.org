@@ -15358,6 +15358,7 @@
                (dired-annotator-annotations-folder (expand-file-name "~/documents/annotations"))
                (dired-annotator-note-popup-hook #'dired-annotator--posframe-note-popup)
                (dired-annotator-note-popup-remove-hook #'dired-annotator--remove-all-posframes))
+      :hook (dired-mode . dired-annotator-check-dir-local-show)
       :init
       (defconst dired-annotator-note-popup-width 56 "width of the note that pops up")
       (defconst dired-annotator-note-popup-height 40 "max height of the note that pops up")
