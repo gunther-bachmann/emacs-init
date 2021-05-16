@@ -12462,7 +12462,7 @@
 
          (defun gb/reboot--immediately ()
            "immediately execute reboot, without running hooks nor asking questions"
-           (shell-command "reboot"))
+           (shell-command "systemctl --no-wall reboot"))
 
          (defun gb/reboot ()
            "reboot pc"
@@ -12485,7 +12485,7 @@
 
          (defun gb/shutdown--immediately ()
            "immediately execute shutdown, without running hooks nor asking questions"
-           (shell-command "shutdown -h now"))
+           (shell-command "systemctl --no-wall poweroff"))
 
          (defun gb/shutdown ()
            "reboot pc"
