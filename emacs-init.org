@@ -15463,6 +15463,50 @@
 #+BEGIN_SRC emacs-lisp
 (report-elapsed "check-point - udiskctl")
 #+END_SRC
+* TODO video streamlining
+  #+begin_src emacs-lisp
+    (defvar gb-typing-timer nil "timer run after typing happend")
+    (defvar gb-typing-muted-mic nil "mic muted through typing activity")
+    (defvar gb/video-modeline-indicator '(:eval (gb/video-modeline))  "modeline indicator for video conference")
+
+    (defun gb/video-modeline ()
+      "get modline entry for video adjustment indication"
+      (if gb-typing-muted-mic
+          (propertize " 𝚺" 'font-lock-face  '(:foreground "#822"))
+        (propertize " 𝚺" 'font-lock-face  '(:foreground "#282"))))
+
+    (defun gb/mute-since-typing ()
+      "mute microphone since typing is taking place"
+      (setq gb-typing-muted-mic t)
+      (with-ignored-messages
+       (gb/audio-mute-mic)))
+
+    (defun gb/unmute-since-no-typing ()
+      "unmute microphone since no typing is taking place"
+      (setq gb-typing-muted-mic nil)
+      (with-ignored-messages
+       (gb/audio-unmute-mic)))
+
+    (defun gb/on-typing ()
+      (unless gb-typing-muted-mic
+        (gb/mute-since-typing))
+      (when gb-typing-timer
+        (cancel-timer gb-typing-timer))
+      (setq gb-typing-timer (run-with-timer 1 nil  #'gb/unmute-since-no-typing)))
+
+    (defun gb/video-conference-on ()
+      (interactive)
+      (add-hook 'pre-command-hook  #'gb/on-typing)
+      (setq global-mode-string (append global-mode-string (list gb/video-modeline-indicator)))
+      (gb/cpu-freq-set 1600000)
+      (force-mode-line-update t))
+
+    (defun gb/video-conference-off ()
+      (interactive)
+      (remove-hook 'pre-command-hook  #'gb/on-typing)
+      (gb/cpu-freq-unlimit)
+      (setq global-mode-string (remove gb/video-modeline-indicator global-mode-string)))
+  #+end_src
 * TODO org babel tangle utilities
   #+begin_src emacs-lisp
     (require 'dash)
