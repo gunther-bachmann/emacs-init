@@ -82,7 +82,7 @@
     export EMACS_SOCKET="/run/user/1000/emacs/server" # `lsof -w -c /.*emacs.*/ | grep 'server type' | tr -s " " | cut -d' ' -f9`
     export VISUAL=emacsclient
     export EDITOR="$VISUAL -s $EMACS_SOCKET"
-    export TERM=linux
+    export TERM=dumb-emacs-ansi
     export LC_COLLATE="C" # sort dot files by ls first
     export WINEPREFIX="${HOME}/.wine32"
 
