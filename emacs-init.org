@@ -100,7 +100,7 @@
 * preset
   - things to setup before anything else happens
   #+BEGIN_SRC emacs-lisp
-    (setq gb/log-startup-timing nil) ;; set true for timing messages during startup
+    (setq gb/log-startup-timing t) ;; set true for timing messages during startup
     (setq gb/debug-package nil) ;; fails on all packages that could not be loaded but are not mandatory either
 
     (setq gb/list-of-faces-to-set '()) ;; add-to-list all the customizations wanted, are set on setting up fonts at the end of the initialisation process
@@ -1503,6 +1503,7 @@
      (put 'web-mode-script-padding 'safe-local-variable #'integerp)
      (put 'web-mode-enable-auto-indentation 'safe-local-variable 'booleanp)
      (put 'web-mode-markup-indent-offset 'safe-local-variable #'integerp)
+     (put 'dired-annotator-show 'safe-local-variable 'booleanp)
      (custom-set-variables
       '(safe-local-variable-values
         '((org-tree-slide-content--pos)
@@ -8513,7 +8514,7 @@
         ;;           (setq buffer-read-only t)))))
 
         :config
-        (setq org-startup-folded 'fold) ;; "ensure opened org files are opened in overview (folded)"
+        (setq org-startup-folded t) ;; "ensure opened org files are opened in overview (folded)"
         (setq org-agenda-files '("~/slack.org" "~/itemis.org"))
         (setq gb/use-optimized-folded-src-fontificat nil) ;; fontify src blocks only if they ar not folded!
         (setq org-catch-invisible-edits t)
