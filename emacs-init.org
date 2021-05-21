@@ -632,7 +632,8 @@
           ((eq gb/theme-mode 'light) nil) ;; TODO complete
           (t (progn
                (--each '((link-face ((t (:foreground "#81a2be" :underline (:style line :color "#41526e")))))
-                         (link ((t (:foreground "#81a2be" :underline (:style line :color "#41526e"))))))
+                         (link ((t (:foreground "#81a2be" :underline (:style line :color "#41526e")))))
+                         (region ((t (:extend t :background "gray25" :inverse-video nil)))))
                  (progn (add-to-list 'gb/list-of-faces-to-set it)(custom-set-faces it))))))))
    #+END_SRC
 * splash and initial buffer config
