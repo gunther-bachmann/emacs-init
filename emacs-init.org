@@ -12396,11 +12396,16 @@
              (gb/audio-output-set sink-name)
              (message (format "output: %s" (gb/audio-output-selected)))))
 
+         (defun gb/audio-input-set (audio-device)
+           "set the current audio input to AUDIO-DEVICE.
+         Make sure that AUDIO-DEVICE is an element of (gb/audio-inputs-available)"
+           (shell-command-to-string (format "pactl set-default-source %s" audio-device)))
+
          (defun gb/audio-input-select ()
            "select audio input"
            (interactive)
            (let ((source-name (completing-read "audio-input:" (gb/audio-inputs-available) nil t)))
-             (shell-command-to-string (format "pactl set-default-source %s" source-name))
+             (gb/audio-input-set source-name)
              (message (format "input: %s" (gb/audio-input-selected)))))
 
          (defun gb/audio-restart-server ()
@@ -15513,15 +15518,19 @@
 #+END_SRC
 * TODO video streamlining
   #+begin_src emacs-lisp
+    (require 'dash)
+
     (defvar gb-typing-timer nil "timer run after typing happend")
     (defvar gb-typing-muted-mic nil "mic muted through typing activity")
     (defvar gb/video-modeline-indicator '(:eval (gb/video-modeline))  "modeline indicator for video conference")
+    (defvar gb/headphones-selected nil "are headphones selected as microphone?")
+    (defvar gb/preferred-mic-regex "headset" "search regex to select preferred mic for mute and unmute during vconf")
 
     (defun gb/video-modeline ()
       "get modline entry for video adjustment indication"
-      (if gb-typing-muted-mic
-          (propertize " 𝚺" 'font-lock-face  '(:foreground "#822"))
-        (propertize " 𝚺" 'font-lock-face  '(:foreground "#282"))))
+      (let ((mic-marker (if gb/headphones-selected "µ" " "))
+            (color (if gb-typing-muted-mic "#822" "#282")))
+        (propertize (format " 𝚺%s" mic-marker) 'font-lock-face  `(:foreground ,color))))
 
     (defun gb/mute-since-typing ()
       "mute microphone since typing is taking place"
@@ -15533,17 +15542,26 @@
       "unmute microphone since no typing is taking place"
       (setq gb-typing-muted-mic nil)
       (with-ignored-messages
-       (gb/audio-unmute-mic)))
+       (gb/audio-unmute-mic)
+       (force-mode-line-update t)))
 
     (defun gb/on-typing ()
-      (unless gb-typing-muted-mic
-        (gb/mute-since-typing))
-      (when gb-typing-timer
-        (cancel-timer gb-typing-timer))
-      (setq gb-typing-timer (run-with-timer 1 nil  #'gb/unmute-since-no-typing)))
+      (ignore-errors
+        (unless gb-typing-muted-mic
+          (gb/mute-since-typing)
+          (force-mode-line-update t)))
+      (ignore-errors
+        (when gb-typing-timer
+          (cancel-timer gb-typing-timer)))
+      (setq gb-typing-timer (run-with-timer 0.75 nil  #'gb/unmute-since-no-typing)))
 
     (defun gb/video-conference-on ()
       (interactive)
+      (when gb/preferred-mic-regex
+        (when-let ((audio-device (--first (string-match-p gb/preferred-mic-regex it) (gb/audio-inputs-available))))
+          (gb/audio-input-set audio-device)))
+      (setq gb/headphones-selected (string-match-p gb/preferred-mic-regex (gb/audio-input-selected)))
+      (gb/audio-unmute-mic) ;; start unmuted
       (add-hook 'pre-command-hook  #'gb/on-typing)
       (setq global-mode-string (append global-mode-string (list gb/video-modeline-indicator)))
       (gb/cpu-freq-set 1600000)
@@ -15552,6 +15570,7 @@
     (defun gb/video-conference-off ()
       (interactive)
       (remove-hook 'pre-command-hook  #'gb/on-typing)
+      (gb/audio-unmute-mic)
       (gb/cpu-freq-unlimit)
       (setq global-mode-string (remove gb/video-modeline-indicator global-mode-string)))
   #+end_src
