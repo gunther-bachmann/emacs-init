@@ -4983,10 +4983,28 @@
        (require 'comint)
        (use-package ivy
          :ensure t
-         :bind (:map ivy-mode-map
-                     ("M-y" . #'counsel-yank-pop))
+         :bind (( "C-x C-b" . ivy-switch-buffer) ;; exwm-workspace-switch-to-buffer
+                ( "s-1"     . gb/ivy--program-select-and-run)
+                :map ivy-mode-map
+                ("M-y" . #'counsel-yank-pop))
+         :custom ((ivy-sort-functions-alist ;; sort candidates for the given functions accordingly
+                   '((counsel-minor . ivy-string<)
+                     (counsel-colors-web . ivy-string<)
+                     (counsel-unicode-char . ivy-string<)
+                     (counsel-register . ivy-string<)
+                     (counsel-mark-ring . ivy-string<)
+                     (counsel-file-register . ivy-string<)
+                     (counsel-describe-face . ivy-string<)
+                     (counsel-info-lookup-symbol . ivy-string<)
+                     (counsel-apropos . ivy-string<)
+                     (counsel-describe-symbol . ivy-string<)
+                     (read-file-name-internal . ivy-prescient-sort-function)
+                     (counsel-shell-history)
+                     (t . ivy-prescient-sort-function)))
+                  (ivy--display-transformers-list '())
+                  (ivy-display-style 'fancy)
+                  (ivy-height 45))
          :config
-         (setq ivy--display-transformers-list '())
          (defface ivy-current-match
            '((((class color) (background light))
               :background "#1a4b77" :foreground "white")
@@ -4994,7 +5012,6 @@
               :background "#65a7e2" :foreground "black"))
            "Face used by Ivy for highlighting first match.")
 
-         (setq ivy-display-style 'fancy)
 
          (defun gb/ivy-partial-or-done ()
            (interactive)
@@ -5002,7 +5019,6 @@
               (ivy-alt-done)))
 
          (define-key ivy-minibuffer-map (kbd "TAB") 'gb/ivy-partial-or-done)
-
 
          :init
          (defun gb/collect-external-commands (sort)
@@ -5036,10 +5052,7 @@
            (gb/exwm--switch-or-run-sel
             (completing-read "RunProgram: " gb/external-commands nil t)))
 
-         :bind (( "C-x C-b" . ivy-switch-buffer) ;; exwm-workspace-switch-to-buffer
-                ( "s-1"     . gb/ivy--program-select-and-run))
-         :config
-         (setq ivy-height 45))
+         )
        (use-package ivy-prescient
          :ensure t
          :config
