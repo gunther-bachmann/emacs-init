@@ -5000,6 +5000,7 @@
                      (counsel-describe-symbol . ivy-string<)
                      (read-file-name-internal . ivy-prescient-sort-function)
                      (counsel-shell-history)
+                     (counsel-yank-pop)
                      (t . ivy-prescient-sort-function)))
                   (ivy--display-transformers-list '())
                   (ivy-display-style 'fancy)
