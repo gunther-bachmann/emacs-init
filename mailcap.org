@@ -1,0 +1,13 @@
+#+title: .mailcap
+* header
+  #+begin_src sh :comments link :eval no :tangle ~/.mailcap
+    #------------------------------------------------------------------
+    # THIS FILE IS GENERATED (To edit please open file from link above)
+    #------------------------------------------------------------------
+  #+end_src
+* mailcap
+  #+begin_src sh :eval no :tangle ~/.mailcap
+    application/pdf; emacsclient -s /run/user/1000/emacs/server %s
+    image/jpeg; emacsclient -s /run/user/1000/emacs/server %s
+    application/vnd.openxmlformats-officedocument.wordprocessingml.document; emacsclient -s /run/user/1000/emacs/server %s
+  #+end_src

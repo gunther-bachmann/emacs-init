@@ -1,0 +1,173 @@
+#+title: bashrc
+* fileheader
+  #+begin_src sh :comments link :eval no :tangle ~/.bashrc
+    #------------------------------------------------------------------
+    # THIS FILE IS GENERATED (To edit please open file from link above)
+    #------------------------------------------------------------------
+  #+end_src
+* editor settings
+  #+begin_src sh :eval no :tangle ~/.bashrc
+    # export VISUAL=emacsclient
+    # EMACS_SOCKET=$(lsof -w -c /.*emacs.*/ | grep 'server type' | tr -s " " | cut -d' ' -f9)
+    # export EDITOR="$VISUAL -s $EMACS_SOCKET"
+    # export TERM=linux #dumb #xterm-256color
+  #+end_src
+* wine config
+  #+begin_src sh :eval no :tangle ~/.bashrc
+    # make sure to use the right wine prefix and architecture for windows emulation
+    export WINEPREFIX="$HOME/.wine32"
+    export WINEARCH=win32
+  #+end_src
+* bash history
+  #+begin_src sh :eval no :tangle ~/.bashrc
+    # append to bash history (don't overwrite)
+    shopt -s histappend
+    # don't save command lines starting with space into the command history file (only bash)
+    # don't save duplicate lines
+    export HISTCONTROL=ignoreboth
+    export HISTIGNORE='( *)'
+    export HISTSIZE=100000
+    export HISTFILESIZE=10000000
+    # append and reload the history after each command
+    PROMPT_COMMAND="history -a; history -n"
+  #+end_src
+* nix
+  #+begin_src sh :eval no :tangle ~/.bashrc
+    # use bash in nix-shell
+    export NIX_BUILD_SHELL=bash
+  #+end_src
+* host and hostname
+  #+begin_src sh :eval no :tangle ~/.bashrc
+    export HOST=$(uname -n)
+    export HOSTNAME=${HOST}
+  #+end_src
+* direnv
+  #+begin_src sh :eval no :tangle ~/.bashrc
+    # see https://nixos.wiki/wiki/Development_environment_with_nix-shell
+    # direnv see https://github.com/direnv/direnv/wiki/Nix
+    # make sure direnv does all
+    eval "$(direnv hook bash)"
+  #+end_src
+* completion
+  #+begin_src sh :eval no :tangle ~/.bashrc
+    # use bash-completion
+    # Use bash-completion, if available
+    # BASH_COMPLETION="/nix/store/b4s7fmqs6vj63z4lvm1waccfl9y5iwpv-bash-completion-2.8/share/bash-completion/bash_completion"
+    # [[ $PS1 && -f $BASH_COMPLETION ]] && \
+    #   . $BASH_COMPLETION
+
+    source /home/pe/bin/mvn.bash_completion.bash
+    source /home/pe/bin/npm.completion
+    source /home/pe/bin/yarn.bash-completion
+    source <(kubectl completion bash)
+    source <(kops completion bash)
+    source /home/pe/bin/terraform-completion.sh
+    source /home/pe/bin/racket-completion.bash
+  #+end_src
+* gradle
+  #+begin_src sh :eval no :tangle ~/.bashrc
+    GRADLE_COMPLETION_LOC=$(nix-env --query 'gradle-completion' --out-path | awk '{ print $2; }')/share/bash-completion/completions/gradle
+    [ -f "$GRADLE_COMPLETION_LOC" ] && source "$GRADLE_COMPLETION_LOC"
+
+    export GRADLE_OPTS="-Djavax.net.ssl.trustStore=/home/pe/lib/cacerts"
+  #+end_src
+* wlan
+  #+begin_src sh :eval no :tangle ~/.bashrc
+    export WLAN_INTERFACE=$(iw dev | grep Interface | tr -d "\t" | cut -d ' ' -f2)
+  #+end_src
+* alias
+  #+begin_src sh :eval no :tangle ~/.bashrc
+    alias ls="TERM=ansi ls --color=always \$@"
+    alias y-dl="youtube-dl -x --audio-format mp3 \$@"
+    alias wlan="iwconfig $WLAN_INTERFACE"
+    alias wlan-restart="TERM=dumb sudo systemctl restart wpa_supplicant.service"
+    alias wlan-status="TERM=dumb sudo systemctl status wpa_supplicant.service -l"
+    alias wlan-term="TERM=dumb sudo systemctl stop wpa_supplicant.service"
+
+    # not working yet
+    # complete -C aws_completer aws
+  #+end_src
+* pager
+  #+begin_src sh :eval no :tangle ~/.bashrc
+    # prevent paging with less or more (since running bash in emacs)
+    export PAGER="cat"
+  #+end_src
+* browser
+  #+begin_src sh :eval no :tangle ~/.bashrc
+    # set default browser for command line actions
+    export BROWSER=$(command -v firefox)
+  #+end_src
+* completion for wrapped gradle command
+  #+begin_src sh :eval no :tangle ~/.bashrc
+    # Author.: Ole J
+    # Date...: 23.03.2008
+    # License: Whatever
+
+    # Wraps a completion function
+    # make-completion-wrapper <actual completion function> <name of new func.>
+    #                         <command name> <list supplied arguments>
+    # eg.
+    # 	alias agi='apt-get install'
+    # 	make-completion-wrapper _apt_get _apt_get_install apt-get install
+    # defines a function called _apt_get_install (that's $2) that will complete
+    # the 'agi' alias. (complete -F _apt_get_install agi)
+    #
+    function make-completion-wrapper () {
+      local function_name="$2"
+      local arg_count=$(($#-3))
+      local comp_function_name="$1"
+      shift 2
+      local function="
+        function $function_name {
+          ((COMP_CWORD+=$arg_count))
+          COMP_WORDS=( "$@" \${COMP_WORDS[@]:1} )
+          "$comp_function_name"
+          return 0
+        }"
+      eval "$function"
+      echo $function_name
+      echo "$function"
+    }
+
+    export -f make-completion-wrapper
+
+    # execute 'complete -p <cmd>'
+    # analyse result
+
+    # make-completion-wrapper __start_kubectl _k kubectl > /dev/null
+    # complete -o default -F _k kube
+
+    make-completion-wrapper _gradle _g gradle > /dev/null
+    complete -F _g g
+  #+end_src
+* alias cd
+  #+begin_src sh :eval no :tangle ~/.bashrc
+    alias .="cd .."
+    alias ..="cd ../.."
+    alias ...="cd ../../.."
+    alias ....="cd ../../../.."
+    alias .....="cd ../../../../.."
+    alias ......="cd ../../../../../.."
+    alias .......="cd ../../../../../../.."
+    alias ........="cd ../../../../../../../.."
+  #+end_src
+* which
+  #+begin_src sh :eval no :tangle ~/.bashrc
+    alias w="which_nos"
+
+    function which_nos() {
+      readlink -f $(command -v $1)
+    }
+  #+end_src
+* prompt
+  #+begin_src sh :eval no :tangle ~/.bashrc
+    export PS1="[\$PWD]$ "
+    # export PS1="\n\[\033[$PROMPT_COLOR\][\[\e]0;\u@\h: \w\a\]\u@\h:\w]\\$\[\033[0m\] "
+    # export PS1="\n[\u@\h:\$PWD]\\$ "
+  #+end_src
+* ppgrep
+  #+begin_src sh :eval no :tangle ~/.bashrc
+    # using pgrep to print out complete process information
+    # reference/credits: https://serverfault.com/questions/77162/how-to-get-pgrep-to-display-full-process-info
+    function ppgrep() { pgrep "$@" | xargs --no-run-if-empty ps -aux fp; }
+  #+end_src
