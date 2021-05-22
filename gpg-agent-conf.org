@@ -1,0 +1,20 @@
+#+title: gpg-agent conf
+* header
+  #+begin_src sh :comments link :eval no :tangle ~/.gnupg/gpg-agent.conf
+    #------------------------------------------------------------------
+    # THIS FILE IS GENERATED (To edit please open file from link above)
+    #------------------------------------------------------------------
+  #+end_src
+* gpg agent conf
+  #+begin_src sh :eval no :tangle ~/.gnupg/gpg-agent.conf
+    default-cache-ttl 1800
+    max-cache-ttl 1800
+    allow-emacs-pinentry
+    no-grab
+    # allow-loopback-pinentry
+    # debug-level expert
+    # debug-pinentry
+    # log-file /home/pe/bin/gpg.log
+    pinentry-program /home/pe/bin/pinentry-emacs
+    # pinentry-gtk-2, pinentry-gnome3, pinentry-qt, pinentry-tty, pinentry-curses
+  #+end_src

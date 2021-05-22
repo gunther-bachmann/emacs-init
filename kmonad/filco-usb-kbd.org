@@ -1,0 +1,73 @@
+#+title: filco usb keyboard definition
+* header
+  #+begin_src c :comments link :eval no :tangle ~/.kmonad/filco-usb.kbd
+    /*------------------------------------------------------------------
+      THIS FILE IS GENERATED (To edit please open file from link above)
+      ------------------------------------------------------------------*/
+  #+end_src
+* filco usb keyboard definition
+  #+begin_src c :eval no :tangle ~/.kmonad/filco-usb.kbd
+    /*
+     Keyboard definition file for https://github.com/david-janssen/kmonad
+
+     key-names see: https://github.com/david-janssen/kmonad/blob/master/src/KMonad/Core/Parser/Parsers/KeyCode.hs
+               and: https://github.com/torvalds/linux/blob/master/include/uapi/linux/input-event-codes.h
+     syntax: https://github.com/david-janssen/kmonad/blob/master/doc/syntax_guide.md
+
+
+     LA-*   add layer * to the stack (of layers)
+     LR-*   remove layer * from the stack
+
+     TH dur tap-key hold-key    duration after which key is interpreted as held (ms) (tap hold)
+
+     TN tap-key hold-key        releasing itself = tap, else hold (tap next)
+
+     MT tap-key dur 2nd-tap-key dur 3rd-tap-key ...   if hit again after duration ... (multitap)
+
+     LON-*   lock on (* = caps, scroll num)
+     LOFF-*  lock off
+     ,*/
+
+
+    INPUT = LINUX_DEVICE L64 /dev/filco-usb
+    OUTPUT = UINPUT_SINK "kmonad-filco-usb"
+
+    @xcp = TH 300 esc lctl
+    @spct = TH 300 space lctl
+    @tut = LA-unmodified
+    @tet = LR-unmodified
+
+    // wwan        :  wlan toggle
+    // display_off :  bluetooth toggle
+    // playpause   :  favorite
+
+
+    SRC
+      esc  f1   f2   f3   f4   f5   f6   f7   f8   f9   f10  f11  f12  home  end  ins  del  mute  volumedown  volumeup
+      grv  1    2    3    4    5    6    7    8    9    0    -    =    bspc
+      tab  q    w    e    r    t    y    u    i    o    p    [    ]    \
+      caps a    s    d    f    g    h    j    k    l    ;    '         ret
+      lsft      z    x    c    v    b    n    m    ,    .    /    rsft
+      lctl      lmet lalt           spc            ralt prnt rctl pgup up   pgdn
+                                                                  left down rght
+
+
+    LAYER emacs
+      esc  f1   f2   f3   f4   f5   f6   f7   f8   f9   f10  f11  f12  @tut  end  ins  del  mute  volumedown  volumeup
+      grv  1    2    3    4    5    6    7    8    9    0    -    =    bspc
+      tab  q    w    e    r    t    y    u    i    o    p    [    ]    \
+      @xcp a    s    d    f    g    h    j    k    l    ;    '         ret
+      lsft      z    x    c    v    b    n    m    ,    .    /    rsft
+      lctl      lalt lmet           @spct          ralt prnt rctl pgup up   pgdn
+                                                                  left down rght
+
+
+    LAYER unmodified
+      esc  f1   f2   f3   f4   f5   f6   f7   f8   f9   f10  f11  f12  @tet  end  ins  del  mute  volumedown  volumeup
+      grv  1    2    3    4    5    6    7    8    9    0    -    =    bspc
+      tab  q    w    e    r    t    y    u    i    o    p    [    ]    \
+      caps a    s    d    f    g    h    j    k    l    ;    '         ret
+      lsft      z    x    c    v    b    n    m    ,    .    /    rsft
+      lctl      lmet ralt           spc            lalt prnt rctl pgup up   pgdn
+                                                                  left down rght
+  #+end_src

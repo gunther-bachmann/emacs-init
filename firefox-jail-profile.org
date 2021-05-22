@@ -1,0 +1,45 @@
+#+title: firejail profile
+* header
+  #+begin_src sh :comments link :eval no :tangle ~/.config/firejail/firefox.profile
+    #------------------------------------------------------------------
+    # THIS FILE IS GENERATED (To edit please open file from link above)
+    #------------------------------------------------------------------
+  #+end_src
+* firejail profile
+  #+begin_src sh :eval no :tangle ~/.config/firejail/firefox.profile
+    # --- original firejail profile for firefox (copy)
+
+    # Firejail profile for firefox
+    # Description: Safe and easy web browser from Mozilla
+    # This file is overwritten after every install/update
+    # Persistent local customizations
+    include /etc/firejail/firefox.local
+    # Persistent global definitions
+    include /etc/firejail/globals.local
+
+    noblacklist ${HOME}/.cache/mozilla
+    noblacklist ${HOME}/.mozilla
+
+    mkdir ${HOME}/.cache/mozilla/firefox
+    mkdir ${HOME}/.mozilla
+    whitelist ${HOME}/.cache/mozilla/firefox
+    whitelist ${HOME}/.mozilla
+
+    whitelist /usr/share/mozilla
+    include whitelist-usr-share-common.inc
+
+    # firefox requires a shell to launch on Arch.
+    #private-bin bash,dbus-launch,dbus-send,env,firefox,sh,which
+    # Fedora use shell scripts to launch firefox, at least this is required
+    #private-bin basename,bash,cat,dirname,expr,false,firefox,firefox-wayland,ln,mkdir,pidof,rm,rmdir,sed,sh,tclsh,true,uname
+    # private-etc must first be enabled in firefox-common.profile
+    #private-etc firefox
+
+    # Redirect
+    include firefox-common.profile
+
+    # --- addition to allow for org-protocol (running emacsclient against socket)
+    noblacklist /tmp/emacs1000
+    whitelist /tmp/emacs1000
+
+  #+end_src
