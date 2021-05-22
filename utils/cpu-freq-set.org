@@ -1,0 +1,23 @@
+#+title: cpu-freq-set
+* set cpu frequencies
+  #+begin_src sh :comments link :shebang "#!/usr/bin/env bash" :eval no :tangle ~/bin/cpu-freq-set.sh :tangle-mode (identity #o755)
+    #------------------------------------------------------------------
+    # THIS FILE IS GENERATED (To edit please open file from link above)
+    #------------------------------------------------------------------
+    #
+    param=$1
+
+    gotmin=$(cat /sys/devices/system/cpu/cpufreq/policy0/cpuinfo_min_freq)
+    gotmax=$(cat /sys/devices/system/cpu/cpufreq/policy0/cpuinfo_max_freq)
+    min=${gotmin:-800}
+    max=${gotmax:-1200}
+
+    if (($param <= $max && $param >= min)); then
+      echo "setting frequency!"
+      for i in {0..7}; do
+        sudo bash -c "echo \"${param}\" > /sys/devices/system/cpu/cpufreq/policy${i}/scaling_max_freq"
+      done
+    else
+      echo "frequence must be between ${min}..${max}"
+    fi
+  #+end_src

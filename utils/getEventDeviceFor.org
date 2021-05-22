@@ -1,0 +1,10 @@
+#+title: getEventDeviceFor
+* get event device for
+  #+begin_src sh :comments link :shebang "#!/usr/bin/env bash" :eval no :tangle ~/bin/getEventDeviceFor :tangle-mode (identity #o755)
+    #------------------------------------------------------------------
+    # THIS FILE IS GENERATED (To edit please open file from link above)
+    #------------------------------------------------------------------
+    #
+    QUERY_STR="$1"
+    echo -n /dev/input/$(cat /proc/bus/input/devices | grep "$QUERY_STR" -A 4 | grep Handlers= | sed 's/.*\(event[^ ]*\).*/\1/g')
+  #+end_src

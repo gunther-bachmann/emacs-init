@@ -1,0 +1,11 @@
+#+title: decrypt-epub-guix
+* decrypt epub
+  #+begin_src sh :comments link :shebang "#!/usr/bin/env bash" :eval no :tangle ~/bin/decrypt-epub-guix :tangle-mode (identity #o755)
+    #------------------------------------------------------------------
+    # THIS FILE IS GENERATED (To edit please open file from link above)
+    #------------------------------------------------------------------
+    #
+    INFILE=$(realpath "$1")
+    OUTFILE=$(realpath "$2")
+    direnv exec ~/bin/ebook-utils-guix/ python ~/bin/ebook-utils-guix/ineptepub.6.6.py ~/bin/ebook-utils-guix/adeptkey.der "$INFILE" "$OUTFILE"
+  #+end_src

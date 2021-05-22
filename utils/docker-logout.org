@@ -1,0 +1,10 @@
+#+title: docker-logout
+* docker logout
+  #+begin_src sh :comments link :shebang "#!/usr/bin/env bash" :eval no :tangle ~/bin/docker-logout :tangle-mode (identity #o755)
+    #------------------------------------------------------------------
+    # THIS FILE IS GENERATED (To edit please open file from link above)
+    #------------------------------------------------------------------
+    #
+    docker logout
+    pass rm -rf docker-credential-helpers
+  #+end_src

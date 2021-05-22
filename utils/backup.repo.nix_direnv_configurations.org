@@ -1,0 +1,23 @@
+#+title: backup.repo.nix_direnv_configurations
+* Lookup all elbs, get descriptions for them, filter all that have the following TAG/VALUE combination
+  #+begin_src sh :comments link :shebang "#!/usr/bin/env bash" :eval no :tangle ~/bin/backup.repo.nix_direnv_configurations.sh :tangle-mode (identity #o755)
+    #------------------------------------------------------------------
+    # THIS FILE IS GENERATED (To edit please open file from link above)
+    #------------------------------------------------------------------
+    #
+    echo "Make backup of configuration files in ${REPO_DIR} (recursively) that are usually not checked into the respective repository."
+    echo "This includes .nix, .envrc, .dir-locals.el .ssh_config .."
+    echo "This script can be executed anywhere and automatically."
+    pushd .
+    cd ~/repo
+    find . \( -name '.envrc' \
+         -o name '.*settings.xml' \
+         -o -name '*.nix' \
+         -o -name '.ssh*' \
+         -o -name '.dir-locals.el' \
+         -o -name 'infinitest.*' \) \
+      -and -not \( -path './nixpkgs/*' \) \
+     | tar -vczf nix_direnv.$(date +%Y-%m-%d).cfgs.tar.gz --files-from -
+    mv nix_direnv.*.cfgs.tar.gz ../backups/
+    popd
+  #+end_src

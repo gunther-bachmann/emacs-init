@@ -1,0 +1,20 @@
+#+title: cleanup-temp
+* cleanup temporary folder
+  #+begin_src sh :comments link :shebang "#!/usr/bin/env bash" :eval no :tangle ~/bin/cleanup-temp.sh :tangle-mode (identity #o755)
+    #------------------------------------------------------------------
+    # THIS FILE IS GENERATED (To edit please open file from link above)
+    #------------------------------------------------------------------
+    #
+    echo "(Try to) delete all files older than 30 days from /tmp"
+    SIZE_BEFORE=`sudo du -hs /tmp | awk "{ print \\$1; }"`
+    sudo find /tmp -mtime +30 -delete
+    SIZE_AFTER=`sudo du -hs /tmp | awk "{ print \\$1; }"`
+    if [ "$SIZE_BEFORE" != "$SIZE_AFTER" ]; then
+      echo "Reduced disk usage from ${SIZE_BEFORE} to ${SIZE_AFTER}."
+    else
+      echo "Disk usage reduction was too small to be of relevance."
+      echo "Current usage is ${SIZE_AFTER}."
+    fi
+
+
+  #+end_src

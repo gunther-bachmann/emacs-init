@@ -1,0 +1,9 @@
+#+title: lorri get watched folders
+* lorri get watched folders
+  #+begin_src sh :comments link :shebang "#!/usr/bin/env bash" :eval no :tangle ~/bin/lorri-get-watched-folders :tangle-mode (identity #o755)
+    #------------------------------------------------------------------
+    # THIS FILE IS GENERATED (To edit please open file from link above)
+    #------------------------------------------------------------------
+    #
+    ps -auxwe --width=100000 | grep "[l]orri watch" | tr " " "\n" | grep ^PWD= | sed s/PWD=//g
+  #+end_src

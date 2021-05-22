@@ -1,0 +1,22 @@
+#+title: aws-get-elb
+* Lookup all elbs, get descriptions for them, filter all that have the following TAG/VALUE combination
+  #+begin_src sh :comments link :shebang "#!/usr/bin/env bash" :eval no :tangle ~/bin/aws-get-elb :tangle-mode (identity #o755)
+    #------------------------------------------------------------------
+    # THIS FILE IS GENERATED (To edit please open file from link above)
+    #------------------------------------------------------------------
+    #
+    # Lookup all elbs, get descriptions for them, filter all that have the following TAG/VALUE combination
+    #
+    TAG="$1"
+    VALUE="$2"
+    ELBS=`aws elb describe-load-balancers`
+    ELB_NAMES=$(echo -n $ELBS | jq .LoadBalancerDescriptions[].LoadBalancerName)
+    for name in $ELB_NAMES; do
+      sname=$(echo -n "$name" | tr -d \")
+      aws elb describe-tags --load-balancer-name $sname \
+      | jq ".TagDescriptions[].Tags[] | select (.Key == \"$TAG\") | select (.Value == \"$VALUE\") | .Value" \
+      | grep "$VALUE" -q \
+      &&   aws elb describe-load-balancers --load-balancer-name $sname \
+      | jq ".LoadBalancerDescriptions[].DNSName" | tr -d \"
+    done
+  #+end_src

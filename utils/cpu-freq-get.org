@@ -1,0 +1,15 @@
+#+title: cpu-freq-get
+* get current cpu frequencies
+  #+begin_src sh :comments link :shebang "#!/usr/bin/env bash" :eval no :tangle ~/bin/cpu-freq-get.sh :tangle-mode (identity #o755)
+    #------------------------------------------------------------------
+    # THIS FILE IS GENERATED (To edit please open file from link above)
+    #------------------------------------------------------------------
+    #
+    param=${1:-scaling_cur_freq}
+
+    for i in {0..7}; do
+      frq=$(cat /sys/devices/system/cpu/cpufreq/policy${i}/${param})
+      echo "cpu${i}: $frq"
+    done
+
+  #+end_src

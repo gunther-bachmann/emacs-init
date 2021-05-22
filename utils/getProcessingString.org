@@ -1,0 +1,32 @@
+#+title: getProcessingString
+* get processing string
+  #+begin_src sh :comments link :shebang "#!/usr/bin/env bash" :eval no :tangle ~/bin/getProcessingString :tangle-mode (identity #o755)
+    #------------------------------------------------------------------
+    # THIS FILE IS GENERATED (To edit please open file from link above)
+    #------------------------------------------------------------------
+    #
+    # getProgressString <TOTAL ITEMS> <FILLED LOOK> <NOT FILLED LOOK> <STATUS>
+    # For instance:
+    # $ getProgressString 10 "#" "-" 50
+    # #####-----
+    # Note: if you want to use | in your progress bar string you need to change the delimiter in the sed commands
+
+    ITEMS="$1" # The total number of items(the width of the bar)
+    FILLED_ITEM="$2" # The look of a filled item
+    NOT_FILLED_ITEM="$3" # The look of a not filled item
+    STATUS="$4" # The current progress status in percent
+    FULL=100
+
+    # calculate how many items need to be filled and not filled
+    FILLED_ITEMS=$(echo "((${ITEMS} * ${STATUS})/100 + 0.5) / 1" | bc)
+    if (( $STATUS > 100 )); then
+      NOT_FILLED_ITEMS=0
+    else
+      NOT_FILLED_ITEMS=$(echo "$ITEMS - $FILLED_ITEMS" | bc)
+    fi
+
+    # Assemble the bar string
+    msg=$(printf "%${FILLED_ITEMS}s" | sed "s| |${FILLED_ITEM}|g")
+    msg=${msg}$(printf "%${NOT_FILLED_ITEMS}s" | sed "s| |${NOT_FILLED_ITEM}|g")
+    echo "$msg"
+  #+end_src

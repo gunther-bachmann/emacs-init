@@ -1,0 +1,31 @@
+#+title: remove_text_form_pdf
+* remove text from pdf
+  #+begin_src sh :comments link :shebang "#!/usr/bin/env bash" :eval no :tangle ~/bin/remove_text_from_pdf.sh :tangle-mode (identity #o755)
+    #------------------------------------------------------------------
+    # THIS FILE IS GENERATED (To edit please open file from link above)
+    #------------------------------------------------------------------
+    #
+    PDFFILE="$1"
+    TEXT="$2"
+
+    if [ "$PDFFILE" == "" -o "$TEXT" == "" ]; then
+      echo "usage:"
+      echo "  $0 <pdf-file> <text-to-be-removed>"
+      echo
+      echo "  Remove a text from a pdf (e.g. some watermark text printed on each page)"
+      exit 1
+    fi
+
+    UNCOMP=$(mktemp /tmp/pdftk.XXXXXXXXX)
+    MOD=$(mktemp /tmp/pdftk.XXXXXXXXX)
+
+    echo "Uncompressing pdf to $UNCOMP"
+    pdftk "$PDFFILE" output $UNCOMP uncompress
+    echo "Removing text ..."
+    sed "s|$TEXT||g" < $UNCOMP > $MOD
+    echo "Compressing modified file to \"cleaned.$PDFFILE\""
+    pdftk $MOD output "cleaned.$PDFFILE" compress
+    echo "Done."
+
+
+  #+end_src

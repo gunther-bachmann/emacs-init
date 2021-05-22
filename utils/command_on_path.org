@@ -1,0 +1,19 @@
+#+title: command-on-path
+* loop over all commands, reachable over $PATH, named $1, filter position $2
+  #+begin_src sh :comments link :shebang "#!/usr/bin/env bash" :eval no :tangle ~/bin/command_on_path :tangle-mode (identity #o755)
+    #------------------------------------------------------------------
+    # THIS FILE IS GENERATED (To edit please open file from link above)
+    #------------------------------------------------------------------
+    #
+    # loop over all commands, reachable over $PATH, named $1, filter position $2
+    #
+    # useful in defining .envrc export_alias for skipping the alias definition and getting the real command (otherwise hidden)
+    #
+    COMMAND=$1
+    POSITION=${2:-1}
+    echo -n $PATH \
+      | xargs -d : -I {} find -L {} -maxdepth 1 -executable -type f -name "$COMMAND" -printf "%h/%P\n" 2>/dev/null \
+      | uniq \
+      | head -n $POSITION \
+      | tail -n 1 2>/dev/null
+  #+end_src

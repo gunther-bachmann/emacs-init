@@ -1,0 +1,11 @@
+#+title: decrypt-pdf-guix
+* decrypt pdf
+  #+begin_src sh :comments link :shebang "#!/usr/bin/env bash" :eval no :tangle ~/bin/decrypt-pdf-guix :tangle-mode (identity #o755)
+    #------------------------------------------------------------------
+    # THIS FILE IS GENERATED (To edit please open file from link above)
+    #------------------------------------------------------------------
+    #
+    INFILE=$(realpath "$1")
+    OUTFILE=$(realpath "$2")
+    direnv exec ~/bin/ebook-utils-guix// python2 ~/bin/ebook-utils-guix//ineptpdf.7.11.py ~/bin/ebook-utils-guix/adeptkey.der "$INFILE" "$OUTFILE"
+  #+end_src

@@ -1,0 +1,33 @@
+#+title: filco-udev
+* filco-udev
+  #+begin_src sh :comments link :shebang "#!/usr/bin/env bash" :eval no :tangle ~/bin/filco-udev.sh :tangle-mode (identity #o755)
+    #------------------------------------------------------------------
+    # THIS FILE IS GENERATED (To edit please open file from link above)
+    #------------------------------------------------------------------
+    #
+    echo "$($2/bin/date --rfc-3339=seconds) filco keyboard event: $ACTION" >> /home/pe/.kmonad/udev.log
+    if [ "$ACTION" == "add" ]; then
+      echo "$($2/bin/date --rfc-3339=seconds) starting service" >> /home/pe/.kmonad/udev.log
+      systemctl --no-block restart kmonad-filco.service
+    elif [ "$ACTION" == "remove" ]; then
+      echo "$($2/bin/date --rfc-3339=seconds) stopping service" >> /home/pe/.kmonad/udev.log
+      systemctl --no-block stop kmonad-filco.service
+    else
+      echo "$($2/bin/date --rfc-3339=seconds) unknown action" >> /home/pe/.kmonad/udev.log
+    fi
+    # TODO:
+    # since the kmonad process is killed after udev demon finished its job,
+    # this has to be reprogrammed as service (systemd)!
+    # WORKAROUND:
+    # (gb/kmonad-start-filco) has to be executed manually (in emacs)
+    #
+    # if [ "$ACTION" == "add" ]; then
+    #   /home/pe/bin/kmonad-0.3.0-linux /home/pe/.kmonad/filco.kbd &
+    #   echo "started kmonad on filco keyboard" >> /home/pe/.kmonad/udev.log
+    # elif [ "$ACTION" == "remove" ]; then
+    #   echo "using $1 as pkill" >> /home/pe/.kmonad/udev.log
+    #   $1/bin/pkill -f "/home/pe/bin/kmonad-0.3.0-linux /home/pe/.kmonad/filco.kbd"
+    # else
+    #   echo "unknown udev action" >> /home/pe/.kmonad/udev.log
+    # fi
+  #+end_src

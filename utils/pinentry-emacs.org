@@ -1,0 +1,90 @@
+#+title: pinentry-emacs
+* pinentry emacs
+  #+begin_src sh :comments link :shebang "#!/usr/bin/env bash" :eval no :tangle ~/bin/pinentry-emacs :tangle-mode (identity #o755)
+    #------------------------------------------------------------------
+    # THIS FILE IS GENERATED (To edit please open file from link above)
+    #------------------------------------------------------------------
+    #
+    set -o pipefail
+    echo "OK Pleased to meet you"
+    EMACS_SOCKET=$(lsof -w -c /.*emacs.*/ | grep 'server type' | tr -s " " | cut -d' ' -f9)
+    echo "emacs socket found: $EMACS_SOCKET" >> ~/bin/pinentry-emacs.log
+    # echo $EMACS_SOCKET
+    while read cmd rest
+    do
+        case $cmd in
+            SETDESC)
+                DESC=$rest
+                echo "SETDESC with: $DESC" >> ~/bin/pinentry-emacs.log
+                if [ ${DESC: -3} != '%0A' ]; then
+                    DESC="$DESC%0A"
+                fi
+                echo OK
+            ;;
+            CONFIRM)
+                echo "CONFIRM" >> ~/bin/pinentry-emacs.log
+                echo ASSUAN_Not_Confirmed
+            ;;
+            SETPROMPT)
+                PROMPT=$rest
+                echo "SETPROMPT with: $PROMPT" >> ~/bin/pinentry-emacs.log
+                echo OK
+            ;;
+            SETOK)
+                OK=$rest
+                echo "SETOK with: $OK" >> ~/bin/pinentry-emacs.log
+                echo OK
+            ;;
+            SETERROR)
+                echo "SETERROR with: $ERROR" >> ~/bin/pinentry-emacs.log
+                ERROR=$rest
+                echo OK
+            ;;
+            GETPIN)
+                echo "GETPIN" >> ~/bin/pinentry-emacs.log
+                RES=$(emacsclient -s $EMACS_SOCKET -e "(pinentry-emacs \"$DESC\" \"$PROMPT\" \"$OK\" \"$ERROR\")" | sed -e 's/^"//' -e 's/"$//')
+                if [ $? -ne 0 ]
+                then
+                    RES=$(lukspinentry)
+                fi
+                echo D $RES
+                echo OK
+            ;;
+            OPTION)
+                echo "OPTION" >> ~/bin/pinentry-emacs.log
+                echo OK
+            ;;
+            GETINFO)
+                echo "GETINFO with: $rest" >> ~/bin/pinentry-emacs.log
+                case $rest in
+                    pid*)
+                        echo D $$
+                        echo OK
+                        ;;
+                    version)
+                        echo D 1.0.0
+                        echo OK
+                        ;;
+                    flavor*)
+                        echo D curses:curses
+                        echo OK
+                        ;;
+                    ttyinfo*)
+                        echo "D - - -"
+                        echo OK
+                        ;;
+                esac
+            ;;
+            BYE)
+                echo "BYE" >> ~/bin/pinentry-emacs.log
+                echo OK
+                exit
+            ;;
+            ,*)
+                echo "OTHER: $rest" >> ~/bin/pinentry-emacs.log
+                echo OK
+            ;;
+        esac
+    done
+
+  #+end_src

@@ -1,0 +1,10 @@
+#+title: dosbx
+* start dosbox
+  #+begin_src sh :comments link :shebang "#!/usr/bin/env bash" :eval no :tangle ~/bin/dosbx :tangle-mode (identity #o755)
+    #------------------------------------------------------------------
+    # THIS FILE IS GENERATED (To edit please open file from link above)
+    #------------------------------------------------------------------
+    #
+    export SDL_VIDEO_X11_DGAMOUSE=0
+    dosbox
+  #+end_src

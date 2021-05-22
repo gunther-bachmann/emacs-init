@@ -1,0 +1,9 @@
+#+title: dim-screen
+* dim screen
+  #+begin_src sh :comments link :shebang "#!/usr/bin/env bash" :eval no :tangle ~/bin/dim-screen.sh :tangle-mode (identity #o755)
+    #------------------------------------------------------------------
+    # THIS FILE IS GENERATED (To edit please open file from link above)
+    #------------------------------------------------------------------
+    #
+    xbacklight -set 0 -time 1000
+  #+end_src

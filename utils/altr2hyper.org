@@ -1,0 +1,13 @@
+#+title: altr2hyper
+* replace alt_r with hyper_l
+  #+begin_src sh :comments link :shebang "#!/usr/bin/env bash" :eval no :tangle ~/bin/altr2hyper :tangle-mode (identity #o755)
+    #------------------------------------------------------------------
+    # THIS FILE IS GENERATED (To edit please open file from link above)
+    #------------------------------------------------------------------
+    #
+    xmodmap -e "remove mod1 = Alt_R"
+    xmodmap -e "remove mod4 = Hyper_L"
+    xmodmap -e "keycode 108 = Hyper_L"
+    # xmodmap -e "remove mod1 = Hyper_L"
+    xmodmap -e "add mod3 = Hyper_L"
+  #+end_src

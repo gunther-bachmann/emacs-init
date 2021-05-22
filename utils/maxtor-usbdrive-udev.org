@@ -1,0 +1,19 @@
+#+title: maxtor-usbdrive-udev
+* maxtor usbdrive udev
+  #+begin_src sh :comments link :shebang "#!/usr/bin/env bash" :eval no :tangle ~/bin/maxtor-usbdrive-udev.sh :tangle-mode (identity #o755)
+    #------------------------------------------------------------------
+    # THIS FILE IS GENERATED (To edit please open file from link above)
+    #------------------------------------------------------------------
+    #
+    if [ "$ACTION" = "add" ]; then
+      echo "added"
+      HOUR=$(date +%H)
+      MINUTE=$(date +%M)
+      CRONTAB_ENTRY="${MINUTE} ${HOUR} * * * export DISPLAY=:0.0 && export XAUTHORITY=/home/pe/.Xauthority && /home/pe/bin/duplicity-backup.sh backup -v -y >> /home/pe/.duplicity/backup.log 2>&1"
+      crontab -l ; echo $CRONTAB_ENTRY | crontab -
+    elif [ "$ACTION" = "remove" ]; then
+      echo "removed"
+    else
+      echo "unknown action \"${action}\""
+    fi
+  #+end_src

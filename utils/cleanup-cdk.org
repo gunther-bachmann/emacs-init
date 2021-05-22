@@ -1,0 +1,30 @@
+#+title: cleanup-cdk
+* cleanup temporary cdk build artifacts
+  #+begin_src sh :comments link :shebang "#!/usr/bin/env bash" :eval no :tangle ~/bin/cleanup-cdk.sh :tangle-mode (identity #o755)
+    #------------------------------------------------------------------
+    # THIS FILE IS GENERATED (To edit please open file from link above)
+    #------------------------------------------------------------------
+    #
+    FOLDER="/run/user/1000"
+
+    echo "(Try to) delete all files constructed/cached during cdk runs"
+    SIZE_BEFORE=`sudo du -hs ${FOLDER} 2>/dev/null | awk "{ print \\$1; }"`
+    for i in ${FOLDER}/cdk.*; do echo $i; done
+
+    echo "Current usage is ${SIZE_BEFORE}."
+    read -p "Do you really want to RECURSIVELY delete the afore listed folders (y/n)? " -r
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+      echo "deleting now ..."
+      for i in ${FOLDER}/cdk.*; do rm -Rf $i; done
+      SIZE_AFTER=`sudo du -hs ${FOLDER} 2>/dev/null | awk "{ print \\$1; }"`
+      if [ "$SIZE_BEFORE" != "$SIZE_AFTER" ]; then
+        echo "Reduced disk usage from ${SIZE_BEFORE} to ${SIZE_AFTER}."
+      else
+        echo "Disk usage reduction was too small to be of relevance."
+        echo "Current usage is ${SIZE_AFTER}."
+      fi
+    else
+      echo "nothing done."
+    fi
+
+  #+end_src

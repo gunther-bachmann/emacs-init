@@ -1,0 +1,30 @@
+#+title: k8s-api-tunnel
+* kubernetes api tunnel
+  #+begin_src sh :comments link :shebang "#!/usr/bin/env bash" :eval no :tangle ~/bin/k8s-api-tunnel.sh :tangle-mode (identity #o755)
+    #------------------------------------------------------------------
+    # THIS FILE IS GENERATED (To edit please open file from link above)
+    #------------------------------------------------------------------
+    #
+    K8S_API_DNS="$1"
+    JUMPHOST="$2"
+    PIDFILE=$(realpath ~/.k8s-api-tunnel-pid)
+
+    if [[ $# -ne 2 ]] ; then
+      echo "Usage: $0 K8S-API-DNS-SERVER JUMPHOST"
+      exit 1
+    fi
+
+    if [ -f "$PIDFILE" ]; then
+      pgrep -F $PIDFILE  -a > /dev/null 2>&1 || rm $PIDFILE
+    fi
+    if [ -f "$PIDFILE" ]; then
+      pgrep -F $PIDFILE  -a | grep -v "$K8S_API_DNS:443 ubuntu@$JUMPHOST"  > /dev/null 2>&1 && sudo pkill -F $PIDFILE && rm $PIDFILE
+    fi
+    if [ ! -f $PIDFILE ]; then
+      sudo bash -c "ssh -f -L 443:$K8S_API_DNS:443 ubuntu@$JUMPHOST -N" && { \
+        PID=$(pgrep ssh -ax | grep "443:$K8S_API_DNS:443 ubuntu@$JUMPHOST" | cut -d' ' -f 1); \
+        echo "$PID" > "$PIDFILE"; \
+        echo "(re)opened ssl tunnel via 443 to ${K8S_API_DNS}"; \
+      }
+    fi
+  #+end_src

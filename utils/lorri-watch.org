@@ -1,0 +1,17 @@
+#+title: lorri watch
+* lorri watch
+  #+begin_src sh :comments link :shebang "#!/usr/bin/env bash" :eval no :tangle ~/bin/lorri-watch :tangle-mode (identity #o755)
+    #------------------------------------------------------------------
+    # THIS FILE IS GENERATED (To edit please open file from link above)
+    #------------------------------------------------------------------
+    #
+    if [ ! -d "$1" ]; then
+      echo "usage: $0 <project folder to run 'lorri watch' in>"
+      exit 1
+    fi
+    pushd . &>/dev/null
+    cd $1
+    echo "starting lorri to watch $1"
+    lorri watch &
+    popd &>/dev/null
+  #+end_src
