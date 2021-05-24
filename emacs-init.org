@@ -4986,7 +4986,9 @@
          :bind (( "C-x C-b" . ivy-switch-buffer) ;; exwm-workspace-switch-to-buffer
                 ( "s-1"     . gb/ivy--program-select-and-run)
                 :map ivy-mode-map
-                ("M-y" . #'counsel-yank-pop))
+                ("M-y" . #'counsel-yank-pop)
+                :map ivy-minibuffer-map
+                ("M-y" . #'ivy-next-line ))
          :custom ((ivy-sort-functions-alist ;; sort candidates for the given functions accordingly
                    '((counsel-minor . ivy-string<)
                      (counsel-colors-web . ivy-string<)
@@ -5054,10 +5056,6 @@
             (completing-read "RunProgram: " gb/external-commands nil t)))
 
          )
-       (use-package ivy-prescient
-         :ensure t
-         :config
-         (ivy-prescient-mode 1))
        (use-package swiper
          :ensure t
          :after ( ivy)
@@ -5410,14 +5408,14 @@
        (require 'org)
        (use-package counsel
          :ensure t
-         :after ( swiper ivy)
          :bind (( "M-x"     . counsel-M-x)
                 ( "C-x C-f" . counsel-find-file)
                 ( "s-f"     . counsel-buffer-or-recentf)
-                ;; ( "s-i"     . counsel-imenu)
                 ( "C-c g h" . counsel-git-grep)
+                ( "C-c g i" . counsel-rg)
                 ( "C-x d"   . counsel-dired)
                 ( "C-x 8 <RET>" . counsel-unicode-char)
+                ( "s-i"     . counsel-imenu)
                 :map comint-mode-map
                 ( "<M-up>"  . counsel-shell-history )
                 :map org-mode-map
@@ -5425,7 +5423,6 @@
          :config
          (progn
            (bind-key "M-y" #'counsel-yank-pop ) ;; no :bind, since counsel needs to be loaded for magit
-           (bind-key "M-y" #'ivy-next-line ivy-minibuffer-map )
            (when-let ((initial-ivy-input (assoc 'counsel-M-x ivy-initial-inputs-alist)))
              (setcdr initial-ivy-input "")) ;; remove ^ from input
            (setq counsel-grep-swiper-limit 3000000)))
@@ -5442,6 +5439,26 @@
        (use-package counsel-tramp
          :ensure t))
    #+END_SRC
+** prescient
+  #+begin_src emacs-lisp
+    (use-package prescient
+      :after (counsel)
+      :ensure t
+      :custom
+      (prescient-aggressive-file-save t)
+      (prescient-persist-mode t))
+  #+end_src
+** ivy prescient - MUST be loaded after counsel!
+   #+begin_src emacs-lisp
+     (when (eq gb/completion-framework 'ivy)
+       (use-package ivy-prescient
+         :after (counsel prescient)
+         :ensure t
+         :custom ((ivy-prescient-sort-commands '(:not counsel-git-log swiper swiper-isearch ivy-switch-buffer)))
+         :config
+         (require 'counsel)
+         (ivy-prescient-mode 1)))
+   #+end_src
 ** highlight-thing
    #+BEGIN_SRC emacs-lisp
    (use-package highlight-thing
@@ -14529,14 +14546,6 @@
   #+begin_src emacs-lisp
     (use-package ctrlf
       :ensure t)
-  #+end_src
-* EVAL prescient
-  #+begin_src emacs-lisp
-    (use-package prescient
-      :ensure t
-      :custom
-      (prescient-aggressive-file-save t)
-      (prescient-persist-mode t))
   #+end_src
 * EVAL company-prescient
   #+begin_src emacs-lisp
