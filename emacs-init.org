@@ -6530,15 +6530,30 @@
         :ensure t
         ;; :after ( helm counsel async dash with-editor git-commit magit-popup)
         :commands magit-status magit-list-repositories
-        :bind (
-               ("C-c v s" . magit-status)
+        :custom ((magit-fetch-arguments (quote ("--prune")))
+                 (magit-item-highlight-face nil)
+                 (magit-last-seen-setup-instructions "1.4.0")
+                 (magit-log-arguments (quote ("--graph" "--color" "--decorate" "-n200")))
+                 (magit-pull-arguments (quote ("--rebase")))
+                 (magit-use-overlays nil)
+                 (magit-diff-refine-hunk t)
+                 (magit-diff-adjust-tab-width t)
+                 (magit-diff-highlight-trailing t)
+                 (magit-diff-hide-trailing-cr-characters t)
+                 (magit-display-buffer-function (quote magit-display-buffer-fullframe-status-v1))
+                 (magit-section-initial-visibility-alist
+                  (quote
+                   ((staged . show)
+                    (unpushed . show)
+                    (stashes . show)
+                    (unpulled . show))))
+                 (magit-repository-directories '(( "~/repo" . 3)))
+                 (magit-log-margin '(t "%Y-%m-%d %H:%M " magit-log-margin-width t 18) "format the margin in log view"))
+        :bind (("C-c v s" . magit-status)
                ("C-c v l" . magit-list-repositories)
                :map magit-mode-map
                ("s-f" . projectile-find-file)
-               ("C-x f" . counsel-git)
-               ;; :map magit-repolist-mode-map
-               ;; ("s-i" . helm-imenu)
-               )
+               ("C-x f" . counsel-git))
         :init
         (progn
 
@@ -6602,31 +6617,12 @@
         :config
         (require 'magit-mode)
         ;; use magit-describe-section-briefly to find out section name (first element in square brackets [])
-        (setq magit-section-initial-visibility-alist
-              (quote
-               ((staged . show)
-                (unpushed . show)
-                (stashes . show)
-                (unpulled . show))))
-        (setq magit-repository-directories '(( "~/repo" . 3)))
 
         ;; otherwiese use regular completing read function
         (when (eq gb/completion-framework 'ido)
           (setq magit-completing-read-function 'magit-ido-completing-read))
         (when (eq gb/completion-framework 'helm)
           (setq magit-completing-read-function 'helm--completing-read-default))
-
-        (setq magit-fetch-arguments (quote ("--prune")))
-        (setq magit-item-highlight-face nil)
-        (setq magit-last-seen-setup-instructions "1.4.0")
-        (setq magit-log-arguments (quote ("--graph" "--color" "--decorate" "-n200")))
-        (setq magit-pull-arguments (quote ("--rebase")))
-        (setq magit-use-overlays nil)
-        (setq magit-diff-refine-hunk t)
-        (setq magit-diff-adjust-tab-width t)
-        (setq magit-diff-highlight-trailing t)
-        (setq magit-diff-hide-trailing-cr-characters t)
-        (setq magit-display-buffer-function (quote magit-display-buffer-fullframe-status-v1))
 
         ;; allow (magit-status "/yadm::") to open yadm repository
         (when (executable-find "yadm")
@@ -15634,7 +15630,7 @@
       (custom-set-faces '(transient-posframe-border ((t (:inherit default :background "#5a205a")))))
       (transient-posframe-mode 1)
       :custom (transient-posframe-border-width 2)
-              (transient-posframe-min-height 25)
+              (transient-posframe-min-height 32)
               (transient-posframe-min-width 120)
               (transient-posframe-poshandler #'posframe-poshandler-frame-bottom-center))
   #+end_src
@@ -15776,7 +15772,6 @@
   - project-abbrev - project specific abbrev expansion
   - company-posframe (company in separate frame, alternative to company box?)
   - company-nginx (allow for company completion of nginx files)
-  - company-prescient (ordering and filtering of candidates)
   - company-fuzzy (fuzzy matchin in company mode)
   - helm-fuzzy
   - compdef define completion local to a mode (not globally like company does)
