@@ -9397,8 +9397,8 @@
                   (progn
                     (when (package-installed-p 'yankpad)
                       (remove-hook 'after-change-major-mode-hook #'yankpad-local-category-to-major-mode))
-                    (when (package-installed-p 'pretty-mode)
-                      (global-pretty-mode -1))
+                    ;; (when (package-installed-p 'pretty-mode)
+                    ;;   (global-pretty-mode -1))
                     (when ligatures-enabled
                       (remove-hook 'prog-mode-hook
                                    #'add-fira-code-symbol-keywords))
@@ -15585,7 +15585,7 @@
       (gb/cpu-freq-unlimit)
       (setq global-mode-string (remove gb/video-modeline-indicator global-mode-string)))
   #+end_src
-* TODO org babel tangle utilities
+* TODO org babel tangle utilities - for dired
   #+begin_src emacs-lisp
     (require 'dash)
 
