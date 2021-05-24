@@ -11310,12 +11310,17 @@
                            (or (buffer-file-name (current-buffer)) "")))))
         :init (add-to-list 'company-backends 'company-nixos-options))
       (use-package nix-mode))
-    (use-package direnv
+    (use-package envrc
       :ensure t
       :config
-      (direnv-mode)
-      (setq direnv-use-faces-in-summary nil)
-      (advice-add 'direnv--export :before #'(lambda (orig-func &rest args) (message "running direnv ..."))))
+      (envrc-global-mode 1)
+      (define-key envrc-mode-map (kbd "C-c e") 'envrc-command-map))
+    ;; (use-package direnv
+    ;;   :ensure t
+    ;;   :config
+    ;;   ;; (direnv-mode)
+    ;;   (setq direnv-use-faces-in-summary nil)
+    ;;   (advice-add 'direnv--export :before #'(lambda (orig-func &rest args) (message "running direnv ..."))))
   #+END_SRC
 * currently evaluated
 #+BEGIN_SRC emacs-lisp
