@@ -5001,12 +5001,13 @@
                      (counsel-apropos . ivy-string<)
                      (counsel-describe-symbol . ivy-string<)
                      (read-file-name-internal . ivy-prescient-sort-function)
-                     (counsel-shell-history)
-                     (counsel-yank-pop)
+                     (counsel-shell-history) ;; no sorting of shell history
+                     (counsel-yank-pop) ;; no sorting of clipboard
                      (t . ivy-prescient-sort-function)))
                   (ivy--display-transformers-list '())
                   (ivy-display-style 'fancy)
-                  (ivy-height 45))
+                  (ivy-height 45 "default height of ivy completion")
+                  (ivy-use-selectable-prompt t "make prompt a selectable option"))
          :config
          (defface ivy-current-match
            '((((class color) (background light))
