@@ -11296,10 +11296,8 @@
 #+BEGIN_SRC emacs-lisp
 (report-elapsed "check point nix specifics")
 #+END_SRC
-  - alternative to package ~direnv~ is ~envrc~, could be worth a try
   #+BEGIN_SRC emacs-lisp
     (when running-nixos
-
       (use-package nixos-options
         :defer 30)
       (use-package company-nixos-options
@@ -11313,17 +11311,16 @@
                            (or (buffer-file-name (current-buffer)) "")))))
         :init (add-to-list 'company-backends 'company-nixos-options))
       (use-package nix-mode))
-    (use-package envrc
-      :ensure t
-      :config
-      (envrc-global-mode 1)
-      (define-key envrc-mode-map (kbd "C-c e") 'envrc-command-map))
-    ;; (use-package direnv
-    ;;   :ensure t
-    ;;   :config
-    ;;   ;; (direnv-mode)
-    ;;   (setq direnv-use-faces-in-summary nil)
-    ;;   (advice-add 'direnv--export :before #'(lambda (orig-func &rest args) (message "running direnv ..."))))
+  #+END_SRC
+* envrc
+  - does caching compared to direnv.el which always executes direnv on changing buffers, which may take some time
+  #+BEGIN_SRC emacs-lisp
+    (when (executable-find "direnv")
+      (use-package envrc
+        :ensure t
+        :config
+        (envrc-global-mode 1)
+        (define-key envrc-mode-map (kbd "C-c e") 'envrc-command-map)))
   #+END_SRC
 * currently evaluated
 #+BEGIN_SRC emacs-lisp
@@ -16360,6 +16357,15 @@
      (use-package helm-selector
        :ensure t
        :config )
+   #+end_src
+** direnv - automatic execution of direnv - discarded: using alternative envrc.el
+   #+begin_src emacs-lisp :tangle no
+     (use-package direnv
+       :ensure t
+       :config
+       (direnv-mode)
+       (setq direnv-use-faces-in-summary nil)
+       (advice-add 'direnv--export :before #'(lambda (orig-func &rest args) (message "running direnv ..."))))
    #+end_src
 * useful but discarded because of drawback that might be fixed
 ** magit-delta (disabled - speed degradation on large change sets)
