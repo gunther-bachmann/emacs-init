@@ -8,25 +8,7 @@
 * xprofile
 ** set guix profile(s)
   #+begin_src sh :eval no :tangle ~/.xprofile
-    # GUIX_PROFILE="/home/pe/.config/guix/current"
-    # source "$GUIX_PROFILE/etc/profile"
-    # export GUIX_PROFILE="$HOME/.guix-profile"
-    # source "$GUIX_PROFILE/etc/profile"
-
-    # Arrange so that ~/.config/guix/current comes first.
-    for profile in "$HOME/.guix-profile" "$HOME/.config/guix/current"
-    do
-      if [ -f "$profile/etc/profile" ]
-      then
-        # Load the user profile's settings.
-        GUIX_PROFILE="$profile" ; \
-          source "$profile/etc/profile"
-      else
-        # At least define this one so that basic things just work
-        # when the user installs their first package.
-        export PATH="$profile/bin:$PATH"
-      fi
-    done
+    source $HOME/bin/guix-set-profiles
   #+end_src
 ** guix configuration for ssl certificates
   #+begin_src sh :eval no :tangle ~/.xprofile
