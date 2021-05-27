@@ -6073,7 +6073,10 @@
        :custom ((web-mode-enable-auto-identation nil)
                 (web-mode-markup-indent-offset 2)
                 (web-mode-css-indent-offset 2)
-                (web-mode-code-indent-offset 2)))
+                (web-mode-code-indent-offset 2))
+       :bind (:map web-mode-map
+              ("C-c C-h" . gb/shell-pop-new)
+              ("H-f" . web-mode-buffer-fontify)))
    #+END_SRC
 ** typescript
    #+BEGIN_SRC emacs-lisp
@@ -8249,15 +8252,14 @@
   #+BEGIN_SRC emacs-lisp
     (use-package org
       :after (hydra)
-      :bind (:map  org-mode-map
-                   ("<f1>" . hydra-org-mode/body)
-
-                   ("RET" . gb/org-return-dwim)
-                   ("S-<return>" . org-return-indent)
-                   ("C-<return>" . gb/org-control-return)
-                   ("C-c l" . org-store-link)
-                   ("C-c t i" . org-toggle-item)
-                   ("H-f" . font-lock-fontify-block))
+      :bind (("H-f" . font-lock-fontify-block)
+             :map  org-mode-map
+             ("<f1>" . hydra-org-mode/body)
+             ("RET" . gb/org-return-dwim)
+             ("S-<return>" . org-return-indent)
+             ("C-<return>" . gb/org-control-return)
+             ("C-c l" . org-store-link)
+             ("C-c t i" . org-toggle-item))
       :init
       ;; thanks to https://pank.eu/blog/pretty-babel-src-blocks.html
       (with-eval-after-load 'org
@@ -12242,7 +12244,7 @@
   #+begin_src emacs-lisp
     (use-package shell-pop
       :ensure t
-      :config
+      :init
       (defun gb/shell-pop-new ()
         (interactive)
         (let ((current-prefix-arg '(4))) ;; emulate C-u
