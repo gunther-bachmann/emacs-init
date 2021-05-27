@@ -15761,6 +15761,22 @@
       :ensure t
       :commands (symbolist-regexp symbolist-prefix))
   #+end_src
+* eval mlscrollbar
+  - does not compose with doom bar if right aligned
+  - wastes lots of space in minibuffer
+  - to get an idea where you are, you have to move eyes away from content
+  - dynamic on/off could be an option
+  #+begin_src emacs-lisp
+    (use-package mlscroll
+      :ensure t
+      :custom ((mlscroll-width-chars 10)
+               (mlscroll-right-align nil))
+      :config
+      ;; (mlscroll-mode 1)
+      ;; (defconst mlscroll-model-line-const (list "[" '(:eval (mlscroll-mode-line)) "]"))
+      ;; (setq global-mode-string (append global-mode-string  mlscroll-model-line-const))
+      )
+  #+end_src
 * INTERESTING
 ** blog/presentation
   - org-present using a cell phone to switch pages
