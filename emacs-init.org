@@ -11233,6 +11233,54 @@
        :ensure t
        :after ( dired)) ;; Extended file highlighting according to its type
    #+END_SRC
+** dired-annotator
+   #+begin_src emacs-lisp
+     (use-package uuid
+       :ensure t)
+
+     (use-package dired-annotator
+       :after (posframe all-the-icons)
+       :load-path "~/repo/emacs-dired-annotator"
+       :custom ((dired-annotator-note-icon (all-the-icons-faicon "sticky-note"))
+                (dired-annotator-annotations-folder (expand-file-name "~/documents/annotations"))
+                (dired-annotator-note-popup-hook #'dired-annotator--posframe-note-popup)
+                (dired-annotator-note-fill-column 54) ;; a bit smaller than the popup window
+                (dired-annotator-note-popup-remove-hook #'dired-annotator--remove-all-posframes))
+       :hook (dired-mode . dired-annotator-check-dir-local-show)
+       :config
+       (require 'posframe)
+       (defconst dired-annotator-note-popup-width 47 "width of the note that pops up (less since serif fonts are used)")
+       (defconst dired-annotator-note-popup-height 40 "max height of the note that pops up")
+
+       (defun dired-annotator--remove-all-posframes ()
+         "remove all posframes"
+         (unless (eq 'dired-annotator-show-note (lookup-key dired-mode-map (this-single-command-keys)))
+           (setq dired-annotator--note-should-not-popup nil))
+         (ignore-errors
+           (posframe-hide-all)))
+
+       (defun dired-annotator--posframe-note-popup (position annotation-file)
+         (setq dired-annotator--note-should-not-popup t) ;; next call should not reopen note again, but hide it
+         (let ((note-buffer (find-file-noselect annotation-file)))
+           (with-current-buffer note-buffer
+             ;; make sure that regardless of org startup visibility, the buffer is fully visible
+             (org-show-all)
+             (gb/serif-on))
+           (posframe-show note-buffer :position position :lines-truncate t
+                          :width dired-annotator-note-popup-width :height dired-annotator-note-popup-height
+                          :border-color "plum4" :border-width 2 :left-fringe 3 :right-fringe 3 )))
+
+       :bind (:map dired-mode-map
+                   ("C-c a r" . #'dired-annotator-reload-annotation-info)
+                   ("C-c a d" . #'dired-annotator-dired-on-annotation-folder)
+                   ("C-c a s" . #'dired-annotator-show-icons)
+                   ("C-c a h" . #'dired-annotator-hide-icons)
+                   ("C-c a k" . #'dired-annotator-delete-note)
+                   ("C-c a o" . #'dired-annotator-edit-note)
+                   ("C-c a e" . #'dired-annotator-edit-note)
+                   ("C-c a a" . #'dired-annotator-show-note)
+                   ("'" . #'dired-annotator-show-note)))
+   #+end_src
 * stripe-buffer
   add stripes to background of dired (or any other mode)
   #+BEGIN_SRC emacs-lisp
@@ -15421,57 +15469,6 @@
   #+end_src
 #+BEGIN_SRC emacs-lisp
 (report-elapsed "check-point - backup duplicity support")
-#+END_SRC
-* dired-annotator
-  #+begin_src emacs-lisp
-    (use-package uuid
-      :ensure t)
-
-    (use-package dired-annotator
-      :after (posframe all-the-icons)
-      :load-path "~/repo/emacs-dired-annotator"
-      :custom ((dired-annotator-note-icon (all-the-icons-faicon "sticky-note"))
-               (dired-annotator-annotations-folder (expand-file-name "~/documents/annotations"))
-               (dired-annotator-note-popup-hook #'dired-annotator--posframe-note-popup)
-               (dired-annotator-note-fill-column 54) ;; a bit smaller than the popup window
-               (dired-annotator-note-popup-remove-hook #'dired-annotator--remove-all-posframes))
-      :hook (dired-mode . dired-annotator-check-dir-local-show)
-      :config
-      (require 'posframe)
-      (defconst dired-annotator-note-popup-width 47 "width of the note that pops up (less since serif fonts are used)")
-      (defconst dired-annotator-note-popup-height 40 "max height of the note that pops up")
-
-      (defun dired-annotator--remove-all-posframes ()
-        "remove all posframes"
-        (unless (eq 'dired-annotator-show-note (lookup-key dired-mode-map (this-single-command-keys)))
-          (setq dired-annotator--note-should-not-popup nil))
-        (ignore-errors
-          (posframe-hide-all)))
-
-      (defun dired-annotator--posframe-note-popup (position annotation-file)
-        (setq dired-annotator--note-should-not-popup t) ;; next call should not reopen note again, but hide it
-        (let ((note-buffer (find-file-noselect annotation-file)))
-          (with-current-buffer note-buffer
-            ;; make sure that regardless of org startup visibility, the buffer is fully visible
-            (org-show-all)
-            (gb/serif-on))
-          (posframe-show note-buffer :position position :lines-truncate t
-                         :width dired-annotator-note-popup-width :height dired-annotator-note-popup-height
-                         :border-color "plum4" :border-width 2 :left-fringe 3 :right-fringe 3 )))
-
-      :bind (:map dired-mode-map
-                  ("C-c a r" . #'dired-annotator-reload-annotation-info)
-                  ("C-c a d" . #'dired-annotator-dired-on-annotation-folder)
-                  ("C-c a s" . #'dired-annotator-show-icons)
-                  ("C-c a h" . #'dired-annotator-hide-icons)
-                  ("C-c a k" . #'dired-annotator-delete-note)
-                  ("C-c a o" . #'dired-annotator-edit-note)
-                  ("C-c a e" . #'dired-annotator-edit-note)
-                  ("C-c a a" . #'dired-annotator-show-note)
-                  ("'" . #'dired-annotator-show-note)))
-  #+end_src
-#+BEGIN_SRC emacs-lisp
-(report-elapsed "check-point - dired annotator")
 #+END_SRC
 * TODO udisksctl - make package of this
   #+begin_src emacs-lisp
