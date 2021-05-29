@@ -13494,17 +13494,45 @@
           (message (s-trim (shell-command-to-string (format "sudo mount.cifs --verbose \\\\\\\\%s\\\\FRITZ.NAS %s/ -o user=gunther.bachmann,pass=%s,dom=WORKGROUP,vers=1.0" gb/fritz-nas-ip gb/fritz-mount-point pass))))
           (dired gb/fritz-mount-point))))
   #+end_src
-* networking en/disable
+* TODO networking (integration, en/disable etc.) - make package of this
   #+begin_src emacs-lisp
+    (defconst gb/net-wlan-adapter "wlp4s0" "default wlan adapter")
+    (defconst gb/net-lan-adapter "enp0s31f6" "default lan adapter")
+
+    (defun gb/net-operstate-get (adapter)
+      "get the operstate of the given adapter"
+      (string-trim (shell-command-to-string (format "cat /sys/class/net/%s/operstate" adapter))))
+
+    (defun gb/net-adapter-up-p (adapter)
+      "check whether operstate of the given adapter indicates an active network link"
+      (string-equal "up" (gb/net-operstate-get adapter)))
+
+    (defun gb/net-adapter-down-p (adapter)
+      "check whether operstate of the given adapter indicates an inactive network link"
+      (string-equal "down" (gb/net-operstate-get adapter)))
+
+    (defun gb/net-connect-default ()
+      "prefer to connect via lan over wlan"
+      (if (gb/net-adapter-down-p gb/net-lan-adapter)
+          (when (gb/net-adapter-down-p gb/net-wlan-adapter) (gb/net-wlan-switch-on))
+        (when (gb/net-adapter-up-p gb/net-wlan-adapter) (gb/net-wlan-switch-off))))
+
+    (gb/net-connect-default) ;; do this on startup
+
+    (defun gb/net-connect ()
+      "connect net to default"
+      (interactive)
+      (gb/net-connect-default))
+
     (defun gb/net-lan-switch-on ()
       "switch wired lan on"
       (interactive)
-      (message (s-trim (shell-command-to-string "sudo ifconfig --up enp0s31f6"))))
+      (message (s-trim (shell-command-to-string (format "sudo ifconfig --up %s" gb/net-lan-adapter)))))
 
     (defun gb/net-lan-switch-off ()
       "switch wired lan off"
       (interactive)
-      (message (s-trim (shell-command-to-string "sudo ifconfig --down enp0s31f6"))))
+      (message (s-trim (shell-command-to-string (format "sudo ifconfig --down %s" gb/net-lan-adapter)))))
 
     (defun gb/net-wlan-switch-on ()
       "switch wireless lan on, needs tlp to be installed"
