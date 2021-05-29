@@ -12232,10 +12232,13 @@
   #+begin_src emacs-lisp
     (use-package racket-mode
       :ensure t
+      :custom (racket-show-functions '(racket-show-echo-area))
       :bind (:map racket-mode-map
                   ("C-c r" . #'racket-run)
                   ("C-c C-." . #'racket-repl-describe)
-                  ("M-." . #'racket-repl-visit-definition))
+                  ("M-." . #'racket-repl-visit-definition)
+                  ("C-c C-f" . #'gb/racket-fold-all-tests)
+                  ("C-c C-u" . #'gb/racket-unfold-all-tests))
       :config
       (when (boundp 'pretty-modes-aliases)
         (add-to-list 'pretty-modes-aliases '(racket-mode . scheme-mode)))
@@ -12252,7 +12255,6 @@
       (when (fboundp 'gb/enable-ligatures)
         (add-hook 'racket-mode-hook
                   (lambda () (gb/enable-ligatures))))
-      (setq racket-show-functions '(racket-show-echo-area))
 
       (when (fboundp #'yafolding-mode)
         (defun gb/racket-fold-all-tests ()
@@ -12261,10 +12263,7 @@
 
         (defun gb/racket-unfold-all-tests ()
           (interactive)
-          (racket--for-all-tests "Unfolded" 'yafolding-show-element))
-
-        (bind-key "C-c C-f" #'gb/racket-fold-all-tests racket-mode-map)
-        (bind-key "C-c C-u" #'gb/racket-unfold-all-tests racket-mode-map)))
+          (racket--for-all-tests "Unfolded" 'yafolding-show-element))))
 
     (use-package flymake-racket
       :after racket-mode
@@ -15301,7 +15300,7 @@
       :ensure t
       :commands (tramp-term))
   #+end_src
-* provide battery warning
+* TODO provide battery warning - make package
   #+begin_src emacs-lisp
     (when (and (package-installed-p 'alert)
              (executable-find "upower"))
