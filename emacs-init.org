@@ -4279,45 +4279,47 @@
      json parsing with elisp see [[http://tess.oconnor.cx/2006/03/json.el][here]]
      adjustments to (langtool--process-filter) will have to be made, in order to parse json results
    #+BEGIN_SRC emacs-lisp
-   (when languagetool-installed
-     (use-package langtool
-       :after ( s)
-       :commands (langtool-check
-                  langtool-check-buffer
-                  langtool-check-done
-                  langtool-switch-default-language
-                  langtool-show-message-at-point
-                  langtool-correct-buffer)
-       :init
-       (progn
-         (defun langtool-autoshow-detail-popup (overlays)
-           (when (require 'popup nil t)
-             ;; Do not interrupt current popup
-             (unless (or popup-instances
-                         ;; suppress popup after type `C-g` .
-                         (memq last-command '(keyboard-quit)))
-               (let ((msg (langtool-details-error-message overlays)))
-                 (popup-tip msg)))))
-         (setq langtool-autoshow-message-function
-               'langtool-autoshow-detail-popup)
-         )
-       :config
-       (when (is-_nix-p)
-         (let ((jar-file (concat (s-trim (shell-command-to-string "cat `which languagetool` | sed -n 's/^CP=\\(.*\\)/\\1/p'")) "/languagetool-commandline.jar")))
-           (cond ((file-exists-p jar-file) (setq langtool-language-tool-jar jar-file))
-                 ((file-exists-p "/usr/share/languagetool") (setq langtool-java-classpath "/usr/share/languagetool:/usr/share/java/languagetool/*"))
-                 ((file-exists-p "~/bin/LanguageTool-4.3/languagetool-commandline.jar") (setq langtool-language-tool-jar "~/bin/LanguageTool-4.3/languagetool-commandline.jar"))
-                 (t (message (format "ERROR: langtool jar not found at '%s' nor in any known location" jar-file))))))
-       (when (is-macos-p)
-         (let ((jar-file (s-trim (shell-command-to-string "cat `which languagetool` | sed -n 's/.*-jar.\\(.*\\) \".*/\\1/p'"))))
-           (if (file-exists-p jar-file)
-               (progn
-                 (message "OK: langtool jar file found")
-                 (setq langtool-language-tool-jar jar-file))
-             (message (format "ERROR: langtool jar not found at '%s'" jar-file)))))
+     (when languagetool-installed
+       (use-package langtool
+         :after ( s)
+         :commands (langtool-check
+                    langtool-check-buffer
+                    langtool-check-done
+                    langtool-switch-default-language
+                    langtool-show-message-at-point
+                    langtool-correct-buffer)
+         :init
+         (progn
+           (defun langtool-autoshow-detail-popup (overlays)
+             (when (require 'posframe)
+               ;; suppress popup after type `C-g` .
+               (unless (memq last-command '(keyboard-quit))
+                 (let ((msg (langtool-details-error-message overlays)))
+                   (posframe-show " * langtool *" :position (point) :lines-truncate t
+                                  :string msg :background-color "#303030"
+                                  :border-color "plum4" :border-width 2 :left-fringe 3 :right-fringe 3 )
+                   (clear-this-command-keys)
+                   (push (read-event nil) unread-command-events)
+                   (posframe-hide-all)))))
+           (setq langtool-autoshow-message-function
+                 'langtool-autoshow-detail-popup))
+         :config
+         (when (is-_nix-p)
+           (let ((jar-file (concat (s-trim (shell-command-to-string "cat `which languagetool` | sed -n 's/^CP=\\(.*\\)/\\1/p'")) "/languagetool-commandline.jar")))
+             (cond ((file-exists-p jar-file) (setq langtool-language-tool-jar jar-file))
+                   ((file-exists-p "/usr/share/languagetool") (setq langtool-java-classpath "/usr/share/languagetool:/usr/share/java/languagetool/*"))
+                   ((file-exists-p "~/bin/LanguageTool-4.3/languagetool-commandline.jar") (setq langtool-language-tool-jar "~/bin/LanguageTool-4.3/languagetool-commandline.jar"))
+                   (t (message (format "ERROR: langtool jar not found at '%s' nor in any known location" jar-file))))))
+         (when (is-macos-p)
+           (let ((jar-file (s-trim (shell-command-to-string "cat `which languagetool` | sed -n 's/.*-jar.\\(.*\\) \".*/\\1/p'"))))
+             (if (file-exists-p jar-file)
+                 (progn
+                   (message "OK: langtool jar file found")
+                   (setq langtool-language-tool-jar jar-file))
+               (message (format "ERROR: langtool jar not found at '%s'" jar-file)))))
 
-       (setq langtool-default-language "de")
-       (setq langtool-java-user-arguments '("-Dfile.encoding=UTF-8"))))
+         (setq langtool-default-language "en")
+         (setq langtool-java-user-arguments '("-Dfile.encoding=UTF-8"))))
    #+END_SRC
 ** flyspell
    installation of ispell german dictionary:
