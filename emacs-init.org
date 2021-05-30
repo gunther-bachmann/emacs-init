@@ -15803,6 +15803,33 @@
       ;; (setq global-mode-string (append global-mode-string  mlscroll-model-line-const))
       )
   #+end_src
+* EVAL ltex
+  - use language tool to spell check different markup (BibTEX, LATEX, Markdown, Org, reStructuredText, R Sweave)
+  - requires installation of a ltext language server (see https://github.com/valentjn/ltex-ls)
+  - flycheck must be enabled
+  #+begin_src emacs-lisp
+    (use-package lsp-ltex
+      :ensure t
+      :custom  ((lsp-ltex-enabled t)
+                (lsp-ltex-extension-name "ltex-ls-12.1.0.tar.gz")
+                (lsp-ltex-server-download-url
+                 "https://github.com/valentjn/ltex-ls/releases/download/12.1.0/ltex-ls-12.1.0.tar.gz")
+                (lsp-ltex-server-store-path "/home/pe/bin")
+                (lsp-ltex-version "12.1.0"))
+
+      ;; :hook (text-mode . (lambda ()
+      ;;                      (require 'lsp-ltex)
+      ;;                      (lsp)))
+      )
+
+    (use-package eglot-ltex
+      :load-path "~/repo/eglot-ltex"
+      ;; :hook (text-mode . (lambda ()
+      ;;                      (require 'eglot-ltex)
+      ;;                      (call-interactively #'eglot)))
+      :init
+      (setq eglot-languagetool-server-path (expand-file-name "~/bin/ltex-ls-12.1.0")))
+  #+end_src
 * INTERESTING
 ** blog/presentation
   - org-present using a cell phone to switch pages
