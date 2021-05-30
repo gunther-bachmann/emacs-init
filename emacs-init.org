@@ -15848,6 +15848,15 @@
       :init
       (setq eglot-languagetool-server-path (expand-file-name "~/bin/ltex-ls-12.1.0")))
   #+end_src
+* EVAL langtool-ignore-fonts
+  #+begin_src emacs-lisp
+    (use-package langtool-ignore-fonts
+      :ensure t
+      :config
+      (add-hook 'LaTeX-mode-hook 'langtool-ignore-fonts-minor-mode)
+      (add-hook 'markdown-mode-hook 'langtool-ignore-fonts-minor-mode)
+      (langtool-ignore-fonts-add 'markdown-mode '(markdown-code-face)))
+  #+end_src
 * INTERESTING
 ** blog/presentation
   - org-present using a cell phone to switch pages
