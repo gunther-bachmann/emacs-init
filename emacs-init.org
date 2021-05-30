@@ -15803,6 +15803,24 @@
       ;; (setq global-mode-string (append global-mode-string  mlscroll-model-line-const))
       )
   #+end_src
+* EVAL tree-sitter
+  - see https://ubolonton.github.io/emacs-tree-sitter/getting-started/
+  #+begin_src emacs-lisp
+    (use-package tree-sitter
+      :ensure t)
+    (use-package tree-sitter-langs
+      :ensure t
+      :config
+      ;; supported languages that support tree sitter highlighting
+      (require 'dash)
+      (--each '(typescript-mode-hook
+                java-mode-hook
+                javascript-mode-hook
+                html-mode-hook
+                scala-mode-hook
+                json-mode-hook)
+        (add-hook it #'tree-sitter-hl-mode)))
+  #+end_src
 * EVAL ltex
   - use language tool to spell check different markup (BibTEX, LATEX, Markdown, Org, reStructuredText, R Sweave)
   - requires installation of a ltext language server (see https://github.com/valentjn/ltex-ls)
