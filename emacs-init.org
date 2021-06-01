@@ -13721,6 +13721,9 @@
         (setq org-tree-slide-heading-emphasis nil))
     #+end_src
 * eglot
+  #+BEGIN_SRC emacs-lisp
+    (report-elapsed "check point - eglot")
+  #+END_SRC
   #+begin_src emacs-lisp
     (when (version< emacs-version "28")
       ;; starting with emacs 28, jsonrpc is internal and does not need to be loaded here
@@ -15794,7 +15797,7 @@
       :ensure t
       :commands (symbolist-regexp symbolist-prefix))
   #+end_src
-* eval mlscrollbar
+* EVAL mlscrollbar
   - does not compose with doom bar if right aligned
   - wastes lots of space in minibuffer
   - to get an idea where you are, you have to move eyes away from content
