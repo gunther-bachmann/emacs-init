@@ -13497,29 +13497,12 @@
           (dired gb/fritz-mount-point))))
   #+end_src
 * TODO networking (integration, en/disable etc.) - make package of this
+  #+BEGIN_SRC emacs-lisp
+    (report-elapsed "check point - networking")
+  #+END_SRC
   #+begin_src emacs-lisp
     (defconst gb/net-wlan-adapter "wlp4s0" "default wlan adapter")
     (defconst gb/net-lan-adapter "enp0s31f6" "default lan adapter")
-
-    (defun gb/net-operstate-get (adapter)
-      "get the operstate of the given adapter"
-      (string-trim (shell-command-to-string (format "cat /sys/class/net/%s/operstate" adapter))))
-
-    (defun gb/net-adapter-up-p (adapter)
-      "check whether operstate of the given adapter indicates an active network link"
-      (string-equal "up" (gb/net-operstate-get adapter)))
-
-    (defun gb/net-adapter-down-p (adapter)
-      "check whether operstate of the given adapter indicates an inactive network link"
-      (string-equal "down" (gb/net-operstate-get adapter)))
-
-    (defun gb/net-connect-default ()
-      "prefer to connect via lan over wlan"
-      (if (gb/net-adapter-down-p gb/net-lan-adapter)
-          (when (gb/net-adapter-down-p gb/net-wlan-adapter) (gb/net-wlan-switch-on))
-        (when (gb/net-adapter-up-p gb/net-wlan-adapter) (gb/net-wlan-switch-off))))
-
-    (gb/net-connect-default) ;; do this on startup
 
     (defun gb/net-connect ()
       "connect net to default"
@@ -13590,8 +13573,32 @@
           (shell-command "journalctl --since -1d  -u openvpn*" (current-buffer))
           (end-of-buffer)
           (read-only-mode 1))))
+
+    (defun gb/net-operstate-get (adapter)
+      "get the operstate of the given adapter"
+      (string-trim (shell-command-to-string (format "cat /sys/class/net/%s/operstate" adapter))))
+
+    (defun gb/net-adapter-up-p (adapter)
+      "check whether operstate of the given adapter indicates an active network link"
+      (string-equal "up" (gb/net-operstate-get adapter)))
+
+    (defun gb/net-adapter-down-p (adapter)
+      "check whether operstate of the given adapter indicates an inactive network link"
+      (string-equal "down" (gb/net-operstate-get adapter)))
+
+    (defun gb/net-connect-default ()
+      "prefer to connect via lan over wlan"
+      (if (gb/net-adapter-down-p gb/net-lan-adapter)
+          (when (gb/net-adapter-down-p gb/net-wlan-adapter) (gb/net-wlan-switch-on))
+        (when (gb/net-adapter-up-p gb/net-wlan-adapter) (gb/net-wlan-switch-off))))
+
+    (gb/net-connect-default) ;; do this on startup
+
   #+end_src
 * org tree slide (presenting org mode files as slides)
+  #+BEGIN_SRC emacs-lisp
+    (report-elapsed "check point - org tree slide")
+  #+END_SRC
   - did some modifications to allow for timers during presentation
     #+begin_src emacs-lisp :tangle no
       ;; org-tree-slide-move-next-tree was adjusted:
