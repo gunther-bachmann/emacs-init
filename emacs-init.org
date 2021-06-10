@@ -4617,74 +4617,6 @@
          :after (helm company)
          :bind (("\C-h b" . helm-descbinds))))
    #+END_SRC
-** helm-dash
-   - add new sources for helm dash via helm-dash-install-docset
-   - browse doc set via helm-dash
-   #+BEGIN_SRC emacs-lisp
-     (when (eq gb/completion-framework 'helm)
-       (use-package helm-dash
-         :bind (("\C-z SPC d" . helm-dash-at-point))
-         :after ( helm)
-         :init (progn
-                 (defun clojure-dash-doc ()
-                   (interactive)
-                   (setq-local helm-dash-docsets '("Clojure")))
-
-
-                 (defun java-dash-doc ()
-                   (interactive)
-                   (setq-local helm-dash-docsets '("Java_SE8")))
-
-
-                 (defun bash-dash-doc ()
-                   (interactive)
-                   (setq-local helm-dash-docset '("Bash")))
-
-
-                 (add-hook 'clojure-mode-hook 'clojure-dash-doc)
-                 (add-hook 'java-mode-hook 'java-dash-doc)
-                 (add-hook 'shell-mode-hook 'bash-dash-doc)
-                 )
-         :config
-         (progn
-           (if w3m-installed
-               (setq helm-dash-browser-func 'w3m-browse-url))
-           (setq helm-dash-docsets '("Bash"
-                                     "Clojure"
-                                     "Docker"
-                                     "Emacs Lisp"
-                                     "Groovy"
-                                     "Groovy JDK"
-                                     "Gradle Groovy API"
-                                     "Gradle DSL"
-                                     "Gradle User Guide"
-                                     "Java"
-                                     "LaTeX"
-                                     "PostgreSQL"
-                                     "Vagrant"
-                                     "XSLT")))))
-   #+END_SRC
-*** Installing docsets
-
-    Helm-dash uses the same docsets as Dash. You can install them with
-    m-x helm-dash-install-docset for the official docsets or m-x
-    helm-dash-install-user-docset for user contributed docsets
-    (experimental).
-
-    To install a docset from a file in your drive you can use m-x
-    helm-dash-install-docset-from-file'. That function takes as input
-    atgzfile that you obtained, starting from a folder named.docset`,
-    with the command:
-
-    tar --exclude='.DS_Store' -cvzf <docset name>.tgz <docset name>.docset
-
-    as explained here.
-** dash at point
-   #+BEGIN_SRC emacs-lisp
-   (use-package dash-at-point
-     :bind (("C-z SPC h d" . dash-at-point-with-docset)
-            ("C-z SPC h D" . dash-at-point)))
-   #+END_SRC
 ** helm-swoop
    #+BEGIN_SRC emacs-lisp
      (when (eq gb/completion-framework 'helm)
@@ -15880,6 +15812,43 @@
       (add-hook 'markdown-mode-hook 'langtool-ignore-fonts-minor-mode)
       (langtool-ignore-fonts-add 'markdown-mode '(markdown-code-face)))
   #+end_src
+* EVAL devdocs browser
+  - browser devdocs documentation for developers
+  #+begin_src emacs-lisp
+    (use-package devdocs-browser
+      :load-path "~/repo/emacs-devdocs-browser/"
+      :bind (("C-c C-d C-h" . devdocs-browser-open)
+             ("C-c C-d C-i" . devdocs-browser-open-in))
+      :commands (devdocs-browser-open                  ;; open devdocs
+                 devdocs-browser-download-offline-data ;; install docset locally (html files)
+                 devdocs-browser-install-doc           ;; install a doc set (which will then be available for selection with 'open'
+                 )
+      :custom
+      (devdocs-browser-major-mode-docs-alist
+       '((c++-mode . ("cpp"))
+         (python-mode . ("Python"))
+         (emacs-lisp-mode . ("elisp"))
+         (typescript-mode . ("typescript"))
+         (kotlin-mode . ("kotlin"))
+         (haskell-mode . ("haskell~9"))
+         (clojure-mode . ("clojure~1.10"))
+         (scala-mode . ("scala~2.13_library"))))
+      (devdocs-browser-highlight-lang-mode-alist '(("clojure" . clojure-mode)))
+      :config
+        (with-eval-after-load 'eww
+          (add-hook 'eww-after-render-hook #'gb/serif-on)))
+
+  #+end_src
+* cursor-chg - change color of cursor
+  #+begin_src emacs-lisp
+    (use-package cursor-chg
+      :load-path "~/.emacs.d/additionals/"
+      :config
+      (change-cursor-mode 1) ; On for overwrite/read-only/input mode
+      ;; (toggle-cursor-type-when-idle 1) ; On when idle
+    )
+  #+end_src
+
 * INTERESTING
 ** blog/presentation
   - org-present using a cell phone to switch pages
@@ -16486,6 +16455,74 @@
        (setq direnv-use-faces-in-summary nil)
        (advice-add 'direnv--export :before #'(lambda (orig-func &rest args) (message "running direnv ..."))))
    #+end_src
+** helm-dash - helm is no longer used, dash is used differently
+   - add new sources for helm dash via helm-dash-install-docset
+   - browse doc set via helm-dash
+   #+BEGIN_SRC emacs-lisp :tangle no
+     (when (eq gb/completion-framework 'helm)
+       (use-package helm-dash
+         :bind (("\C-z SPC d" . helm-dash-at-point))
+         :after ( helm)
+         :init (progn
+                 (defun clojure-dash-doc ()
+                   (interactive)
+                   (setq-local helm-dash-docsets '("Clojure")))
+
+
+                 (defun java-dash-doc ()
+                   (interactive)
+                   (setq-local helm-dash-docsets '("Java_SE8")))
+
+
+                 (defun bash-dash-doc ()
+                   (interactive)
+                   (setq-local helm-dash-docset '("Bash")))
+
+
+                 (add-hook 'clojure-mode-hook 'clojure-dash-doc)
+                 (add-hook 'java-mode-hook 'java-dash-doc)
+                 (add-hook 'shell-mode-hook 'bash-dash-doc)
+                 )
+         :config
+         (progn
+           (if w3m-installed
+               (setq helm-dash-browser-func 'w3m-browse-url))
+           (setq helm-dash-docsets '("Bash"
+                                     "Clojure"
+                                     "Docker"
+                                     "Emacs Lisp"
+                                     "Groovy"
+                                     "Groovy JDK"
+                                     "Gradle Groovy API"
+                                     "Gradle DSL"
+                                     "Gradle User Guide"
+                                     "Java"
+                                     "LaTeX"
+                                     "PostgreSQL"
+                                     "Vagrant"
+                                     "XSLT")))))
+   #+END_SRC
+*** Installing docsets
+
+    Helm-dash uses the same docsets as Dash. You can install them with
+    m-x helm-dash-install-docset for the official docsets or m-x
+    helm-dash-install-user-docset for user contributed docsets
+    (experimental).
+
+    To install a docset from a file in your drive you can use m-x
+    helm-dash-install-docset-from-file'. That function takes as input
+    atgzfile that you obtained, starting from a folder named.docset`,
+    with the command:
+
+    tar --exclude='.DS_Store' -cvzf <docset name>.tgz <docset name>.docset
+
+    as explained here.
+** dash at point - dash is used differntly
+   #+BEGIN_SRC emacs-lisp :tangle no
+   (use-package dash-at-point
+     :bind (("C-z SPC h d" . dash-at-point-with-docset)
+            ("C-z SPC h D" . dash-at-point)))
+   #+END_SRC
 * useful but discarded because of drawback that might be fixed
 ** magit-delta (disabled - speed degradation on large change sets)
    #+begin_src emacs-lisp :tangle no
