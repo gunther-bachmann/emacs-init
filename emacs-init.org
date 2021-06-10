@@ -7721,6 +7721,7 @@
             ("C-c b l" . gnus-bookmark-bmenu-list)
             ("C-c b m" . gnus-bookmark-set)
             ("C-c b s" . gnus-bookmark-set)
+            ("@" . gnus-summary-mark-as-processable)
             :map gnus-article-edit-mode-map
             ("<f1>" . hydra-gnus-article-mime-part/body)
             :map gnus-article-mode-map
@@ -8112,6 +8113,13 @@
     ;;(use-package nnir
     ;;  :after ( gnus))
   #+END_SRC
+*** gnus agent configuration
+    #+begin_src emacs-lisp
+      (use-package gnus-agent
+        :after gnus
+        :bind (:map gnus-agent-summary-mode-map
+                    ("@" . #'gnus-summary-mark-as-processable)))
+    #+end_src
 *** accounts (user specific stuff)
     #+BEGIN_SRC emacs-lisp
       (when mail-accounts-exists
