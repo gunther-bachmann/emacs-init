@@ -11196,7 +11196,7 @@
        :hook (dired-mode . dired-annotator-check-dir-local-show)
        :config
        (require 'posframe)
-       (defconst dired-annotator-note-popup-width 47 "width of the note that pops up (less since serif fonts are used)")
+       (defconst dired-annotator-note-popup-width 54 "width of the note that pops up (less since serif fonts are used)")
        (defconst dired-annotator-note-popup-height 40 "max height of the note that pops up")
 
        (defun dired-annotator--remove-all-posframes ()
