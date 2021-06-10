@@ -7064,7 +7064,7 @@
        ;; detected in: eterm-color-256: 0.3.12, xterm-color 1.7
        :config
        (defalias 'xterm-color--256 'xterm-color-256)
-       ;; (progn (setq comint-output-filter-functions (remove 'ansi-color-process-output comint-output-filter-functions)))
+       (progn (setq comint-output-filter-functions (remove 'ansi-color-process-output comint-output-filter-functions)))
        )
    #+END_SRC
 ** friendly iteractive shell (deactivated)
@@ -14745,7 +14745,7 @@
 
       ;; eww support
       (with-eval-after-load 'eww
-        (add-hook 'eww-after-render-hook 'shrface-mode)
+        (add-hook 'eww-after-render-hook #'shrface-mode)
         (define-key eww-mode-map (kbd "<tab>") 'org-cycle)
         (define-key eww-mode-map (kbd "S-<tab>") 'org-shifttab)
         (define-key eww-mode-map (kbd "C-t") 'shrface-toggle-bullets)
