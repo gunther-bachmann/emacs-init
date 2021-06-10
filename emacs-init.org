@@ -3668,6 +3668,10 @@
 
      (bind-key "M-j" #'join-line)
 
+     (require 'dabbrev)
+     (setq dabbrev-case-distinction nil)
+     (setq dabbrev-case-replace nil)
+
      ;; Customizations relating to editing a buffer.
      ;; enable C-x C-u to do upcase on region (which is disabled by default)
      (put 'upcase-region 'disabled nil)
