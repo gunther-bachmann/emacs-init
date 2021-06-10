@@ -9736,6 +9736,7 @@
          :load-path "~/repo/emacs-slack"
          ;; :commands (gb/slack-on gb/slack-off)
          :custom (slack-log-level 'warn "make log less verbose")
+         (slack-file-dir (expand-file-name "~/Downloads/"))
          :init
          (setq slack-enable-global-mode-string t)
          (setq slack-enable-emoji t) ;; if you want to enable emoji, default nil
