@@ -5,26 +5,49 @@
     # THIS FILE IS GENERATED (To edit please open file from link above)
     #------------------------------------------------------------------
   #+end_src
-* alias
+* export alias
+  - since alias definitions in envrc are not put into the respective shell, an alternative is to create a shell script
+    that behaves similar to an alias definition. this is done with this function.
+  - it creates a shell script in the path with the given name, executing an arbitrary command sequence
+  - example: ~export_alias zz "# do ls with -la as default parameter" "ls -la"~
+    defines the alias (shell command) ~zz~ that will execute ~ls -la~ passing any additional parameters after ~-la~
+    e.g.: ~zz *.bat~ will actually execute ~ls -la *.bat~
+    additionally ~# do ls with -la as default parameter~ is defined as comment for this command (put into the second line of the shell script)
   #+begin_src sh :eval no :tangle ~/.direnvrc
     # work around to define aliases within .envrc
     # (see https://github.com/direnv/direnv/issues/73#issuecomment-174295790)
     #
-    # Example: export_alias zz "ls -la"
+    # Example: export_alias zz "# do ls with -la as default parameter" "ls -la"
     export_alias() {
       local name=$1
       shift
+      local description=""
+      if [[ $1 == \#* ]]; then
+        description="$1"
+        shift
+      else
+        description="# no description available"
+      fi
       local PROJECT_DIR=$(expand_path .)
       local alias_dir=$PROJECT_DIR/.direnv/aliases
       local target="$alias_dir/$name"
       mkdir -p "$alias_dir"
       PATH_add "$alias_dir"
       echo "#! /usr/bin/env -S bash -e" > "$target"
+      echo "$description" >> "$target"
       echo "$@ \$@" >> "$target"
       chmod +x "$target"
     }
   #+end_src
 * guix
+  - allows for guix integration in ~.envrc~ to define a guix environment
+  - example usage (for ebook decryption environment)
+    #+begin_src sh :tangle no
+      use_guix --ad-hoc \
+        python2 \
+        python2-cryptography \
+        python2-pycrypto
+    #+end_src
   #+begin_src sh :eval no :tangle ~/.direnvrc
     # allow for guix environment execution (e.g. 'use_guix --ad-hoc guile')
     use_guix() {
