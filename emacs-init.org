@@ -15612,8 +15612,9 @@
 #+BEGIN_SRC emacs-lisp
 (report-elapsed "check-point - show-font-mode")
 #+END_SRC
-* EVAL - good-scroll - uses pixel scroll to provide more smooth scrolling behaviour (see https://github.com/io12/good-scroll.el)
-  #+begin_src emacs-lisp
+* good-scroll - (DISABLED) uses pixel scroll to provide more smooth scrolling behaviour (see https://github.com/io12/good-scroll.el)
+  - compared to sublimity scroll no real benefit
+  #+begin_src emacs-lisp :tangle no
     (use-package good-scroll
       :ensure t)
   #+end_src
