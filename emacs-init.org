@@ -12164,7 +12164,7 @@
         :ensure t))
   #+end_src
   - use C-x C-f /kubectl:container:/path/to/file
-  #+begin_src emacs-lisp :tangle no
+  #+begin_src emacs-lisp
   (use-package kubernetes-tramp
     :ensure t)
   #+end_src
