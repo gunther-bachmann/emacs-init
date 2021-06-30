@@ -15852,6 +15852,18 @@
       :ensure t
       :hook (shell-mode-hook . shellcop-start))
   #+end_src
+* EVAL highlight tail
+  #+begin_src emacs-lisp
+    (use-package highlight-tail
+      :load-path "~/.emacs.d/additionals/"
+      :custom
+      (highlight-tail-steps 40)
+      (highlight-tail-timer 0.02)
+      (highlight-tail-colors '(("#505050" . 0)
+                               ("#202020" . 100)))
+      :config
+      (highlight-tail-mode 1))
+  #+end_src
 * cursor-chg - change color of cursor
   #+begin_src emacs-lisp
     (use-package cursor-chg
