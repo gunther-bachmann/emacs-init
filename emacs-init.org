@@ -12444,7 +12444,6 @@
            (shell-command (format "xbacklight -set %i" percent))
            (let ((brightness (s-trim (shell-command-to-string "xbacklight -get"))))
              (message (s-concat "brightness set, now: " brightness " %%"))))
-         (gb/brightness-set 50);; set brightness to 50% on startup
 
          (defun gb/brightness-down ()
            "decrease monitor 0 brightness by 10%"
@@ -13531,14 +13530,19 @@
       "check whether operstate of the given adapter indicates an inactive network link"
       (string-equal "down" (gb/net-operstate-get adapter)))
 
+    (defun gb/net-wlan-up-p ()
+      "is wlan adapter up?"
+      (gb/net-adapter-up-p gb/net-wlan-adapter))
+
+    (defun gb/net-wlan-down-p ()
+      "is wlan adapter down?"
+      (gb/net-adapter-down-p gb/net-wlan-adapter))
+
     (defun gb/net-connect-default ()
       "prefer to connect via lan over wlan"
       (if (gb/net-adapter-down-p gb/net-lan-adapter)
           (when (gb/net-adapter-down-p gb/net-wlan-adapter) (gb/net-wlan-switch-on))
         (when (gb/net-adapter-up-p gb/net-wlan-adapter) (gb/net-wlan-switch-off))))
-
-    (gb/net-connect-default) ;; do this on startup
-
   #+end_src
 * org tree slide (presenting org mode files as slides)
   #+BEGIN_SRC emacs-lisp
@@ -15848,7 +15852,6 @@
       ;; (toggle-cursor-type-when-idle 1) ; On when idle
     )
   #+end_src
-
 * INTERESTING
 ** blog/presentation
   - org-present using a cell phone to switch pages
@@ -16596,8 +16599,15 @@
                      (font-lock-string-face ((t (:foreground "#4080b0")))))
              (progn (add-to-list 'gb/list-of-faces-to-set it)(custom-set-faces it))))))
      (report-elapsed "check-point after display system init"))
-    (setq gc-cons-threshold 80000000)
+
     (midnight-mode 1)
+
+    (gb/net-connect-default)
+    (when (gb/net-adapter-up-p gb/net-wlan-adapter)
+      (gb/brightness-set 50))
+
+    (setq gc-cons-threshold 80000000)
+
     ;; ;; set color of echo/mini buffer area (in some cases)
     ;; (add-hook 'minibuffer-setup-hook
     ;;       (lambda ()
