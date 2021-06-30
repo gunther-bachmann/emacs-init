@@ -15843,6 +15843,15 @@
           (add-hook 'eww-after-render-hook #'gb/serif-on)))
 
   #+end_src
+* EVAL shellcop
+  - press enter in the output of a command line program (in shell-mode) and the file (with line and col information) will open
+  - useful to open file where error message was reported.
+    see [[https://github.com/redguardtoo/shellcop][here]]
+  #+begin_src emacs-lisp
+    (use-package shellcop
+      :ensure t
+      :hook (shell-mode-hook . shellcop-start))
+  #+end_src
 * cursor-chg - change color of cursor
   #+begin_src emacs-lisp
     (use-package cursor-chg
