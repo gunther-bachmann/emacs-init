@@ -2,7 +2,16 @@
 #+property: header-args :tangle ~/.emacs.d/early-init.el :comments both
 * initialize basic some
   #+begin_src emacs-lisp
+    (setq frame-inhibit-implied-resize t)
+    (setq use-file-dialog nil)
+
+    ;; prevent glimpse of un-styled emacs
+    (push '(menu-bar-mode 0) default-frame-alist)
+    (push '(tool-bar-mode 0) default-frame-alist)
+    (push '(vertical-scroll-bars) default-frame-alist)
+    
     (set-background-color "black") ;; since dark mode theme is not set yet, do something close
+
     (custom-set-variables
      '(initial-frame-alist (quote ((fullscreen . fullwidth)(height . 50)(top . 22)))))
     (menu-bar-mode -1) ;; remove menu bar
