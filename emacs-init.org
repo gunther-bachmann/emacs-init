@@ -16636,7 +16636,7 @@
     (midnight-mode 1)
 
     (gb/net-connect-default)
-    (when (gb/net-adapter-up-p gb/net-wlan-adapter)
+    (unless (gb/net-adapter-up-p gb/net-lan-adapter)
       (gb/brightness-set 50))
 
     (setq gc-cons-threshold 80000000)
