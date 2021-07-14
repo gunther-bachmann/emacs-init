@@ -13513,9 +13513,11 @@
         (with-current-buffer buf
           (switch-to-buffer buf)
           (setq buffer-offer-save nil)
-          (text-mode)
           (shell-command "journalctl --since -1d  -u openvpn*" (current-buffer))
           (end-of-buffer)
+          (if (fboundp 'syslog-mode)
+              (syslog-mode)
+            (text-mode))
           (read-only-mode 1))))
 
     (defun gb/net-operstate-get (adapter)
@@ -15406,11 +15408,13 @@
         (with-current-buffer buf
           (switch-to-buffer buf)
           (setq buffer-offer-save nil)
-          (text-mode)
           (let ((user-parameter (if user-service? "--user-unit" ""))
                 (actual-weeks (or weeks "2")))
             (shell-command (format "journalctl %s %s --since -%sw" user-parameter service-name actual-weeks) (current-buffer)))
           (end-of-buffer)
+          (if (fboundp 'syslog-mode)
+              (syslog-mode)
+            (text-mode))
           (read-only-mode 1))))
 
     (cl-defun gb/systemd-service-command (service-name command &key user-service?)
@@ -15874,6 +15878,14 @@
       ;; (toggle-cursor-type-when-idle 1) ; On when idle
     )
   #+end_src
+* EVAL syslog-mode
+  - see https://github.com/vapniks/syslog-mode
+  - display sys log files with syntax highlighting
+  - add functionality to load, filter, ...
+  #+begin_src emacs-lisp
+    (use-package syslog-mode
+      :ensure t)
+  #+end_src
 * INTERESTING
 ** blog/presentation
   - org-present using a cell phone to switch pages
@@ -16047,7 +16059,6 @@
     - provide an interface for rpm package open (extends archive-mode)
   - counsel-tramp
   - proced-narrow - Live-narrowing of search results for proced.
-  - syslog-mode - mode to view syslogs (filter etc.)
   - nix-env-install - install packages through nix-env (currently npm packages only), see https://github.com/akirak/nix-env-install
   - kubel - inspect pods in kubernetes (with limited rights)
   - nixpkgs-fmt - format nix using nixpkgs-fmt
