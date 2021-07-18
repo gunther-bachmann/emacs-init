@@ -14386,7 +14386,7 @@
                        org-roam-dailies-tomorrow
                        org-roam-dailies-yesterday)
             :after (org emacsql-sqlite)
-            :hook (after-init . org-roam-mode)
+            :hook (after-init . org-roam-setup)
             :ensure t
             :custom
             (org-roam-graph-viewer "emacsclient")
@@ -14397,6 +14397,7 @@
             (org-roam-directory org-notes)
             (org-roam-db-update-method 'immediate)
             (org-ref-bibtex-completion-add-keywords-field nil) ;; make sure that some org helm ref package loads correctly when executing (org-roam-db-build-cache t)
+            (org-roam-v2-ack t) ;; migration is through
             :config
             (require 'org-roam-protocol)
 
@@ -14429,7 +14430,7 @@
                   (org-set-tags tag-string-list))))
 
             (defun gb/org-roam-open-entry-visibility ()
-              "setup initial org visibility in org-roam entries"
+              "setup initial org visibility in org-roam entries. used within local variables w/i org roam file."
               (interactive)
               (when (not (bound-and-true-p gb-roam-visibility-set))
                 (progn
@@ -14449,11 +14450,11 @@
                   (run-at-time 0.5 nil #'(lambda () (progn (setq current-prefix-arg '(4)) (call-interactively 'org-reveal)))))))
 
             :bind (:map org-roam-mode-map
-                        (("C-c n l" . org-roam)
-                         ("C-c n f" . org-roam-find-file)
+                        (;; ("C-c n l" . org-roam-buffer)
+                         ("C-c n f" . org-roam-node-find)
                          ("C-c n g" . org-roam-show-graph))
                         :map org-mode-map
-                        (("C-c n i" . org-roam-insert)
+                        (("C-c n i" . org-roam-node-insert)
                          ("C-c n t" . gb/set-tags-in-org-roam-file))))
 
           (use-package org-roam-server
@@ -14480,33 +14481,81 @@
             :after (org-roam company)
             :ensure t
             :config
-            :config (add-to-list 'company-backends 'company-org-roam))
+            (setq company-org-roam--id-hash-key-prefix "|id|::")
+            ;; override the following functions
+            (defun company-org-roam--update-cache ()
+              "Update the cache with new entries.
+    Entries with no title do not appear in the completions.
+    GB: updated to retrieve data from table \"nodes\" and selecting \"id\" in addition"
+              (let ((dir (file-truename org-roam-directory))
+                    (ht (make-hash-table :test #'equal)))
+                (dolist (row (org-roam-db-query [:select [title file id] :from nodes]))
+                  (let ((title (car row))
+                        (file (cadr row))
+                        (id (caddr row)))
+                    (puthash title file ht)
+                    (puthash (concat company-org-roam--id-hash-key-prefix title) id ht)))
+                (puthash dir ht company-org-roam-cache)))
 
-          (use-package nroam
-            ;; :load-path "/home/pe/repo/nroam/"
-            :ensure t
-            :config
-            (defun gb/nroam-insert-line-separator ()
-              (hack-local-variables)
-              (goto-char (point-max))
-              (org-show-entry)
-              (previous-line)
-              (beginning-of-line)
-              (insert "\n\n")
-              (goto-char (point-max)))
+            (defun company-org-roam--post-completion (title)
+              "The post-completion action for `company-org-roam'.
+    It deletes the inserted TITLE, and replaces it with a relative
+    file link.
 
-            ;; redefine this function to execute org-content at the end
-            (defun nroam--set-sections-visibility ()
-              "Set nroam section visibility according to `org-set-startup-visibility'."
-              (when (nroam--sections-inserted-p)
-                (save-restriction
-                  (narrow-to-region nroam-start-marker nroam-end-marker)
-                  (org-set-startup-visibility)
-                  (org-content 2))))
+    The completion inserts the absolute file path where the buffer
+    does not have a corresponding file.
+    GB: updated to create id links"
+              (let* ((cache (gethash (file-truename org-roam-directory) company-org-roam-cache))
+                     (id (gethash (concat company-org-roam--id-hash-key-prefix title) cache)))
+                (delete-region (- (point) (length title)) (point))
+                (insert (format "[[id:%s][%s]]"
+                                id
+                                title))))
 
-            (add-hook 'nroam--sections #'gb/nroam-insert-line-separator) ;; nroam--sections
-            (add-hook 'org-mode-hook #'nroam-setup-maybe)
-            (custom-set-faces  '(form-feed-line ((t (:strike-through "dim gray")))))))))
+            (defun company-org-roam (command &optional arg &rest _)
+              "Define a company backend for Org-roam.
+    COMMAND and ARG are as per the documentation of `company-backends'.
+    GB: updated to no longer depend on org-roam-mode but check via org-roam-stack"
+              (interactive (list 'interactive))
+              (cl-case command
+                (interactive (company-begin-backend #'company-org-roam))
+                (prefix
+                 (and
+                  ;; no longer in org-roam-mode
+                  (org-roam-stack--is-roam-file-p (buffer-file-name (buffer-base-buffer))) ;; adjust to org-roam-stack
+                  (or (company-grab-symbol) 'stop)))
+                (candidates
+                 (company-org-roam--get-candidates arg))
+                (post-completion (company-org-roam--post-completion arg))))
+            (add-to-list 'company-backends 'company-org-roam))
+
+
+          ;; (use-package nroam
+          ;;   ;; :load-path "/home/pe/repo/nroam/"
+          ;;   :ensure t
+          ;;   :config
+          ;;   (defun gb/nroam-insert-line-separator ()
+          ;;     (hack-local-variables)
+          ;;     (goto-char (point-max))
+          ;;     (org-show-entry)
+          ;;     (previous-line)
+          ;;     (beginning-of-line)
+          ;;     (insert "\n\n")
+          ;;     (goto-char (point-max)))
+
+          ;;   ;; redefine this function to execute org-content at the end
+          ;;   (defun nroam--set-sections-visibility ()
+          ;;     "Set nroam section visibility according to `org-set-startup-visibility'."
+          ;;     (when (nroam--sections-inserted-p)
+          ;;       (save-restriction
+          ;;         (narrow-to-region nroam-start-marker nroam-end-marker)
+          ;;         (org-set-startup-visibility)
+          ;;         (org-content 2))))
+
+          ;;   (add-hook 'nroam--sections #'gb/nroam-insert-line-separator) ;; nroam--sections
+          ;;   (add-hook 'org-mode-hook #'nroam-setup-maybe)
+          ;;   (custom-set-faces  '(form-feed-line ((t (:strike-through "dim gray"))))))
+          )))
     ;; failed with "run-hooks: Symbol’s value as variable is void: bibtex-completion-find-note-functions"
 
     ;; (use-package org-ref-helm-bibtex
