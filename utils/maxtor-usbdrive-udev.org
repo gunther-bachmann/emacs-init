@@ -1,15 +1,30 @@
 #+title: maxtor-usbdrive-udev
+This file is currently unused, backup is automated differently.
+It used to be started via udev-rule (nix configuration)
+#+begin_src nix
+  # wait for a usb-drive to connect:
+  services.udev = {
+    extraRules = ''
+      KERNEL=="sd?1", ATTRS{idVendor}=="0bc2", ATTRS{idProduct}=="61b6", ATTRS{serial}=="NM13YV45" RUN+="${pkgs.bash}/bin/bash /home/pe/bin/maxtor-usbdrive-udev.sh"
+      '';
+#+end_src
 * maxtor usbdrive udev
   #+begin_src sh :comments link :shebang "#!/usr/bin/env bash" :eval no :tangle ~/bin/maxtor-usbdrive-udev.sh :tangle-mode (identity #o755)
     #------------------------------------------------------------------
     # THIS FILE IS GENERATED (To edit please open file from link above)
     #------------------------------------------------------------------
+    # This file is no longer in use.
+    #
+    # It used to be called through an udev service configuration to register a call
+    # to backup through a cron servive.
     #
     if [ "$ACTION" = "add" ]; then
       echo "added"
       HOUR=$(date +%H)
       MINUTE=$(date +%M)
-      CRONTAB_ENTRY="${MINUTE} ${HOUR} * * * export DISPLAY=:0.0 && export XAUTHORITY=/home/pe/.Xauthority && /home/pe/bin/duplicity-backup.sh backup -v -y >> /home/pe/.duplicity/backup.log 2>&1"
+      BACKUP_PRG=$(which duplicity-backup.sh)
+      LHOME="/home/pe"
+      CRONTAB_ENTRY="${MINUTE} ${HOUR} * * * export DISPLAY=:0.0 && export XAUTHORITY=${LHOME}/.Xauthority && ${BACKUP_PRG} backup -v -y >> ${LHOME}/.duplicity/backup.log 2>&1"
       crontab -l ; echo $CRONTAB_ENTRY | crontab -
     elif [ "$ACTION" = "remove" ]; then
       echo "removed"

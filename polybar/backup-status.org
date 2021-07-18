@@ -33,12 +33,12 @@
       if (( $HOUR_DIFF > 96 )); then
         duplicity-backup.sh key-status
         if [ $? -eq 0 ]; then
-          echo "BACKUP ${DISPLAYED_DIFF}${DISPLAYED_TRIGGER}"
+          echo "%{F#f00}BACKUP ${DISPLAYED_DIFF}${DISPLAYED_TRIGGER}"
         else
-          echo "UNLOCK ${DISPLAYED_DIFF}${DISPLAYED_TRIGGER}"
+          echo "%{F#a82}UNLOCK ${DISPLAYED_DIFF}${DISPLAYED_TRIGGER}"
         fi
       else
-        echo "%{F#555}ok ${DISPLAYED_DIFF}${DISPLAYED_TRIGGER}"
+        echo "%{F#558d48}ok ${DISPLAYED_DIFF}${DISPLAYED_TRIGGER}"
       fi
     fi
   #+end_src
