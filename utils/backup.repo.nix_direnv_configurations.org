@@ -11,7 +11,7 @@
     pushd .
     cd ~/repo
     find . \( -name '.envrc' \
-         -o name '.*settings.xml' \
+         -o -name '.*settings.xml' \
          -o -name '*.nix' \
          -o -name '.ssh*' \
          -o -name '.dir-locals.el' \
