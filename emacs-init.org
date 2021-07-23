@@ -15997,6 +15997,28 @@
     (use-package syslog-mode
       :ensure t)
   #+end_src
+* github notifications
+  #+begin_src emacs-lisp
+    (defvar gb/github-polling-active nil "poll github notifications")
+    (defvar gb/github-polling-token nil "token to be used for notification retrieval")
+
+    (defun gb/github-polling-on ()
+      "allow github polling"
+      (interactive)
+      (setq gb/github-polling-token (string-trim (shell-command-to-string "gpg --batch -d ~/.github-token.polybar.read.txt.gpg 2>/dev/null")))
+      (setq gb/github-polling-active t))
+
+    (defun gb/github-polling-execute ()
+      "execute actual polling"
+      (string-trim (shell-command-to-string (format "curl --silent -q -X GET -u %s:x-oauth-basic 'https://api.github.com/notifications?unread=1' | jq length" gb/github-polling-token))))
+
+    (defun gb/github-polling-off ()
+      "disable github polling"
+      (interactive)
+      (setq gb/github-polling-active nil)
+      (setq gb/github-polling-token nil))
+  #+end_src
+  #+end_src
 * INTERESTING
 ** blog/presentation
   - org-present using a cell phone to switch pages

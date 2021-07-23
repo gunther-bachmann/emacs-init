@@ -62,7 +62,7 @@
 
     modules-left = date filesystem mounts
     ; modules-center = date
-    modules-right = backup memory cpu system-cpu-temppercore system-fan-speed cpu-clock vpn-service wired-network wireless-network power-consumption battery
+    modules-right = github backup memory cpu system-cpu-temppercore system-fan-speed cpu-clock vpn-service wired-network wireless-network power-consumption battery
     ; xbacklight volume xkeyboard temperature date powermenu
     tray-position = none
     ;tray-padding = 2
@@ -565,6 +565,14 @@
     exec  = ~/.config/polybar/service-type-status.sh "openvpn" "%{F#888}VPN" "%{F#555}vpn"
     interval = 15
     click-right = $EDITOR --eval '(gb/net-vpn-log-show)'
+  #+end_src
+
+* github notification
+  #+begin_src conf :eval no :tangle ~/.config/polybar/config
+    [module/github]
+    type = custom/script
+    exec = ~/.config/polybar/github-notifications.sh
+    interval = 60
   #+end_src
 
 # Local Variables:
