@@ -1,0 +1,12 @@
+#+title: gpg-agent-restart
+* restart gpg agent
+  - restart the gpg agent to force reauthorization of key access
+  - this usually fixes any authorization authentication issues run into once in a while,
+    making signing commits a pain
+  #+begin_src sh :comments link :shebang "#!/usr/bin/env bash" :eval no :tangle ~/bin/gpg-agent-restart.sh :tangle-mode (identity #o755)
+    #------------------------------------------------------------------
+    # THIS FILE IS GENERATED (To edit please open file from link above)
+    #------------------------------------------------------------------
+    #
+    gpgconf --kill gpg-agent
+  #+end_src
