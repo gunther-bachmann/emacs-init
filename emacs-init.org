@@ -3953,28 +3953,29 @@
     - works nicely together with expand region
     - simple mark a region and hit the key '(' e.g. to wrap marked region with parenthesis
     #+BEGIN_SRC emacs-lisp
-    ;; wrap-region
-    (use-package wrap-region
-      :ensure t
-      :config
-      (progn
-        (wrap-region-global-mode 1)
-        (wrap-region-add-wrappers
-         ;; default includes ( { [ ' ", so there is no need to define those
-         '(("*" "*" nil (markdown-mode org-mode))
-           ("~" "~" nil (markdown-mode org-mode))
-           ("/" "/" nil (markdown-mode org-mode))
-           ("=" "=" "+" (markdown-mode org-mode))
-           ("_" "_" nil (markdown-mode org-mode))
-           ("$" "$" nil (org-mode latex-mode))
-           ("/*" "*/" "/" java-mode)))
-        (add-to-list 'wrap-region-except-modes 'gnus-group-mode)
-        (add-to-list 'wrap-region-except-modes 'gnus-summary-mode)  ;; don't remap / key, since it is used to limit mail list
-        ;; hooks only useful if global region mode is not set (see above)
-        ;; (add-hook 'org-mode-hook 'wrap-region-mode)
-        ;; (add-hook 'latex-mode-hook 'wrap-region-mode)
-        ;; (add-hook 'prog-mode 'wrap-region-mode)
-        ))
+      ;; wrap-region
+      (use-package wrap-region
+        :ensure t
+        :config
+        (progn
+          (wrap-region-global-mode 1)
+          (wrap-region-add-wrappers
+           ;; default includes ( { [ ' ", so there is no need to define those
+           '(("*" "*" nil (markdown-mode org-mode))
+             ("~" "~" nil (markdown-mode org-mode))
+             ("/" "/" nil (markdown-mode org-mode))
+             ("=" "=" "+" (markdown-mode org-mode))
+             ("_" "_" nil (markdown-mode org-mode))
+             ("$" "$" nil (org-mode latex-mode))
+             ("/*" "*/" "/" java-mode)))
+          (add-to-list 'wrap-region-except-modes 'gnus-group-mode)
+          (add-to-list 'wrap-region-except-modes 'gnus-summary-mode)  ;; don't remap / key, since it is used to limit mail list
+          (add-to-list 'wrap-region-except-modes 'emms-playlist-mode)
+          ;; hooks only useful if global region mode is not set (see above)
+          ;; (add-hook 'org-mode-hook 'wrap-region-mode)
+          ;; (add-hook 'latex-mode-hook 'wrap-region-mode)
+          ;; (add-hook 'prog-mode 'wrap-region-mode)
+          ))
     #+END_SRC
 *** embrace region
     - embrace symbol/word ... with ", ', ( { [ ...
@@ -7586,7 +7587,7 @@
        (defvar calendars `((,gb/itemis-nord-google-calendar-url . ,gb/itemis-nord-calendar-file)
                            (,gb/itemis-google-calendar-url . ,gb/itemis-calendar-file)
                            (,gb/private-google-calendar-url . ,gb/private-calendar-file))
-       "list of url file-name pairs of calendars that should be get and put into the agenda")
+         "list of url file-name pairs of calendars that should be get and put into the agenda")
 
        (defun gb/sync-update-agenda-with-google-calendar ()
          "synchronous update diary with google calendar"
@@ -16159,6 +16160,7 @@
   - ob-graphql
   - flycheck-indent
   - ob-deno - Babel Functions for Javascript/TypeScript with Deno
+  - flycheck-languagetool - flycheck using the language tool
 *** javascript/json/yaml/html
     - indium (java script development environment) [[https://github.com/NicolasPetton/Indium][home page]]
     - lsp-html - lsp frontend for html serving
@@ -16293,6 +16295,7 @@
      see https://github.com/gregsexton/origami.el
    - tree-sitter - tooling to make language toolin within emacs more tractable (see https://github.com/ubolonton/emacs-tree-sitter)
    - yaml - YAML parser for Elisp
+   - logms - logging form elisp into log buffer with clickable links (to jump to log line), see [[https://github.com/jcs-elpa/logms][here]]
 ** graphics
    - vega-view - allow preview of vega graphics (graphics described by json), see https://vega.github.io/vega/ and https://github.com/applied-science/emacs-vega-view
 ** system
