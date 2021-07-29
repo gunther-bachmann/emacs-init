@@ -13582,6 +13582,10 @@
       "get a list of available vpns"
       (split-string (s-trim (shell-command-to-string " systemctl --all list-unit-files openvpn*  | grep openvpn | cut -f1 -d' '"))))
 
+    (defun gb/net-vpn-switch-on--direct (vpn-id)
+      "switch vpn on"
+      (s-trim (shell-command-to-string (format "sudo systemctl start %s" vpn-id))))
+
     (defun gb/net-vpn-switch-on ()
       "switch vpn on"
       (interactive)
@@ -13589,7 +13593,7 @@
              (vpn-id (if (= 1 (list-length available-vpns))
                          (car available-vpns)
                        (completing-read "vpn:" available-vpns nil t))))
-        (message (s-trim (shell-command-to-string (format "sudo systemctl start %s" vpn-id))))))
+        (message (gb/net-vpn-switch-on--direct vpn-id))))
 
     (defun gb/net-vpn-switch-off ()
       "switch vpn off"
@@ -15577,9 +15581,9 @@
       (gb/systemd-service-command gb/backup-timer-name "start" :user-service? t))
 
     (defun gb/backup-timer-status ()
-      "stop the timer that starts backups"
+      "get the status of the timer that starts backups"
       (interactive)
-      (gb/systemd-service-command gb/backup-timer-name "status" :user-service? t))
+      (message (gb/systemd-service-command gb/backup-timer-name "status" :user-service? t)))
 
     (defun gb/backup-log-open ()
       "open the backup log"
