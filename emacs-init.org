@@ -16054,6 +16054,11 @@
       (setq gb/github-polling-active nil)
       (setq gb/github-polling-token nil))
   #+end_src
+* EVAL lf - language features (elisp additions through macros)
+  #+begin_src emacs-lisp
+    (use-package lf
+      :ensure t)
+  #+end_src
   #+end_src
 * INTERESTING
 ** blog/presentation
