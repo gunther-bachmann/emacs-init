@@ -16174,6 +16174,16 @@
          (gb/org-agenda))
        (lambda () (message "vpn seems to be NON functional!"))))
   #+end_src
+* EVAL org-roam-ui
+  - https://github.com/org-roam/org-roam-ui
+  - browse to http://127.0.0.1:35901/
+  #+begin_src emacs-lisp
+    (use-package org-roam-ui
+      :load-path "~/repo/org-roam-ui"
+      :commands (org-roam-ui-mode)
+      :after (org-roam)
+      :init (require 'websocket)
+      (custom-set-variables '(warning-suppress-types '((websocket)))))
   #+end_src
 * INTERESTING
 ** blog/presentation
