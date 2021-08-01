@@ -1,0 +1,50 @@
+#+title: relink
+* relink the installed version of z3 within the racket package installation of rosette
+  - [[https://racket-lang.org/][racket]] a programming language for language development (dsls)
+  - [[https://docs.racket-lang.org/rosette-guide/index.html][rosette]] a library to connect dsls with z3 solver to provide code generation and verification
+  - [[https://github.com/Z3Prover/z3][z3]] an smt solver
+  #+begin_src sh :comments link :shebang "#!/usr/bin/env bash" :eval no :tangle ~/bin/relink-racket-rosette-z3 :tangle-mode (identity #o755)
+    #------------------------------------------------------------------
+    # THIS FILE IS GENERATED (To edit please open file from link above)
+    #------------------------------------------------------------------
+    #
+    function print_current_links() {
+      echo "the following commands would have been executed in folder $(pwd):"
+      echo "  mv z3 z3-$(uuidgen)"
+      echo "  ln -s ${Z3_BIN_PATH} z3"
+      echo "  ln -s ${Z3_BIN_PATH} z3-${Z3_VERSION}"
+      echo ""
+      ls -l
+    }
+
+    RACKET_VERSION=$(racket --version | sed 's/.*v\(.*\) .*/\1/g')
+    ROSETTE_PACKAGE_PATH=$(realpath ~/.racket/${RACKET_VERSION}/pkgs/rosette)
+    [ -d ${ROSETTE_PACKAGE_PATH} ] || { echo "no rosette installed"; exit 1; }
+    Z3_BIN=$(which z3)
+    [ -f ${Z3_BIN} ] || { echo "no z3 installed"; exit 1; }
+    Z3_BIN_PATH=$(realpath "${Z3_BIN}")
+    [ -f ${Z3_BIN_PATH} ] || { echo "no z3 installed"; exit 1; }
+    Z3_VERSION=$(z3 --version | sed 's/.*version \(.*\) -.*/\1/g')
+    pushd . > /dev/null
+
+    cd ${ROSETTE_PACKAGE_PATH}/bin
+
+    print_current_links
+
+    [ -f "z3-${Z3_VERSION}" ] && {
+      echo -e "\nalready linked to version ${Z3_VERSION}";
+      exit 0;
+    }
+
+    read -p "Are you sure? " -n 1 -r
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+      echo "didn't do a thing"
+      exit 1
+    fi
+
+    mv z3 z3-$(uuidgen)
+    ln -s ${Z3_BIN_PATH} z3
+    ln -s ${Z3_BIN_PATH} z3-${Z3_VERSION}
+
+    popd > /dev/null
+  #+end_src
