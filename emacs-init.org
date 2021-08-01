@@ -14509,6 +14509,7 @@
                     (org-next-visible-heading 1)
                     (org-show-entry))
                   (gb/serif-on)
+                  (org-cycle-hide-drawers 'all)
                   (run-at-time 0.5 nil #'(lambda () (progn (setq current-prefix-arg '(4)) (call-interactively 'org-reveal)))))))
 
             :bind (:map org-roam-mode-map
