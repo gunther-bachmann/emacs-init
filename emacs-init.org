@@ -3335,6 +3335,9 @@
              org-block-begin-line
              org-block-end-line
              org-block
+             org-drawer
+             org-property-value
+             org-special-keyword
              org-code
              org-hide
              org-indent
