@@ -16086,6 +16086,94 @@
     (use-package lf
       :ensure t)
   #+end_src
+* TODO start working
+  #+begin_src emacs-lisp
+    (defun gb/url-reachable-p (url &optional timeout)
+      "is the given url reachable?"
+      (let ((local-timeout (or timeout 1)))
+        (string-match-p "HTTP.*[0-9][0-9][0-9].*" (string-trim (shell-command-to-string (format "timeout %s curl -Is %s | head -n 1" (number-to-string local-timeout) url))))))
+
+    (defun gb/slack-work-start (&optional channel-reg-ex msg)
+      "startup slack and post MSG into a channel identified by CHANNEL-REG-EX"
+      (let ((seconds-to-send-message 1))
+        (unless gb/slack-modeline-status--timer
+          (gb/slack-on)
+          (setq seconds-to-send-message 10))
+        (when msg
+          (run-at-time
+           seconds-to-send-message nil
+           `(lambda ()
+              (slack-message-send-internal
+               ,msg
+               (gb/slack-room-by-regex ,channel-reg-ex)
+               (slack-team-select)))))))
+
+    (defvar gb/net-available-timer nil "timer executed until some resource becomes available")
+    (defvar gb/net-available-next-call-in-seconds 5 "seconds to next call")
+    (defun gb/net-available-check-n-run (url threshold success failure)
+      "repeatedly add timer to run and check whether the given url is accessible
+
+        run SUCCESS after it becomes available
+        try at most THRESHOLD times
+        check after GB/NET-AVAILABLE-NEXT-CALL-IN-SECONDS
+        run FAILURE after running in a timeout"
+      (if (gb/url-reachable-p url)
+          (funcall success)
+        (if (<= threshold 0)
+            (funcall failure)
+          (message (format "remaining calls for %s to be accessible: %s" url (number-to-string threshold)))
+          (run-at-time gb/net-available-next-call-in-seconds nil #'gb/net-available-check-n-run url (1- threshold) success failure))))
+
+    ;; --- the following section needs configuration of
+    ;; gb/vpn-remote-service	     systemd service name to start for vpn if working remote
+    ;; gb/vpn-office-url		     url of firewall login if working in the office
+    ;; gb/vpn-url-check		     url to check whether vpn is up
+    ;; gb/workadventure-bookmark	     bookmark to open workadventure
+    ;; gb/vpn-office-firewall-bookmark   bookmark to jump to firewall login
+    ;; gb/slack-channel-greeting	     slack channel regex used for morning message
+    ;; gb/slack-greeting-list	     list of possible greetings
+
+    (defun gb/vpn-work-start ()
+      "connect to vpn, if in office, jump to respective url
+
+        make sure to make calls to functions that need a working vpn, after the vpn is actually established
+        which can by any time after this very call finished, since the connection is established async."
+      (interactive)
+      (let ((in-the-office (gb/url-reachable-p gb/vpn-office-url)))
+        (if in-the-office
+            (progn (require 'bookmark+) (exwm-workspace-switch 1) (bookmark-jump gb/vpn-office-firewall-bookmark))
+          (gb/net-vpn-switch-on--direct gb/vpn-remote-service))))
+
+    (defun gb/work-start ()
+      "startup complete work session"
+      (interactive)
+      (require 'itemis)
+      (require 'slack)
+      (require 'bookmark+)
+      (unless (bookmark-get-bookmark gb/workadventure-bookmark t)
+        (bookmark-load bmkp-last-as-first-bookmark-file))
+      (unless (gb/url-reachable-p gb/vpn-url-check)
+        (gb/vpn-work-start))
+      (gb/net-available-check-n-run
+       gb/vpn-url-check 12 ;; which is a minute (max)
+       (lambda ()
+         (if (yes-or-no-p "write slack morning message? ")
+             (gb/slack-work-start gb/slack-channel-greeting (completing-read "message: " gb/slack-greeting-list))
+           (gb/slack-work-start))
+         (gb/github-polling-on)
+         (when (bookmark-get-bookmark gb/workadventure-bookmark t)
+           (exwm-workspace-switch 0) ;; make workadventure open on workspace 0
+           (let ((tries 5))
+             (message "waiting for workadventure to show up ...")
+             (bookmark-jump gb/workadventure-bookmark)
+             (while (and (> tries 0) (not (--find (string-equal it "Chromium-browser") (--map (buffer-name (cdr it)) exwm--id-buffer-alist))))
+               (sleep-for 1)
+               (setq tries (1- tries)))
+             (sleep-for 2) ;; for workadventure to settle
+             (message "done")))
+         (gb/org-agenda))
+       (lambda () (message "vpn seems to be NON functional!"))))
+  #+end_src
   #+end_src
 * INTERESTING
 ** blog/presentation
