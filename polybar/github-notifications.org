@@ -4,7 +4,10 @@
     #------------------------------------------------------------------
     # THIS FILE IS GENERATED (To edit please open file from link above)
     #------------------------------------------------------------------
-    pgrep emacs >/dev/null || { exit 1; }
+    RUNNING_EMACS=$(pgrep -a "emacs$" 2>/dev/null)
+    if [ "$RUNNING_EMACS" == "" ]; then
+      exit 1
+    fi
     [ -f ~/.github-token.polybar.read.txt.gpg ] || { exit 1; }
     POLLING_ACTIVE=$(emacsclient -e 'gb/github-polling-active')
     # echo $POLLING_ACTIVE
