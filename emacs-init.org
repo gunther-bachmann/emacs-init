@@ -7731,14 +7731,16 @@
            (setq diary-file gb/diary-calendar-file))
          (when (fboundp 'gb/exwm-workspace-switch)
            (gb/exwm-workspace-switch 7))
-         (call-interactively #'org-agenda-list))
+         (call-interactively #'org-agenda-list)
+         (gb/agenda-duplicates-cleanup))
 
        (defun gb/org-agenda-refresh (&optional exhaustive)
          (interactive "P")
          (when exhaustive
            (message "loading calendar files from web")
            (gb/sync-update-agenda-with-google-calendar))
-         (org-agenda-redo-all exhaustive))
+         (org-agenda-redo-all exhaustive)
+         (gb/agenda-duplicates-cleanup))
 
        ;; (bind-key "g" #'gb/org-agenda-refresh org-agenda-mode-map)
 
