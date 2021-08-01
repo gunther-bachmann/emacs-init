@@ -7698,6 +7698,26 @@
        ;;   (interactive)
        ;;   (cancel-timer gb/update-agenda-timer))
 
+       (defun gb/agenda-duplicates-cleanup ()
+         "some entries in my calendar produce duplicates in the agenda view.
+             this function removes them from the fortnite view"
+         ;; (ignore-errors)
+         (interactive)
+         (if (eq major-mode 'org-agenda-mode)
+             (save-excursion
+               (beginning-of-buffer)
+               (read-only-mode 0)
+               (let ((beg 0)
+                     (end 1))
+                 (while (> end beg)
+                   (setq beg (point))
+                   (ignore-errors (org-agenda-next-date-line))
+                   (setq end (point))
+                   (when (> end beg)
+                     (delete-duplicate-lines beg end))))
+               (read-only-mode 1))
+           (message "only applicable in org-agenda-mode")))
+
        (defun gb/org-agenda (&optional arg)
          "run org agenda (list on workspace 7), updating the diary with calendar, first"
          (interactive "P")
