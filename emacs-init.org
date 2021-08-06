@@ -16086,12 +16086,12 @@
     (use-package lf
       :ensure t)
   #+end_src
-* TODO start working
+* IMPLEMENT start working
   #+begin_src emacs-lisp
     (defun gb/url-reachable-p (url &optional timeout)
       "is the given url reachable?"
       (let ((local-timeout (or timeout 1)))
-        (string-match-p "HTTP.*[0-9][0-9][0-9].*" (string-trim (shell-command-to-string (format "timeout %s curl -Is %s | head -n 1" (number-to-string local-timeout) url))))))
+        (string-match-p "HTTP.*[0-9][0-9][0-9].*" (string-trim (shell-command-to-string (format "timeout %s curl -Isk %s | head -n 1" (number-to-string local-timeout) url))))))
 
     (defun gb/slack-work-start (&optional channel-reg-ex msg)
       "startup slack and post MSG into a channel identified by CHANNEL-REG-EX"
