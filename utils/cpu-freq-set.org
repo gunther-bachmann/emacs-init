@@ -9,13 +9,15 @@
 
     gotmin=$(cat /sys/devices/system/cpu/cpufreq/policy0/cpuinfo_min_freq)
     gotmax=$(cat /sys/devices/system/cpu/cpufreq/policy0/cpuinfo_max_freq)
-    min=${gotmin:-800}
-    max=${gotmax:-1200}
+    min=${gotmin:-800000}
+    max=${gotmax:-1200000}
 
     if (($param <= $max && $param >= min)); then
       echo "setting frequency!"
       for i in {0..7}; do
-        sudo bash -c "echo \"${param}\" > /sys/devices/system/cpu/cpufreq/policy${i}/scaling_max_freq"
+        if [ -f /sys/devices/system/cpu/cpufreq/policy${i}/${param} ]; then
+          sudo bash -c "echo \"${param}\" > /sys/devices/system/cpu/cpufreq/policy${i}/scaling_max_freq"
+        fi
       done
     else
       echo "frequence must be between ${min}..${max}"

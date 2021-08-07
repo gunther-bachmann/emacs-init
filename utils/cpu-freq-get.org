@@ -8,8 +8,10 @@
     param=${1:-scaling_cur_freq}
 
     for i in {0..7}; do
-      frq=$(cat /sys/devices/system/cpu/cpufreq/policy${i}/${param})
-      echo "cpu${i}: $frq"
+      if [ -f /sys/devices/system/cpu/cpufreq/policy${i}/${param} ]; then
+        frq=$(cat /sys/devices/system/cpu/cpufreq/policy${i}/${param})
+        echo "cpu${i}: $frq"
+      fi
     done
 
   #+end_src
