@@ -14396,6 +14396,8 @@
 * notdeft
   - alternative to deft, using xapian to do the heavy lifting of full text searching
   - see https://github.com/hasu/notdeft
+  - make sure to run ~emacs --batch  -L . -l notdeft-install -f notdeft-install-autoloads -f notdeft-install-bytecode~ when installing
+    this will write the ~notdeft-autoloads.el~ file required
   #+begin_src emacs-lisp
     (when gb/profile--org-roam
       (use-package notdeft
@@ -14408,6 +14410,7 @@
         (notdeft-xapian-program "/home/pe/repo/notdeft/xapian/notdeft-xapian")
         (notdeft-xapian-max-results 1000 "show up to 1000 entries in the notdef query buffer")
         :config
+        (require 'notdeft-autoloads)
         ;; (require 'notdeft-org)
 
         ;; redefinition of reading deft link, using completing-read instead of ivy
