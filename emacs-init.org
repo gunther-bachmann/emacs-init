@@ -15980,14 +15980,14 @@
       ;;                      (require 'lsp-ltex)
       ;;                      (lsp)))
       )
-
-    (use-package eglot-ltex
-      :load-path "~/repo/eglot-ltex"
-      ;; :hook (text-mode . (lambda ()
-      ;;                      (require 'eglot-ltex)
-      ;;                      (call-interactively #'eglot)))
-      :init
-      (setq eglot-languagetool-server-path (expand-file-name "~/bin/ltex-ls-12.1.0")))
+    (when (file-exists-p "~/repo/eglot-ltex")
+      (use-package eglot-ltex
+        :load-path "~/repo/eglot-ltex"
+        ;; :hook (text-mode . (lambda ()
+        ;;                      (require 'eglot-ltex)
+        ;;                      (call-interactively #'eglot)))
+        :init
+        (setq eglot-languagetool-server-path (expand-file-name "~/bin/ltex-ls-12.1.0"))))
   #+end_src
 * EVAL langtool-ignore-fonts
   #+begin_src emacs-lisp
@@ -16036,24 +16036,26 @@
   #+end_src
 * EVAL highlight tail
   #+begin_src emacs-lisp
-    (use-package highlight-tail
-      :load-path "~/.emacs.d/additionals/"
-      :custom
-      (highlight-tail-steps 40)
-      (highlight-tail-timer 0.02)
-      (highlight-tail-colors '(("#505050" . 0)
-                               ("#202020" . 100)))
-      :config
-      (highlight-tail-mode 1))
+    (when (file-exists-p "~/.emacs.d/additionals/highlight-tail.el")
+      (use-package highlight-tail
+        :load-path "~/.emacs.d/additionals/"
+        :custom
+        (highlight-tail-steps 40)
+        (highlight-tail-timer 0.02)
+        (highlight-tail-colors '(("#505050" . 0)
+                                 ("#202020" . 100)))
+        :config
+        (highlight-tail-mode 1)))
   #+end_src
 * cursor-chg - change color of cursor
   #+begin_src emacs-lisp
-    (use-package cursor-chg
-      :load-path "~/.emacs.d/additionals/"
-      :config
-      (change-cursor-mode 1) ; On for overwrite/read-only/input mode
-      ;; (toggle-cursor-type-when-idle 1) ; On when idle
-    )
+    (when (file-exists-p "~/.emacs.d/additionals/cursor-chg.el")
+      (use-package cursor-chg
+        :load-path "~/.emacs.d/additionals/"
+        :config
+        (change-cursor-mode 1) ; On for overwrite/read-only/input mode
+        ;; (toggle-cursor-type-when-idle 1) ; On when idle
+        ))
   #+end_src
 * EVAL syslog-mode
   - see https://github.com/vapniks/syslog-mode
