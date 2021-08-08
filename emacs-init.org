@@ -16181,12 +16181,19 @@
   - https://github.com/org-roam/org-roam-ui
   - browse to http://127.0.0.1:35901/
   #+begin_src emacs-lisp
-    (use-package org-roam-ui
-      :load-path "~/repo/org-roam-ui"
-      :commands (org-roam-ui-mode)
-      :after (org-roam)
-      :init (require 'websocket)
-      (custom-set-variables '(warning-suppress-types '((websocket)))))
+    (when (and (file-directory-p "~/repo")
+             (not (file-directory-p "~/repo/org-roam-ui")))
+      (let ((old-dir default-directory))
+        (cd "~/repo")
+        (shell-command-to-string "git clone https://github.com/org-roam/org-roam-ui.git")
+        (cd old-dir)))
+    (when (file-directory-p "~/repo/org-roam-ui")
+      (use-package org-roam-ui
+        :load-path "~/repo/org-roam-ui"
+        :commands (org-roam-ui-mode)
+        :after (org-roam)
+        :init (require 'websocket)
+        (custom-set-variables '(warning-suppress-types '((websocket))))))
   #+end_src
 * INTERESTING
 ** blog/presentation
