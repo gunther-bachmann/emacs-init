@@ -14,10 +14,10 @@
 
     if type "xrandr"; then
       for m in $(xrandr --query | grep " connected" | cut -d" " -f1); do
-        MONITOR=$m polybar --reload default &
+        MONITOR=$m nohup polybar --reload default > /dev/null 2>&1 &
       done
     else
-      polybar --reload default &
+      nohup polybar --reload default > /dev/null 2>&1 &
     fi
 
     echo "Bars launched..."
