@@ -9566,6 +9566,7 @@
            (sql . t)))
 
         )
+      (add-to-list 'org-src-lang-modes '("xtend" . java))
     #+END_SRC
 **** org babel clojurescript
      - prerequisite is availability of lumo (arch: 'yaourt -S lumo-git')
