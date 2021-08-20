@@ -16258,6 +16258,11 @@
         :init (require 'websocket)
         (custom-set-variables '(warning-suppress-types '((websocket))))))
   #+end_src
+* EVAL elpher - gopher and gemini client
+  #+begin_src emacs-lisp
+    (use-package elpher
+      :ensure t)
+  #+end_src
 * INTERESTING
 ** blog/presentation
   - org-present using a cell phone to switch pages
