@@ -12321,6 +12321,14 @@
                   ("C-c C-f" . #'gb/racket-fold-all-tests)
                   ("C-c C-u" . #'gb/racket-unfold-all-tests))
       :config
+
+      (cond
+       ((eq gb/theme-mode 'light) nil) ;; TODO complete
+       (t (progn
+            (--each '((racket-xp-use-face ((t (:foreground "Yellow" :weight bold))))
+                      (racket-xp-def-face ((t (:foreground "Yellow" :underline t :overline t :weight bold)))))
+              (progn (add-to-list 'gb/list-of-faces-to-set it)(custom-set-faces it))))))
+
       (when (boundp 'pretty-modes-aliases)
         (add-to-list 'pretty-modes-aliases '(racket-mode . scheme-mode)))
       (add-hook 'racket-mode-hook 'racket-xp-mode)
