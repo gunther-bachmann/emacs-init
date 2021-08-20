@@ -14526,7 +14526,8 @@
             :config
             (require 'org-roam-protocol)
 
-            (defvar gb/set-tag-config-list '(("ROAM_TAGS" . " ") ("FILETAGS" . ":"))
+            (defvar gb/set-tag-config-list '(;; ("ROAM_TAGS" . " ")
+                                             ("FILETAGS" . ":"))
               "list of pairs, describing org attribute and tag separator to be used")
 
             (defun gb/set-tags-in-org-roam-file ()
