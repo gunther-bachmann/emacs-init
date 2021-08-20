@@ -726,24 +726,7 @@
 
      (setq async-shell-command-display-buffer nil) ;; make sure that the async command does not open a result buffer
 
-     (defun available-keys ()
-       "return a list of ids for which the private key is known"
-       (remove-if 'string-empty-p (s-split "\n" (shell-command-to-string "gpg -Kq 2> /dev/null | grep -e \"^uid\" | awk '{ print $5; }'"))))
 
-     (defun gb/cache-gpg (prompt)
-       "cache gpg password for the standard key or the selected key if the universal argument was provided"
-       (interactive "P")
-       (if prompt
-           (progn
-             (let ((keyId (completing-read "email: " (--map (string-trim it "<" ">") (available-keys)))))
-               (gb/cache-gpg-key keyId)))
-         (gb/cache-gpg-key)))
-
-     (defun gb/cache-gpg-key (&optional keyId)
-       ""
-       (if keyId
-           (async-shell-command (concat "echo \"ok\" | gpg -s -u \"" keyId "\" &> /dev/null" nil nil))
-         (async-shell-command "echo \"ok\" | gpg -s &> /dev/null" nil nil)))
 
      (defun re-seq (regexp string &optional matchpos)
        "Get a list of all regexp matches in a string, use matchpos as group index if groups are used!"
@@ -1671,10 +1654,40 @@
          str))
    #+end_src
    #+BEGIN_SRC emacs-lisp
-   (use-package epa
-     :config
-     (setq epa-pinentry-mode 'loopback))
-   ;; (global-visible-mark-mode -1)
+     (use-package epa ;; requires epg
+       ;; :ensure t ;; builtin => no ensure
+       :config
+       (setq epa-pinentry-mode 'loopback)
+
+       (defun gb/gpg-keys-private-fingerprint ()
+         (s-split "\n" (string-trim (shell-command-to-string "gpg -K | grep -e '^uid' -B 1 | grep -ve '^uid' | grep -v -e '--' | sed -e 's/ *//g'"))))
+
+       (defun gb/gpg-key-mail-for-fingerprint (fingerprint)
+         (string-trim (shell-command-to-string (format "gpg -K '%s' | grep -e '^uid' | sed -e 's/uid[^]]*. //g'" fingerprint))))
+       ;; (gb/gpg-key-mail-for-fingerprint "52E23AA97F38A97B10A18DD3C01A97CB875878BD")
+
+       (defun gb/cache-gpg ()
+         "cache gpg password for private key prompted for"
+         (interactive)
+         (progn
+           (let ((keyId (completing-read "email: " (--map (format "%s :> %s" (gb/gpg-key-mail-for-fingerprint it) it) (gb/gpg-keys-private-fingerprint)))))
+             (gb/gpg-key-query-if-locked (cadr (s-split ":> " keyId))))))
+
+       (defun gb/gpg-key-query-if-locked (keyid &optional retries)
+         "ensure that KEYID (either email or fingerprint) is unlocked. if locked, ask for password
+
+     this is done through loading the key and executing a sign operation that will automatically ask for the password if the key needs unlocking"
+         (setq t-context (epg-make-context))
+         (setf (epg-context-signers t-context) (epg-list-keys t-context keyid nil))
+         (let ((l-retries (or retries 3))
+               (unlocked nil))
+           (while (and (> l-retries 0)
+                     (not (ignore-errors
+                          (epg-sign-string t-context "test")
+                          (setq unlocked t))))
+             (setq l-retries (1- l-retries)))
+           unlocked)))
+     ;; (global-visible-mark-mode -1)
    #+END_SRC
 * networking
 ** tls
