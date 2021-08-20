@@ -12454,6 +12454,44 @@
                                                   built-in
                                                 usb-device)))))
 
+         (defun gb/program-sound-select ()
+           "select a program that is currently producing output"
+           (when-let ((programs-w-sound (cl-remove-duplicates (split-string (string-trim (shell-command-to-string (format "pacmd list-sink-inputs | grep -e 'application.process.binary' | sed -e 's/.* = \\\"\\(.*\\)\\\"/\\1/g'"))) "\n"))))
+             (if (= 1 (length programs-w-sound))
+                 (car programs-w-sound)
+               (completing-read "program: " programs-w-sound nil t))))
+
+         (defun gb/sink-indices-get-for (executable)
+           "get the indices necessary to remap output of an application to another sound device"
+           (split-string
+            (string-trim
+             (shell-command-to-string
+              (format "pacmd list-sink-inputs | awk '/index/ { print;pnt=1 } pnt==1 && /application.process.binary = \"%s\"/ { print;pnt=0 }' | grep \"%s\" -B 1 | grep -e 'index:' | sed -e 's/ *index: *//g'"
+                      executable executable)))
+            "\n"))
+
+         (defun gb/sound-output-remap-to (sink-index output-index)
+           (shell-command-to-string (format "pactl move-sink-input %s %s" sink-index output-index)))
+
+         (defun gb/sound-output-index-of (grep-string)
+           (s-trim (shell-command-to-string (format "pactl list sinks short | grep -i %s | cut -f1" grep-string))))
+
+         (defun gb/sound-output-index-of-headset ()
+           (gb/sound-output-index-of "headset"))
+
+         (defun gb/sound-output-index-of-builtin-speakers ()
+           (gb/sound-output-index-of "alsa_output.pci-0000_00_1f.3.analog-stereo"))
+
+         (defun gb/sound-output-switch-to-headset ()
+           (interactive)
+           (when-let ((program (gb/program-sound-select)))
+             (--each (gb/sink-indices-get-for program) (gb/sound-output-remap-to it (gb/sound-output-index-of-headset)))))
+
+         (defun gb/sound-output-switch-to-builtin-speakers ()
+           (interactive)
+           (when-let ((program (gb/program-sound-select)))
+             (--each (gb/sink-indices-get-for program) (gb/sound-output-remap-to it (gb/sound-output-index-of-builtin-speakers)))))
+
          (defcustom gb/sound-theme-base-dir "~/sound" "base dir for sound files" :group 'gb/sound-theme :type 'string)
          (defcustom gb/sound-theme-effect-volume "clack" "sound file to be used on volume change" :group 'gb/sound-theme :type 'string)
          (defcustom gb/sound-theme-effect-switch-workspace "zing" "sound file to be used " :group 'gb/sound-theme :type 'string)
