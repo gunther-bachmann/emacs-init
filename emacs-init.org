@@ -16282,6 +16282,18 @@
       :load-path "~/repo/el-easydraw/"
       :config (edraw-org-setup-default))
   #+end_src
+* EVAL apheleia - code formatter package
+  - see https://github.com/raxod502/apheleia
+  #+begin_src emacs-lisp
+    (use-package apheleia
+      :load-path "~/repo/apheleia"
+      :commands (apheleia-format-buffer)
+      :config
+      ;; (apheleia-global-mode +1)
+      ;; black - formatter for python
+      ;; prettier - formatter for ...
+      )
+  #+end_src
 * INTERESTING
 ** blog/presentation
   - org-present using a cell phone to switch pages
