@@ -1448,7 +1448,7 @@
           (setq browse-url-firefox-program (s-trim (shell-command-to-string "command -v firefox"))))
 
         (when (and chromium-installed firefox-installed)
-          (let ((chrome-regex ".*\\(/meet\\.jit\\.si/\\|/teams\\.microsoft\\|adventure-hh\\|/meet\\.google\\.com/\\).*"))
+          (let ((chrome-regex ".*\\(/meet\\.jit\\.si/\\|/teams\\.microsoft\\|adventure\\|/meet\\.google\\.com/\\).*"))
             (if (version< emacs-version "28")
                 ;; use (old) browser-url-browser-function for custom url behavior
                 (setq browse-url-browser-function
@@ -1677,6 +1677,7 @@
          "ensure that KEYID (either email or fingerprint) is unlocked. if locked, ask for password
 
      this is done through loading the key and executing a sign operation that will automatically ask for the password if the key needs unlocking"
+         (require 'epg)
          (setq t-context (epg-make-context))
          (setf (epg-context-signers t-context) (epg-list-keys t-context keyid nil))
          (let ((l-retries (or retries 3))
@@ -2672,48 +2673,49 @@
       stuff here)
     - patched some functions, see below
     #+begin_src emacs-lisp :tangle no
-        ;; patched doom-modeline-update-buffer-file-state-icon to use once created icons
-        (defvar doom-modeline--lock-icon
-          (doom-modeline-buffer-file-state-icon
-           "lock" "🔒" "%1*" `(:inherit doom-modeline-warning
-                                        :weight ,(if doom-modeline-icon
-                                                     'normal
-                                                   'bold)))
-          "icon for showing lock")
+      ;; patched doom-modeline-update-buffer-file-state-icon to use once created icons
 
-        (defvar doom-modeline--changed-icon
-          (doom-modeline-buffer-file-state-icon
-           "change_history" "💾" "%1*" `(:inherit doom-modeline-buffer-modified
-                                                  :weight ,(if doom-modeline-icon
-                                                               'normal
-                                                             'bold)))
-          "icon for changed source")
+      (defvar doom-modeline--lock-icon
+        (doom-modeline-buffer-file-state-icon
+         "lock" "🔒" "%1*" `(:inherit doom-modeline-warning
+                                      :weight ,(if doom-modeline-icon
+                                                   'normal
+                                                 'bold)))
+        "icon for showing lock")
 
-        (defvar doom-modeline--missing-file-icon
-          (doom-modeline-buffer-file-state-icon
-           "do_not_disturb_alt" "🚫" "!" 'doom-modeline-urgent)
-          "icon for non existing file")
+      (defvar doom-modeline--changed-icon
+        (doom-modeline-buffer-file-state-icon
+         "change_history" "💾" "%1*" `(:inherit doom-modeline-buffer-modified
+                                                :weight ,(if doom-modeline-icon
+                                                             'normal
+                                                           'bold)))
+        "icon for changed source")
 
-        (defun doom-modeline-update-buffer-file-state-icon (&rest _)
-          "Update the buffer or file state in mode-line."
-          (setq doom-modeline--buffer-file-state-icon
-                (when doom-modeline-buffer-state-icon
-                  (ignore-errors
-                    (concat
-                     (cond (buffer-read-only
-                            doom-modeline--lock-icon)
-                           ((and buffer-file-name (buffer-modified-p)
-                               doom-modeline-buffer-modification-icon)
-                            doom-modeline--changed-icon)
-                           ((and buffer-file-name
-                               (not (file-exists-p buffer-file-name)))
-                            doom-modeline--missing-file-icon)
-                           (t ""))
-                     (when (or (buffer-narrowed-p)
-                              (and (bound-and-true-p fancy-narrow-mode)
-                                 (fancy-narrow-active-p)))
-                       (doom-modeline-buffer-file-state-icon
-                        "vertical_align_center" "↕" "><" 'doom-modeline-warning)))))))
+      (defvar doom-modeline--missing-file-icon
+        (doom-modeline-buffer-file-state-icon
+         "do_not_disturb_alt" "🚫" "!" 'doom-modeline-urgent)
+        "icon for non existing file")
+
+      (defun doom-modeline-update-buffer-file-state-icon (&rest _)
+        "Update the buffer or file state in mode-line."
+        (setq doom-modeline--buffer-file-state-icon
+              (when doom-modeline-buffer-state-icon
+                (ignore-errors
+                  (concat
+                   (cond (buffer-read-only
+                          doom-modeline--lock-icon)
+                         ((and buffer-file-name (buffer-modified-p)
+                             doom-modeline-buffer-modification-icon)
+                          doom-modeline--changed-icon)
+                         ((and buffer-file-name
+                             (not (file-exists-p buffer-file-name)))
+                          doom-modeline--missing-file-icon)
+                         (t ""))
+                   (when (or (buffer-narrowed-p)
+                            (and (bound-and-true-p fancy-narrow-mode)
+                               (fancy-narrow-active-p)))
+                     (doom-modeline-buffer-file-state-icon
+                      "vertical_align_center" "↕" "><" 'doom-modeline-warning)))))))
     #+end_src
     #+BEGIN_SRC emacs-lisp
       (use-package doom-modeline
@@ -2734,6 +2736,10 @@
         (setq doom-modeline-env-version nil)
         (setq doom-modeline-checker-simple-format t)
         (setq doom-modeline-buffer-file-name-style 'truncate-with-project)
+
+        ;; [2021-09-18 Sat] doom makes use of this variable, but flymake does no longer have it
+        (setq flymake--backend-state (make-hash-table))
+
         ;; TODO: transform redefinition into surrounding advice!
         ;; TODO: drop some / clear hash once in a while / e.g. if size > 1000
         ;; overwrite this function
@@ -2752,9 +2758,9 @@
         (defun doom-modeline--font-width ()
           "Cache the font width."
           (or doom-modeline--font-width-cache
-              (let ((width (window-font-width nil 'mode-line)))
-                (setq doom-modeline--font-width-cache width)
-                width)))
+             (let ((width (window-font-width nil 'mode-line)))
+               (setq doom-modeline--font-width-cache width)
+               width)))
 
         (setq doom-modeline-vcs-max-length 40)
         (setq inhibit-compacting-font-caches t)
@@ -9962,7 +9968,7 @@
                                           (slack-team-channels team)))))
 
          (defun gb/slack-room-by-regex (regex)
-           ""
+           "get the slack room by regex"
            (--first (s-matches? regex (slack-room-name it (slack-team-select)))
                     (cl-loop for team in (list (slack-team-select))
                              append (append (slack-team-ims team)
@@ -9979,6 +9985,20 @@
                              append (append (slack-team-ims team)
                                             (slack-team-groups team)
                                             (slack-team-channels team)))))
+
+         (defun gb/slack-group-topic--extract-url (string )
+           "extract the url from the channel topic (if present)"
+           (if (string-match "[^<]*<\\([^>]*\\)>" string)
+               (match-string 1 string)
+             string))
+
+         (defun gb/slack-group-topic-get ()
+           (interactive)
+           (kill-new (gb/slack-group-topic--extract-url  (gb/slack-group--topic-get (gb/slack-room-by-regex (completing-read "room: " (gb/slack-all-room-names) nil t))))))
+
+         (defun gb/slack-group--topic-get (slack-room)
+           "get the group room channel topic bny regex"
+           (plist-get (oref slack-room topic) ':value))
 
          (defun gb/slack-group-mpim-open ()
            "open a the group mpim"
@@ -11360,6 +11380,7 @@
                    ("C-c a o" . #'dired-annotator-edit-note)
                    ("C-c a e" . #'dired-annotator-edit-note)
                    ("C-c a a" . #'dired-annotator-show-note)
+                   ("C-c a /" . #'dired-annotator-narrow-on-tag)
                    ("'" . #'dired-annotator-show-note)))
    #+end_src
 * stripe-buffer
@@ -14888,7 +14909,7 @@
 #+BEGIN_SRC emacs-lisp
 (report-elapsed "check-point - cpu sos")
 #+END_SRC
-* EVAL bookmark+
+* bookmark+
   - for more info, see https://www.emacswiki.org/emacs/BookmarkPlus
   #+begin_src emacs-lisp
     (setq gb/bookmarkplus-dir "~/.emacs.d/custom/bookmark-plus/")
@@ -15028,7 +15049,7 @@
       :bind ("C-x M-e" . scratch-comment-eval-sexp)
       :ensure t)
   #+end_src
-* EVAL journalctl-mode
+* journalctl-mode
   #+begin_src emacs-lisp
     (use-package journalctl-mode
       :ensure t
@@ -15050,13 +15071,13 @@
       :commands (comby)
       :ensure t)
   #+end_src
-* EVAL disk-usage - show disk usage in dired like mode
+* disk-usage - show disk usage in dired like mode
   #+begin_src emacs-lisp
     (use-package disk-usage
       :ensure t
       :commands (disk-usage))
   #+end_src
-* EVAL dired-narrow - narrow list of files in dired mode
+* dired-narrow - narrow list of files in dired mode
   - narrow using "/", revert narrow mode using "g"
   #+begin_src emacs-lisp
     (use-package dired-narrow
@@ -15132,16 +15153,6 @@
       :ensure t
       :hook (org-mode . org-fragtog-mode))
   #+end_src
-* EVAL notate - indentation aware of prettified symbols (disabled, does not work out of the box)
-  - see https://github.com/ekaschalk/notate
-  #+begin_src emacs-lisp :tangle no
-    (when (file-exists-p "~/.emacs.d/additionals/notate/nt.el")
-      (use-package smartparens
-        :ensure t)
-      (use-package nt-dev
-        :load-path "~/.emacs.d/additionals/notate"))
-  #+end_src
-
 * beginend - jump to the right beginning / end, depending on the mode
   #+begin_src emacs-lisp
     (use-package beginend
@@ -15156,7 +15167,7 @@
       :config (add-hook 'scratch-create-buffer-hook #'gb/scratch-insert-comment)
       :init
       (defun gb/scratch-insert-comment ()
-        ""
+        "insert 'scratchpad' and do commit-dwim on that line to ensure that it is a comment"
         (interactive)
         (goto-char (point-min))
         (insert "scratchpad")
@@ -15304,7 +15315,7 @@
                  anything-quickrun)
       :ensure t)
   #+end_src
-* EVAL git grep
+* git grep
   #+begin_src emacs-lisp
     (use-package git-grep
       :commands (git-grep git-grep-repo)
@@ -15391,15 +15402,6 @@
 #+BEGIN_SRC emacs-lisp
 (report-elapsed "check-point - greenbar mode")
 #+END_SRC
-* EVAL continuous scroll mode (disabled, no scroll end detection, not working out of the box)
-  #+begin_src emacs-lisp :tangle no
-    (use-package pdf-continuous-scroll-mode
-      :load-path "~/repo/pdf-continuous-scroll-mode.el/"
-      :config
-      (add-hook 'pdf-view-mode-hook 'pdf-continuous-scroll-mode) ;; pdf-view-mode-hook
-      (setq pdf-view-have-image-mode-pixel-vscroll nil))
-
-  #+end_src
 * eimp (internal)
   #+begin_src emacs-lisp
     (use-package eimp
@@ -15900,7 +15902,7 @@
       :ensure t
       :config (iscroll-mode 1))
   #+end_src
-* EVAL ytdious - Query / Preview YouTube via Invidious
+* ytdious - Query / Preview YouTube via Invidious
   #+begin_src emacs-lisp
     (use-package ytdious
       :ensure t
@@ -16005,7 +16007,7 @@
       ;; (setq global-mode-string (append global-mode-string  mlscroll-model-line-const))
       )
   #+end_src
-* EVAL tree-sitter
+* tree-sitter
   - see https://ubolonton.github.io/emacs-tree-sitter/getting-started/
   #+begin_src emacs-lisp
     (use-package tree-sitter
@@ -16164,7 +16166,7 @@
       (let ((seconds-to-send-message 1))
         (unless gb/slack-modeline-status--timer
           (gb/slack-on)
-          (setq seconds-to-send-message 10))
+          (setq seconds-to-send-message 60))
         (when msg
           (run-at-time
            seconds-to-send-message nil
@@ -16191,13 +16193,20 @@
           (run-at-time gb/net-available-next-call-in-seconds nil #'gb/net-available-check-n-run url (1- threshold) success failure))))
 
     ;; --- the following section needs configuration of
-    ;; gb/vpn-remote-service	     systemd service name to start for vpn if working remote
-    ;; gb/vpn-office-url		     url of firewall login if working in the office
-    ;; gb/vpn-url-check		     url to check whether vpn is up
-    ;; gb/workadventure-bookmark	     bookmark to open workadventure
-    ;; gb/vpn-office-firewall-bookmark   bookmark to jump to firewall login
-    ;; gb/slack-channel-greeting	     slack channel regex used for morning message
-    ;; gb/slack-greeting-list	     list of possible greetings
+    ;; gb/vpn-remote-service            systemd service name to start for vpn if working remote
+    ;; gb/vpn-office-url                url of firewall login if working in the office
+    ;; gb/vpn-url-check                 url to check whether vpn is up
+    ;; gb/workadventure-bookmark        bookmark to open workadventure
+    ;; gb/vpn-office-firewall-bookmark  bookmark to jump to firewall login
+    ;; gb/slack-channel-greeting        slack channel regex used for morning message
+    ;; gb/slack-greeting-list           list of possible greetings
+    ;; gb/gpg-unlock-key-list           list of key ids to unlock upon start of work
+
+    (defun gb/gpg-work-unlock-keys ()
+      (interactive)
+      (when (listp gb/gpg-unlock-key-list)
+        (message "unlocking keys for work")
+        (--each gb/gpg-unlock-key-list (gb/gpg-key-query-if-locked it))))
 
     (defun gb/vpn-work-start ()
       "connect to vpn, if in office, jump to respective url
@@ -16216,6 +16225,7 @@
       (require 'itemis)
       (require 'slack)
       (require 'bookmark+)
+      ;;(gb/gpg-work-unlock-keys)
       (unless (bookmark-get-bookmark gb/workadventure-bookmark t)
         (bookmark-load bmkp-last-as-first-bookmark-file))
       (unless (gb/url-reachable-p gb/vpn-url-check)
@@ -16226,7 +16236,7 @@
          (if (yes-or-no-p "write slack morning message? ")
              (gb/slack-work-start gb/slack-channel-greeting (completing-read "message: " gb/slack-greeting-list))
            (gb/slack-work-start))
-         (gb/github-polling-on)
+         (gb/github-polling-on) ;; key unlock necessary?
          (when (bookmark-get-bookmark gb/workadventure-bookmark t)
            (exwm-workspace-switch 0) ;; make workadventure open on workspace 0
            (let ((tries 5))
@@ -16240,7 +16250,7 @@
          (gb/org-agenda))
        (lambda () (message "vpn seems to be NON functional!"))))
   #+end_src
-* EVAL org-roam-ui
+* org-roam-ui
   - https://github.com/org-roam/org-roam-ui
   - browse to http://127.0.0.1:35901/
   #+begin_src emacs-lisp
@@ -16294,6 +16304,7 @@
   - helm-org-ql - Helm commands for org-ql
   - company-maxima - maxima integration
   - consult-lsp - LSP-mode Consult integration
+  - consult-dir - Consult based directory picker
 ** cloud
    - axe - aws interface (directly through aws api, no aws-cli)
 ** configuration
@@ -16429,6 +16440,7 @@
   - orgstrap - allow elisp usage in org source blocks more freely (less cryptic header configuration) see https://github.com/tgbugs/orgstrap)
   - org-appear - Auto-toggle visibility of Org elements
   - org-notifications - Creates notifications for org-mode entries
+  - org-movies - Manage watchlist with Org mode (import imdb stuff)
 ** os/system
   - network-watch (allows hooks to run when network is goiing down/up)
   - scp (use scp to transfer files)
@@ -16441,6 +16453,7 @@
   - kubel - inspect pods in kubernetes (with limited rights)
   - nixpkgs-fmt - format nix using nixpkgs-fmt
   - modern-sh - shell script edit mode, see https://github.com/damon-kwok/modern-sh
+  - rsync-mode - emacs minor mode to interact with rsync, syncing projects to multiple servers
 ** project
    - treemacs-persp - integration of perspective into treemacs buffer visibility
    - browse-at-remote - Open github/gitlab/bitbucket/stash/gist/phab/sourcehut page from Emacs
@@ -16484,6 +16497,10 @@
   - calc-at-point - do calculations on selections or at point
   - basic-ide - c64 basic ide that allows for basic dev and execution in vice (see https://gitlab.com/sasanidas/emacs-c64-basic-ide)
   - pspp-mode - edit pspp files
+  - loophole - define temporary keymaps, see https://github.com/0x60df/loophole/blob/master/README.md
+  - crdt - collaborative editing using Conflict-free Replicated Data Types (share editing buffers over several emacs instances)
+    see https://code.librehq.com/qhong/crdt.el
+  - puni - Parentheses Universalistic (delete parenthesis softly while keeping them balanced, working in several modes)
 ** development
    - navigel (develop modes based on tablist more efficiently)
    - helm-taskrunner (select from tasks the build system of the current project provides (e.g. gradle tasks)) https://github.com/emacs-taskrunner/helm-taskrunner
@@ -16498,17 +16515,40 @@
    - tree-sitter - tooling to make language toolin within emacs more tractable (see https://github.com/ubolonton/emacs-tree-sitter)
    - yaml - YAML parser for Elisp
    - logms - logging form elisp into log buffer with clickable links (to jump to log line), see [[https://github.com/jcs-elpa/logms][here]]
+   - session-async - Asynchronous processing in a forked process session
 ** graphics
    - vega-view - allow preview of vega graphics (graphics described by json), see https://vega.github.io/vega/ and https://github.com/applied-science/emacs-vega-view
 ** system
    - arduino-cli-mode - Arduino-CLI command wrapper
    - etc-sudoers-mode - Edit Sudo security policies
    - ednc - Emacs Desktop Notification Center (pure lisp implementation of freedesktop org notification system, replacement for dunst)
+** music
+   - lyrics-fetcher - Fetch song lyrics and album covers (adds some functions to emms)
 ** ui
    - modern-fringes - Replaces default fringe bitmaps with better looking ones
    - simple-modeline -
    - theme-anchor - Apply theme in current buffer only
 * discarded
+** notate - indentation aware of prettified symbols (disabled, does not work out of the box)
+   - see https://github.com/ekaschalk/notate
+   - seems abandoned
+   #+begin_src emacs-lisp :tangle no
+     (when (file-exists-p "~/.emacs.d/additionals/notate/nt.el")
+       (use-package smartparens
+         :ensure t)
+       (use-package nt-dev
+         :load-path "~/.emacs.d/additionals/notate"))
+   #+end_src
+
+** continuous scroll mode (disabled, no scroll end detection, not working out of the box)
+   #+begin_src emacs-lisp :tangle no
+     (use-package pdf-continuous-scroll-mode
+       :load-path "~/repo/pdf-continuous-scroll-mode.el/"
+       :config
+       (add-hook 'pdf-view-mode-hook 'pdf-continuous-scroll-mode) ;; pdf-view-mode-hook
+       (setq pdf-view-have-image-mode-pixel-vscroll nil))
+
+   #+end_src
 ** dired-posframe (disabled) preview is disrupting
    #+begin_src emacs-lisp :tangle no
      (use-package dired-posframe

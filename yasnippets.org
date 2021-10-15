@@ -13,7 +13,6 @@ work (otherwise those of the snippets are used instead).
      # key: r-e
      # --
      ,#+title: ${1:title}
-     ,#+FILETAGS:
      ,* $1
 
 
