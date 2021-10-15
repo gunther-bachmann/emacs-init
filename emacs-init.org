@@ -16273,6 +16273,15 @@
     (use-package elpher
       :ensure t)
   #+end_src
+* EVAL edraw-org
+  - open draw tool in org mode: ~[[edraw:]]~
+  - C-c C-o on existing edraw link
+  - see https://github.com/misohena/el-easydraw
+  #+begin_src emacs-lisp
+    (use-package edraw-org
+      :load-path "~/repo/el-easydraw/"
+      :config (edraw-org-setup-default))
+  #+end_src
 * INTERESTING
 ** blog/presentation
   - org-present using a cell phone to switch pages
