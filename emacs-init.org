@@ -16294,6 +16294,14 @@
       ;; prettier - formatter for ...
       )
   #+end_src
+* EVAL pin xref to lower (installed) version 1.2.2
+  - version 1.3.0 throws error e.g. when switching to to elisp slime nav
+  - xref is a dependency of ~project~ and ~eglot~
+  #+begin_src emacs-lisp
+    (use-package xref
+      :ensure t
+      :pin manual)
+  #+end_src
 * INTERESTING
 ** blog/presentation
   - org-present using a cell phone to switch pages
