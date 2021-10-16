@@ -7200,11 +7200,12 @@
        (use-package native-complete
          :load-path "~/.emacs.d/additionals"
          :bind (:map shell-mode-map
-                ("M-/" . company-native-complete))
+                ("M-/" . company-native-complete)
+                ("<tab>" . company-native-complete))
          :config (native-complete-setup-bash))
      #+end_src
    - bash completion
-   #+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp :tangle no
      (use-package bash-completion
        :ensure t
        :config
@@ -16304,6 +16305,13 @@
     (use-package xref
       :ensure t
       :pin manual)
+  #+end_src
+* EVAL coterm - support for tui apps in shell
+  - start with coterm-mode, then M-x into a shell
+  #+begin_src emacs-lisp
+    (use-package coterm
+      :ensure t
+      :config (coterm-mode))
   #+end_src
 * INTERESTING
 ** blog/presentation
