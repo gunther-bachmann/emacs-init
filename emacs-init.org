@@ -4609,6 +4609,8 @@
        :ensure t
        :init (progn
                (add-hook 'after-init-hook 'global-company-mode))
+       :bind  (:map company-active-map
+               ("<tab>" . company-complete-selection))
        :config
        (progn
          (setq company-idle-delay nil)
@@ -4623,6 +4625,7 @@
          (global-set-key (kbd "TAB") #'company-indent-or-complete-common)
          (setq company-minimum-prefix-length 4)
          (setq company-tooltip-limit 15)
+         (setq company-shell-use-help-arg t)
          (setq company-tooltip-flip-when-above t)
          (setq company-dabbrev-downcase nil) ;; make company suggestions case sensitive (no downcase conversion)
          (setq company-backends
