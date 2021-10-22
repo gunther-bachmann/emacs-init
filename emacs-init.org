@@ -16294,6 +16294,13 @@
     (use-package elpher
       :ensure t)
   #+end_src
+* EVAL sketch mode
+  see https://github.com/dalanicolai/sketch-mode
+  #+begin_src emacs-lisp
+    (use-package sketch-mode
+      :defer t
+      :commands (sketch))
+  #+end_src
 * EVAL edraw-org
   - open draw tool in org mode: ~[[edraw:]]~
   - C-c C-o on existing edraw link
