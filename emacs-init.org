@@ -12335,6 +12335,15 @@
     :ensure t)
   #+end_src
 * racket
+  - modified racket-describe.el
+    added the following snippet to ~racket-describe.el~ at line ~122~ right after returning from async doc fetch
+    #+begin_src emacs-lisp :tangle no
+      (company-box-doc--make-buffer (current-buffer))
+      (-let* ((frame (frame-local-getq company-box-doc-frame))
+              (window (frame-root-window frame))
+              ((width . height) (window-text-pixel-size window nil nil 800 500)))
+        (set-frame-size frame width height t))
+    #+end_src
   #+begin_src emacs-lisp
     (use-package racket-mode
       :ensure t
@@ -12346,12 +12355,20 @@
                   ("C-c C-f" . #'gb/racket-fold-all-tests)
                   ("C-c C-u" . #'gb/racket-unfold-all-tests))
       :config
-
+      (when (fboundp 'coterm-mode)
+        (setq gb-racket-coterm-status -1)
+        (defun gb-mark-coterm-status ()
+          (setq gb-racket-coterm-status (if coterm-mode 1 -1))
+          (coterm-mode -1))
+        (defun gb-restore-coterm-status ()
+          (coterm-mode gb-racket-coterm-status))
+        (add-hook 'racket-before-run-hook #'gb-mark-coterm-status)
+        (add-hook 'racket-after-run-hook #'gb-restore-coterm-status))
       (cond
        ((eq gb/theme-mode 'light) nil) ;; TODO complete
        (t (progn
-            (--each '((racket-xp-use-face ((t (:foreground "Yellow" :weight bold))))
-                      (racket-xp-def-face ((t (:foreground "Yellow" :underline t :overline t :weight bold)))))
+            (--each '((racket-xp-use-face ((t (:weight bold))))
+                      (racket-xp-def-face ((t (:underline t :weight bold)))))
               (progn (add-to-list 'gb/list-of-faces-to-set it)(custom-set-faces it))))))
 
       (when (boundp 'pretty-modes-aliases)
