@@ -6852,6 +6852,18 @@
       :after magit
       :ensure t)
     #+END_SRC
+*** magit-delta
+    - use delta to do some formatting (syntax highlighting) of diffs in magit diff views
+    - may degrade performance of diff view within emacs. if so disable magit delta mode!
+    #+begin_src emacs-lisp
+      (use-package magit-delta
+        :ensure t
+        :config
+        (setq magit-delta-default-light-theme "ansi-light")
+        (setq magit-delta-default-dark-theme "Solarized (dark)") ;; "base16", "ansi-dark"
+        (setq magit-delta-hide-plus-minus-markers nil)
+        (magit-delta-mode))
+    #+end_src
 ** gitignore (creation with helm)
    simply call helm-gitignore and select language for which to create this gitignore
  #+BEGIN_SRC emacs-lisp
