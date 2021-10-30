@@ -16348,6 +16348,18 @@
       :ensure t
       :config (coterm-mode))
   #+end_src
+* EVAL blamer - a modern git blame
+  #+begin_src emacs-lisp
+    (use-package blamer
+      :load-path "~/repo/blamer.el/"
+      :custom
+      (blamer-idle-time 0.3)
+      (blamer-min-offset 70)
+      :custom-face
+      (blamer-face ((t :foreground "gray40"
+                        :background nil
+                        :italic t))))
+  #+end_src
 * INTERESTING
 ** blog/presentation
   - org-present using a cell phone to switch pages
