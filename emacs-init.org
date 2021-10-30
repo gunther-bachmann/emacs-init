@@ -16372,6 +16372,12 @@
                         :background nil
                         :italic t))))
   #+end_src
+* discarded eldoc-overlay - too invasive
+  #+begin_src emacs-lisp :tangle no
+    (use-package eldoc-overlay
+      :ensure t
+      :config (eldoc-overlay-mode 1))
+  #+end_src
 * INTERESTING
 ** blog/presentation
   - org-present using a cell phone to switch pages
