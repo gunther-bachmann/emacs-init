@@ -6443,6 +6443,7 @@
    #+BEGIN_SRC emacs-lisp
      (use-package editorconfig
        :ensure t
+       :custom (editorconfig-trim-whitespaces-mode 'ws-butler-mode)
        :config (editorconfig-mode 1))
    #+END_SRC
 ** yafolding
@@ -6450,6 +6451,7 @@
      (use-package yafolding
        :ensure t
        :hook (prog-mode . yafolding-mode)
+       :custom (yafolding-ellipsis-content "…")
        :config
        (advice-add 'yafolding-hide-region :after #'(lambda (&rest args) (when (and (fboundp 'minimap-mode) minimap-mode) (minimap-sync-overlays))))
        (advice-add 'yafolding-show-region :after #'(lambda (&rest args) (when (and (fboundp 'minimap-mode) minimap-mode) (minimap-sync-overlays)))))
@@ -6519,12 +6521,17 @@
 *** projectile
     - see [[http://batsov.com/projectile/][here]]
  #+BEGIN_SRC emacs-lisp
- (use-package projectile
-    :ensure t
-    :config
-   ;; projectile everywhere!
-   ;; (projectile-global-mode)
-   )
+   (use-package projectile
+      :ensure t
+      :custom
+      (projectile-project-search-path '("~/repo/"))
+      (projectile-indexing-method 'native)
+      (projectile-enable-caching t)
+      (projectile-completion-system 'ivy)
+      :config
+     ;; projectile everywhere!
+     ;; (projectile-global-mode)
+     )
  #+END_SRC
 *** persp-projectile (disabled - collision with company-box)
  #+BEGIN_SRC emacs-lisp :tangle no
@@ -6537,7 +6544,7 @@
               ("s-s" . helm-projectile-switch-project))))
  #+END_SRC
 ** git
-*** magithub
+*** magithub (disabled)
     - disabled because ghub+ fails to load (some interface failure to git hub)
     #+BEGIN_SRC emacs-lisp :tangle no
       (when hub-installed
@@ -6833,10 +6840,11 @@
     #+END_SRC
 *** magit lfs
     #+BEGIN_SRC emacs-lisp
-    (when git-lfs-installed 
-      (use-package magit-lfs
-        ;; :defer 40
-        :after ( magit)))
+      (when git-lfs-installed 
+        (use-package magit-lfs
+          :ensure t
+          ;; :defer 40
+          :after ( magit)))
     #+END_SRC
 *** forge (magit access to pull requests on github/gitlab)
     #+BEGIN_SRC emacs-lisp :tangle no
@@ -11387,9 +11395,9 @@
                    ("C-c a /" . #'dired-annotator-narrow-on-tag)
                    ("'" . #'dired-annotator-show-note)))
    #+end_src
-* stripe-buffer
+* stripe-buffer (disabled, doesn't play well with coterm)
   add stripes to background of dired (or any other mode)
-  #+BEGIN_SRC emacs-lisp
+  #+BEGIN_SRC emacs-lisp :tangle no
     (when (locate-library "stripe-buffer")
       (use-package stripe-buffer
         :init (progn
@@ -12337,6 +12345,9 @@
 * racket
   - modified racket-describe.el
     added the following snippet to ~racket-describe.el~ at line ~122~ right after returning from async doc fetch
+    ~(lambda (result) (pcase result ...)~
+      ~;; insert snippet here~
+    ~)~
     #+begin_src emacs-lisp :tangle no
       (company-box-doc--make-buffer (current-buffer))
       (-let* ((frame (frame-local-getq company-box-doc-frame))
@@ -16416,6 +16427,7 @@
     into a version controlled repository)
   - gerrit - interface to gerrit, code reviews
   - magit-patch-changelog: Generate a patch according to emacs-mirror/CONTRIBUTE
+  - git-modes - major modes for git attributes, ignore and config files
 ** java/kotlin/scala
   - lsp-javacomp
     - lsp support for java using [[https://github.com/tigersoldier/JavaComp][java-comp]]
