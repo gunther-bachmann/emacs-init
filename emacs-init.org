@@ -423,21 +423,26 @@
             (setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
                                      ("myelpa" . "https://raw.githubusercontent.com/gunther-bachmann/myelpa/master/")
                                      ("melpa-stable" . "https://stable.melpa.org/packages/")
-                                     ("org" . "https://orgmode.org/elpa/")
+                                     ;; ("org" . "https://orgmode.org/elpa/") ;; deprecated
                                      ("melpa" . "https://melpa.org/packages/")
-                                     ))
+                                     ("nongnu" . "https://elpa.nongnu.org/nongnu/")
+                                     ("nongnu-devel" . "https://elpa.nongnu.org/nongnu-devel/")))
           (message "INSECURE PACKAGE ACCESS, BEWARE!")
           (setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
                                    ("myelpa" . "https://raw.githubusercontent.com/gunther-bachmann/myelpa/master/")
                                    ("melpa-stable" . "http://stable.melpa.org/packages/")
-                                   ("org" . "http://orgmode.org/elpa/")
-                                   ("melpa" . "http://melpa.org/packages/"))))
+                                   ;; ("org" . "http://orgmode.org/elpa/") ;; deprecated
+                                   ("melpa" . "http://melpa.org/packages/")
+                                   ("nongnu" . "http://elpa.nongnu.org/nongnu/")
+                                   ("nongnu-devel" . "http://elpa.nongnu.org/nongnu-devel/"))))
 
         (setq package-archive-priorities
-              '(("myelpa" . 0)  ;; local is of highest priority
+              '(("myelpa" . 0)  ;; make local highest priority e.g. to restore previos versions
                 ("melpa-stable" . 20)  ;; stable is preferred
                 ("melpa" . 10)
-                ;; ("gnu" . 0)
+                ("gnu" . 20)
+                ("nongnu" . 20)
+                ("nongnu-devel" . 10)
                 ))))
 
     (setq package-menu-async (is-_nix-p)) ;; defaulting operations to be async (is problematic on windows systems)
