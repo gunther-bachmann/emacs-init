@@ -14463,6 +14463,10 @@
   #+end_src
 * EVAL pomodoro
   #+begin_src emacs-lisp
+    (use-package pomm
+      :commands (pomm))
+  #+end_src
+  #+begin_src emacs-lisp :tangle no
     (use-package pomodoro
       :ensure t
       :commands (pomodoro-stop pomodoro-start pomodoro-pause pomodoro-resume)
