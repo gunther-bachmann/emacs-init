@@ -15563,6 +15563,7 @@
     (when (file-exists-p "~/repo/org-roam-stack/org-roam-stack.el")
       (use-package org-roam-stack
         :load-path "~/repo/org-roam-stack/"
+        :after (org org-roam)
         :custom (org-roam-stack--link-adjustments t)
         (org-roam-stack--open-ro t)))
   #+end_src
