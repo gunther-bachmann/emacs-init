@@ -16303,19 +16303,22 @@
   - https://github.com/org-roam/org-roam-ui
   - browse to http://127.0.0.1:35901/
   #+begin_src emacs-lisp
-    (when (and (file-directory-p "~/repo")
-             (not (file-directory-p "~/repo/org-roam-ui")))
-      (let ((old-dir default-directory))
-        (cd "~/repo")
-        (shell-command-to-string "git clone https://github.com/org-roam/org-roam-ui.git")
-        (cd old-dir)))
-    (when (file-directory-p "~/repo/org-roam-ui")
-      (use-package org-roam-ui
-        :load-path "~/repo/org-roam-ui"
-        :commands (org-roam-ui-mode)
-        :after (org-roam)
-        :init (require 'websocket)
-        (custom-set-variables '(warning-suppress-types '((websocket))))))
+    ;; (when (and (file-directory-p "~/repo")
+    ;;          (not (file-directory-p "~/repo/org-roam-ui")))
+    ;;   (let ((old-dir default-directory))
+    ;;     (cd "~/repo")
+    ;;     (shell-command-to-string "git clone https://github.com/org-roam/org-roam-ui.git")
+    ;;     (cd old-dir)))
+    
+    ;; when (file-directory-p "~/repo/org-roam-ui")
+    
+    (use-package org-roam-ui
+      ;; :load-path "~/repo/org-roam-ui"
+      :ensure t
+      :commands (org-roam-ui-mode)
+      :after (org-roam)
+      :init (require 'websocket)
+      (custom-set-variables '(warning-suppress-types '((websocket)))))
   #+end_src
 * EVAL elpher - gopher and gemini client
   #+begin_src emacs-lisp
@@ -16368,7 +16371,7 @@
 * EVAL blamer - a modern git blame
   #+begin_src emacs-lisp
     (use-package blamer
-      :load-path "~/repo/blamer.el/"
+      :ensure t
       :custom
       (blamer-idle-time 0.3)
       (blamer-min-offset 70)
@@ -16463,6 +16466,7 @@
   - gerrit - interface to gerrit, code reviews
   - magit-patch-changelog: Generate a patch according to emacs-mirror/CONTRIBUTE
   - git-modes - major modes for git attributes, ignore and config files
+  - magit-commit-mark - Support marking commits as read 
 ** java/kotlin/scala
   - lsp-javacomp
     - lsp support for java using [[https://github.com/tigersoldier/JavaComp][java-comp]]
@@ -16552,6 +16556,7 @@
   - org-appear - Auto-toggle visibility of Org elements
   - org-notifications - Creates notifications for org-mode entries
   - org-movies - Manage watchlist with Org mode (import imdb stuff)
+  - ob-spice - org-babel functions for spice evaluation 
 ** os/system
   - network-watch (allows hooks to run when network is goiing down/up)
   - scp (use scp to transfer files)
