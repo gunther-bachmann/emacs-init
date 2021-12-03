@@ -3216,7 +3216,7 @@
    #+END_SRC
 ** cursor blinking / beacon
    - see https://github.com/Malabarba/beacon
-   #+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp :tangle no
      ;; mark cursor when switching buffers/windows/frames
      (use-package beacon
        :ensure t
@@ -13012,7 +13012,7 @@
                            (monitor (nth (+ 1 (* 2 workspaceIdx)) exwm-randr-workspace-monitor-plist)))
                       (if (or (s-equals? (gb/get-primary-monitor) monitor)
                              (string-empty-p (gb/get-second-monitor)))
-                          (progn (message "no workspace left of this.") (beacon-blink) nil)
+                          (progn (message "no workspace left of this.") (when (fboundp 'beacon-blink) (beacon-blink)) nil)
                         (gb/exwm-workspace-switch 0 t workspaceIdx)
                         (gb/play-theme-sound gb/sound-theme-effect-switch-workspace)
                         (message (format "<<     now %s" (exwm-workspace--position exwm-workspace--current)))
@@ -13036,7 +13036,7 @@
                             (doom-modeline-set-selected-window)
                             t)
                         (message "no workspace right of this.")
-                        (beacon-blink)
+                        (when (fboundp 'beacon-blink) (beacon-blink))
                         nil)))
 
                   (defun gb/exwm-swap-workspace-through-to-bottom ()
@@ -13100,7 +13100,7 @@
                                  ;; (x-focus-frame (selected-frame))
                                  (doom-modeline-set-selected-window))
                         (message "no workspace below this."))
-                      (beacon-blink)))
+                      (when (fboundp 'beacon-blink) (beacon-blink))))
 
                   (defun gb/exwm-workspace-up ()
                     "jump to workspace up of the current one (multi monitor)"
@@ -13120,17 +13120,18 @@
                                  ;; (x-focus-frame (selected-frame))
                                  (doom-modeline-set-selected-window))
                         (message "no workspace above this"))
-                      (beacon-blink)))
-                  (defun gb/exwm-next-workspace (&optional inc)
-                    "jump to the next (inc) workspace"
-                    (interactive)
-                    (let* ((inc (or inc 1))
-                           (index (+ exwm-workspace-current-index inc))
-                           (len (length exwm-workspace--list)))
-                      (exwm-workspace-switch (cond
-                                              ((< index 0) (+ index len))
-                                              ((< index len) index)
-                                              (t (- index len))))) t)
+                      (when (fboundp 'beacon-blink) (beacon-blink))))
+              
+                    (defun gb/exwm-next-workspace (&optional inc)
+                      "jump to the next (inc) workspace"
+                      (interactive)
+                      (let* ((inc (or inc 1))
+                             (index (+ exwm-workspace-current-index inc))
+                             (len (length exwm-workspace--list)))
+                        (exwm-workspace-switch (cond
+                                                ((< index 0) (+ index len))
+                                                ((< index len) index)
+                                                (t (- index len))))) t)
                   (defun gb/exwm-previous-workspace (&optional inc)
                     "jump to the previous (inc) workspace"
                     (interactive)
