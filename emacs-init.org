@@ -14588,6 +14588,21 @@
             :hook (after-init . org-roam-setup)
             :ensure t
             :custom
+            (org-roam-capture-templates 
+             `(("d" "default" plain
+                ,(concat "* ${title}\n"
+                         "  %?\n"
+                         "* -\n"
+                         "  #+begin_src emacs-lisp\n"
+                         "    ;; Local Variables:\n"
+                         "    ;; eval: (flyspell-mode 0) ;; no spell check errors\n"
+                         "    ;; org-image-actual-width: 100\n"
+                         "    ;; fill-column:  80\n"
+                         "    ;; eval: (gb/org-roam-open-entry-visibility)\n"
+                         "    ;; End:\n"
+                         "  #+end_src\n")
+               :target (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n")
+               :unnarrowed t)))
             (org-roam-graph-viewer "emacsclient")
             (org-notes "/home/pe/documents/roam")
             (org-directory org-notes)
@@ -14650,13 +14665,17 @@
                   (org-cycle-hide-drawers 'all)
                   (run-at-time 0.5 nil #'(lambda () (progn (setq current-prefix-arg '(4)) (call-interactively 'org-reveal)))))))
 
-            :bind (:map org-roam-mode-map
-                        (;; ("C-c n l" . org-roam-buffer)
-                         ("C-c n f" . org-roam-node-find)
-                         ("C-c n g" . org-roam-show-graph))
-                        :map org-mode-map
-                        (("C-c n i" . org-roam-node-insert)
-                         ("C-c n t" . gb/set-tags-in-org-roam-file))))
+            :bind (:map notdeft-mode-map
+                   (("C-c n f" . org-roam-node-find)
+                    ("C-c n n" . org-roam-node-find))
+                   :map org-roam-mode-map
+                   (("C-c n f" . org-roam-node-find)
+                    ("C-c n n" . org-roam-node-find)
+                    ("C-c n g" . org-roam-show-graph))
+                   :map org-mode-map
+                   (("C-c n i" . org-roam-node-insert)
+                    ("C-c n n" . org-roam-node-find)
+                    ("C-c n t" . gb/set-tags-in-org-roam-file))))
 
           (use-package org-roam-server
             :commands (org-roam-server-mode)
