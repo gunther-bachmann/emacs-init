@@ -4612,8 +4612,6 @@
      (use-package company
        ;; :after (selected)
        :ensure t
-       :init (progn
-               (add-hook 'after-init-hook 'global-company-mode))
        :bind  (:map company-active-map
                ("<tab>" . company-complete-selection))
        :config
@@ -4664,6 +4662,7 @@
                          (company-tooltip-common ((t (:foreground "firebrick4"))))
                          (company-tooltip-annotation ((t (:foreground "gray15")))))
                  (progn (add-to-list 'gb/list-of-faces-to-set it)(custom-set-faces it))))))
+         (global-company-mode t)
          ))
 
      (use-package company-statistics
