@@ -7223,11 +7223,14 @@
    - native completion
      #+begin_src emacs-lisp
        (use-package native-complete
-         :load-path "~/.emacs.d/additionals"
-         :bind (:map shell-mode-map
-                ("M-/" . company-native-complete)
-                ("<tab>" . company-native-complete))
+         ;; :load-path "~/.emacs.d/additionals"
+         :ensure t
          :config (native-complete-setup-bash))
+       (use-package company-native-complete
+         :ensure t
+         :bind (:map shell-mode-map
+                     ("M-/" . company-native-complete)
+                     ("<tab>" . company-native-complete)))
      #+end_src
    - bash completion
    #+BEGIN_SRC emacs-lisp :tangle no
