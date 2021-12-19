@@ -16412,6 +16412,7 @@
   - start with coterm-mode, then M-x into a shell
   #+begin_src emacs-lisp
     (use-package coterm
+      :after (native-complete)
       :ensure t
       :config (coterm-mode))
   #+end_src
