@@ -38,14 +38,18 @@
         # the top and down respectively.
         # The width can be negative.  In this case the actual width is the
         # screen width minus the width defined in within the geometry option.
-        geometry = "300x5-15-50"
+        # geometry = "300x5-15-50"
+        width =300
+        height = 60
+        origin = bottom-right
+
 
         # Show how many messages are currently hidden (because of geometry).
-        indicate_hidden = yes
+        indicate_hidden = true
 
         # Shrink window if it's smaller than the width.  Will be ignored if
         # width is 0.
-        shrink = no
+        shrink = false
 
         # The transparency of the window.  Range: [0; 100].
         # This option will only work if a compositing window manager is
@@ -84,7 +88,7 @@
         separator_color = frame
 
         # Sort messages by urgency.
-        sort = yes
+        sort = true
 
         # Don't remove messages, if the user is idle (no mouse or keyboard input)
         # for longer than idle_threshold seconds.
@@ -152,14 +156,14 @@
 
         # Split notifications into multiple lines if they don't fit into
         # geometry.
-        word_wrap = yes
+        word_wrap = true
 
         # When word_wrap is set to no, specify where to make an ellipsis in long lines.
         # Possible values are "start", "middle" and "end".
         ellipsize = middle
 
         # Ignore newlines '\n' in notifications.
-        ignore_newline = no
+        ignore_newline = false
 
         # Stack together notifications with the same content
         stack_duplicates = true
@@ -168,7 +172,7 @@
         hide_duplicate_count = false
 
         # Display indicators for URLs (U) and actions (A).
-        show_indicators = yes
+        show_indicators = true
 
         ### Icons ###
 
@@ -190,7 +194,7 @@
 
         # Should a notification popped up from history be sticky or timeout
         # as if it would normally do.
-        sticky_history = yes
+        sticky_history = true
 
         # Maximum amount of notifications kept in history
         history_length = 20
@@ -215,7 +219,7 @@
         # Print a notification on startup.
         # This is mainly for error detection, since dbus (re-)starts dunst
         # automatically after a crash.
-        startup_notification = false
+        # startup_notification = false
 
         # Manage dunst's desire for talking
         # Can be one of the following values:
@@ -224,7 +228,7 @@
         #  mesg: Important Messages
         #  info: all unimportant stuff
         # debug: all less than unimportant stuff
-        verbosity = mesg
+        # verbosity = mesg
 
         # Define the corner radius of the notification window
         # in pixel size. If the radius is 0, you have no rounded
@@ -269,28 +273,6 @@
         # using the resolution and physical size. This might be useful in setups
         # where there are multiple screens with very different dpi values.
         per_monitor_dpi = false
-
-    [shortcuts]
-
-        # Shortcuts are specified as [modifier+][modifier+]...key
-        # Available modifiers are "ctrl", "mod1" (the alt-key), "mod2",
-        # "mod3" and "mod4" (windows-key).
-        # Xev might be helpful to find names for keys.
-
-        # Close notification.
-        close = ctrl+space
-
-        # Close all notifications.
-        close_all = ctrl+shift+space
-
-        # Redisplay last message(s).
-        # On the US keyboard layout "grave" is normally above TAB and left
-        # of "1". Make sure this key actually exists on your keyboard layout,
-        # e.g. check output of 'xmodmap -pke'
-        history = ctrl+grave
-
-        # Context menu.
-        context = ctrl+shift+period
 
     [urgency_low]
         # IMPORTANT: colors have to be defined in quotation marks.

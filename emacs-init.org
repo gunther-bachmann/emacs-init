@@ -12706,7 +12706,7 @@
               (let ((brightness (s-trim (shell-command-to-string "xbacklight -get"))))
                 (shell-command (format "dunstify -a \"changeBrightness\" -u low -i brightness-high -r \"991048\" \"Brightness: %s%%\" \"$(getProcessingString 20 '●' '◯' %s)\"" brightness brightness))))))
        #+end_src
-    - lock, screen saver, compositor
+    - lock, screen saver, compositor, dunst (notifications)
        #+begin_src emacs-lisp
          (defun gb/netflix ()
            (interactive)
@@ -12730,12 +12730,30 @@
          (defun gb/dunst-notify-disable ()
            "disable dunst desktop notification (temporarily)"
            (interactive)
-           (shell-command "notify-send \"DUNST_COMMAND_PAUSE\""))
+           ;; (shell-command "notify-send \"DUNST_COMMAND_PAUSE\"")
+           (shell-command "dunstctl set-paused true"))
 
          (defun gb/dunst-notify-enable ()
            "(re)enable dunst desktop notification"
            (interactive)
-           (shell-command "notify-send \"DUNST_COMMAND_RESUME\""))
+           ;; (shell-command "notify-send \"DUNST_COMMAND_RESUME\"")
+           (shell-command "dunstctl set-paused false"))
+
+         (defun gb/dunst-close-all ()
+           "close all notifications"
+           (interactive)
+           (with-ignored-messages
+            (shell-command "dunstctl close-all")))
+
+         (defun gb/dunst-close-or-mark-block (arg)
+           "either mark the block or remove any open dunst notifications"
+           (interactive "P")
+           (let ((notifications (string-to-number (string-trim (shell-command-to-string "dunstctl count displayed")))))
+             (if (> notifications 0)
+                 (gb/dunst-close-all)
+               (set-mark-command arg))))
+
+         (bind-key "C-SPC" #'gb/dunst-close-or-mark-block)
 
          (defun gb/lock-screen ()
            "lock screen"
