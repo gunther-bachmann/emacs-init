@@ -14566,6 +14566,7 @@
         (notdeft-xapian-max-results 1000 "show up to 1000 entries in the notdef query buffer")
         :config
         (require 'notdeft-autoloads)
+        (require 'org-roam-stack)
         ;; (require 'notdeft-org)
 
         ;; redefinition of reading deft link, using completing-read instead of ivy
@@ -14637,7 +14638,8 @@
             (require 'org-roam-protocol)
 
             (defvar gb/set-tag-config-list '(;; ("ROAM_TAGS" . " ")
-                                             ("FILETAGS" . ":"))
+                                             ;; ("FILETAGS" . ":")
+                                             )
               "list of pairs, describing org attribute and tag separator to be used")
 
             (defun gb/set-tags-in-org-roam-file ()
