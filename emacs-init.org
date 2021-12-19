@@ -15478,9 +15478,9 @@
       :ensure t
       :config (fill-page-mode 1))
   #+end_src
-* greenbar-mode
+* DISABLED greenbar-mode
   - puts stripes on the comint output (shell output), making long lines a bit more tractable
-  #+begin_src emacs-lisp
+  #+begin_src emacs-lisp :tangle no
     (use-package greenbar
       :ensure t
       :config
