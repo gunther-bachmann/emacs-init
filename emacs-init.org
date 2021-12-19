@@ -16580,6 +16580,7 @@
   - all-the-icons-ibuffer (icons in ibuffers)
   - bufler - buffer selection based on groups (see )
   - atl-long-lines - Turn off truncate-lines when the line is long
+  - ruled-switch-buffer - Rule based buffer switching 
 ** org
   - org-wild-notifier, customizable notifier for org agenda entries (global or per entry)
   - orca (org-capture configuration)
@@ -16692,6 +16693,8 @@
    - yaml - YAML parser for Elisp
    - logms - logging form elisp into log buffer with clickable links (to jump to log line), see [[https://github.com/jcs-elpa/logms][here]]
    - session-async - Asynchronous processing in a forked process session
+   - impostman - Import Postman collections (https://github.com/flashcode/impostman)
+   - eglot-java - Java extension for the eglot LSP client 
 ** graphics
    - vega-view - allow preview of vega graphics (graphics described by json), see https://vega.github.io/vega/ and https://github.com/applied-science/emacs-vega-view
 ** system
