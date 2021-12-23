@@ -162,7 +162,7 @@
 ** udiskie
   #+begin_src sh :eval no :tangle ~/.xprofile
     # pasystray --include-monitors &   # Pulseaudio volume control from tray, started via emacs init.el
-    udiskie -t &                     # Disk mount utility
+    pgrep udiskie || udiskie -t &      # Disk mount utility
   #+end_src
 ** redshift
   #+begin_src sh :eval no :tangle ~/.xprofile
