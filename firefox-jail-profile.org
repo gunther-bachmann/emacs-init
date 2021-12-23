@@ -39,7 +39,7 @@
     include firefox-common.profile
 
     # --- addition to allow for org-protocol (running emacsclient against socket)
-    noblacklist /tmp/emacs1000
-    whitelist /tmp/emacs1000
+    noblacklist /run/user/1000/emacs/server
+    whitelist /run/user/1000/emacs/server
 
   #+end_src
