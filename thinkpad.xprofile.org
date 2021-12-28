@@ -34,7 +34,7 @@
   #+begin_src sh :eval no :tangle ~/.xprofile
 
     # compositor
-    # compton & # start only if wanted (e.g. for window effects and watching videos)
+    # pgrep compton || compton & # start only if wanted (e.g. for window effects and watching videos)
   #+end_src
 ** kmonad (disabled)
   #+begin_src sh :eval no :tangle ~/.xprofile
