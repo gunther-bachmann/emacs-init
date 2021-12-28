@@ -18,6 +18,10 @@
     export WINEPREFIX="$HOME/.wine32"
     export WINEARCH=win32
   #+end_src
+* bash configuration
+  #+begin_src sh :eval no :tangle ~/.bashrc
+    shopt -s autocd # cd into folder on just using the folder name
+  #+end_src
 * bash history
   #+begin_src sh :eval no :tangle ~/.bashrc
     # append to bash history (don't overwrite)
@@ -26,8 +30,8 @@
     # don't save duplicate lines
     export HISTCONTROL=ignoreboth
     export HISTIGNORE='( *)'
-    export HISTSIZE=100000
-    export HISTFILESIZE=10000000
+    export HISTSIZE="INFINITY"     # non numeric does not truncate
+    export HISTFILESIZE="INFINITY" # non numeric does not truncate
     # append and reload the history after each command
     PROMPT_COMMAND="history -a; history -n"
   #+end_src
