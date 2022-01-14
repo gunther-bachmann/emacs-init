@@ -678,7 +678,7 @@
            nix-total
          ))
     (let* ((total-ram (if (is-macos-p)
-                          (/ (string-to-int (shell-command-to-string "sysctl hw.memsize | sed 's/.*:\s*//'")) (* 1024 1024 1024) )
+                          (/ (string-to-number (shell-command-to-string "sysctl hw.memsize | sed 's/.*:\s*//'")) (* 1024 1024 1024) )
                         (/ (nth 0 (memory-info)) (* 1024.0 1024))))
            (free-ram (if (is-macos-p) 0 (/ (nth 1 (memory-info)) (* 1024.0 1024))))
            (total-ram-str (concat (format "%.1f" total-ram) "GB" ))
