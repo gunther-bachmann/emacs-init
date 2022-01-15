@@ -3621,6 +3621,90 @@
 
 
    #+END_SRC
+** increment/decrement number at point
+   #+begin_src emacs-lisp
+     ;; credits go to https://www.emacswiki.org/emacs/IncrementNumber
+     (defun gb/increment-number-decimal (&optional arg)
+       "Increment decimal number at point by 'arg'."
+       (interactive "p*")
+       (save-excursion
+         (save-match-data
+           (let (inc-by field-width answer)
+             (setq inc-by (if arg arg 1))
+             (skip-chars-backward "0123456789\\-\\+")
+             (when (re-search-forward "[-+]?[0-9]+" nil t)
+               (setq matched-string (match-string 0))
+               (setq signed (or (string-prefix-p "-" matched-string )
+                               (string-prefix-p "+" matched-string )))
+               (setq field-width (- (match-end 0) (match-beginning 0) (if signed 1 0)))
+               (setq answer (+ (string-to-number matched-string 10) inc-by))
+               (replace-match (format (concat "%" (when signed "+") "0" (int-to-string field-width) "d")
+                                      answer)))))))
+
+     (defun gb/decrement-number-decimal (&optional arg)
+       "Decrement decimal number at point by 'arg'."
+       (interactive "p*")
+       (gb/increment-number-decimal (if arg (- arg) -1)))
+
+     (bind-key "C-c +" #'gb/increment-number-decimal)
+     (bind-key "C-c -" #'gb/decrement-number-decimal)
+
+     (defun gb/increment-number-hexadecimal (&optional arg)
+       "Increment the hexadecimal number at point by 'arg'."
+       (interactive "p*")
+       (save-excursion
+         (save-match-data
+           (let (inc-by field-width answer hex-format)
+             (setq inc-by (if arg arg 1))
+             (skip-chars-backward "0123456789abcdefABCDEF")
+             (when (re-search-forward "[0-9a-fA-F]+" nil t)
+               (setq field-width (- (match-end 0) (match-beginning 0)))
+               (setq answer (+ (string-to-number (match-string 0) 16) inc-by))
+               (when (< answer 0)
+                 (setq answer (+ (expt 16 field-width) answer)))
+               (if (equal (match-string 0) (upcase (match-string 0)))
+                   (setq hex-format "X")
+                 (setq hex-format "x"))
+               (replace-match (format (concat "%0" (int-to-string field-width)
+                                              hex-format)
+                                      answer)))))))
+
+     (defun gb/decrement-number-hexadecimal (&optional arg)
+       "Decrement the hexadecimal number at point by 'arg'."
+       (interactive "p*")
+       (gb/increment-number-hexadecimal (if arg (- arg) -1)))
+
+     (defun gb/format-bin (val width)
+       "Convert a number to a binary string."
+       (let (result)
+         (while (> width 0)
+           (if (equal (mod val 2) 1)
+               (setq result (concat "1" result))
+             (setq result (concat "0" result)))
+           (setq val (/ val 2))
+           (setq width (1- width)))
+         result))
+
+     (defun gb/increment-number-binary (&optional arg)
+       "Increment the binary number at point by 'arg'."
+       (interactive "p*")
+       (save-excursion
+         (save-match-data
+           (let (inc-by field-width answer)
+             (setq inc-by (if arg arg 1))
+             (skip-chars-backward "01")
+             (when (re-search-forward "[0-1]+" nil t)
+               (setq field-width (- (match-end 0) (match-beginning 0)))
+               (setq answer (+ (string-to-number (match-string 0) 2) inc-by))
+               (when (< answer 0)
+                 (setq answer (+ (expt 2 field-width) answer)))
+               (replace-match (gb/format-bin answer field-width)))))))
+
+     (defun gb/decrement-number-binary (&optional arg)
+       "Decrement the binary number at point by 'arg'."
+       (interactive "p*")
+       (gb/increment-number-binary (if arg (- arg) -1)))
+   #+end_src
 ** auto-fill-mode configuration
    - will word break / line break after column _
    #+BEGIN_SRC emacs-lisp
