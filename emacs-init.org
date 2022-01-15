@@ -16540,6 +16540,12 @@
       :config
         (add-hook 'org-mode-hook #'org-inline-anim-mode))
   #+end_src
+* EVAL alarm-clock
+  #+begin_src emacs-lisp
+    (use-package alarm-clock
+      :ensure t
+      :custom ((alarm-clock-play-sound nil)))
+  #+end_src
 * discarded eldoc-overlay - too invasive
   #+begin_src emacs-lisp :tangle no
     (use-package eldoc-overlay
