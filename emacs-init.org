@@ -13417,7 +13417,7 @@
             "run exwm reset right before calling the given function"
             (interactive)
             (when (and exwm-class-name
-                       (or (string= exwm-class-name "X64")
+                       (or (string= exwm-class-name "x64sc")
                            ;; (string= (downcase exwm-class-name) "eclipse")
                            ;; (string= (downcase exwm-class-name) "dosbox")
                            ;; (string= (downcase exwm-class-name) "jetbrains-idea-ce")
@@ -13715,7 +13715,7 @@
                                               workspace 6
                                               simulation-keys nil
                                               )
-                                             ((or (string= exwm-class-name "X64")
+                                             ((or (string= exwm-class-name "x64sc")
                                                  (string= (downcase exwm-class-name) "eclipse")
                                                  (string= exwm-class-name "qutebrowser"))
                                               simulation-keys nil
