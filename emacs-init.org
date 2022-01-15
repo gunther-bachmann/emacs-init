@@ -15009,7 +15009,10 @@
         :commands (imaxima)
         :ensure-system-package maxima
         :custom (imaxima-use-maxima-mode-flag t)
-        (imaxima-fnt-size "LARGE"))
+        (imaxima-fnt-size "LARGE")
+        :config
+        (when (fboundp 'gb/coterm-off)
+          (add-hook 'inferior-maxima-mode-hook #'gb/coterm-off)))
       (use-package imath
         :load-path (lambda () (gb/maxima-elisp-loadpath)))
       (use-package maxima
@@ -16502,7 +16505,14 @@
     (use-package coterm
       :after (native-complete)
       :ensure t
-      :config (coterm-mode))
+      :config 
+      (defun gb/coterm-on (&rest _args)
+        (unless coterm-mode
+          (coterm-mode 1)))
+      (defun gb/coterm-off ()
+        (when coterm-mode
+          (coterm-mode -1)))
+      (advice-add 'shell :before #'gb/coterm-on))
   #+end_src
 * EVAL blamer - a modern git blame
   #+begin_src emacs-lisp
