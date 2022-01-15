@@ -169,10 +169,8 @@
   #+end_src
 ** redshift
   #+begin_src sh :eval no :tangle ~/.xprofile
-
     # add red to color on night hours (location = berlin/hamburg)
-    pkill redshift
-    redshift -l 52.5:13.4 &
+    pgrep redshift || redshift -l 52.5:13.4 &
   #+end_src
 ** altr2hype
   #+begin_src sh :eval no :tangle ~/.xprofile
