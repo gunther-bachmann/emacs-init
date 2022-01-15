@@ -109,7 +109,7 @@
     xss-lock -n ~/bin/dim-screen.sh -- i3lock -c 000000 &
   #+end_src
 ** configure touchpad (to be not too touchy)
-  #+begin_src sh :eval no :tangle ~/.xprofile
+  #+begin_src sh :eval no :tangle no
 
     # touchpad tweaks
     # ---------------
