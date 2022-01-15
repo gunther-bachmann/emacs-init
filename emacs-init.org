@@ -9359,12 +9359,15 @@
                  ("C-c s u" . org-password-manager-get-username)
                  ("C-c s p" . org-password-manager-get-password)
                  ("C-c s g" . org-password-manager-generate-password))
-     :after ( org)
+     :after (org)
+     :custom (org-password-manager-default-pwgen-command "diceware")
      :config
      (defun gb/browse-to-link-property ()
        "get the property ':LINK:' from the entry at point and browse to url given as value"
        (interactive)
-       (browse-url (org-entry-get (point) "LINK" t))))
+       (let ((entry-link (org-entry-get (point) "LINK" t)))
+         (kill-new entry-link)
+         (browse-url entry-link))))
  #+END_SRC
 *** hide passwords in org files
     - loaded from [[https://raw.githubusercontent.com/jekor/hidepw/master/hidepw.el][here]]
