@@ -12474,6 +12474,7 @@
                   ("C-c C-u" . #'gb/racket-unfold-all-tests))
       :config
       (when (fboundp 'coterm-mode)
+        ;; make sure the comint buffer created for racket interaction does not use coterm!
         (setq gb-racket-coterm-status -1)
         (defun gb-mark-coterm-status ()
           (setq gb-racket-coterm-status (if coterm-mode 1 -1))
@@ -13708,6 +13709,7 @@
             (exwm-input-grab-keyboard))
 
           (exwm-input-set-key (kbd "H-g") #'gb/exwm-grab-keyboard)
+          (exwm-input-set-key (kbd "s-k") #'gb/kill-a-buffer-and-delete-window)
 
           (setq exwm-manage-configurations `(((s-equals-p "dosbox" exwm-instance-name)
                                               char-mode t
@@ -16556,6 +16558,7 @@
   - ox-hugo
     - export org markdown to hugo blog entries
     - see [[https://github.com/kaushalmodi/ox-hugo][here]]
+  - redacted-mode - is an Emacs minor mode to hide your current text.
   - gif-screencast
     - allow screencast recording single gif for each action, combining them into animated gifs thereafter
     - https://github.com/Ambrevar/emacs-gif-screencast
@@ -16715,7 +16718,8 @@
   - org-appear - Auto-toggle visibility of Org elements
   - org-notifications - Creates notifications for org-mode entries
   - org-movies - Manage watchlist with Org mode (import imdb stuff)
-  - ob-spice - org-babel functions for spice evaluation 
+  - ob-spice - org-babel functions for spice evaluation
+  - org-visibility - Persistent org tree visibility 
 ** os/system
   - network-watch (allows hooks to run when network is goiing down/up)
   - scp (use scp to transfer files)
@@ -16805,6 +16809,7 @@
    - modern-fringes - Replaces default fringe bitmaps with better looking ones
    - simple-modeline -
    - theme-anchor - Apply theme in current buffer only
+   - perspective-exwm - Better integration for perspective.el and EXWM 
 * discarded
 ** notate - indentation aware of prettified symbols (disabled, does not work out of the box)
    - see https://github.com/ekaschalk/notate
