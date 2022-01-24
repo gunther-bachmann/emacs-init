@@ -7340,6 +7340,32 @@
      (interactive)
      (ansi-term (s-trim (shell-command-to-string "command -v zsh"))))
    #+END_SRC
+* cleanup  
+** recently used and stuff of ui programs
+   #+begin_src emacs-lisp
+     (defvar gb/delete-hourly
+       '(
+         "~/.local/share/recently-used.xbel" ;; recently used list for gnome applications
+         "~/.local/share/recently-used.xbel.bak" ;; recently used list for gnome applications
+         "~/.local/share/recently-used.xbel.tbcache" ;; recently used list for gnome applications
+         "~/.local/share/user-places.xbel" ;; recently used list for gnome applications
+         "~/.local/share/user-places.xbel.bak" ;; recently used list for gnome applications
+         "~/.local/share/user-places.xbel.tbcache" ;; recently used list for gnome applications
+         ) 
+       "files to delete (if present) once in a while")
+
+     (defun gb/register-delete-files-hourly ()
+       "register function to hourly delete files in the configured list"
+       (run-at-time 0 3600 #'gb/delete-files-hourly))
+
+     (defun gb/delete-files-hourly ()
+       "delete files hourly ("
+       (--each gb/delete-hourly
+         (when (file-exists-p it)
+           (delete-file it))))
+
+     (gb/register-delete-files-hourly)
+   #+end_src
 * ebooks
   #+BEGIN_SRC emacs-lisp
   (use-package ereader
