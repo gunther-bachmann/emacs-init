@@ -3646,8 +3646,8 @@
        (interactive "p*")
        (gb/increment-number-decimal (if arg (- arg) -1)))
 
-     (bind-key "C-c +" #'gb/increment-number-decimal)
-     (bind-key "C-c -" #'gb/decrement-number-decimal)
+     (bind-key "C-c C-+" #'gb/increment-number-decimal)
+     (bind-key "C-c C--" #'gb/decrement-number-decimal)
 
      (defun gb/increment-number-hexadecimal (&optional arg)
        "Increment the hexadecimal number at point by 'arg'."
