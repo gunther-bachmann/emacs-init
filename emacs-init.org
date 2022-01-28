@@ -8490,6 +8490,14 @@
       :init
       ;; thanks to https://pank.eu/blog/pretty-babel-src-blocks.html
       (with-eval-after-load 'org
+
+        (require 'org-crypt)
+        (org-crypt-use-before-save-magic)
+        (setq org-tags-exclude-from-inheritance '("crypt"))  ;; tag to use
+        (setq org-crypt-key nil) ;; for symmetric en/decryption
+        (bind-key "C-c s d" #'org-decrypt-entry)
+        (bind-key "C-c s e" #'org-encrypt-entry)
+
         (defvar-local rasmus/org-at-src-begin -1
           "Variable that holds whether last position was a ")
 
