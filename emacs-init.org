@@ -6951,7 +6951,21 @@
         (setq magit-delta-default-light-theme "ansi-light")
         (setq magit-delta-default-dark-theme "Solarized (dark)") ;; "base16", "ansi-dark"
         (setq magit-delta-hide-plus-minus-markers nil)
-        (magit-delta-mode))
+        (defvar gb/magit-delta-point-max 50000)
+        ;; Disable mode if there are too many characters
+        (advice-add 'magit-delta-call-delta-and-convert-ansi-escape-sequences :around
+                    (defun gb/magit-delta-colorize-maybe-a (fn &rest args)
+                      (if (<= (point-max) gb/magit-delta-point-max)
+                          (apply fn args)
+                        (magit-delta-mode -1)
+                        )))
+        ;; Re-enable mode after `magit-refresh' if there aren't too many characters
+        (add-hook 'magit-post-refresh-hook
+                  (defun gb/magit-enable-magit-delta-maybe-h (&rest _args)
+                    (when (and (not magit-delta-mode)
+                             (<= (point-max) gb/magit-delta-point-max))
+                      (magit-delta-mode 1))))
+        (magit-delta-mode 1))
     #+end_src
 ** gitignore (creation with helm)
    simply call helm-gitignore and select language for which to create this gitignore
