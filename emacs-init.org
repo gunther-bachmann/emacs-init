@@ -11027,10 +11027,9 @@
 * graphviz dot
 #+BEGIN_SRC emacs-lisp
   (use-package graphviz-dot-mode
-    :commands graphviz-dot-mode
-    
-    :config
-    (setq graphviz-dot-view-command "xdot %s"))
+    :ensure t
+    :custom ((graphviz-dot-indent-width 4)
+             (graphviz-dot-view-command "xdot %s")))
 #+END_SRC
 * backup
 ** backup edited files
