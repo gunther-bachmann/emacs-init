@@ -8577,6 +8577,7 @@
                            (mapcar (lambda (x) (list x (cons (upcase (car x)) (cdr x))))
                                    `(("#+begin_src" . ?λ)
                                      ("#+end_src"   . ?□)
+                                     ("#+results:" . ?⟾)
                                      ("#+header:" . ,rasmus/ob-header-symbol)
                                      ("#+begin_quote" . ?»)
                                      ("#+end_quote" . ?«)))))
