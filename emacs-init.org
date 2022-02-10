@@ -14774,7 +14774,7 @@
                 ,(concat "* ${title}\n"
                          "  %?\n"
                          "* -\n"
-                         "  #+begin_src emacs-lisp\n"
+                         "  #+begin_src emacs-lisp                                                     :noexport:\n"
                          "    ;; Local Variables:\n"
                          "    ;; eval: (flyspell-mode 0) ;; no spell check errors\n"
                          "    ;; org-image-actual-width: 100\n"
@@ -14847,6 +14847,7 @@
                   (org-cycle-hide-drawers 'all)
                   (run-at-time 0.5 nil #'(lambda () (progn (setq current-prefix-arg '(4)) (call-interactively 'org-reveal)))))))
 
+            (org-roam-db-autosync-mode) ;; make sure db is immediately synced
             :bind (:map notdeft-mode-map
                    (("C-c n f" . org-roam-node-find)
                     ("C-c n n" . org-roam-node-find))
