@@ -6715,6 +6715,14 @@
         :init
         (progn
 
+          (defun gb/magit-process-after-input (proc string)
+            "cleanup process buffer of magit after output was written into the process buffer"
+            (with-current-buffer (process-buffer proc)
+              (let ((proc-mark (process-mark proc)))
+                (ansi-color-apply-on-region (max 0 (- proc-mark (string-bytes string))) proc-mark ))))
+
+          (add-hook 'magit-process-prompt-functions #'gb/magit-process-after-input)
+
           (defun gb/magit-assume-unchanged ()
             "assume current file (or selection of files) to be unchanged"
             (interactive)
