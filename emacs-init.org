@@ -11750,7 +11750,9 @@
    #+BEGIN_SRC emacs-lisp
      (use-package jest
        :ensure t
-       :commands (jest))
+       :commands (jest jest-file jest-function)
+       :custom (jest-executable "npx jest --"))
+
      (use-package flycheck-jest
        :ensure t
        :after (flycheck jest)
