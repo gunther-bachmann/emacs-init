@@ -16618,6 +16618,11 @@
       :ensure t
       :custom ((alarm-clock-play-sound nil)))
   #+end_src
+* EVAL annotate - annotate text documents, storing annotions in separate file
+  - check this package for inspiration to dired-annotator
+  #+begin_src emacs-lisp
+    (use-package annotate)
+  #+end_src
 * discarded eldoc-overlay - too invasive
   #+begin_src emacs-lisp :tangle no
     (use-package eldoc-overlay
