@@ -9973,6 +9973,16 @@
                 (:todo "TODO" :order 3)
                 (:todo "PLANNED" :order 8))))
     #+end_src
+*** org appear
+    - shows emphasis markers (like /, *, _ etc) when entering the region with the cursor making it easier to edit emphasised text
+    - *bold*, /slant/, _underlined_, =verbatim=, ~code~, +strike-through+
+    #+begin_src emacs-lisp
+      (use-package org-appear
+        :after org
+        :ensure t
+        :hook (org-mode . org-appear-mode)
+        :custom (org-appear-autosubmarkers t))
+    #+end_src
 ** slack
  #+BEGIN_SRC emacs-lisp
    (when gb/profile--slack
