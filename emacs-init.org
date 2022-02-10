@@ -2783,8 +2783,7 @@
                         (doom-modeline-bar-inactive ((t (:background "#500050"))))
                         (mode-line ((t (:background "#251422" :foreground "#808080" :overline "#504050" :weight normal))))
                         (mode-line-inactive ((t (:inherit mode-line :background "#251422" :foreground "#969896" :weight normal)))))
-                (progn (add-to-list 'gb/list-of-faces-to-set it)(custom-set-faces it))))))
-        (doom-modeline-mode 1))
+                (progn (add-to-list 'gb/list-of-faces-to-set it)(custom-set-faces it)))))))
     #+END_SRC
 *** spinner (busy indicator for modeline)
     - (spinner-start 'vertical-breathing 10)
@@ -17420,6 +17419,8 @@
     ;;         (add-to-list 'face-remapping-alist '(default (:background "#241422")))))))
     ;; (set-face-background 'minibuffer-prompt "#241422")
     (report-elapsed "exit finish - up")
+    (when (fboundp 'doom-modeline-mode)
+      (doom-modeline-mode 1))
   #+END_SRC
 
 # Local Variables:
