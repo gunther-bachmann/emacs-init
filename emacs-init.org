@@ -14811,8 +14811,8 @@
              `(("d" "default" plain
                 ,(concat "* ${title}\n"
                          "  %?\n"
-                         "* -\n"
-                         "  #+begin_src emacs-lisp                                                     :noexport:\n"
+                         "* - :noexport:\n"
+                         "  #+begin_src emacs-lisp\n"
                          "    ;; Local Variables:\n"
                          "    ;; eval: (flyspell-mode 0) ;; no spell check errors\n"
                          "    ;; org-image-actual-width: 100\n"
