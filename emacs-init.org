@@ -9996,6 +9996,41 @@
         :hook (org-mode . org-appear-mode)
         :custom (org-appear-autosubmarkers t))
     #+end_src
+*** org hide tags
+    - copied from https://github.com/amno1/org-hide-tags/blob/main/org-hide-tags.el
+    - all credits go to the original author
+    #+begin_src emacs-lisp
+      (defgroup org-hide-tags nil
+        "Hide tags in org-headings."
+        :prefix "org-hide-tags-"
+        :group 'org)
+
+      (defvar org-leading-stars-re "^[ \t]*\\*+"
+        "Regex used to recognize leading stars in org-headings.")
+
+      (defun org-hide-tags--update-headings (visibility)
+        "Update invisible property to VISIBILITY for markers in the current buffer."
+        (org-with-wide-buffer
+         (save-excursion
+           (goto-char (point-min))
+           (with-silent-modifications
+             (while (re-search-forward org-leading-stars-re nil t)
+               (goto-char (line-end-position))
+               (if (re-search-backward org-tag-line-re (line-beginning-position) t)
+                   (put-text-property
+                    (match-beginning 1) (match-end 1) 'invisible visibility))
+               (forward-line))))))
+
+      ;;;###autoload
+      (define-minor-mode org-hide-tags-mode
+        "Hide/show babel source code blocks on demand."
+        :global nil :lighter " Org-hls"
+        (unless (derived-mode-p 'org-mode)
+          (error "Not in org-mode"))
+        (cond (org-hide-tags-mode
+               (org-hide-tags--update-headings t))
+              (t (org-hide-tags--update-headings nil))))
+    #+end_src
 ** slack
  #+BEGIN_SRC emacs-lisp
    (when gb/profile--slack
