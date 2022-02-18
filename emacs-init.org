@@ -14038,7 +14038,30 @@
         (setq org-tree-slide-heading-emphasis t)
         (setq original-org-show-notification-handler org-show-notification-handler)
 
+
+        (when (package-installed-p 'hydra)
+          (require 'hydra)
+          (defhydra hydra-tree-slide () ""
+            ("M->" org-tree-slide-pause-goto-end-pause "goto slide end")
+            (">" org-tree-slide-move-next-tree "next slide/step")
+            ("<" org-tree-slide-move-previous-tree "next slide")
+            ("?" gb/presentation-toggle-show-cursor "toggle cursor")
+            ("+" text-scale-increase "text scale inc")
+            ("-" text-scale-decrease "text scale dec")
+            ("R" gb/presentation-reset-timer "reset timer")
+            ("C" org-tree-slide-content "jump to content"))
+
+          (bind-key "<f1>" #'hydra-tree-slide/body org-tree-slide-mode-map))
+
+        (defun gb/presentation-reset-timer ()
+          "reset the timer for the presentation"
+          (interactive)
+          (setq org-tree-slide-started nil))
+
+        (bind-key "C-|" #'gb/presentation-reset-timer org-tree-slide-mode-map)
+
         (defun gb/presentation-toggle-show-cursor ()
+          "show/hide the cursor"
           (interactive)
           (if cursor-type
               (progn
@@ -14053,9 +14076,9 @@
           "make all relevant adjustments to present an org-tree-slide presentation"
           (interactive)
           (setq org-show-notification-handler
-                      #'(lambda
-                          (msg)
-                          (message msg)))
+                #'(lambda
+                    (msg)
+                    (message msg)))
           (when (boundp 'org-bullets-mode)
             (setq org-bullets-bullet-list '("" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "")))
           (setq cursor-type nil)
