@@ -8522,6 +8522,11 @@
              ("C-<return>" . gb/org-control-return)
              ("C-c l" . org-store-link)
              ("C-c t i" . org-toggle-item))
+      :custom
+      (org-tags-column 0)        ;; 0 = show tags right after the headline, negative = right align to col, positive = left align to col
+      (org-ellipsis "…")         ;; make the ... at the end (that indicates folding) be a bit less invasive
+      (org-hide-leading-stars t) ;; each level only one star
+      (org-special-ctrl-a/e t)   ;; jump to the head text only (not to the star marking the head)
       :init
       ;; thanks to https://pank.eu/blog/pretty-babel-src-blocks.html
       (with-eval-after-load 'org
@@ -8998,9 +9003,6 @@
         ;;  `(("^[ \t]*\\(?:[-+*]\\|[0-9]+[).]\\)[ \t]+\\(\\(?:\\[@\\(?:start:\\)?[0-9]+\\][ \t]*\\)?\\[\\(?:X\\|\\([0-9]+\\)/\\2\\)\\][^\n]*\n\\)" 1 'org-headline-done prepend))
         ;;  'append)
 
-        (setq org-ellipsis "…")         ;; make the ... at the end (that indicates folding) be a bit less invasive
-        (setq org-hide-leading-stars t) ;; each level only one star
-        (setq org-special-ctrl-a/e t)   ;; jump to the head text only (not to the star marking the head)
 
         ;; replace dashes and bullets with utf-8 bullet
         ;; (font-lock-add-keywords 'org-mode
