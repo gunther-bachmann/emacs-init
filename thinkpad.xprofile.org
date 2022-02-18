@@ -109,22 +109,25 @@
     xss-lock -n ~/bin/dim-screen.sh -- i3lock -c 000000 &
   #+end_src
 ** configure touchpad (to be not too touchy)
-  #+begin_src sh :eval no :tangle no
-
-    # touchpad tweaks
-    # ---------------
-    syndaemon -i 0.5 -k -R -d   # wait 1 seconds after typing until touchpad works again
-    synclient VertTwoFingerScroll=1   # allow two finger scrolling
-    synclient HorizTwoFingerScroll=1
-    synclient PalmDetect=1 PalmMinZ=0 PalmMinWidth=7   # allow palm detection
-    synclient VertScrollDelta=50
-    synclient HorizScrollDelta=200
-    synclient MinSpeed=2
-    synclient AccelFactor=0.03
-    synclient MaxSpeed=10
-    synclient AreaRightEdge=5000 AreaLeftEdge=2000 AreaTopEdge=2000 AreaBottomEdge=5000   # limit area of touchpad to initial gesture detection
-    # list all options with 'synclient -l'
-  #+end_src
+   - synclient (disabled)
+     synaptics (and thus synclient) was disabled because on the thinkpad it regularly lost connection to the touchpad => touchpad was no longer usable
+     now libinput is used instead, which cannot be configured like this and has some shortcomings :-(
+     #+begin_src sh :eval no :tangle no
+   
+       # touchpad tweaks
+       # ---------------
+       syndaemon -i 0.5 -k -R -d   # wait 1 seconds after typing until touchpad works again
+       synclient VertTwoFingerScroll=1   # allow two finger scrolling
+       synclient HorizTwoFingerScroll=1
+       synclient PalmDetect=1 PalmMinZ=0 PalmMinWidth=7   # allow palm detection
+       synclient VertScrollDelta=50
+       synclient HorizScrollDelta=200
+       synclient MinSpeed=2
+       synclient AccelFactor=0.03
+       synclient MaxSpeed=10
+       synclient AreaRightEdge=5000 AreaLeftEdge=2000 AreaTopEdge=2000 AreaBottomEdge=5000   # limit area of touchpad to initial gesture detection
+       # list all options with 'synclient -l'
+     #+end_src
 ** configure wacom tablet
   #+begin_src sh :eval no :tangle ~/.xprofile
 
