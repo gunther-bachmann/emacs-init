@@ -5777,6 +5777,14 @@
                 (--each '((lispy-face-hint ((t (:background "gray20" :foreground "#fff3bc")))))
                   (progn (add-to-list 'gb/list-of-faces-to-set it)(custom-set-faces it)))))))
       #+END_SRC
+** assembler
+   #+begin_src emacs-lisp
+     (use-package masm-mode)
+     (use-package nasm-mode)
+     ;; gas-mode keeps complaining about void variable 'gas-changed'
+     ;; (use-package gas-mode
+     ;;   :load-path "~/.emacs.d/additionals")
+   #+end_src
 ** clojure
 *** clojure
     #+BEGIN_SRC emacs-lisp
