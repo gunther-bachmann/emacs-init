@@ -14088,6 +14088,14 @@
 
           (bind-key "<f1>" #'hydra-tree-slide/body org-tree-slide-mode-map))
 
+        (advice-add 'org-tree-slide-move-next-tree :after #'gb/presentation-hide-tags)
+        (advice-add 'org-tree-slide-move-previous-tree :after #'gb/presentation-hide-tags)
+        (advice-add 'org-tree-slide-content :after #'gb/presentation-hide-tags)
+
+        (defun gb/presentation-hide-tags (&rest args)
+          (when (fboundp 'org-hide-tags--update-headings)
+            (org-hide-tags--update-headings t)))
+
         (defun gb/presentation-reset-timer ()
           "reset the timer for the presentation"
           (interactive)
@@ -14167,7 +14175,9 @@
           ;;   (redisplay t))
           (global-hl-line-mode 1)
           (setq cursor-type 'box)
-          (setq org-show-notification-handler original-org-show-notification-handler)))
+          (setq org-show-notification-handler original-org-show-notification-handler)
+          (when (fboundp 'org-hide-tags-mode)
+            (org-hide-tags-mode -1))))
     #+end_src
   - disabled original package
     #+begin_src emacs-lisp :tangle no
