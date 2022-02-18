@@ -2004,13 +2004,16 @@
        :config
        (defun gb/uglify-greek-symbols ()
          ""
-        (setq prettify-symbols-alist (cl-set-difference prettify-symbols-alist
+         (setq prettify-symbols-alist (cl-set-difference prettify-symbols-alist 
                         prettify-greek-lower))
         (prettify-symbols-mode t))
 
        (defun gb/prettify-greek-symbols ()
          ""
-         (setq prettify-symbols-alist (append prettify-symbols-alist prettify-greek-lower))
+         (setq prettify-symbols-alist 
+               (append (cl-set-difference prettify-symbols-alist 
+                                          prettify-greek-lower) 
+                       prettify-greek-lower))
          (prettify-symbols-mode t))
 
        (add-hook 'emacs-lisp-mode-hook
