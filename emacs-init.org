@@ -100,7 +100,7 @@
 * preset
   - things to setup before anything else happens
   #+BEGIN_SRC emacs-lisp
-    (setq gb/log-startup-timing t) ;; set true for timing messages during startup
+    (setq gb/log-startup-timing nil) ;; set true for timing messages during startup
     (setq gb/debug-package nil) ;; fails on all packages that could not be loaded but are not mandatory either
 
     (setq gb/list-of-faces-to-set '()) ;; add-to-list all the customizations wanted, are set on setting up fonts at the end of the initialisation process
@@ -16844,7 +16844,8 @@
   - org-notifications - Creates notifications for org-mode entries
   - org-movies - Manage watchlist with Org mode (import imdb stuff)
   - ob-spice - org-babel functions for spice evaluation
-  - org-visibility - Persistent org tree visibility 
+  - org-visibility - Persistent org tree visibility
+  - org-remark - Highlight & annotate any text files  (similar to org-annotate)
 ** os/system
   - network-watch (allows hooks to run when network is goiing down/up)
   - scp (use scp to transfer files)
