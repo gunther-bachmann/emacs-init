@@ -11763,8 +11763,8 @@
    #+BEGIN_SRC emacs-lisp
      (use-package jest
        :ensure t
-       :commands (jest jest-file jest-function)
-       :custom (jest-executable "npx jest --"))
+       :commands (jest jest-file jest-function jest-popup)
+       :custom (jest-executable "CI=true npx jest"))
 
      (use-package flycheck-jest
        :ensure t
