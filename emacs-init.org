@@ -15899,7 +15899,13 @@
   #+begin_src emacs-lisp
     (use-package org-tree-slide-pauses
       :load-path "~/repo/org-tree-slide-pauses"
-      :bind (:map  org-tree-slide-mode-map ("C-M->" . #'org-tree-slide-pause-goto-end-pause)))
+      :bind (:map  org-tree-slide-mode-map ("C-M->" . #'org-tree-slide-pause-goto-end-pause))
+      :config
+      (cond
+       ((eq gb/theme-mode 'light) nil) ;; TODO complete
+       (t (progn
+            (--each '((shadow ((t (:foreground "#565856")))))
+              (progn (add-to-list 'gb/list-of-faces-to-set it)(custom-set-faces it)))))))
   #+end_src
 * EVAL embark - provide context sensitive menu
   - see https://github.com/oantolin/embark
