@@ -14092,6 +14092,40 @@
         (advice-add 'org-tree-slide-move-previous-tree :after #'gb/presentation-hide-tags)
         (advice-add 'org-tree-slide-content :after #'gb/presentation-hide-tags)
 
+        (defconst gb/presentation-speaker-notes-buffer-name "* speaker notes *" "name of the buffer for speaker notes")
+
+        (defun gb/presentation-open-speaker-notes ()
+          "open speaker notes to the currently open presentation"
+          (interactive)
+          (when-let* ((filename  (buffer-file-name))
+                      (extension (file-name-extension filename))
+                      (name (file-name-base filename))
+                      (folder (file-name-directory filename))
+                      (speaker-notes-file (format "%s/%s.speaker-notes.org" folder name)))
+            (if-let ((buffer (get-buffer gb/presentation-speaker-notes-buffer-name)))
+                (switch-to-buffer buffer)
+              (when (and (not (get-buffer gb/presentation-speaker-notes-buffer-name)) (file-exists-p speaker-notes-file))
+                (split-window-right-and-select-scratch)
+                (switch-to-buffer (get-buffer-create gb/presentation-speaker-notes-buffer-name))
+                (insert-file speaker-notes-file)
+                (org-mode)
+                (read-only-mode)))))
+
+        (defun gb/presentation-sync-speaker-notes (&rest args)
+          (when (get-buffer gb/presentation-speaker-notes-buffer-name)
+            (save-excursion
+              (beginning-of-buffer)
+              (let ((header (org-element-property ':raw-value (org-element-at-point))))
+                (save-current-buffer
+                  (with-current-buffer gb/presentation-speaker-notes-buffer-name
+                    (org-hide-entry)
+                    (beginning-of-buffer)
+                    (search-forward-regexp (format "\\** %s" header) nil t)
+                    (org-show-entry)))))))
+
+        (advice-add 'org-tree-slide-move-next-tree :after #'gb/presentation-sync-speaker-notes)
+        (advice-add 'org-tree-slide-move-previous-tree :after #'gb/presentation-sync-speaker-notes)
+
         (defun gb/presentation-hide-tags (&rest args)
           (when (fboundp 'org-hide-tags--update-headings)
             (org-hide-tags--update-headings t)))
