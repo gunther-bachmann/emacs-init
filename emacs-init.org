@@ -14120,7 +14120,7 @@
                   (with-current-buffer gb/presentation-speaker-notes-buffer-name
                     (org-hide-entry)
                     (beginning-of-buffer)
-                    (search-forward-regexp (format "\\** %s" header) nil t)
+                    (search-forward-regexp (format "\\*+ %s" (regexp-quote header)) nil t) 
                     (org-show-entry)))))))
 
         (advice-add 'org-tree-slide-move-next-tree :after #'gb/presentation-sync-speaker-notes)
@@ -14157,7 +14157,7 @@
                     (msg)
                     (message msg)))
           (when (boundp 'org-bullets-mode)
-            (setq org-bullets-bullet-list '("" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "")))
+             (set (make-local-variable 'org-bullets-bullet-list) '("" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "")))
           (setq cursor-type nil)
           (global-hl-line-mode -1)
           (hl-line-mode -1)
@@ -14178,8 +14178,8 @@
           (org-babel-result-hide-all)
           (read-only-mode +1)
           (flyspell-mode 0) ;; no spell check errors
-          (when (fboundp 'toggle-serif)
-            (toggle-serif))
+          (when (fboundp 'gb/serif-on)
+            (gb/serif-on))
           ;; (when (boundp org-padding-mode)
           ;;   (setq org-padding-heading-padding-alist
           ;;         '((4.0 . 1.5) (3.0 . 0.5) (3.0 . 0.5) (3.0 . 0.5) (2.5 . 0.5) (2.0 . 0.5) (1.5 . 0.5) (0.5 . 0.5)))
@@ -14199,8 +14199,8 @@
             (remove-fira-code-symbol-keywords))
           (when (boundp 'org-bullets-mode)
             (setq org-bullets-bullet-list '("●" "⚫" "⚪" "⚬" "∘" "◦" "∙" "◉" "◯" "◎" "○" "◌" "◎" "○" "☉" "￮" "⊙" "❍" "⊚" "⊛")))
-          (when (fboundp 'toggle-serif)
-            (toggle-serif))
+          (when (fboundp 'gb/serif-off)
+            (gb/serif-off))
           ;; (when (fboundp 'org-padding-mode)
           ;;   (org-padding-mode -1)
           ;;   (setq org-padding-heading-padding-alist
