@@ -5,7 +5,8 @@
     # THIS FILE IS GENERATED (To edit please open file from link above)
     #------------------------------------------------------------------
 
-    mounts=$(for mount in $(mount | grep "/dev/sd[a-z]"| cut -d' ' -f 3); do echo "[$(echo $mount | sed 's|/run/media/pe|-<|g') $(df $mount --output -h | tr -s ' '  | grep -v 'Filesystem' | cut -d' ' -f 9)]"; done | tr '\n' ' ')
+    IFS=$(echo -en "\n\b")
+    mounts=$(for mount in $(mount | grep "/dev/sd[a-z]" | sed 's|^.* on ||g' | sed 's| type.*$||g'); do echo "[$(echo $mount | sed 's|/run/media/pe|-<|g') $(df "$mount" --output -h | tr -s ' '  | grep -v 'Filesystem' | cut -d' ' -f 9)]"; done | tr '\n' ' ')
 
     echo "$mounts"
   #+end_src
