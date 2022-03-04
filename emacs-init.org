@@ -2682,6 +2682,14 @@
 
    #+END_SRC
 ** modeline
+   #+begin_src emacs-lisp
+     (cond
+      ((eq gb/theme-mode 'light) nil) ;; TODO complete
+      (t (progn
+           (--each '((mode-line ((t (:background "#251422" :foreground "#808080" :overline "#504050" :weight normal))))
+                     (mode-line-inactive ((t (:inherit mode-line :background "#251422" :foreground "#969896" :weight normal)))))
+             (progn (add-to-list 'gb/list-of-faces-to-set it)(custom-set-faces it))))))
+   #+end_src
 *** all the icons
     #+BEGIN_SRC emacs-lisp
     (use-package memoize
@@ -2701,7 +2709,7 @@
           (add-to-list 'all-the-icons-mode-icon-alist '(tide-mode all-the-icons-fileicon "typescript" :v-adjust -0.1 :face all-the-icons-yellow) t)
           )))
     #+END_SRC
-*** doom modeline
+*** doom modeline (disabled)
     - adjusted file doom-modeline-segments.el:288, changed "save" to "change_history" (icon)⃤∆
     - adjusted file doom-modeline-segments.el:697, changed "block" to "sim_card_alert"
     - OBSOLETE: adjusted file doom-modeline-core.el doom-modeline--font-height, change heigth to 120 (instead of calculating font height)
@@ -2753,7 +2761,7 @@
                      (doom-modeline-buffer-file-state-icon
                       "vertical_align_center" "↕" "><" 'doom-modeline-warning)))))))
     #+end_src
-    #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp :tangle no
       (use-package doom-modeline
         :ensure t
         ;; :after (all-the-icons)
@@ -2810,9 +2818,7 @@
          ((eq gb/theme-mode 'light) nil) ;; TODO complete
          (t (progn
               (--each '((doom-modeline-bar ((t (:background "#600060"))))
-                        (doom-modeline-bar-inactive ((t (:background "#500050"))))
-                        (mode-line ((t (:background "#251422" :foreground "#808080" :overline "#504050" :weight normal))))
-                        (mode-line-inactive ((t (:inherit mode-line :background "#251422" :foreground "#969896" :weight normal)))))
+                        (doom-modeline-bar-inactive ((t (:background "#500050")))))
                 (progn (add-to-list 'gb/list-of-faces-to-set it)(custom-set-faces it)))))))
     #+END_SRC
 *** spinner (busy indicator for modeline)
@@ -3096,10 +3102,10 @@
         ;; (spaceline-all-the-icons--setup-paradox)
         ))
     #+END_SRC
-*** rich minority mode (hide minor modes from smart mode line) (disabled, smart mode line not in use anymore)
-    #+BEGIN_SRC emacs-lisp :tangle no
-    (when gb/use-smart-mode-line
+*** rich minority mode (hide minor modes from mode line) 
+    #+BEGIN_SRC emacs-lisp
       (use-package rich-minority
+        :ensure t
         :config
         (progn
           (rich-minority-mode +1)
@@ -3111,26 +3117,41 @@
                   " Abbrev" ;;
                   " AceI" ;; ace-isearch-mode
                   " Anzu" ;; mode to display number of matches during reg ex search
+                  " be"
+                  " company-box"
+                  " DocStr"
                   " EditorConfig" ;;
                   " ElDoc overlay" ;; eldoc-overlay-mode
                   " ElDocOver" ;;
                   " ElDoc" ;; elisp documentation mode
                   " Fill" ;; auto-fill-mode
                   ;; " Fly" ;; flymake mode?
+                  " F-Pg"
                   " GitGutter"
+                  " GCMH"
                   " Helm" ;; helm mode
+                  " hhat"
                   " HidePW" ;; hide passwords in org mode files
+                  " ht"
+                  " ivy"
+                  " IS"
                   " MRev"
+                  " ors"
                   " Org"
                   " OTSH" ;; org table sticky headers
-                  ;; " Paredit" ;;
+                  " pretty-tags"
+                  " Paredit" ;;
                   " Projectile" ;;
                   " PCRE" ;; perl like regular expressions everywhere
+                  " sel"
                   " SliNav" ;; slime navigation mode (C-, C-.)
+                  " TmpB"
                   " Undo-Tree"
                   " VHl" ;; volatile-highlights-mode (visual feedback to some operations related to regions)
+                  " valign"
                   " WK" ;; which key
                   " WLR" ;; whole line or region mode
+                  " wb"
                   " ^L" ;; display ^L as continuous line
                   " back" ;; back-button-mode (navigation local/global)
                   " company" ;; complete anything mode
@@ -3142,7 +3163,7 @@
                   ;; " wb" ;; white space butler mode (removes trailing whitespaces on lines edited)
                   " wr" ;; wrap-region-mode, wraps a region with tags (e.g. '*' in org mode wraps marked region in ** )
                   " yas" ;; yasnippets
-                  )))))
+                  ))))
     #+END_SRC
 *** smart mode line (disabled)
     #+BEGIN_SRC emacs-lisp :tangle no
@@ -13272,7 +13293,8 @@
                         (gb/play-theme-sound gb/sound-theme-effect-switch-workspace)
                         (message (format "<<     now %s" (exwm-workspace--position exwm-workspace--current)))
                         ;; (x-focus-frame (selected-frame))
-                        (doom-modeline-set-selected-window)
+                        (when (fboundp 'doom-modeline-set-selected-window)
+                          (doom-modeline-set-selected-window))
                         t)))
 
                   (defun gb/exwm-workspace-right ()
@@ -13288,7 +13310,8 @@
                             (gb/play-theme-sound gb/sound-theme-effect-switch-workspace)
                             (message (format ">>     now %s" (exwm-workspace--position exwm-workspace--current)))
                             ;; (x-focus-frame (selected-frame))
-                            (doom-modeline-set-selected-window)
+                            (when (fboundp 'doom-modeline-set-selected-window)
+                              (doom-modeline-set-selected-window))
                             t)
                         (message "no workspace right of this.")
                         (when (fboundp 'beacon-blink) (beacon-blink))
@@ -13353,7 +13376,8 @@
                                    (gb/play-theme-sound gb/sound-theme-effect-switch-workspace)
                                    (message (format "\\/     now %s" (exwm-workspace--position exwm-workspace--current))))
                                  ;; (x-focus-frame (selected-frame))
-                                 (doom-modeline-set-selected-window))
+                                 (when (fboundp 'doom-modeline-set-selected-window)
+                                   (doom-modeline-set-selected-window)))
                         (message "no workspace below this."))
                       (when (fboundp 'beacon-blink) (beacon-blink))))
 
@@ -13373,10 +13397,11 @@
                                    (gb/play-theme-sound gb/sound-theme-effect-switch-workspace)
                                    (message (format "/\\     now %s" (exwm-workspace--position exwm-workspace--current))))
                                  ;; (x-focus-frame (selected-frame))
-                                 (doom-modeline-set-selected-window))
+                                 (when (fboundp 'doom-modeline-set-selected-window)
+                                   (doom-modeline-set-selected-window)))
                         (message "no workspace above this"))
                       (when (fboundp 'beacon-blink) (beacon-blink))))
-              
+
                     (defun gb/exwm-next-workspace (&optional inc)
                       "jump to the next (inc) workspace"
                       (interactive)
@@ -17598,8 +17623,8 @@
     ;;         (add-to-list 'face-remapping-alist '(default (:background "#241422")))))))
     ;; (set-face-background 'minibuffer-prompt "#241422")
     (report-elapsed "exit finish - up")
-    (when (fboundp 'doom-modeline-mode)
-      (doom-modeline-mode 1))
+    ;; (when (fboundp 'doom-modeline-mode)
+    ;;   (doom-modeline-mode 1))
   #+END_SRC
 
 # Local Variables:
