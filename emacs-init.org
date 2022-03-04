@@ -35,6 +35,7 @@
     (setq gb/profile--org-minimal t)
     (setq gb/profile--org-babel t)
     (setq gb/profile--org-experimental t)
+    (setq gb/frame-creation-speedup nil) ;; font caching for frame creation, provides speed up on 28.0.50, posing problems on 28.0.91
   #+end_src
 * startup
 #+begin_src emacs-lisp
@@ -2352,43 +2353,44 @@
 
    - speedup frame creation by caching font list during setup
      #+begin_src emacs-lisp
-       (setq gb/face-list (mapcar #'car face-new-frame-defaults))
-
-       (defun gb/face-list-func (orig-func &rest args)
-         "Return a list of all defined faces. cached version using cached list."
-         gb/face-list)
-
-       (defun gb/facep (orig-func &rest args)
-         "is FACE a face name. cached version working on cached list."
-         (memq (car args) gb/face-list))
-
-       (defun gb/around-make-frame (orig-func &rest args)
-         "advice make frame to make use of cached font information (which would otherwise slow the creation of the frame down)"
+       (when gb/frame-creation-speedup
          (setq gb/face-list (mapcar #'car face-new-frame-defaults))
-         (advice-add 'face-list :around #'gb/face-list-func)
-         (advice-add 'facep :around #'gb/facep)
-         (let ((result (apply orig-func args)))
-           (advice-remove 'facep #'gb/facep)
-           (advice-remove 'face-list #'gb/face-list-func)
-           result))
 
-       (defun gb/install-frame-creation-speedup ()
-         "makes frame creation much faster by reusing font lists. this may however disrupt some programs, see gb/disable-frame-speedup-for"
-         (advice-add 'make-frame :around
-                     #'gb/around-make-frame))
+         (defun gb/face-list-func (orig-func &rest args)
+           "Return a list of all defined faces. cached version using cached list."
+           gb/face-list)
 
-       (defun gb/remove-frame-creation-speedup ()
-         "restore the old frame creation method, which is quite slow"
-         (advice-remove 'make-frame #'gb/around-make-frame))
+         (defun gb/facep (orig-func &rest args)
+           "is FACE a face name. cached version working on cached list."
+           (memq (car args) gb/face-list))
 
-       ;; default is: speedup frame creation
-       (gb/install-frame-creation-speedup)
+         (defun gb/around-make-frame (orig-func &rest args)
+           "advice make frame to make use of cached font information (which would otherwise slow the creation of the frame down)"
+           (setq gb/face-list (mapcar #'car face-new-frame-defaults))
+           (advice-add 'face-list :around #'gb/face-list-func)
+           (advice-add 'facep :around #'gb/facep)
+           (let ((result (apply orig-func args)))
+             (advice-remove 'facep #'gb/facep)
+             (advice-remove 'face-list #'gb/face-list-func)
+             result))
 
-       (defun gb/disable-frame-speedup-for (orig-func &rest params)
-         "disable frame creation speedup for functions (e.g. gnus) that show font problems"
-         (gb/remove-frame-creation-speedup)
-         (apply orig-func params)
-         (gb/install-frame-creation-speedup))
+         (defun gb/install-frame-creation-speedup ()
+           "makes frame creation much faster by reusing font lists. this may however disrupt some programs, see gb/disable-frame-speedup-for"
+           (advice-add 'make-frame :around
+                       #'gb/around-make-frame))
+
+         (defun gb/remove-frame-creation-speedup ()
+           "restore the old frame creation method, which is quite slow"
+           (advice-remove 'make-frame #'gb/around-make-frame))
+
+         ;; default is: speedup frame creation
+         (gb/install-frame-creation-speedup)
+
+         (defun gb/disable-frame-speedup-for (orig-func &rest params)
+           "disable frame creation speedup for functions (e.g. gnus) that show font problems"
+           (gb/remove-frame-creation-speedup)
+           (apply orig-func params)
+           (gb/install-frame-creation-speedup)))
      #+end_src
 ** sublimity (smooth scrolling)
    - patched ~sublimity--post-command~ commented out ~(recenter)~ after vscroll detection
@@ -13802,7 +13804,8 @@
 
           ;; make sure that workspace frames are initialized without frame creation speedup
           ;; gnus does not work well with speed initialized frames, it shows some font problems
-          (advice-add 'exwm-workspace--init :around #'gb/disable-frame-speedup-for)
+          (when gb/frame-creation-speedup
+            (advice-add 'exwm-workspace--init :around #'gb/disable-frame-speedup-for))
 
           ;; show all exwm buffers in all workspaces (no restriction)
           (setq exwm-workspace-show-all-buffers t)
