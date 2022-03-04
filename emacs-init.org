@@ -347,54 +347,79 @@
   #+END_SRC
 * initial function setup
   #+BEGIN_SRC emacs-lisp
-  (defun slurp (file-name)
-    "Return file content."
-    (with-temp-buffer
-      (insert-file-contents file-name)
-      (buffer-string)))
+    (defun gb/global-set-key (key func)
+      "globally set function binding including setting exwm keybindings if applicable
 
-  (defun jde-read-properties-file (file-name)
-    "read a java properties file and provide a map with key value pairs.
-    property files are transformed such that multiline properties are heeded,
-    double colon is heeded and spaces after the key and before the value are
-    discarded."
-    (let* ((file-string (slurp file-name))
-           (file-string-nomultiline (replace-regexp-in-string "[^\\\\]\\(\\\\\n *\\)" "" file-string nil nil 1)) ;; incomplete! 1
-           (file-string-nobackslash-escaping (replace-regexp-in-string "\\\\\\\\" "\\\\" file-string-nomultiline))
-           (file-string-nodoublecolon-and-spaces (replace-regexp-in-string " *\\(:\\|=\\) *" "=" file-string-nobackslash-escaping))
-           (prop-matches (re-seq "^[^#!=:][^=:]*\\(=\\|:\\)[^=:\n]+$" file-string-nodoublecolon-and-spaces))
-           (hash-map (make-hash-table :test 'equal)))
-      (--map
-       (let* ((splitted-prop (split-string it "="))
-              (key (nth 0 splitted-prop))
-              (value (nth 1 splitted-prop)))
-         (puthash key value hash-map))
-       prop-matches)
-      hash-map))
-  ;; 1 what should be tested if an unbalanced backslash is present at the end of the line.
-  ;;   currently the test checks whether there is a single backslash at the end of the line!
+    e.g. (gb/global-set-key (kbd \"s-t\") #'buffer-expose)"
+      (if (functionp func)
+          (progn
+            (global-set-key key func)
+            (if (fboundp 'exwm-input-set-key)
+                (exwm-input-set-key key func)
+              (message (format "exwm-input-set-key for key %s, function %S not set" (key-description key) func))))
+        (message (format "global key %s for unknown function %S not set" (key-description key) func))))
 
-  (defun is-ms-windows-p ()
-    "check whether this system is microsoft windows"
-    (if (string-match "windows" (symbol-name system-type))
-        t
-      nil))
+    (defvar gb/registered-keys-for-late-binding nil "key func lists to be registered after system initialization")
+    (defun gb/register-global-key (key func)
+      "register the given func for the key and do the binding when everything is initialized"
+      (setq gb/registered-keys-for-late-binding (append `((,key ,func)) gb/registered-keys-for-late-binding)))
 
-  (defun is-linux-p ()
-    "check whether this system is a linux"
-    (if (string-match "linux" (symbol-name system-type))
-        t
-      nil))
+    (defun gb/execute-late-key-binding-on-registered-keys ()
+      (interactive)
+      "register all key function lists in GB/REGISTERED-KEYS-FOR-LATE-BINDING"
+      (message "starting to register global keys")  
+      (--each gb/registered-keys-for-late-binding (ignore-errors (gb/global-set-key (nth 0 it) (nth 1 it))))
+      ;; (setq gb/registered-keys-for-late-binding nil)
+      (message "finished registering global keys"))
 
-  (defun is-macos-p ()
-    "check whether this system is mac os"
-    (if (string-match "darwin" (symbol-name system-type))
-        t
-      nil))
+    (defun slurp (file-name)
+      "Return file content."
+      (with-temp-buffer
+        (insert-file-contents file-name)
+        (buffer-string)))
 
-  (defun is-_nix-p ()
-    "check whether this is a *nix derivative (either linux or macos)"
-    (or (is-linux-p) (is-macos-p)))
+    (defun jde-read-properties-file (file-name)
+      "read a java properties file and provide a map with key value pairs.
+      property files are transformed such that multiline properties are heeded,
+      double colon is heeded and spaces after the key and before the value are
+      discarded."
+      (let* ((file-string (slurp file-name))
+             (file-string-nomultiline (replace-regexp-in-string "[^\\\\]\\(\\\\\n *\\)" "" file-string nil nil 1)) ;; incomplete! 1
+             (file-string-nobackslash-escaping (replace-regexp-in-string "\\\\\\\\" "\\\\" file-string-nomultiline))
+             (file-string-nodoublecolon-and-spaces (replace-regexp-in-string " *\\(:\\|=\\) *" "=" file-string-nobackslash-escaping))
+             (prop-matches (re-seq "^[^#!=:][^=:]*\\(=\\|:\\)[^=:\n]+$" file-string-nodoublecolon-and-spaces))
+             (hash-map (make-hash-table :test 'equal)))
+        (--map
+         (let* ((splitted-prop (split-string it "="))
+                (key (nth 0 splitted-prop))
+                (value (nth 1 splitted-prop)))
+           (puthash key value hash-map))
+         prop-matches)
+        hash-map))
+    ;; 1 what should be tested if an unbalanced backslash is present at the end of the line.
+    ;;   currently the test checks whether there is a single backslash at the end of the line!
+
+    (defun is-ms-windows-p ()
+      "check whether this system is microsoft windows"
+      (if (string-match "windows" (symbol-name system-type))
+          t
+        nil))
+
+    (defun is-linux-p ()
+      "check whether this system is a linux"
+      (if (string-match "linux" (symbol-name system-type))
+          t
+        nil))
+
+    (defun is-macos-p ()
+      "check whether this system is mac os"
+      (if (string-match "darwin" (symbol-name system-type))
+          t
+        nil))
+
+    (defun is-_nix-p ()
+      "check whether this is a *nix derivative (either linux or macos)"
+      (or (is-linux-p) (is-macos-p)))
   #+END_SRC
 * proxy setup (if present)
   #+BEGIN_SRC emacs-lisp
