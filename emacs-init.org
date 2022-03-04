@@ -14976,14 +14976,15 @@
                          "    ;; eval: (gb/org-roam-open-entry-visibility)\n"
                          "    ;; End:\n"
                          "  #+end_src\n")
-               :target (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n")
-               :unnarrowed t)))
+                :target (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n")
+                :unnarrowed t)))
             (org-roam-graph-viewer "emacsclient")
             (org-notes "/home/pe/documents/roam")
             (org-directory org-notes)
             (deft-directory org-notes)
             (notdeft-directories `(,org-notes))
             (org-roam-directory org-notes)
+            (org-id-extra-files (find-lisp-find-files org-roam-directory "\.org$")) ;; prevents org export errors on id: type links
             (org-roam-db-update-method 'immediate)
             (org-ref-bibtex-completion-add-keywords-field nil) ;; make sure that some org helm ref package loads correctly when executing (org-roam-db-build-cache t)
             (org-roam-v2-ack t) ;; migration is through
@@ -15603,7 +15604,22 @@
   #+begin_src emacs-lisp
     (use-package org-fragtog
       :ensure t
-      :hook (org-mode . org-fragtog-mode))
+      :hook (org-mode . org-fragtog-mode)
+      (read-only-mode . gb/toggle-fragtog-mode-on-rw-toggle)
+      :config
+      (defun gb/toggle-fragtog-mode-on-rw-toggle (&rest args)
+        "annotation to disable fragtoc in r/o and enable in r"
+        (interactive)
+        (when (eq major-mode 'org-mode)
+          (if buffer-read-only
+              (progn
+                (when-let ((frag (org-fragtog--cursor-frag)))
+                  (org-fragtog--enable-frag frag))
+                (org-fragtog-mode -1))
+            (org-fragtog-mode +1))))
+ 
+      ;; (advice-add 'read-only-mode :after #'gb/toggle-fragtog-mode-on-rw-toggle)
+      )
   #+end_src
 * beginend - jump to the right beginning / end, depending on the mode
   #+begin_src emacs-lisp
