@@ -36,6 +36,7 @@
     (setq gb/profile--org-babel t)
     (setq gb/profile--org-experimental t)
     (setq gb/frame-creation-speedup nil) ;; font caching for frame creation, provides speed up on 28.0.50, posing problems on 28.0.91
+    (setq gb/exwm-use-custom-workspaces t) ;; customized workspace switching in exwm
   #+end_src
 * startup
 #+begin_src emacs-lisp
@@ -13238,7 +13239,7 @@
           :config
           (setq exwm-floating-border-color "#403040")
           (setq exwm-floating-border-width 2)
-          :init (progn
+          :init (when gb/exwm-use-custom-workspaces
                   (defun gb/exwm-visualize-workspace-switch (newidx length display-width)
                     "visualize the switched to workspace by a foreground ascii art"
                     (interactive)
@@ -13615,18 +13616,20 @@
             (interactive)
             (if (windmove-find-other-window 'left)
                 (windmove-left)
-              (if (gb/exwm-workspace-left)
-                  (while (windmove-find-other-window 'right)
-                    (windmove-right)))))
+              (when (fboundp 'gb/exwm-workspace-left)
+                (if (gb/exwm-workspace-left)
+                    (while (windmove-find-other-window 'right)
+                      (windmove-right))))))
 
           (defun gb/windmove-right ()
             ""
             (interactive)
             (if (windmove-find-other-window 'right)
                 (windmove-right)
-              (if (gb/exwm-workspace-right)
-                  (while (windmove-find-other-window 'left)
-                    (windmove-left)))))
+              (when (fboundp 'gb/exwm-workspace-right)
+                (if (gb/exwm-workspace-right)
+                    (while (windmove-find-other-window 'left)
+                      (windmove-left))))))
 
           (defun gb/exwm-distinct-exwm-buffer-names ()
             "list of distinct running exwm buffers/programs"
@@ -13690,7 +13693,8 @@
           (defun gb/firefox-open-on-workspace-1 ()
             ""
             (interactive)
-            (gb/exwm-workspace-switch 1)
+            (when (fboundp  'gb/exwm-workspace-switch)
+              (gb/exwm-workspace-switch 1))
             (let ((fbuffer (--find (s-matches? "Firefox.*" (buffer-name(cdr  it))) exwm--id-buffer-alist)))
               (if fbuffer
                   (switch-to-buffer (cdr fbuffer))
@@ -13699,7 +13703,8 @@
           (defun gb/mail-open-on-workspace-7 ()
             ""
             (interactive)
-            (gb/exwm-workspace-switch 7)
+            (when (fboundp 'gb/exwm-workspace-switch)
+              (gb/exwm-workspace-switch 7))
             (unless (--any? (s-matches? it (buffer-name)) '(".Summary.*" ".Group.*" ".Article" ".BBDB."))
               (call-interactively #'gnus)))
 
@@ -13711,13 +13716,15 @@
           (defun gb/slack-open-on-workspace-1 ()
             ""
             (interactive)
-            (gb/exwm-workspace-switch 1)
+            (when (fboundp 'gb/exwm-workspace-switch)
+              (gb/exwm-workspace-switch 1))
             (start-process-shell-command "slack-buffer" nil "slack-ui"))
 
           (defun gb/pass-open-on-workspace-0 ()
             ""
             (interactive)
-            (gb/exwm-workspace-switch 0)
+            (when (fboundp 'gb/exwm-workspace-switch)
+              (gb/exwm-workspace-switch 0))
             (ignore-errors (windmove-right))
             (unless (s-equals? (buffer-name) (f-filename gb/password-store))
               (split-window-right-and-select-scratch)
