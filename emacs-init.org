@@ -9620,7 +9620,9 @@
                   org-ref-reftex
         :ensure t
         ;; :after ( org helm-bibtex pdf-tools ivy hydra helm)
-        :custom (org-latex-pdf-process (list "latexmk -shell-escape -bibtex -f -pdf %f"))
+        :custom
+        ;; (org-latex-pdf-process (list "latexmk -shell-escape -bibtex -f -pdf %f"))
+        ;; (org-latex-pdf-process (list "pdflatex -shell-escape -interaction nonstopmode %f"))
         (reftex-default-bibliography '("~/bibliography/references.bib"))
         (org-ref-bibliography-notes "~/bibliography/notes.org")
         (org-ref-default-bibliography '("~/bibliography/references.bib"))
@@ -16572,8 +16574,8 @@
       :ensure t
       :hook (shell-mode-hook . shellcop-start))
   #+end_src
-* EVAL highlight tail
-  #+begin_src emacs-lisp
+* highlight tail (disabled, too much noise)
+  #+begin_src emacs-lisp :tangle no
     (when (file-exists-p "~/.emacs.d/additionals/highlight-tail.el")
       (use-package highlight-tail
         :load-path "~/.emacs.d/additionals/"
@@ -16837,6 +16839,11 @@
   #+begin_src emacs-lisp
     (use-package annotate)
   #+end_src
+* EVAL color-theme-buffer-local (disabled)
+  #+begin_src emacs-lisp :tangle no
+    (use-package color-theme-buffer-local
+      :ensure t)
+  #+end_src
 * discarded eldoc-overlay - too invasive
   #+begin_src emacs-lisp :tangle no
     (use-package eldoc-overlay
@@ -17018,6 +17025,8 @@
   - ob-spice - org-babel functions for spice evaluation
   - org-visibility - Persistent org tree visibility
   - org-remark - Highlight & annotate any text files  (similar to org-annotate)
+  - org-view-mode - Read-only viewer with less markup clutter in org mode files
+  - org-modern - Modern looks for Org 
 ** os/system
   - network-watch (allows hooks to run when network is goiing down/up)
   - scp (use scp to transfer files)
