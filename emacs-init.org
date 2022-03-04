@@ -13686,101 +13686,105 @@
               (split-window-right-and-select-scratch)
               (find-file gb/password-store)))
 
-          ;; changes via exwm-input-set-key become active after restart of exwm only!
-          (exwm-input-set-key (kbd "<XF86MonBrightnessUp>") #'gb/brightness-up)
-          (exwm-input-set-key (kbd "<XF86MonBrightnessDown>") #'gb/brightness-down)
-          (exwm-input-set-key (kbd "<XF86AudioLowerVolume>") #'gb/audio-lower-volume)
-          (exwm-input-set-key (kbd "<XF86AudioRaiseVolume>") #'gb/audio-raise-volume)
-          (exwm-input-set-key (kbd "<XF86AudioMute>") #'gb/audio-mute-volume)
-          (exwm-input-set-key (kbd "<s-f6>") #'gb/brightness-up)
-          (exwm-input-set-key (kbd "<s-f5>") #'gb/brightness-down)
-          (exwm-input-set-key (kbd "<s-f2>") #'gb/audio-lower-volume)
-          (exwm-input-set-key (kbd "<s-f3>") #'gb/audio-raise-volume)
-          (exwm-input-set-key (kbd "<s-f1>") #'gb/audio-mute-volume)
-          (exwm-input-set-key (kbd "<s-f12>") #'exwm-floating-toggle-floating)
-          (exwm-input-set-key (kbd "C-M-s-l") #'gb/suspend-laptop)
-          (exwm-input-set-key (kbd "C-M-s-s") #'gb/shutdown)
-          (exwm-input-set-key (kbd "C-M-s-r") #'gb/reboot)
-          (exwm-input-set-key (kbd "s-e") #'buffer-expose)
 
-          (exwm-input-set-key (kbd "s-'") #'gb/exwm-workspace-up)
-          (exwm-input-set-key (kbd "s-/") #'gb/exwm-workspace-down)
-          (exwm-input-set-key (kbd "M-s-'") #'gb/exwm-swap-workspace-up)
-          (exwm-input-set-key (kbd "C-M-s-'") #'gb/exwm-swap-workspace-up-to-top)
-          (exwm-input-set-key (kbd "M-s-/") #'gb/exwm-swap-workspace-down)
-          (exwm-input-set-key (kbd "C-M-s-/") #'gb/exwm-swap-workspace-through-to-bottom)
+          ;; changes via exwm-input-set-key become active after restart of exwm only!
+          (gb/register-global-key (kbd "<XF86MonBrightnessUp>") #'gb/brightness-up)
+          ;; (gb/global-set-key (kbd "<XF86MonBrightnessUp>") #'gb/brightness-up)
+          (gb/register-global-key (kbd "<XF86MonBrightnessDown>") #'gb/brightness-down)
+          (gb/register-global-key (kbd "<XF86AudioLowerVolume>") #'gb/audio-lower-volume)
+          (gb/register-global-key (kbd "<XF86AudioRaiseVolume>") #'gb/audio-raise-volume)
+          (gb/register-global-key (kbd "<XF86AudioMute>") #'gb/audio-mute-volume)
+          (gb/register-global-key (kbd "<s-f6>") #'gb/brightness-up)
+          (gb/register-global-key (kbd "<s-f5>") #'gb/brightness-down)
+          (gb/register-global-key (kbd "<s-f2>") #'gb/audio-lower-volume)
+          (gb/register-global-key (kbd "<s-f3>") #'gb/audio-raise-volume)
+          (gb/register-global-key (kbd "<s-f1>") #'gb/audio-mute-volume)
+          (gb/register-global-key (kbd "<s-f12>") #'exwm-floating-toggle-floating)
+          (gb/register-global-key (kbd "C-M-s-l") #'gb/suspend-laptop)
+          (gb/register-global-key (kbd "C-M-s-s") #'gb/shutdown)
+          (gb/register-global-key (kbd "C-M-s-r") #'gb/reboot)
+          (gb/register-global-key (kbd "s-e") #'buffer-expose)
+
+          (gb/register-global-key (kbd "s-'") #'gb/exwm-workspace-up)
+          (gb/register-global-key (kbd "s-/") #'gb/exwm-workspace-down)
+          (gb/register-global-key (kbd "M-s-'") #'gb/exwm-swap-workspace-up)
+          (gb/register-global-key (kbd "C-M-s-'") #'gb/exwm-swap-workspace-up-to-top)
+          (gb/register-global-key (kbd "M-s-/") #'gb/exwm-swap-workspace-down)
+          (gb/register-global-key (kbd "C-M-s-/") #'gb/exwm-swap-workspace-through-to-bottom)
 
           ;; shrink selected window horizontally
-          (exwm-input-set-key (kbd "C-s-<left>") 'shrink-window-horizontally-effect)
-          (exwm-input-set-key (kbd "C-S-s-<left>") '(lambda () (interactive) (shrink-window-horizontally-effect 50)))
+          (gb/register-global-key (kbd "C-s-<left>") 'shrink-window-horizontally-effect)
+          (gb/register-global-key (kbd "C-S-s-<left>") '(lambda () (interactive) (shrink-window-horizontally-effect 50)))
           ;; enlarge selected window horizontally
-          (exwm-input-set-key (kbd "C-s-<right>") 'enlarge-window-horizontally-effect)
-          (exwm-input-set-key (kbd "C-S-s-<right>") '(lambda () (interactive) (enlarge-window-horizontally-effect 50)))
+          (gb/register-global-key (kbd "C-s-<right>") 'enlarge-window-horizontally-effect)
+          (gb/register-global-key (kbd "C-S-s-<right>") '(lambda () (interactive) (enlarge-window-horizontally-effect 50)))
           ;; shrink selected window vertically
-          (exwm-input-set-key (kbd "C-s-<down>") 'shrink-window-effect)
-          (exwm-input-set-key (kbd "C-S-s-<down>") '(lambda () (interactive) (shrink-window-effect 50)))
+          (gb/register-global-key (kbd "C-s-<down>") 'shrink-window-effect)
+          (gb/register-global-key (kbd "C-S-s-<down>") '(lambda () (interactive) (shrink-window-effect 50)))
           ;; enlarge slected window vertically
-          (exwm-input-set-key (kbd "C-s-<up>") 'enlarge-window-effect)
-          (exwm-input-set-key (kbd "C-S-s-<up>") '(lambda () (interactive) (enlarge-window-effect 50)))
+          (gb/register-global-key (kbd "C-s-<up>") 'enlarge-window-effect)
+          (gb/register-global-key (kbd "C-S-s-<up>") '(lambda () (interactive) (enlarge-window-effect 50)))
 
 
           (when (eq gb/completion-framework 'ivy)
-            (exwm-input-set-key (kbd "s-1") #'gb/ivy--program-select-and-run)
-            (exwm-input-set-key (kbd "s-b") #'ivy-switch-buffer)
-            (exwm-input-set-key (kbd "s-f") #'counsel-buffer-or-recentf)
-            (exwm-input-set-key (kbd "s-SPC") #'counsel-M-x))
+            (gb/register-global-key (kbd "s-1") #'gb/ivy--program-select-and-run)
+            (gb/register-global-key (kbd "s-b") #'ivy-switch-buffer)
+            (gb/register-global-key (kbd "s-f") #'counsel-buffer-or-recentf)
+            (gb/register-global-key (kbd "s-SPC") #'counsel-M-x))
 
           (when (eq gb/completion-framework 'helm)
             ;; start programs
-            (exwm-input-set-key (kbd "s-1") #'gb/exwm-program-select) ;; do not wrap, since it already resets exwm
+            (gb/register-global-key (kbd "s-1") #'gb/exwm-program-select) ;; do not wrap, since it already resets exwm
             ;; switch buffers
-            (exwm-input-set-key (kbd "s-b") #'helm-mini)
+            (gb/register-global-key (kbd "s-b") #'helm-mini)
             ;; open files
-            (exwm-input-set-key (kbd "s-f") #'helm-for-files)
+            (gb/register-global-key (kbd "s-f") #'helm-for-files)
             ;; helm-M-x
-            (exwm-input-set-key (kbd "s-SPC") #'helm-M-x)) ;; may have problems jumping off from eclipse
+            (gb/register-global-key (kbd "s-SPC") #'helm-M-x)) ;; may have problems jumping off from eclipse
 
           ;; select window via ace
-          (exwm-input-set-key (kbd "s-o") #'ace-select-window)
+          (gb/register-global-key (kbd "s-o") #'ace-select-window)
 
-          (exwm-input-set-key (kbd "s-<left>") #'gb/windmove-left)
-          (exwm-input-set-key (kbd "s-<right>") #'gb/windmove-right)
-          (exwm-input-set-key (kbd "s-<up>") #'windmove-up)
-          (exwm-input-set-key (kbd "s-<down>") #'windmove-down)
+          (gb/register-global-key (kbd "s-<left>") #'gb/windmove-left)
+          (gb/register-global-key (kbd "s-<right>") #'gb/windmove-right)
+          (gb/register-global-key (kbd "s-<up>") #'windmove-up)
+          (gb/register-global-key (kbd "s-<down>") #'windmove-down)
 
-          (exwm-input-set-key (kbd "C-M-s-<left>") #'windmove-swap-states-left)
-          (exwm-input-set-key (kbd "C-M-s-<right>") #'windmove-swap-states-right)
-          (exwm-input-set-key (kbd "C-M-s-<up>") #'windmove-swap-states-up)
-          (exwm-input-set-key (kbd "C-M-s-<down>") #'windmove-swap-states-down)
+          (gb/register-global-key (kbd "C-M-s-<left>") #'windmove-swap-states-left)
+          (gb/register-global-key (kbd "C-M-s-<right>") #'windmove-swap-states-right)
+          (gb/register-global-key (kbd "C-M-s-<up>") #'windmove-swap-states-up)
+          (gb/register-global-key (kbd "C-M-s-<down>") #'windmove-swap-states-down)
 
-          (exwm-input-set-key (kbd "H-l") #'gb/lock-screen)
-          (exwm-input-set-key (kbd "H-c") #'gb/mouse-pointer-to-cursor)
-          (exwm-input-set-key (kbd "H-s") #'gb/slack-open-on-workspace-1)
-          (exwm-input-set-key (kbd "H-p") #'gb/pass-open-on-workspace-0)
-          (exwm-input-set-key (kbd "H-u") #'gb/firefox-open-on-workspace-1)
-          (exwm-input-set-key (kbd "H-m") #'gb/mail-open-on-workspace-7)
-          (exwm-input-set-key (kbd "H-e") #'gb/emacs-init-open)
-          (exwm-input-set-key (kbd "H-/") #'slack-select-rooms)
-          (exwm-input-set-key (kbd "H-.") #'slack-select-unread-rooms)
-          (exwm-input-set-key (kbd "H-s-.") #'gb/slack-catchup-all-less-important-rooms)
-          (exwm-input-set-key (kbd "H-a") #'gb/org-agenda)
+          (gb/register-global-key (kbd "H-l") #'gb/lock-screen)
+          (gb/register-global-key (kbd "H-c") #'gb/mouse-pointer-to-cursor)
+          (gb/register-global-key (kbd "H-s") #'gb/slack-open-on-workspace-1)
+          (gb/register-global-key (kbd "H-p") #'gb/pass-open-on-workspace-0)
+          (gb/register-global-key (kbd "H-u") #'gb/firefox-open-on-workspace-1)
+          (gb/register-global-key (kbd "H-m") #'gb/mail-open-on-workspace-7)
+          (gb/register-global-key (kbd "H-e") #'gb/emacs-init-open)
+          (gb/register-global-key (kbd "H-/") #'slack-select-rooms)
+          (gb/register-global-key (kbd "H-.") #'slack-select-unread-rooms)
+          (gb/register-global-key (kbd "H-s-.") #'gb/slack-catchup-all-less-important-rooms)
+          (gb/register-global-key (kbd "H-a") #'gb/org-agenda)
 
-          (exwm-input-set-key (kbd "S-s-<up>") #'gb/remove-upper-window)
-          (exwm-input-set-key (kbd "S-s-<down>") #'gb/remove-lower-window)
+          (gb/register-global-key (kbd "S-s-<up>") #'gb/remove-upper-window)
+          (gb/register-global-key (kbd "S-s-<down>") #'gb/remove-lower-window)
 
-          (exwm-input-set-key (kbd "S-s-<left>") #'gb/remove-left-window)
-          (exwm-input-set-key (kbd "S-s-<right>") #'gb/remove-right-window)
+          (gb/register-global-key (kbd "S-s-<left>") #'gb/remove-left-window)
+          (gb/register-global-key (kbd "S-s-<right>") #'gb/remove-right-window)
 
-          (exwm-input-set-key (kbd "s-3") #'(lambda () (interactive) (split-window-right-and-select-scratch)))
-          (exwm-input-set-key (kbd "s-2") #'(lambda () (interactive) (split-window-below-and-select-scratch)))
-          (exwm-input-set-key (kbd "s-0") #'(lambda () (interactive) (delete-window)))
-          (exwm-input-set-key (kbd "C-s-o") #'(lambda () (interactive) (gb/exwm-insert-string-anywhere "ö")))
-          (exwm-input-set-key (kbd "C-s-a") #'(lambda () (interactive) (gb/exwm-insert-string-anywhere "ä")))
-          (exwm-input-set-key (kbd "C-s-u") #'(lambda () (interactive) (gb/exwm-insert-string-anywhere "ü")))
-          (exwm-input-set-key (kbd "C-s-s") #'(lambda () (interactive) (gb/exwm-insert-string-anywhere "ß")))
-          (exwm-input-set-key (kbd "C-S-s-o") #'(lambda () (interactive) (gb/exwm-insert-string-anywhere "Ö")))
-          (exwm-input-set-key (kbd "C-S-s-a") #'(lambda () (interactive) (gb/exwm-insert-string-anywhere "Ä")))
-          (exwm-input-set-key (kbd "C-S-s-u") #'(lambda () (interactive) (gb/exwm-insert-string-anywhere "Ü")))
+          (gb/register-global-key (kbd "s-3") #'(lambda () (interactive) (split-window-right-and-select-scratch)))
+          (gb/register-global-key (kbd "s-2") #'(lambda () (interactive) (split-window-below-and-select-scratch)))
+          (gb/register-global-key (kbd "s-0") #'(lambda () (interactive) (delete-window)))
+          (gb/register-global-key (kbd "s-k") #'gb/kill-a-buffer-and-delete-window)
+
+          (gb/register-global-key (kbd "C-s-o") #'(lambda () (interactive) (gb/exwm-insert-string-anywhere "ö")))
+          (gb/register-global-key (kbd "C-s-a") #'(lambda () (interactive) (gb/exwm-insert-string-anywhere "ä")))
+          (gb/register-global-key (kbd "C-s-u") #'(lambda () (interactive) (gb/exwm-insert-string-anywhere "ü")))
+          (gb/register-global-key (kbd "C-s-s") #'(lambda () (interactive) (gb/exwm-insert-string-anywhere "ß")))
+          (gb/register-global-key (kbd "C-S-s-o") #'(lambda () (interactive) (gb/exwm-insert-string-anywhere "Ö")))
+          (gb/register-global-key (kbd "C-S-s-a") #'(lambda () (interactive) (gb/exwm-insert-string-anywhere "Ä")))
+          (gb/register-global-key (kbd "C-S-s-u") #'(lambda () (interactive) (gb/exwm-insert-string-anywhere "Ü")))
 
           (setq gb/simulation-keys
                 `(
@@ -13848,15 +13852,14 @@
             (exwm-input-release-keyboard)
             (exwm-input-set-local-simulation-keys nil))
 
-          (exwm-input-set-key (kbd "H-r") #'gb/exwm-release-keyboard)
+          (gb/register-global-key (kbd "H-r") #'gb/exwm-release-keyboard)
 
           (defun gb/exwm-grab-keyboard ()
             (interactive)
             (message "grab exwm keyboard binding.")
             (exwm-input-grab-keyboard))
 
-          (exwm-input-set-key (kbd "H-g") #'gb/exwm-grab-keyboard)
-          (exwm-input-set-key (kbd "s-k") #'gb/kill-a-buffer-and-delete-window)
+          (gb/register-global-key (kbd "H-g") #'gb/exwm-grab-keyboard)
 
           (setq exwm-manage-configurations `(((s-equals-p "dosbox" exwm-instance-name)
                                               char-mode t
@@ -13881,6 +13884,8 @@
                                                  (,(kbd "<C-left>") . C-S-tab) ;; switch to previous tab
                                                  (,(kbd "<C-right>") . C-tab)  ;; switch to next tab
                                                  )))))
+
+          (gb/execute-late-key-binding-on-registered-keys)
 
           ;; start pasystray from within emacs, starting it within xinitrc does not work
           (add-hook 'exwm-init-hook
@@ -17554,6 +17559,8 @@
      ;; for kuchen checks:
      ;; (add-hook 'buffer-list-update-hook #'gb/register-key-filter)
      ;; (add-hook 'magit-popup-mode-hook #'gb/un-register-key-filter)
+     (when (not gb/use-exwm)
+       (gb/execute-late-key-binding-on-registered-keys))
      (cond
       ((eq gb/theme-mode 'light) nil) ;; TODO complete
       (t (progn
