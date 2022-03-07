@@ -7017,10 +7017,12 @@
     #+begin_src emacs-lisp
       (use-package magit-delta
         :ensure t
+        :custom
+        (magit-delta-delta-args '("--max-line-distance" "0.6" "--true-color" "always" "--color-only" "--dark"))
+        ;; (magit-delta-default-light-theme "ansi-light")
+        ;; (magit-delta-default-dark-theme "Solarized (dark)") ;; "base16", "ansi-dark"
+        (magit-delta-hide-plus-minus-markers nil)
         :config
-        (setq magit-delta-default-light-theme "ansi-light")
-        (setq magit-delta-default-dark-theme "Solarized (dark)") ;; "base16", "ansi-dark"
-        (setq magit-delta-hide-plus-minus-markers nil)
         (defvar gb/magit-delta-point-max 50000)
         ;; Disable mode if there are too many characters
         (advice-add 'magit-delta-call-delta-and-convert-ansi-escape-sequences :around
