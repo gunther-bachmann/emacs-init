@@ -14975,6 +14975,7 @@
             :hook (after-init . org-roam-setup)
             :ensure t
             :custom
+            (org-roam-completion-everywhere t)
             (org-roam-capture-templates 
              `(("d" "default" plain
                 ,(concat "* ${title}\n"
