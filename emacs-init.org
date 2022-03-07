@@ -9137,6 +9137,14 @@
         (setq org-mobile-use-encryption t)
         ))
     #+END_SRC
+*** org download - allow to insert downloaded image
+    - [[https://github.com/abo-abo/org-download][homepage]]
+    #+begin_src emacs-lisp
+      (use-package org-download
+        :ensure t
+        :custom (org-download-screenshot-method "scrot -s %s")
+        :commands (org-download-yank))
+    #+end_src
 *** org capture
     - for capture templates see [[http://orgmode.org/manual/Template-elements.html#Template-elements]]
     - intro for capture templates see http://cestlaz.github.io/posts/using-emacs-23-capture-1/
