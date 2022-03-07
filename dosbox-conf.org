@@ -1,4 +1,4 @@
-#+title: compton-conf
+#+title: dosbox-conf
 * header
   #+begin_src sh :comments link :eval no :tangle ~/.dosbox/dosbox-0.74-3.conf
     #------------------------------------------------------------------
