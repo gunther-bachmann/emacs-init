@@ -2687,8 +2687,8 @@
      (cond
       ((eq gb/theme-mode 'light) nil) ;; TODO complete
       (t (progn
-           (--each '((mode-line ((t (:background "#251422" :foreground "#808080" :overline "#504050" :weight normal))))
-                     (mode-line-inactive ((t (:inherit mode-line :background "#251422" :foreground "#969896" :weight normal)))))
+           (--each '((mode-line ((t (:background "#251422" :foreground "#A5A5A5" :overline "#504050" :weight normal))))
+                     (mode-line-inactive ((t (:inherit mode-line :background "#251422" :foreground "#606060" :weight normal)))))
              (progn (add-to-list 'gb/list-of-faces-to-set it)(custom-set-faces it))))))
    #+end_src
 *** all the icons
@@ -3252,6 +3252,67 @@
       :ensure t
       :init (progn (add-hook 'after-init-hook #'fancy-battery-mode)))
     #+END_SRC
+*** custom modeline
+    #+begin_src emacs-lisp
+      (setq auto-revert-check-vc-info t)
+      (defun simple-mode-line-render (left right)
+        "Return a string of `window-width' length.
+      Containing LEFT, and RIGHT aligned respectively."
+        (let ((available-width
+               (- (- (window-total-width) 1)
+                  (+ (length (format-mode-line left))
+                     (length (replace-regexp-in-string ":[a-zA-Z]+:" "LL" (format-mode-line right)))))))
+          (append left
+                  (list (format (format "%%%ds" available-width) ""))
+                  right)))
+
+      (defun get-project-relative-buffer-filename ()
+        (when-let* ((fn (buffer-file-name))
+                    (prop-fn (propertize-base-name fn)))
+          (if-let* ((project (project-current))
+                    (project-root (replace-regexp-in-string "/$" "" (expand-file-name (cdr project)))))
+              (replace-regexp-in-string (regexp-quote project-root) (concat (propertize "-" 'face '(:foreground "orange"))) prop-fn)
+            (replace-regexp-in-string (regexp-quote (expand-file-name "~")) (propertize "~" 'face '(:foreground "green")) prop-fn))))
+
+      (defun propertize-base-name (filename)
+        (when filename
+          (if-let* ((path-elements (split-string filename "/"))
+                    (last-pe (car (last path-elements)))
+                    (last-pe-propertized (propertize last-pe 'face 'mode-line-emphasis)))
+              (if (> (length path-elements) 1)
+                  (string-join (list (string-join (butlast path-elements) "/") last-pe-propertized) "/")
+                last-pe-propertized)
+            filename)))
+
+      (setq left-global-mode-string
+            (list '((:eval
+                     (cond
+                      ((buffer-modified-p)
+                       (propertize " * " 'face '(:foreground "red")))
+                      (buffer-read-only
+                       (propertize " - " 'face '(:foreground "#008000" :weight 'bold)))
+                      ((not (buffer-modified-p))
+                       (propertize " ⨯ " 'face '(:foreground "orange"))))))
+
+                  'mode-line-position
+
+                  ;; Use all-the-icons to display the icon of current major mode
+                  " "
+                  '(:eval (propertize (all-the-icons-icon-for-mode major-mode
+                                                                   :height (/ all-the-icons-scale-factor 1.4)
+                                                                   :v-adjust -0.03)))
+                  ;; Show the current major mode name
+                  " [" 'mode-name "] "
+
+                  ;; Show the file name with sanitized
+                  '(:eval (or (propertize-base-name (get-project-relative-buffer-filename))
+                             mode-line-buffer-identification))))
+
+      (setq-default mode-line-format
+                    (list '(:eval (simple-mode-line-render left-global-mode-string
+                                                           (append global-mode-string (list mode-line-process))))))
+
+    #+end_src
 ** rainbow mode
    #+BEGIN_SRC emacs-lisp
    (use-package rainbow-mode
