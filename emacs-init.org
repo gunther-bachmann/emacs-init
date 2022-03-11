@@ -672,38 +672,38 @@
   #+BEGIN_SRC emacs-lisp
     ;; set scratch window content
     (defun gb/system-info () ""
-    (let* ((nix-flake '(        "          ::::.    ':::::     ::::'\n"
-                                "          ':::::    ':::::.  ::::'\n"
-                                "            :::::     '::::.:::::\n"
-                                "      .......:::::..... ::::::::\n"
-                                "     ::::::::::::::::::. ::::::    ::::.\n"
-                                "    ::::::::::::::::::::: :::::.  .::::'\n"
-                                "           .....           ::::' :::::'\n"
-                                "          :::::            '::' :::::'\n"
-                                " ........:::::               ' :::::::::::.\n"
-                                ":::::::::::::                 :::::::::::::\n"
-                                " ::::::::::: ..              :::::\n"
-                                "     .::::: .:::            :::::\n"
-                                "    .:::::  :::::          '''''    .....\n"
-                                "    :::::   ':::::.  ......:::::::::::::'\n"
-                                "     :::     ::::::. ':::::::::::::::::'\n"
-                                "            .:::::::: '::::::::::\n"
-                                "           .::::''::::.     '::::.\n"
-                                "          .::::'   ::::.     '::::.\n"
-                                "         .::::      ::::      '::::.\n"))
-           (mixto-nix (s-split "\n" (concat (s-trim (shell-command-to-string "neofetch --stdout")) (s-repeat (length nix-flake) "\n"))))
-           (max-line-len (-max (-map 'length mixto-nix)))
-           (max-line-spaces (s-repeat max-line-len " "))
-           (mixto-nix-padded (--map (s-left max-line-len (s-concat it max-line-spaces)) mixto-nix))
+           (let* ((nix-flake '(        "          ::::.    ':::::     ::::'\n"
+                                       "          ':::::    ':::::.  ::::'\n"
+                                       "            :::::     '::::.:::::\n"
+                                       "      .......:::::..... ::::::::\n"
+                                       "     ::::::::::::::::::. ::::::    ::::.\n"
+                                       "    ::::::::::::::::::::: :::::.  .::::'\n"
+                                       "           .....           ::::' :::::'\n"
+                                       "          :::::            '::' :::::'\n"
+                                       " ........:::::               ' :::::::::::.\n"
+                                       ":::::::::::::                 :::::::::::::\n"
+                                       " ::::::::::: ..              :::::\n"
+                                       "     .::::: .:::            :::::\n"
+                                       "    .:::::  :::::          '''''    .....\n"
+                                       "    :::::   ':::::.  ......:::::::::::::'\n"
+                                       "     :::     ::::::. ':::::::::::::::::'\n"
+                                       "            .:::::::: '::::::::::\n"
+                                       "           .::::''::::.     '::::.\n"
+                                       "          .::::'   ::::.     '::::.\n"
+                                       "         .::::      ::::      '::::.\n"))
+                  (mixto-nix (s-split "\n" (concat (s-trim (shell-command-to-string "neofetch --stdout")) (s-repeat (length nix-flake) "\n"))))
+                  (max-line-len (-max (-map 'length mixto-nix)))
+                  (max-line-spaces (s-repeat max-line-len " "))
+                  (mixto-nix-padded (--map (s-left max-line-len (s-concat it max-line-spaces)) mixto-nix))
 
-           (comments (-repeat (length nix-flake) ";; "))
-           (mixed (-interleave comments mixto-nix-padded nix-flake))
-           (pairs (-partition 3 mixed))
-           (result (--map (s-join "" it) pairs))
-           (nix-total (s-join "" result))
-           )
-           nix-total
-         ))
+                  (comments (-repeat (length nix-flake) ";; "))
+                  (mixed (-interleave comments mixto-nix-padded nix-flake))
+                  (pairs (-partition 3 mixed))
+                  (result (--map (s-join "" it) pairs))
+                  (nix-total (s-join "" result))
+                  )
+             nix-total
+             ))
     (let* ((total-ram (if (is-macos-p)
                           (/ (string-to-number (shell-command-to-string "sysctl hw.memsize | sed 's/.*:\s*//'")) (* 1024 1024 1024) )
                         (/ (nth 0 (memory-info)) (* 1024.0 1024))))
@@ -17099,7 +17099,10 @@
   - org-visibility - Persistent org tree visibility
   - org-remark - Highlight & annotate any text files  (similar to org-annotate)
   - org-view-mode - Read-only viewer with less markup clutter in org mode files
-  - org-modern - Modern looks for Org 
+  - org-modern - Modern looks for Org
+  - org-ros - Rahul's Org-Mode Screenshot
+  - org-download - download images from the browser/internet inserting into org files
+  - osm - open street map interface (with the possibility to create org links) https://github.com/minad/osm
 ** os/system
   - network-watch (allows hooks to run when network is goiing down/up)
   - scp (use scp to transfer files)
