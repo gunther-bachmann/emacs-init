@@ -734,6 +734,7 @@
 
     ;; Go strait to scratch buffer on startup
     (setq inhibit-startup-message t)
+    (setq initial-major-mode 'lisp-interaction-mode)
   #+END_SRC
 * own utility functions
 ** misc
@@ -17739,6 +17740,7 @@
     ;;         (add-to-list 'face-remapping-alist '(default (:background "#241422")))))))
     ;; (set-face-background 'minibuffer-prompt "#241422")
     (report-elapsed "exit finish - up")
+    (lisp-interaction-mode)
     ;; (when (fboundp 'doom-modeline-mode)
     ;;   (doom-modeline-mode 1))
   #+END_SRC
