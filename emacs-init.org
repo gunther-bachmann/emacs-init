@@ -3285,15 +3285,38 @@
                 last-pe-propertized)
             filename)))
 
+      ;; Keep track of selected window, so we can render the modeline differently
+      (defvar gb/modeline-line-selected-window (frame-selected-window))
+      (defun gb/modeline-line-set-selected-window (&rest _args)
+        (when (not (minibuffer-window-active-p (frame-selected-window)))
+          (setq gb/modeline-line-selected-window (frame-selected-window))
+          (force-mode-line-update)))
+      (defun gb/modeline-line-unset-selected-window ()
+        (setq gb/modeline-line-selected-window nil)
+        (force-mode-line-update))
+      (add-hook 'window-configuration-change-hook #'gb/modeline-line-set-selected-window)
+      (add-hook 'focus-in-hook #'gb/modeline-line-set-selected-window)
+      (add-hook 'focus-out-hook #'gb/modeline-line-unset-selected-window)
+      (advice-add 'handle-switch-frame :after #'gb/modeline-line-set-selected-window)
+      (add-hook 'window-selection-change-functions #'gb/modeline-line-set-selected-window)
+      (defun gb/modeline-line-selected-window-active-p ()
+        (eq gb/modeline-line-selected-window (selected-window)))
+
       (setq left-global-mode-string
             (list '((:eval
                      (cond
                       ((buffer-modified-p)
-                       (propertize " * " 'face '(:foreground "red")))
+                       (propertize " * " 'face (if (gb/modeline-line-selected-window-active-p)
+                                                   '(:foreground "red")
+                                                 'mode-line-inactive)))
                       (buffer-read-only
-                       (propertize " - " 'face '(:foreground "#008000" :weight 'bold)))
+                       (propertize " - " 'face (if (gb/modeline-line-selected-window-active-p)
+                                                   '(:foreground "#008000" :weight 'bold)
+                                                 'mode-line-inactive)))
                       ((not (buffer-modified-p))
-                       (propertize " ⨯ " 'face '(:foreground "orange"))))))
+                       (propertize " ⨯ " 'face (if (gb/modeline-line-selected-window-active-p)
+                                                   '(:foreground "orange")
+                                                 'mode-line-inactive))))))
 
                   'mode-line-position
 
@@ -10420,14 +10443,14 @@
          (defun gb/slack-modeline-status-activate ()
            "activate slack status in modeline"
            (setq gb/slack-modeline-status--timer (run-at-time 5 60 #'gb/slack-modeline-status-update))
-           (add-to-list 'global-mode-string '(:eval gb/slack-modeline--status) t))
+           (add-to-list 'global-mode-string '(:eval (when (gb/modeline-line-selected-window-active-p) gb/slack-modeline--status)) t))
 
          (defun gb/slack-modeline-status-deactivate ()
            "remove slack status from modeline"
            (when gb/slack-modeline-status--timer
              (cancel-timer gb/slack-modeline-status--timer)
              (setq gb/slack-modeline-status--timer nil))
-           (setq global-mode-string (remove '(:eval gb/slack-modeline--status) global-mode-string)))
+           (setq global-mode-string (remove '(:eval (when (gb/modeline-line-selected-window-active-p) gb/slack-modeline--status)) global-mode-string)))
 
          (defun gb/slack-modeline-status--string-transform (full-status)
            "transform complete slack status string to the string actually shown in the modeline"
@@ -11965,11 +11988,12 @@
        (setq emms-info-asynchronously t)
        ;; (require 'emms-info-libtag) ;;; load functions that will talk to emms-print-metadata which in turn talks to libtag and gets metadata
        (setq emms-info-functions '(emms-info-mp3info)) ;;; make sure libtag is the only thing delivering metadata
-       (require 'emms-mode-line)
-       (emms-mode-line 1)
+       ;; (require 'emms-mode-line)
+       ;; (emms-mode-line 0)
        (bind-key "<tab>" 'emms-browser-toggle-subitems emms-browser-mode-map)
-       (require 'emms-playing-time)
-       (emms-playing-time 1))
+       ;; (require 'emms-playing-time)
+       ;; (emms-playing-time 0)
+       )
    #+END_SRC
 ** posframe
    - posframe allows floating frames to be displayed at point position
@@ -14017,7 +14041,7 @@
                       (setq pomodoro-mode-line-string nil)
                       ;; (exwm-mff-mode)
                       (setq global-mode-string
-                            (append '("" emms-mode-line-string emms-playing-time-string " "
+                            (append '("" (:eval (when (gb/modeline-line-selected-window-active-p) (list emms-mode-line-string emms-playing-time-string " ")))
                                       (:eval (s-concat "[" (number-to-string (exwm-workspace--position exwm-workspace--current)) "]" ))
                                       (:eval (unless (string-empty-p pomodoro-mode-line-string) " ") pomodoro-mode-line-string))
                                     global-mode-string))
