@@ -3262,9 +3262,9 @@
         (let ((available-width
                (- (- (window-total-width) 1)
                   (+ (length (format-mode-line left))
-                     (length (replace-regexp-in-string ":[a-zA-Z]+:" "LL" (format-mode-line right)))))))
+                     (length (replace-regexp-in-string ":[a-zA-Z]+:" "LL" (format-mode-line right)))))))          
           (append left
-                  (list (format (format "%%%ds" available-width) ""))
+                  (when (> available-width 0) (list (format (format "%%%ds" available-width) "")))
                   right)))
 
       (defun get-project-relative-buffer-filename ()
@@ -3322,14 +3322,19 @@
 
                   ;; Use all-the-icons to display the icon of current major mode
                   " "
-                  '(:eval (propertize (all-the-icons-icon-for-mode major-mode
-                                                                   :height (/ all-the-icons-scale-factor 1.4)
-                                                                   :v-adjust -0.03)))
+                  '(:eval 
+                    (propertize (all-the-icons-icon-for-mode major-mode
+                                                             :height (/ all-the-icons-scale-factor 1.4)
+                                                             :v-adjust -0.03
+                                                             (unless (gb/modeline-line-selected-window-active-p) :face)
+                                                             (unless (gb/modeline-line-selected-window-active-p) 'mode-line-inactive))))
                   ;; Show the current major mode name
                   " [" 'mode-name "] "
 
                   ;; Show the file name with sanitized
-                  '(:eval (or (propertize-base-name (get-project-relative-buffer-filename))
+                  '(:eval (or (if (gb/modeline-line-selected-window-active-p)
+                                 (propertize-base-name (get-project-relative-buffer-filename))
+                               (substring-no-properties (propertize-base-name (get-project-relative-buffer-filename))))
                              mode-line-buffer-identification))))
 
       (setq-default mode-line-format
@@ -11988,12 +11993,17 @@
        (setq emms-info-asynchronously t)
        ;; (require 'emms-info-libtag) ;;; load functions that will talk to emms-print-metadata which in turn talks to libtag and gets metadata
        (setq emms-info-functions '(emms-info-mp3info)) ;;; make sure libtag is the only thing delivering metadata
-       ;; (require 'emms-mode-line)
-       ;; (emms-mode-line 0)
+       (require 'emms-mode-line)
+       ;; (emms-mode-line 1)
        (bind-key "<tab>" 'emms-browser-toggle-subitems emms-browser-mode-map)
-       ;; (require 'emms-playing-time)
-       ;; (emms-playing-time 0)
-       )
+       (require 'emms-playing-time)
+       ;; (emms-playing-time 1)
+       (emms-mode-line-mode 1)
+       (emms-playing-time-mode -1)
+       (defun gb/emms-mode-line ()
+         `(:eval (when (gb/modeline-line-selected-window-active-p)
+                  ,(emms-mode-line-icon-function))))
+       (setq emms-mode-line-mode-line-function #'gb/emms-mode-line))
    #+END_SRC
 ** posframe
    - posframe allows floating frames to be displayed at point position
@@ -14041,7 +14051,7 @@
                       (setq pomodoro-mode-line-string nil)
                       ;; (exwm-mff-mode)
                       (setq global-mode-string
-                            (append '("" (:eval (when (gb/modeline-line-selected-window-active-p) (list emms-mode-line-string emms-playing-time-string " ")))
+                            (append '("" 
                                       (:eval (s-concat "[" (number-to-string (exwm-workspace--position exwm-workspace--current)) "]" ))
                                       (:eval (unless (string-empty-p pomodoro-mode-line-string) " ") pomodoro-mode-line-string))
                                     global-mode-string))
