@@ -812,26 +812,26 @@
    #+END_SRC
 ** transparency
    #+BEGIN_SRC emacs-lisp
-   (defun disable-transparency ()
-     "make emacs solid again"
-     (interactive)
+     (defun disable-transparency ()
+       "make emacs solid again"
+       (interactive)
+       (setq frame-transparency-value 100)
+       (set-frame-parameter (selected-frame) 'alpha '(100 100)))
+
+     (defun increase-transparency ()
+       "increase current frame transparency"
+       (interactive)
+       (setq frame-transparency-value (max 35 (- frame-transparency-value 7)))
+       (set-frame-parameter (selected-frame) 'alpha `(,frame-transparency-value ,frame-transparency-value)))
+
+     (defun decrease-transparency ()
+       "decrease current frame transparency"
+       (interactive)
+       (setq frame-transparency-value (min 100 (+ frame-transparency-value 7)))
+       (set-frame-parameter (selected-frame) 'alpha `(,frame-transparency-value ,frame-transparency-value)))
+
      (setq frame-transparency-value 100)
-     (set-frame-parameter (selected-frame) 'alpha '(100 100)))
-
-   (defun increase-transparency ()
-     "increase current frame transparency"
-     (interactive)
-     (setq frame-transparency-value (max 35 (- frame-transparency-value 7)))
-     (set-frame-parameter (selected-frame) 'alpha `(,frame-transparency-value ,frame-transparency-value)))
-
-   (defun decrease-transparency ()
-     "decrease current frame transparency"
-     (interactive)
-     (setq frame-transparency-value (min 100 (+ frame-transparency-value 7)))
-     (set-frame-parameter (selected-frame) 'alpha `(,frame-transparency-value ,frame-transparency-value)))
-
-   (setq frame-transparency-value 100)
-   (add-to-list 'default-frame-alist '(alpha 90 90))
+     ;; (add-to-list 'default-frame-alist '(alpha 90 90))
    #+END_SRC
 ** editing
 *** space to control (with the help of xcape)
@@ -6861,7 +6861,7 @@
                  (magit-diff-adjust-tab-width t)
                  (magit-diff-highlight-trailing t)
                  (magit-diff-hide-trailing-cr-characters t)
-                 (magit-display-buffer-function (quote magit-display-buffer-fullframe-status-v1))
+                 ;; (magit-display-buffer-function (quote magit-display-buffer-fullframe-status-v1))
                  (magit-section-initial-visibility-alist
                   (quote
                    ((staged . show)
@@ -7042,7 +7042,7 @@
       ;; To always enable the mode when opening the magit-status buffer add magit-filenotify-mode to the magit-status-mode-hook.
 
       (use-package magit-gitflow
-        :ensure t
+        :disabled t
         :after ( magit)
         :init
         (add-hook 'magit-mode-hook 'turn-on-magit-gitflow))
