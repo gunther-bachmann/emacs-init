@@ -3259,16 +3259,11 @@
 *** custom modeline
     #+begin_src emacs-lisp
       (setq auto-revert-check-vc-info t)
-      (defun simple-mode-line-render (left right)
-        "Return a string of `window-width' length.
-      Containing LEFT, and RIGHT aligned respectively."
-        (let ((available-width
-               (- (- (window-total-width) 1)
-                  (+ (length (format-mode-line left))
-                     (length (replace-regexp-in-string ":[a-zA-Z]+:" "LL" (format-mode-line right)))))))          
-          (append left
-                  (when (> available-width 0) (list (format (format "%%%ds" available-width) "")))
-                  right)))
+
+      (defun gb/mode-line-padding ()
+        (let ((r-length (length (replace-regexp-in-string ":[a-zA-Z]+:" "LL" (format-mode-line right-global-mode-string)))))
+          (propertize " "
+                      'display `(space :align-to (- right ,r-length)))))
 
       (defun get-project-relative-buffer-filename ()
         (when-let* ((fn (buffer-file-name))
@@ -3325,7 +3320,6 @@
 
                   'mode-line-position
 
-                  ;; Use all-the-icons to display the icon of current major mode
                   " "
                   '(:eval 
                     (propertize (all-the-icons-icon-for-mode major-mode
@@ -3333,8 +3327,6 @@
                                                              :v-adjust -0.03
                                                              (unless (gb/modeline-line-selected-window-active-p) :face)
                                                              (unless (gb/modeline-line-selected-window-active-p) 'mode-line-inactive))))
-                  ;; Show the current major mode name
-                  ;; " [" 'mode-name "] "
                   " "
                   ;; Show the file name with sanitized
                   '(:eval (or (if (gb/modeline-line-selected-window-active-p)
@@ -3342,17 +3334,21 @@
                                (substring-no-properties (propertize-base-name (get-project-relative-buffer-filename))))
                              mode-line-buffer-identification))))
 
+      (setq right-global-mode-string
+            (append  (list  ;; eglot--mode-line-format
+                      ;; flycheck-mode-line " "
+                      ;;minor-mode-alist
+                      '(:eval (if (gb/modeline-line-selected-window-active-p)
+                                  mode-line-modes
+                                (substring-no-properties (format-mode-line mode-line-modes))))
+                      ;; '(:eval (when text-scale-mode (concat " (𝞿" text-scale-mode-lighter ") ")))
+                      mode-line-misc-info)
+                     (list mode-line-process)))
+
       (setq-default mode-line-format
-                    (list '(:eval (simple-mode-line-render left-global-mode-string
-                                                           (append  (list  ;; eglot--mode-line-format
-                                                                          ;; flycheck-mode-line " "
-                                                                     ;;minor-mode-alist
-                                                                     '(:eval (if (gb/modeline-line-selected-window-active-p)
-                                                                                mode-line-modes
-                                                                               (substring-no-properties (format-mode-line mode-line-modes))))
-                                                                     ;; '(:eval (when text-scale-mode (concat " (𝞿" text-scale-mode-lighter ") ")))
-                                                                     mode-line-misc-info)
-                                                                    (list mode-line-process))))))
+                    (list  left-global-mode-string
+                           '(:eval (gb/mode-line-padding))
+                           right-global-mode-string))
 
     #+end_src
 ** rainbow mode
