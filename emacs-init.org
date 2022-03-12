@@ -3263,7 +3263,10 @@
       (setq auto-revert-check-vc-info t)
 
       (defun gb/mode-line-padding ()
-        (let ((r-length (+ (length (replace-regexp-in-string ":[a-zA-Z]+:" "LL" (format-mode-line right-global-mode-string))) 5)))
+        (let ((r-length (+ (length (replace-regexp-in-string
+                                    ":[a-zA-Z]+:" "LL"
+                                    (format-mode-line right-global-mode-string)))
+                           (if (gb/modeline-line-selected-window-active-p) 5 -2))))
           (propertize " "
                       'display `(space :align-to (- right ,r-length)))))
 
@@ -3306,7 +3309,7 @@
             (list '((:eval
                      (cond
                       ((buffer-modified-p)
-                       (propertize " * " 'face (if (gb/modeline-line-selected-window-active-p)
+                       (propertize " + " 'face (if (gb/modeline-line-selected-window-active-p)
                                                    (if (buffer-file-name)
                                                        '(:foreground "red")
                                                      '(:foreground "green"))
@@ -16595,11 +16598,16 @@
     (use-package mlscroll
       :ensure t
       :custom ((mlscroll-width-chars 10)
-               (mlscroll-right-align nil))
+               (mlscroll-right-align nil)
+               ;; (mlscroll-border nil)
+               (mlscroll-in-color "#504050")
+               (mlscroll-out-color "#251422"))
       :config
       (mlscroll-mode 1)
-      (defconst mlscroll-model-line-const (list "[" '(:eval (mlscroll-mode-line)) "]"))
-      (setq global-mode-string (append global-mode-string  mlscroll-model-line-const)))
+      (defconst mlscroll-model-line-const (list '(:eval (when (gb/modeline-line-selected-window-active-p) (mlscroll-mode-line)))))
+      (setq global-mode-string (append global-mode-string  mlscroll-model-line-const))
+      (setq mlscroll-flank-face-properties `(:foreground ,mlscroll-out-color :background ,mlscroll-out-color :overline "#504050"))
+      (setq mlscroll-cur-face-properties `(:forground ,mlscroll-in-color :background ,mlscroll-in-color :overline "#504050")))
   #+end_src
 * tree-sitter
   - see https://ubolonton.github.io/emacs-tree-sitter/getting-started/
