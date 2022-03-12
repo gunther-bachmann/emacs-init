@@ -3619,10 +3619,10 @@
 ** form feed
    - display ^L as h-bar
    #+BEGIN_SRC emacs-lisp
-   (use-package form-feed
-     :ensure t
-     :init
-     (progn (add-hook 'text-mode-hook #'form-feed-mode)))
+     (use-package form-feed
+       :ensure t
+       :config (global-form-feed-mode)
+       :custom-face (form-feed-line ((t :foreground "gray40" :strike-through t))))
    #+END_SRC
 ** hide show org like
    - if tab does not indent, folding is done
