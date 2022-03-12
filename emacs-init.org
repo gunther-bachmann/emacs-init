@@ -3121,6 +3121,7 @@
                   " Anzu" ;; mode to display number of matches during reg ex search
                   " be"
                   " company-box"
+                  " envrc[none]"
                   " DocStr"
                   " EditorConfig" ;;
                   " ElDoc overlay" ;; eldoc-overlay-mode
@@ -3140,11 +3141,13 @@
                   " MRev"
                   " ors"
                   " Org"
+                  " OrgSrc"
                   " OTSH" ;; org table sticky headers
                   " pretty-tags"
                   " Paredit" ;;
                   " Projectile" ;;
                   " PCRE" ;; perl like regular expressions everywhere
+                  " Shell-Compile"
                   " sel"
                   " SliNav" ;; slime navigation mode (C-, C-.)
                   " TmpB"
@@ -3307,7 +3310,9 @@
                      (cond
                       ((buffer-modified-p)
                        (propertize " * " 'face (if (gb/modeline-line-selected-window-active-p)
-                                                   '(:foreground "red")
+                                                   (if (buffer-file-name)
+                                                       '(:foreground "red")
+                                                     '(:foreground "green"))
                                                  'mode-line-inactive)))
                       (buffer-read-only
                        (propertize " - " 'face (if (gb/modeline-line-selected-window-active-p)
@@ -3329,8 +3334,8 @@
                                                              (unless (gb/modeline-line-selected-window-active-p) :face)
                                                              (unless (gb/modeline-line-selected-window-active-p) 'mode-line-inactive))))
                   ;; Show the current major mode name
-                  " [" 'mode-name "] "
-
+                  ;; " [" 'mode-name "] "
+                  " "
                   ;; Show the file name with sanitized
                   '(:eval (or (if (gb/modeline-line-selected-window-active-p)
                                  (propertize-base-name (get-project-relative-buffer-filename))
@@ -3339,7 +3344,15 @@
 
       (setq-default mode-line-format
                     (list '(:eval (simple-mode-line-render left-global-mode-string
-                                                           (append global-mode-string (list mode-line-process))))))
+                                                           (append  (list  ;; eglot--mode-line-format
+                                                                          ;; flycheck-mode-line " "
+                                                                     ;;minor-mode-alist
+                                                                     '(:eval (if (gb/modeline-line-selected-window-active-p)
+                                                                                mode-line-modes
+                                                                               (substring-no-properties (format-mode-line mode-line-modes))))
+                                                                     ;; '(:eval (when text-scale-mode (concat " (𝞿" text-scale-mode-lighter ") ")))
+                                                                     mode-line-misc-info)
+                                                                    (list mode-line-process))))))
 
     #+end_src
 ** rainbow mode
