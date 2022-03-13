@@ -311,18 +311,19 @@
 * initial unsetting of global keys
   - these keys are either used (remapped) in other packages / own code
   #+BEGIN_SRC emacs-lisp
-  (global-unset-key "\C-z")     ;; (now mapped to prefix -- dash)
-  (global-unset-key "\C-x\C-k") ;; keyboard makros prefix (now mapped to kill buffer)
-  (global-unset-key "\M-%")     ;; replaced by visual-regexp ...
-  ;; unbind super key bindings with the given keys
-  (dolist (key '(& \, \^ \` \| \~ \?))
-    (global-unset-key (kbd (concat "s-" (symbol-name key))))
-    (global-unset-key (kbd (concat "s-" (upcase (symbol-name key))))))
-  ;; unbind super key bindings with letters (lower and upper case variant)
-  (dotimes (i 26)
-    (let ((letter (byte-to-string (+ 65 i))))
-      (global-unset-key (kbd (concat "s-" letter)))
-      (global-unset-key (kbd (concat "s-" (downcase letter))))))
+    (global-unset-key "\C-z")     ;; (now mapped to prefix -- dash)
+    (global-unset-key "\C-x\C-k") ;; keyboard makros prefix (now mapped to kill buffer)
+    (global-unset-key "\M-%")     ;; replaced by visual-regexp ...
+    ;; unbind super key bindings with the given keys
+    (dolist (key '(& \, \^ \` \| \~ \?))
+      (global-unset-key (kbd (concat "s-" (symbol-name key))))
+      (global-unset-key (kbd (concat "s-" (upcase (symbol-name key))))))
+    ;; unbind super key bindings with letters (lower and upper case variant)
+    (dotimes (i 26)
+      (let ((letter (byte-to-string (+ 65 i))))
+        (global-unset-key (kbd (concat "s-" letter)))
+        (global-unset-key (kbd (concat "s-" (downcase letter))))))
+    (global-unset-key (kbd "C-<down-mouse-1>"))
   #+END_SRC
 * check account configuration files
   #+BEGIN_SRC emacs-lisp
