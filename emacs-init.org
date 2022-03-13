@@ -13594,8 +13594,8 @@
               (let ((position (window-absolute-pixel-position)))
                 (set-mouse-absolute-pixel-position
                  (car position) (cdr position)))))
-          :after exwm-config
-          ))
+          (exwm-mff-mode 1)
+          :after exwm-config))
     #+END_SRC
   - exwm-config
     #+BEGIN_SRC emacs-lisp
