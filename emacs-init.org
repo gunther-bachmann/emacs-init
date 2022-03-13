@@ -14517,9 +14517,12 @@
 * EVAL winum (select windows by number, which is shown in the modeline)
   - is useful for native applications in exwm, since ace-window cannot overlay those with the key to select those
   #+begin_src emacs-lisp
-  (use-package winum
-    :ensure t
-    :config (winum-mode))
+    (use-package winum
+      :ensure t
+      :custom ( winum-auto-setup-mode-line t)
+      (winum-mode-line-position 0)
+      (winum--mode-line-segment '(:eval (propertize (format "%s" (winum-get-number-string)) 'face '(:foreground "#604c60"))))
+      :config (winum-mode))
   #+end_src
 * EVAL org-noter (keep notes to pdf, epub etc. files, that scroll with the document)
   - execute org-noter within a pdf document (pdf-tools), or epub (nov.el) ...
