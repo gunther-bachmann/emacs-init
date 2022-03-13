@@ -3270,8 +3270,6 @@
       (setq mode-line-position-column-line-format '(" %5l:%4c"))
       (column-number-mode 1)
 
-      ;; (setq mode-line-position )
-
       ;; (use-package modeline-region
       ;;   :load-path "~/.emacs.d/additionals/"
       ;;   :config
@@ -3292,16 +3290,22 @@
 
       (memoize #'project-current 60)
 
+      (defun shorten-buffer-filename (fn)
+        (when-let* ((prop-fn (propertize-base-name fn)))
+          (->>
+           (if-let* ((project (project-current nil default-directory))
+                     (project-root (string-remove-suffix "/" (expand-file-name (cdr project)))))
+               (gb/string-replace-prefix project-root (propertize "-" 'face '(:foreground "orange")) prop-fn)
+             (gb/string-replace-prefix (expand-file-name "~") (propertize "~" 'face '(:foreground "green")) prop-fn))
+           (gb/string-replace-prefix "/sudo:root@pe-nixos:" (concat (propertize "sudo" 'face '(:foreground "red")) ":"))
+           (replace-regexp-in-string "/nix/store/[a-z0-9]+-" (concat (propertize "[n-store]" 'face '(:foreground "#A01010")) ":"))
+           (replace-regexp-in-string "/gnu/store/[a-z0-9]+-" (concat  (propertize "[store]" 'face '(:foreground "#A01010")) ":"))
+           (replace-regexp-in-string "/src/main/\\(java\\|scala\\|kotlin\\)/" (concat ":" (propertize "[src]" 'face '(:foreground "#A01010")) ":"))
+           (replace-regexp-in-string "/src/test/\\(java\\|scala\\|kotlin\\)/" (concat ":" (propertize "[tst]" 'face '(:foreground "#10A010")) ":")))))
+
       (defun get-project-relative-buffer-filename ()
-        (when-let* ((fn (buffer-file-name))
-                    (prop-fn (propertize-base-name fn)))
-          (if-let* ((project (project-current nil default-directory))
-                    (project-root (string-remove-suffix "/" (expand-file-name (cdr project)))))
-              (gb/string-replace-prefix project-root (propertize "-" 'face '(:foreground "orange")) prop-fn)
-              ;; (replace-regexp-in-string (regexp-quote project-root) (concat (propertize "-" 'face '(:foreground "orange"))) prop-fn)
-            (gb/string-replace-prefix (expand-file-name "~") (propertize "~" 'face '(:foreground "green")) prop-fn)
-            ;; (replace-regexp-in-string (regexp-quote (expand-file-name "~")) (propertize "~" 'face '(:foreground "green")) prop-fn)
-            )))
+        (when-let* ((fn (buffer-file-name)))
+          (shorten-buffer-filename fn)))
 
       (defun propertize-base-name (filename)
         (when filename
@@ -3361,9 +3365,9 @@
                   " "
                   ;; Show the file name with sanitized
                   '(:eval (or (if (gb/modeline-line-selected-window-active-p)
-                                 (propertize-base-name (get-project-relative-buffer-filename))
-                               (substring-no-properties (propertize-base-name (get-project-relative-buffer-filename))))
-                             mode-line-buffer-identification))))
+                                  (propertize-base-name (get-project-relative-buffer-filename))
+                                (substring-no-properties (propertize-base-name (get-project-relative-buffer-filename))))
+                              mode-line-buffer-identification))))
 
       (setq right-global-mode-string
             (append  (list  ;; eglot--mode-line-format
