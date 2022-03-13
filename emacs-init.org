@@ -13131,7 +13131,7 @@
            (gb/brightness-set 100)
            (gb/cpu-freq-limit)
            (gb/audio-volume-set 100)
-           (browse-url-chrome "https://www.netflix.com"))
+           (start-process "chrome" "*google-chrome*" (executable-find "google-chrome-stable") "https://www.netflix.com" "--use-gl=desktop" "--enable-features=VaapiVideoDecoder"))
 
          (defun gb/compositor-enable ()
            "run compton compositor if not already running"
