@@ -2452,40 +2452,45 @@
    #+END_SRC
 ** other
    #+BEGIN_SRC emacs-lisp
-   ;; Changes all yes/no questions to y/n type
-   (defalias 'yes-or-no-p 'y-or-n-p)
+     ;; Changes all yes/no questions to y/n type
+     (defalias 'yes-or-no-p 'y-or-n-p)
 
-   ;; These settings relate to how emacs interacts with your operating system
-   (setq ;; makes killing/yanking interact with the clipboard
-    select-enable-clipboard t
+     ;; These settings relate to how emacs interacts with your operating system
+     (setq ;; makes killing/yanking interact with the clipboard
+      select-enable-clipboard t
 
-    ;; use primary selection for cut/paste
-    select-enable-primary t
+      ;; use primary selection for cut/paste
+      select-enable-primary t
 
-    ;; Save clipboard strings into kill ring before replacing them.
-    ;; When one selects something in another program to paste it into Emacs,
-    ;; but kills something in Emacs before actually pasting it,
-    ;; this selection is gone unless this variable is non-nil
-    save-interprogram-paste-before-kill t
+      ;; Save clipboard strings into kill ring before replacing them.
+      ;; When one selects something in another program to paste it into Emacs,
+      ;; but kills something in Emacs before actually pasting it,
+      ;; this selection is gone unless this variable is non-nil
+      save-interprogram-paste-before-kill t
 
-    ;; Shows all options when running apropos. For more info,
-    ;; https://www.gnu.org/software/emacs/manual/html_node/emacs/Apropos.html
-    apropos-do-all t
+      ;; Shows all options when running apropos. For more info,
+      ;; https://www.gnu.org/software/emacs/manual/html_node/emacs/Apropos.html
+      apropos-do-all t
 
-    ;; Mouse yank commands yank at point instead of at click.
-    mouse-yank-at-point t)
+      ;; Mouse yank commands yank at point instead of at click.
+      mouse-yank-at-point t)
 
-   ;; No cursor blinking, it's distracting
-   (blink-cursor-mode 0)
+     ;; No cursor blinking, it's distracting
+     (blink-cursor-mode 0)
 
-   ;; make cursor the width of the character it is under
-   ;; i.e. full width of a TAB
-   (setq x-stretch-cursor t)
+     ;; make cursor the width of the character it is under
+     ;; i.e. full width of a TAB
+     (setq x-stretch-cursor t)
 
-   ;; full path in title bar
-   (setq-default frame-title-format "%b (%f)")
+     ;; full path in title bar
+     (setq-default frame-title-format "%b (%f)")
 
-   (setq visible-bell 1)
+     (setq visible-bell nil)
+     (setq display-raw-bytes-as-hex t)
+     (setq baud-rate 65536)
+     (setq ring-bell-function 'ignore)
+     (setq fancy-splash-image "~/media/gnu-small.png")
+     (setq mouse-avoidance-mode 'banish)
    #+END_SRC
 ** window/frame
    #+BEGIN_SRC emacs-lisp
@@ -3262,6 +3267,15 @@
 *** custom modeline
     #+begin_src emacs-lisp
       (setq auto-revert-check-vc-info t)
+      (setq mode-line-position-column-line-format '(" %5l:%4c"))
+      (column-number-mode 1)
+
+      ;; (setq mode-line-position )
+
+      ;; (use-package modeline-region
+      ;;   :load-path "~/.emacs.d/additionals/"
+      ;;   :config
+      ;;   (global-modeline-region-mode 1))
 
       (defun gb/mode-line-padding ()
         (let ((r-length (+ (length (replace-regexp-in-string
@@ -3271,13 +3285,23 @@
           (propertize " "
                       'display `(space :align-to (- right ,r-length)))))
 
+      (defun gb/string-replace-prefix (prefix replacement str)
+        (if (string-prefix-p prefix str)
+            (concat replacement (string-remove-prefix prefix str))
+          str))
+
+      (memoize #'project-current 60)
+
       (defun get-project-relative-buffer-filename ()
         (when-let* ((fn (buffer-file-name))
                     (prop-fn (propertize-base-name fn)))
-          (if-let* ((project (project-current))
-                    (project-root (replace-regexp-in-string "/$" "" (expand-file-name (cdr project)))))
-              (replace-regexp-in-string (regexp-quote project-root) (concat (propertize "-" 'face '(:foreground "orange"))) prop-fn)
-            (replace-regexp-in-string (regexp-quote (expand-file-name "~")) (propertize "~" 'face '(:foreground "green")) prop-fn))))
+          (if-let* ((project (project-current nil default-directory))
+                    (project-root (string-remove-suffix "/" (expand-file-name (cdr project)))))
+              (gb/string-replace-prefix project-root (propertize "-" 'face '(:foreground "orange")) prop-fn)
+              ;; (replace-regexp-in-string (regexp-quote project-root) (concat (propertize "-" 'face '(:foreground "orange"))) prop-fn)
+            (gb/string-replace-prefix (expand-file-name "~") (propertize "~" 'face '(:foreground "green")) prop-fn)
+            ;; (replace-regexp-in-string (regexp-quote (expand-file-name "~")) (propertize "~" 'face '(:foreground "green")) prop-fn)
+            )))
 
       (defun propertize-base-name (filename)
         (when filename
@@ -3324,7 +3348,8 @@
                                                    '(:foreground "orange")
                                                  'mode-line-inactive))))))
 
-                  'mode-line-position
+                  ;; 'mode-line-position
+                  "%5l:" (propertize "%4c" 'face '(:foreground "#606060"))
 
                   " "
                   '(:eval 
