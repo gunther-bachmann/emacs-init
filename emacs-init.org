@@ -3115,7 +3115,7 @@
 *** rich minority mode (hide minor modes from mode line) 
     #+BEGIN_SRC emacs-lisp
       (use-package rich-minority
-        :ensure t
+        :disabled t
         :config
         (progn
           (rich-minority-mode +1)
@@ -3275,11 +3275,40 @@
       ;;   :config
       ;;   (global-modeline-region-mode 1))
 
+      (use-package diminish
+        :ensure t)
+
+      (defun gb/ignore-modeline-updates-advice (orig-fun &rest args)
+        (setq gb/disable-modeline-updates t)
+        (unwind-protect 
+            (apply orig-fun args)
+          (setq gb/disable-modeline-updates nil)))
+
+      (when (fboundp #'sublimity-scroll--vscroll-effect)
+        (advice-add 'sublimity-scroll--vscroll-effect :around #'gb/ignore-modeline-updates-advice))
+      (when (fboundp #'sublimity-scroll--hscroll-effect)
+        (advice-add 'sublimity-scroll--hscroll-effect :around #'gb/ignore-modeline-updates-advice))
+
+      (advice-add 'next-line :around #'gb/ignore-modeline-updates-advice)
+      (advice-add 'previous-line :around #'gb/ignore-modeline-updates-advice)
+      (advice-add 'right-char :around #'gb/ignore-modeline-updates-advice)
+      (advice-add 'left-char :around #'gb/ignore-modeline-updates-advice)
+      (advice-add 'forward-word :around #'gb/ignore-modeline-updates-advice)
+      (advice-add 'backward-word :around #'gb/ignore-modeline-updates-advice)
+
+      (defvar gb/mode-line--last-padding-cache 0 "cached length of righ aligned mode line")
+      (defvar gb/mode-line--last-shortened-filename-cache nil "cached filename")
+      (defvar gb/disable-modeline-updates nil)
+
       (defun gb/mode-line-padding ()
-        (let ((r-length (+ (length (replace-regexp-in-string
-                                    ":[a-zA-Z]+:" "LL"
-                                    (format-mode-line right-global-mode-string)))
-                           (if (gb/modeline-line-selected-window-active-p) 5 -2))))
+        (let ((r-length (if gb/disable-modeline-updates
+                            gb/mode-line--last-padding-cache
+                          (+ (length (replace-regexp-in-string
+                                      ":[a-zA-Z]+:" "LL"
+                                      (format-mode-line right-global-mode-string)))
+                             (if (and mlscroll-mode (gb/modeline-line-selected-window-active-p)) 5 -2)))))
+          (when (not gb/disable-modeline-updates)
+            (setq gb/mode-line--last-padding-cache r-length))
           (propertize " "
                       'display `(space :align-to (- right ,r-length)))))
 
@@ -3290,18 +3319,30 @@
 
       (memoize #'project-current 60)
 
+      (defun gb/reorder-filename (filename)
+        (let ((elements (split-string filename "/")))
+          (if (< (length elements) 2)
+              (propertize filename 'face 'mode-line-emphasis)
+            (concat (propertize (car (last elements)) 'face 'mode-line-emphasis) " " (string-join (butlast elements) "/")))))
+
       (defun shorten-buffer-filename (fn)
-        (when-let* ((prop-fn (propertize-base-name fn)))
-          (->>
-           (if-let* ((project (project-current nil default-directory))
-                     (project-root (string-remove-suffix "/" (expand-file-name (cdr project)))))
-               (gb/string-replace-prefix project-root (propertize "-" 'face '(:foreground "orange")) prop-fn)
-             (gb/string-replace-prefix (expand-file-name "~") (propertize "~" 'face '(:foreground "green")) prop-fn))
-           (gb/string-replace-prefix "/sudo:root@pe-nixos:" (concat (propertize "sudo" 'face '(:foreground "red")) ":"))
-           (replace-regexp-in-string "/nix/store/[a-z0-9]+-" (concat (propertize "[n-store]" 'face '(:foreground "#A01010")) ":"))
-           (replace-regexp-in-string "/gnu/store/[a-z0-9]+-" (concat  (propertize "[store]" 'face '(:foreground "#A01010")) ":"))
-           (replace-regexp-in-string "/src/main/\\(java\\|scala\\|kotlin\\)/" (concat ":" (propertize "[src]" 'face '(:foreground "#A01010")) ":"))
-           (replace-regexp-in-string "/src/test/\\(java\\|scala\\|kotlin\\)/" (concat ":" (propertize "[tst]" 'face '(:foreground "#10A010")) ":")))))
+        (if (and gb/disable-modeline-updates gb/mode-line--last-shortened-filename-cache)
+            gb/mode-line--last-shortened-filename-cache
+          (let* ((sfn 
+                  (when-let* ((prop-fn fn))
+                    (->>
+                     (if-let* ((project (project-current nil default-directory))
+                               (project-root (string-remove-suffix "/" (expand-file-name (cdr project)))))
+                         (gb/string-replace-prefix project-root (propertize "-" 'face '(:foreground "orange")) prop-fn)
+                       (gb/string-replace-prefix (expand-file-name "~") (propertize "~" 'face '(:foreground "green")) prop-fn))
+                     (gb/string-replace-prefix "/sudo:root@pe-nixos:" (concat (propertize "sudo" 'face '(:foreground "red")) ":"))
+                     (replace-regexp-in-string "/nix/store/[a-z0-9]+-" (concat (propertize "[n-store]" 'face '(:foreground "#A01010")) ":"))
+                     (replace-regexp-in-string "/gnu/store/[a-z0-9]+-" (concat  (propertize "[store]" 'face '(:foreground "#A01010")) ":"))
+                     (replace-regexp-in-string "/src/main/\\(java\\|scala\\|kotlin\\)/" (concat ":" (propertize "[src]" 'face '(:foreground "#A01010")) ":"))
+                     (replace-regexp-in-string "/src/test/\\(java\\|scala\\|kotlin\\)/" (concat ":" (propertize "[tst]" 'face '(:foreground "#10A010")) ":")))))
+                 (psfn (gb/reorder-filename sfn)))
+            (setq gb/mode-line--last-shortened-filename-cache psfn)
+            psfn)))
 
       (defun get-project-relative-buffer-filename ()
         (when-let* ((fn (buffer-file-name)))
@@ -3365,14 +3406,14 @@
                   " "
                   ;; Show the file name with sanitized
                   '(:eval (or (if (gb/modeline-line-selected-window-active-p)
-                                  (propertize-base-name (get-project-relative-buffer-filename))
-                                (substring-no-properties (propertize-base-name (get-project-relative-buffer-filename))))
-                              mode-line-buffer-identification))))
+                                 (get-project-relative-buffer-filename)
+                               (substring-no-properties (get-project-relative-buffer-filename)))
+                             mode-line-buffer-identification))))
 
       (setq right-global-mode-string
             (append  (list  ;; eglot--mode-line-format
                       ;; flycheck-mode-line " "
-                      ;;minor-mode-alist
+                      ;; minor-mode-alist
                       '(:eval (if (gb/modeline-line-selected-window-active-p)
                                   mode-line-modes
                                 (substring-no-properties (format-mode-line mode-line-modes))))
@@ -16629,14 +16670,14 @@
   - dynamic on/off could be an option
   #+begin_src emacs-lisp
     (use-package mlscroll
-      :ensure t
+      :disabled t
       :custom ((mlscroll-width-chars 10)
                (mlscroll-right-align nil)
                ;; (mlscroll-border nil)
                (mlscroll-in-color "#504050")
                (mlscroll-out-color "#251422"))
       :config
-      (mlscroll-mode 1)
+      (mlscroll-mode 1)      
       (defconst mlscroll-model-line-const (list '(:eval (when (gb/modeline-line-selected-window-active-p) (mlscroll-mode-line)))))
       (setq global-mode-string (append global-mode-string  mlscroll-model-line-const))
       (setq mlscroll-flank-face-properties `(:foreground ,mlscroll-out-color :background ,mlscroll-out-color :overline "#504050"))
@@ -17827,6 +17868,51 @@
     ;;         ;; (define-symbol-prop 'face-remapping-alist 'permanent-local t)
     ;;         (add-to-list 'face-remapping-alist '(default (:background "#241422")))))))
     ;; (set-face-background 'minibuffer-prompt "#241422")
+    (defun gb/diminish-minor-modes ()
+      (interactive)
+      (--each '(anzu-mode
+                auto-fill-mode
+                auto-sudoedit-mode
+                beginend-global-mode
+                beginend-latex-mode
+                beginend-magit-status-mode
+                beginend-org-mode
+                beginend-outline-mode
+                beginend-prog-mode
+                company-box-mode
+                company-mode
+                compilation-shell-minor-mode
+                docstr-mode
+                easy-escape-minor-mode
+                editorconfig-mode
+                eldoc-mode
+                elisp-slime-nav-mode
+                form-feed-mode
+                gcmh-mode
+                git-gutter-mode
+                global-hardhat-mode
+                hs-minor-mode
+                ivy-mode
+                org-pretty-tags-mode
+                org-src-mode
+                paredit-mode
+                pcre-mode
+                rainbow-mode
+                selected-minor-mode
+                subword-mode
+                tempbuf-mode
+                tree-sitter-mode
+                undo-tree-mode
+                valign-mode
+                view-mode
+                which-key-mode
+                wrap-region-mode
+                ws-butler-mode
+                yas-minor-mode)
+        (when (fboundp it) (diminish it))))
+
+    (gb/diminish-minor-modes)
+
     (report-elapsed "exit finish - up")
     (lisp-interaction-mode)
     ;; (when (fboundp 'doom-modeline-mode)
