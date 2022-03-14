@@ -4907,6 +4907,8 @@
        :hook (company-mode . company-box-mode)
        :config
        (progn
+         (when (fboundp #'gb/modeline-line-set-selected-window)
+           (add-hook 'company-box-hide-hook 'gb/modeline-line-set-selected-window))
          (defun gb/company-box-doc--init-frame-parameter (orig-func &rest args)
            "initialize frame parameter to ensure that the frame is always recreated"
            (company-box-doc--hide (selected-frame))
