@@ -17153,17 +17153,18 @@
   - flycheck-indent
   - ob-deno - Babel Functions for Javascript/TypeScript with Deno
   - flycheck-languagetool - flycheck using the language tool
-*** javascript/json/yaml/html
-    - indium (java script development environment) [[https://github.com/NicolasPetton/Indium][home page]]
-    - lsp-html - lsp frontend for html serving
-    - html5-schema (html5 support for nXML)
-    - json-reformatter-jq
-    - yaml-imode
-      - This package enhances the imenu support in yaml-mode
-      - requires ruby >= 2.5
-          #+BEGIN_SRC emacs-lisp :tangle no
-          (use-package yaml-imode)
-          #+END_SRC
+** javascript/json/yaml/html
+   - indium (java script development environment) [[https://github.com/NicolasPetton/Indium][home page]]
+   - lsp-html - lsp frontend for html serving
+   - html5-schema (html5 support for nXML)
+   - json-reformatter-jq
+   - yaml-imode
+     - This package enhances the imenu support in yaml-mode
+     - requires ruby >= 2.5
+         #+BEGIN_SRC emacs-lisp :tangle no
+         (use-package yaml-imode)
+         #+END_SRC
+   - skerrit - repl driven dev for javascript ([[https://github.com/anonimitoraf/skerrick][home page]])
 ** lisp/racket/haskell/clojure/scheme
   - macrostep-geiser
   - ob-clojure-literate
