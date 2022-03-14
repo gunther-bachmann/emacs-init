@@ -17897,6 +17897,8 @@
                 global-hardhat-mode
                 hs-minor-mode
                 ivy-mode
+                notdeft-note-mode
+                org-roam-stack-mode
                 org-pretty-tags-mode
                 org-src-mode
                 paredit-mode
