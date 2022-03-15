@@ -14449,6 +14449,7 @@
           (org-babel-result-hide-all)
           (read-only-mode +1)
           (flyspell-mode 0) ;; no spell check errors
+          (appt-activate -1)
           (when (fboundp 'gb/serif-on)
             (gb/serif-on))
           ;; (when (boundp org-padding-mode)
@@ -14479,6 +14480,7 @@
           ;;   (org-padding-mode 1)
           ;;   (redisplay t))
           (global-hl-line-mode 1)
+          (appt-activate 1)
           (setq cursor-type 'box)
           (setq org-show-notification-handler original-org-show-notification-handler)
           (when (fboundp 'org-hide-tags-mode)
@@ -17918,6 +17920,7 @@
                 subword-mode
                 tempbuf-mode
                 tree-sitter-mode
+                org-tree-slide-mode
                 undo-tree-mode
                 valign-mode
                 view-mode
