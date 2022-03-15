@@ -16,9 +16,9 @@
 
     # Opacity
     fading = true;
-    fade-delta = 5;
+    # fade-delta = 20;
     fade-in-step = 0.05;
-    fade-out-step = 0.05;
+    fade-out-step = 0.03;
     inactive-opacity = 0.75;
     active-opacity = 1.0;
     frame-opacity = 0.9;
