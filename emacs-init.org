@@ -11961,6 +11961,10 @@
     (when (executable-find "direnv")
       (use-package envrc
         :ensure t
+        :custom
+        (envrc-on-lighter '(" e[" (:propertize "on" face envrc-mode-line-on-face) "]"))
+        (envrc-error-lighter '(" e[" (:propertize "error" face envrc-mode-line-error-face) "]"))
+        (envrc-none-lighter '(" e[" (:propertize "none" face envrc-mode-line-none-face) "]"))
         :config
         (envrc-global-mode 1)
         (define-key envrc-mode-map (kbd "C-c e") 'envrc-command-map)))
