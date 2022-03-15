@@ -16282,6 +16282,7 @@
     (use-package valign
       :load-path "~/repo/valign"
       :hook (org-mode . valign-mode)
+      :diminish 'valign-mode
       :config (setq valign-fancy-bar t))
   #+end_src
 * org-tree-slide-pause
