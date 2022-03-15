@@ -1524,6 +1524,7 @@
      (put 'web-mode-enable-auto-indentation 'safe-local-variable 'booleanp)
      (put 'web-mode-markup-indent-offset 'safe-local-variable #'integerp)
      (put 'dired-annotator-show 'safe-local-variable 'booleanp)
+     (put 'gb/org-indent 'safe-local-variable 'booleanp)
      (custom-set-variables
       '(safe-local-variable-values
         '((org-tree-slide-content--pos)
@@ -14351,6 +14352,8 @@
         (setq org-tree-slide-heading-emphasis t)
         (setq original-org-show-notification-handler org-show-notification-handler)
 
+        (defvar gb/org-indent t "should org indent be on or off during presentation?")
+
 
         (when (package-installed-p 'hydra)
           (require 'hydra)
@@ -14468,6 +14471,9 @@
           (when (boundp beginend-org-mode)
             (beginend-org-mode-goto-beginning))
           (setq org-tree-slide-content--pos nil)
+          (if gb/org-indent
+              (org-indent-mode 1)
+            (org-indent-mode -1))
           (org-tree-slide-content))
 
         (defun gb/presentation-off ()
