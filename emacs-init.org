@@ -6851,16 +6851,15 @@
     - see [[http://batsov.com/projectile/][here]]
  #+BEGIN_SRC emacs-lisp
    (use-package projectile
-      :ensure t
-      :custom
-      (projectile-project-search-path '("~/repo/"))
-      (projectile-indexing-method 'native)
-      (projectile-enable-caching t)
-      (projectile-completion-system 'ivy)
-      :config
+     :ensure t
+     :custom
+     (projectile-project-search-path '("~/repo/"))
+     (projectile-indexing-method 'native)
+     (projectile-enable-caching t)
+     (projectile-completion-system 'ivy)
+     :config
      ;; projectile everywhere!
-     ;; (projectile-global-mode)
-     )
+     (projectile-global-mode))
  #+END_SRC
 *** persp-projectile (disabled - collision with company-box)
  #+BEGIN_SRC emacs-lisp :tangle no
@@ -17903,6 +17902,7 @@
                 org-src-mode
                 paredit-mode
                 pcre-mode
+                projectile-mode
                 rainbow-mode
                 selected-minor-mode
                 subword-mode
