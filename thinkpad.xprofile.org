@@ -52,12 +52,6 @@
     # power consumption
     power-save.sh
   #+end_src
-** restore background picture
-  #+begin_src sh :eval no :tangle ~/.xprofile
-
-    # restore background image configuration
-    nitrogen --restore
-  #+end_src
 ** set common environment variables (editor, wine)
   #+begin_src sh :eval no :tangle ~/.xprofile
 

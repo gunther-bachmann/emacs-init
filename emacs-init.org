@@ -17045,6 +17045,17 @@
     (use-package color-theme-buffer-local
       :ensure t)
   #+end_src
+* EVAL wallpaper
+  #+begin_src emacs-lisp
+    (use-package wallpaper
+      :ensure t
+      :hook ((exwm-randr-screen-change . wallpaper-set-wallpaper))
+      :custom (wallpaper-directory "~/media")
+      (single-wallpaper t)
+      (wallpaper-static-wallpaper-list '("/home/pe/media/nix-wallpaper-simple-vdark-gray_bottom.png")))
+    (use-package wallpreview
+      :ensure t)
+  #+end_src
 * discarded eldoc-overlay - too invasive
   #+begin_src emacs-lisp :tangle no
     (use-package eldoc-overlay
