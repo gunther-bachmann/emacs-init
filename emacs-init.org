@@ -6936,7 +6936,7 @@
                  (magit-diff-adjust-tab-width t)
                  (magit-diff-highlight-trailing t)
                  (magit-diff-hide-trailing-cr-characters t)
-                 ;; (magit-display-buffer-function (quote magit-display-buffer-fullframe-status-v1))
+                 (magit-display-buffer-function 'magit-display-buffer-same-window-except-diff-v1)
                  (magit-section-initial-visibility-alist
                   (quote
                    ((staged . show)
