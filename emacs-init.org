@@ -6696,17 +6696,24 @@
 ** python
  #+BEGIN_SRC emacs-lisp
    (use-package python)
+
    (when (eq gb/completion-framework 'ivy)
      (use-package find-file-in-project
        :ensure t
        :after ( ivy)))
+
    (use-package elpy
      :after ( org flycheck find-file-in-project python)
      :ensure t
      :mode (("\\.py\\'" . python-mode))
      :init
      (add-hook 'python-mode-hook #'elpy-enable)
-     (add-hook 'python-mode-hook #'flycheck-mode))
+     (add-hook 'python-mode-hook #'flycheck-mode)
+     (cond
+      ((eq gb/theme-mode 'light) nil) ;; TODO complete
+      (t (progn
+           (--each '((elpy-codecell-boundary ((t (:overline "#505050")))))
+             (progn (add-to-list 'gb/list-of-faces-to-set it)(custom-set-faces it)))))))
  #+END_SRC
 ** scala  (ensime disabled in favor of metals, an lsp server)
  #+BEGIN_SRC emacs-lisp
