@@ -5396,14 +5396,13 @@
              (start-process-shell-command program nil program)
              (run-at-time 1 nil `(lambda () (gb/exwm--switch ,program)))))
 
-         (defun gb/ivy--program-select-and-run ()
-           (interactive)
-           (unless gb/external-commands
+         (defun gb/ivy--program-select-and-run (refresh)
+           (interactive "P")
+           (when (or refresh (not gb/external-commands))
              (setq gb/external-commands (remove-duplicates (gb/collect-external-commands nil))))
            (gb/exwm--switch-or-run-sel
-            (completing-read "RunProgram: " gb/external-commands nil t)))
+            (completing-read "RunProgram: " gb/external-commands nil t))))
 
-         )
        (use-package swiper
          :ensure t
          :after ( ivy)
