@@ -3387,7 +3387,7 @@
                                                  'mode-line-inactive)))
                       (buffer-read-only
                        (propertize " - " 'face (if (gb/modeline-line-selected-window-active-p)
-                                                   '(:foreground "#008000" :weight 'bold)
+                                                   '(:foreground "#008000" :weight bold)
                                                  'mode-line-inactive)))
                       ((not (buffer-modified-p))
                        (propertize " ⨯ " 'face (if (gb/modeline-line-selected-window-active-p)
@@ -3399,17 +3399,20 @@
 
                   " "
                   '(:eval 
-                    (propertize (all-the-icons-icon-for-mode major-mode
-                                                             :height (/ all-the-icons-scale-factor 1.4)
-                                                             :v-adjust -0.03
-                                                             (unless (gb/modeline-line-selected-window-active-p) :face)
-                                                             (unless (gb/modeline-line-selected-window-active-p) 'mode-line-inactive))))
+                    (unless (eq major-mode 'exwm-mode)
+                      (propertize (apply #'all-the-icons-icon-for-mode `(,major-mode
+                                             :height ,(/ all-the-icons-scale-factor 1.4)
+                                             :v-adjust -0.03
+                                             ,@(unless (gb/modeline-line-selected-window-active-p) '(:face mode-line-inactive)))))))
                   " "
                   ;; Show the file name with sanitized
-                  '(:eval (or (if (gb/modeline-line-selected-window-active-p)
-                                 (get-project-relative-buffer-filename)
-                               (substring-no-properties (get-project-relative-buffer-filename)))
-                             mode-line-buffer-identification))))
+                  '(:eval (let ((id (or (get-project-relative-buffer-filename)
+                                       mode-line-buffer-identification)))
+                            (if (gb/modeline-line-selected-window-active-p)
+                                id
+                              (if (stringp id)
+                                  (substring-no-properties id)
+                                (substring-no-properties (format-mode-line id))))))))
 
       (setq right-global-mode-string
             (append  (list  ;; eglot--mode-line-format
