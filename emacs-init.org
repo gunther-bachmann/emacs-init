@@ -2840,7 +2840,7 @@
     #+BEGIN_SRC emacs-lisp
       (use-package spinner
         :ensure t
-        :custom (spinner-frames-per-second 2))
+        :custom (spinner-frames-per-second 1))
     #+END_SRC
 *** spaceline (mode line of spacemacs) (disabled)
     #+BEGIN_SRC emacs-lisp :tangle no
@@ -3113,7 +3113,7 @@
         ;; (spaceline-all-the-icons--setup-paradox)
         ))
     #+END_SRC
-*** rich minority mode (hide minor modes from mode line) 
+*** rich minority mode (disabled, hide minor modes from mode line) 
     #+BEGIN_SRC emacs-lisp
       (use-package rich-minority
         :disabled t
@@ -17248,6 +17248,7 @@
          (use-package yaml-imode)
          #+END_SRC
    - skerrit - repl driven dev for javascript ([[https://github.com/anonimitoraf/skerrick][home page]])
+   - prettier-rc - minor mode to use prettier rules to format typescript/javascript source 
 ** lisp/racket/haskell/clojure/scheme
   - macrostep-geiser
   - ob-clojure-literate
