@@ -3377,33 +3377,35 @@
         (eq gb/modeline-line-selected-window (selected-window)))
 
       (setq left-global-mode-string
-            (list '((:eval
-                     (cond
-                      ((buffer-modified-p)
-                       (propertize " + " 'face (if (gb/modeline-line-selected-window-active-p)
-                                                   (if (buffer-file-name)
-                                                       '(:foreground "red")
-                                                     '(:foreground "green"))
-                                                 'mode-line-inactive)))
-                      (buffer-read-only
-                       (propertize " - " 'face (if (gb/modeline-line-selected-window-active-p)
-                                                   '(:foreground "#008000" :weight bold)
-                                                 'mode-line-inactive)))
-                      ((not (buffer-modified-p))
-                       (propertize " ⨯ " 'face (if (gb/modeline-line-selected-window-active-p)
-                                                   '(:foreground "orange")
-                                                 'mode-line-inactive))))))
+            (list
+             '((:eval
+                (cond
+                 ((buffer-modified-p)
+                  (propertize " + " 'face (if (gb/modeline-line-selected-window-active-p)
+                                              (if (buffer-file-name)
+                                                  '(:foreground "red")
+                                                '(:foreground "green"))
+                                            'mode-line-inactive)))
+                 (buffer-read-only
+                  (propertize " - " 'face (if (gb/modeline-line-selected-window-active-p)
+                                              '(:foreground "#008000" :weight bold)
+                                            'mode-line-inactive)))
+                 ((not (buffer-modified-p))
+                  (propertize " ⨯ " 'face (if (gb/modeline-line-selected-window-active-p)
+                                              '(:foreground "orange")
+                                            'mode-line-inactive))))))
 
                   ;; 'mode-line-position
                   "%5l:" (propertize "%4c" 'face '(:foreground "#606060"))
 
                   " "
                   '(:eval 
-                    (unless (eq major-mode 'exwm-mode)
+                    (when (or (assoc major-mode all-the-icons-mode-icon-alist)
+                             (assoc (get major-mode 'derived-mode-parent) all-the-icons-mode-icon-alist))
                       (propertize (apply #'all-the-icons-icon-for-mode `(,major-mode
-                                             :height ,(/ all-the-icons-scale-factor 1.4)
-                                             :v-adjust -0.03
-                                             ,@(unless (gb/modeline-line-selected-window-active-p) '(:face mode-line-inactive)))))))
+                                                                         :height ,(/ all-the-icons-scale-factor 1.5)
+                                                                         :v-adjust -0.03
+                                                                         ,@(unless (gb/modeline-line-selected-window-active-p) '(:face mode-line-inactive)))))))
                   " "
                   ;; Show the file name with sanitized
                   '(:eval (let ((id (or (get-project-relative-buffer-filename)
@@ -11837,7 +11839,7 @@
      (use-package dired-annotator
        :after (posframe all-the-icons)
        :load-path "~/repo/emacs-dired-annotator"
-       :custom ((dired-annotator-note-icon (all-the-icons-faicon "sticky-note"))
+       :custom ((dired-annotator-note-icon (propertize (all-the-icons-faicon "sticky-note") 'face '(:height 0.9 ) 'display '(:v-adjust: -0.2 )))
                 (dired-annotator-annotations-folder (expand-file-name "~/documents/annotations"))
                 (dired-annotator-note-popup-hook #'dired-annotator--posframe-note-popup)
                 (dired-annotator-note-fill-column 54) ;; a bit smaller than the popup window
