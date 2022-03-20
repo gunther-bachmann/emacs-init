@@ -17080,6 +17080,52 @@
     (use-package wallpreview
       :ensure t)
   #+end_src
+* utility functions
+  - open dired to mounted folders
+    #+begin_src emacs-lisp
+      (defun gb/select-mounted-folder ()
+        "open dired folder selection on mount point for media"
+        (interactive)
+        (let ((default-directory "/run/media/pe"))
+          (call-interactively #'dired)))
+    #+end_src
+  - resize image and adjust org link automatically
+    #+begin_src emacs-lisp
+      (defun gb/resize-current-image ()
+        "resize image currently open and save the converted"
+        (interactive)
+        (unless (gb/resize-image (buffer-file-name))
+          (message "failed (file-name? image magick installed?)")))
+
+      (defun gb/resize-image (file-name)
+        "resize the given image, select max height/width interactively, keep aspect ratio"
+        (when (and file-name (--all? (executable-find it) '("identify" "convert")))      
+          (when-let* ((orig-size (shell-command-to-string (concat "identify -format '%wx%h' " file-name)))
+                      (new-size (completing-read (format "original size %s -> target size (max width height, keeping aspect ratio): " orig-size) '("200" "300" "400") nil nil))
+                      (fbn (file-name-base file-name))
+                      (folder (file-name-directory file-name))
+                      (new-name (format "%s%s.%s.png" folder fbn new-size)))
+            (message (format "transformation complete to %s, result '%s'"
+                             new-name
+                             (shell-command-to-string (format "convert %s -resize %sx%s %s" file-name new-size new-size new-name))))
+            new-name)))
+
+      (defun gb/resize-image-in-org ()
+        "resize image referenced by org link at point, replace link to resized image"
+        (interactive)
+        (when-let* ((context (org-element-context))
+                    (path (org-element-property :path context))
+                    (new-name (gb/resize-image path))
+                    (_ (message "copy context"))
+                    (new-context (org-element-copy context))
+                    (beg (org-element-property :begin (org-element-at-point)))
+                    (end (org-element-property :end (org-element-at-point))))
+          (org-element-put-property new-context :path new-name)
+          (org-element-set-element context new-context)
+          (goto-char beg)
+          (kill-region beg end)
+          (insert (org-element-interpret-data  new-context)))) 
+    #+end_src
 * discarded eldoc-overlay - too invasive
   #+begin_src emacs-lisp :tangle no
     (use-package eldoc-overlay
