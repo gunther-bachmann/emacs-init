@@ -15135,6 +15135,7 @@
     (when gb/profile--org-roam
       (use-package notdeft
         :commands (notdeft)
+        :diminish 'notdeft-note-mode
         :bind ("s-d" . notdeft)
         :load-path "~/repo/notdeft"
         :hook (notdeft-mode . org-roam-stack-mode)
@@ -16211,7 +16212,7 @@
       (use-package org-roam-stack
         :load-path "~/repo/org-roam-stack/"
         :after (org org-roam)
-        :diminish org-roam-stack-mode
+        :diminish 'org-roam-stack-mode
         :custom (org-roam-stack--link-adjustments t)
         (org-roam-stack--open-ro t)))
   #+end_src
