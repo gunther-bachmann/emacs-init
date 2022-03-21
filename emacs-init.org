@@ -3414,7 +3414,10 @@
                                 id
                               (if (stringp id)
                                   (substring-no-properties id)
-                                (substring-no-properties (format-mode-line id))))))))
+                                (substring-no-properties (format-mode-line id))))))
+
+                  '(:eval (when (and (not (buffer-file-name)) (gb/modeline-line-selected-window-active-p))
+                            (shorten-buffer-filename default-directory)))))
 
       (setq right-global-mode-string
             (append  (list  ;; eglot--mode-line-format
@@ -11967,9 +11970,9 @@
       (use-package envrc
         :ensure t
         :custom
-        (envrc-on-lighter '(" e[" (:propertize "on" face envrc-mode-line-on-face) "]"))
-        (envrc-error-lighter '(" e[" (:propertize "error" face envrc-mode-line-error-face) "]"))
-        (envrc-none-lighter '(" e[" (:propertize "none" face envrc-mode-line-none-face) "]"))
+        (envrc-on-lighter '(" [" (:propertize "on" face envrc-mode-line-on-face) "]"))
+        (envrc-error-lighter '(" [" (:propertize "error" face envrc-mode-line-error-face) "]"))
+        (envrc-none-lighter '(" [" (:propertize "none" face envrc-mode-line-none-face) "]"))
         :config
         (envrc-global-mode 1)
         (define-key envrc-mode-map (kbd "C-c e") 'envrc-command-map)))
@@ -16170,7 +16173,13 @@
         :custom
         (gcmh-verbose t)
         (gcmh-idle-delay 'auto)
+        (gcmh-modeline-element '(:eval (let ((str (format "▽%.2f" gcmh-last-gc-time)))
+                                         (cond ((and (fboundp #'gb/modeline-line-selected-window-active-p) (not (gb/modeline-line-selected-window-active-p))) str)
+                                               ((> 0.2 gcmh-last-gc-time) (propertize str 'face '(:foreground "#208020")))
+                                               ((> 0.5 gcmh-last-gc-time) (propertize str 'face '(:foreground "#ff8c00")))
+                                               (t (propertize str 'face '(:foreground "#B00000")))))))
         :config (gcmh-mode 1)))
+
   #+end_src
 * EVAL regexp-expand - show regular expression at point expanded
   - see [[https://github.com/danielmartin/regexp-expand][here]]
@@ -16201,6 +16210,7 @@
       (use-package org-roam-stack
         :load-path "~/repo/org-roam-stack/"
         :after (org org-roam)
+        :diminish org-roam-stack-mode
         :custom (org-roam-stack--link-adjustments t)
         (org-roam-stack--open-ro t)))
   #+end_src
@@ -17957,7 +17967,10 @@
       (interactive)
       (--each '(anzu-mode
                 auto-fill-mode
+                auto-fill-function
+                auto-revert-mode
                 auto-sudoedit-mode
+                beginend-dired-mode
                 beginend-global-mode
                 beginend-latex-mode
                 beginend-magit-status-mode
@@ -17999,6 +18012,9 @@
                 ws-butler-mode
                 yas-minor-mode)
         (when (fboundp it) (diminish it))))
+
+    ;; output current minor modes and their display:
+    ;; (--each minor-mode-alist (ignore-errors (message (format "%S" it) )) )
 
     (gb/diminish-minor-modes)
 
