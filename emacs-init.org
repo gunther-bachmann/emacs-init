@@ -4914,6 +4914,8 @@
        :ensure t
        :after (company)
        :hook (company-mode . company-box-mode)
+       :custom ((company-box-show-single-candidate 'when-no-other-frontend)
+                (company-box-enable-icon t))
        :config
        (progn
          (when (fboundp #'gb/modeline-line-set-selected-window)
@@ -4926,7 +4928,6 @@
            )
          (advice-add 'company-box-doc--show :before #'gb/company-box-doc--init-frame-parameter)
          ;; (advice-remove 'company-box-doc--show #'gb/company-box-doc--init-frame-parameter)
-         (setq company-box-enable-icon t)
          (cond
           ((eq gb/theme-mode 'light) nil) ;; TODO complete
           (t (progn
