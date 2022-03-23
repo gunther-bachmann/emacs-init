@@ -16176,7 +16176,7 @@
         (gcmh-verbose t)
         (gcmh-idle-delay 'auto)
         (gcmh-modeline-element '(:eval (let ((str (format "▽%.2f" gcmh-last-gc-time)))
-                                         (cond ((and (fboundp #'gb/modeline-line-selected-window-active-p) (not (gb/modeline-line-selected-window-active-p))) str)
+                                         (cond ((and (fboundp #'gb/modeline-line-selected-window-active-p) (not (gb/modeline-line-selected-window-active-p))) "")
                                                ((> 0.2 gcmh-last-gc-time) (propertize str 'face '(:foreground "#208020")))
                                                ((> 0.5 gcmh-last-gc-time) (propertize str 'face '(:foreground "#ff8c00")))
                                                (t (propertize str 'face '(:foreground "#B00000")))))))
