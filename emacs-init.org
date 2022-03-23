@@ -11826,6 +11826,7 @@
      (when (file-exists-p "~/.emacs.d/additionals/dired+.el")
        (use-package dired+
          :load-path "~/.emacs.d/additionals/"
+         :custom (diredp-wrap-around-flag nil)
          :config (bind-key "s-!" 'diredp-async-shell-command-this-file dired-mode-map)
          (bind-key "C-p" 'diredp-previous-line dired-mode-map)))
    #+END_SRC
