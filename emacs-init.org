@@ -10311,6 +10311,10 @@
          ;; :commands (gb/slack-on gb/slack-off)
          :custom (slack-log-level 'warn "make log less verbose")
          (slack-file-dir (expand-file-name "~/Downloads/"))
+         (slack-buffer-function #'switch-to-buffer "make sure to open message buffer in same window")
+         ;; buffer tracking takes place only, if slack-buffer-create-on-notify is true!
+         (slack-buffer-create-on-notify nil "since tracking buffers is currently not used, this is nil") 
+         (slack-typing-visibility 'never)
          :init
          (setq slack-enable-global-mode-string t)
          (setq slack-enable-emoji t) ;; if you want to enable emoji, default nil
@@ -10322,9 +10326,6 @@
            (bind-key "C-c SPC" #'avy-goto-char-timer tracking-mode-map))
          ;; Ensure the buffer exists when a message arrives on a
          ;; channel that wasn't open.
-
-         ;; buffer tracking takes place only, if slack-buffer-create-on-notify is true!
-         (setq slack-buffer-create-on-notify nil) ;; since tracking buffers is currently not used, this is nil
 
          :config
          (setq lui-time-stamp-format "[%m-%d %H:%M]")
