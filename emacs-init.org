@@ -3424,7 +3424,9 @@
                                 (substring-no-properties (format-mode-line id))))))
 
                   '(:eval (when (and (not (buffer-file-name)) (gb/modeline-line-selected-window-active-p))
-                            (shorten-buffer-filename default-directory)))))
+                            (shorten-buffer-filename default-directory)))
+
+                  '(:eval (when (and (fboundp 'gb/keycast-mode) gb/keycast-mode (gb/modeline-line-selected-window-active-p)) keycast-mode-line))))
 
       (setq right-global-mode-string
             (append  (list  ;; eglot--mode-line-format
@@ -15032,14 +15034,40 @@
         :ensure t))
   #+end_src
 * EVAL keycast (incomplete) disabled
-  #+begin_src emacs-lisp :tangle no
+  #+begin_src emacs-lisp
     (use-package keycast
+      :ensure t
       :config
-      (add-hook 'keycast-mode #'(lambda () (setq mode-line-format '("%e" mode-line-front-space (:eval (doom-modeline-format--main))))))
-      (setq keycast-insert-after 'mode-line-front-space)
-      (setq keycast-separator-width 0)
+      ;; (add-hook 'keycast-mode #'(lambda () (setq mode-line-format '("%e" mode-line-front-space (:eval (doom-modeline-format--main))))))
+
+      (setq keycast-log-format "%K%C%R\n"
+            keycast-mode-line-format "%2s%k%c%r"
+            keycast-log-frame-alist '((inhibit-switch-frame . t)
+                                      (pop-up-frame-parameters . ((font . "DejaVu Sans Mono-12")
+                                                                  (minibuffer . nil)))))
+      (push '(self-insert-command nil nil) keycast-substitute-alist)
       (setq keycast-remove-tail-elements nil)
-      (setq mode-line-format '("%e" (:eval (doom-modeline-format--main)))))
+      (setq keycast-mode-line-insert-after nil)
+      ;; mode-line-format
+
+      (setq keycast-separator-width 0)
+
+      (setq  keycast-mode-line-window-predicate #'(lambda () t))
+
+      (define-minor-mode gb/keycast-mode
+        "Show current command and its key binding in the mode line."
+        :global t
+        (if gb/keycast-mode
+            (progn
+              (add-hook 'post-command-hook #'keycast--update t)
+              (add-hook 'minibuffer-exit-hook #'keycast--minibuffer-exit t))
+          (unless (keycast--mode-active-p)
+            (remove-hook 'post-command-hook #'keycast--update)
+            (remove-hook 'minibuffer-exit-hook #'keycast--minibuffer-exit))))
+
+      ;; (gb/keycast-mode) ;; show keys in the mode line (see custom mode line)
+      ;; (keycast-log-mode) ;; opens a separate log buffer showing history of commands, too
+      )
   #+end_src
 * EVAL emacs-piper (interactively work on os pipe commands)
   - see https://gitlab.com/howardabrams/emacs-piper/
