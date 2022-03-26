@@ -38,7 +38,7 @@
         echo
         ;;
       -p)
-        MERGED_CLOCK_MHZ=$(lscpu -e | tail -n +2 | tr -s ' ' | cut -d' ' -f10 | awk '{s+=$1}END{print s/NR}')
+        MERGED_CLOCK_MHZ=$(cat /proc/cpuinfo | grep "MHz" | sed "s/.*: \([0-9]*\).*/\1/g" | awk '{s+=$1}END{print s/NR}')
         printf "%4.0f MHz" "$MERGED_CLOCK_MHZ"
         ;;
       ,*)

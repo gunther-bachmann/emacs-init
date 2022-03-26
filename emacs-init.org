@@ -58,7 +58,7 @@
       (start-process-shell-command "startup" nil  "play ~/sound/it_crowd.mp3")))
 
   (defun gb/play-startup-sound-when-ctrlkey-down ()
-    ""
+    "very biased method to check whether a ctrl-key is pressed while emacs starts up and start playing a startup sound"
     (when (and (executable-find "getEventDeviceFor")
                (executable-find "evtest")
                (not gb/playing-startup-sound))
@@ -95,7 +95,7 @@
     (setq use-elpa-mirror nil)
     (setq elpamr-debug t)
   #+end_src
-* use-package
+* use-package (precompilation issue)
   - enable this for precompilation (still needs work on this init file though)
   #+BEGIN_SRC emacs-lisp
   ;; (eval-when-compile
@@ -114,18 +114,25 @@
 
     (defun report-elapsed (msg-prefix)
       "record an message time since last call of this function"
-      (if gb/log-startup-timing
-          (progn
-            (setq gb/elapsed-time (- (float-time) gb/time))
-            (setq gb/time (float-time))
-            (message (format "%s: %f seconds" msg-prefix gb/elapsed-time)))))
+      (when gb/log-startup-timing
+          (setq gb/elapsed-time (- (float-time) gb/time))
+          (setq gb/time (float-time))
+          (message (format "%s: %f seconds" msg-prefix gb/elapsed-time))))
+
+    (defun dont-delay-compile-warnings (fun type &rest args)
+      "ensure that compile warnings during startup are not delayed and thus reported with correct file location in case of warnings"
+      (if (eq type 'bytecomp)
+          (let ((after-init-time t))
+            (apply fun type args))
+        (apply fun type args)))
+    (advice-add 'display-warning :around #'dont-delay-compile-warnings)
 
     (report-elapsed "preset")
   #+END_SRC
 * benchmarking
   - simply call M-x profiler-report after loading
     #+BEGIN_SRC emacs-lisp
-      (if gb/log-startup-timing
+      (when gb/log-startup-timing
           (profiler-start 'cpu))
     #+END_SRC
   - provide measure-time macro
@@ -12862,7 +12869,9 @@
   #+begin_src emacs-lisp
     (use-package racket-mode
       :ensure t
+      :diminish
       :custom (racket-show-functions '(racket-show-echo-area))
+      ;; (racket-xp-mode-lighter #'(lambda () ""))
       :bind (:map racket-mode-map
                   ("C-c r" . #'racket-run)
                   ("C-c C-." . #'racket-repl-describe)
@@ -14534,9 +14543,11 @@
         :ensure t))
     (use-package eglot
       :ensure t
+      :custom
+      (eglot-connect-timeout 240 "eglot takes some time to start if the project is complex") 
+      (eglot-send-changes-idle-time 3 "wait 3s idle before contacting language server") 
       :config
-      (setq eglot-connect-timeout 240) ;; eglot takes some time to start if the project is complex
-      (setq eglot-send-changes-idle-time 3) ;; wait 3s idle before contacting language server
+      (custom-set-faces '(eglot-highlight-symbol-face ((t (:inherit highlight :underline t)))))
       ;; (flymake-mode-off)
       ;; (flycheck-mode 1)
       )
@@ -15864,12 +15875,11 @@
       :config (add-hook 'scratch-create-buffer-hook #'gb/scratch-insert-comment)
       :init
       (defun gb/scratch-insert-comment ()
-        "insert 'scratchpad' and do commit-dwim on that line to ensure that it is a comment"
+        "insert 'scratchpad' as comment"
         (interactive)
         (goto-char (point-min))
+        (comment-indent nil)
         (insert "scratchpad")
-        (mark-whole-buffer)
-        (comment-dwim nil)
         (goto-char (point-max))
         (insert "\n")))
   #+end_src
