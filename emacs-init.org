@@ -17140,8 +17140,18 @@
 
       (pulsar-setup)
 
+      (defface pulsar-mode-line
+        '((default :extend t)
+          (((class color) (min-colors 88) (background light))
+           :background "#ffccff")
+          (((class color) (min-colors 88) (background dark))
+           :background "#504050")
+          (t :inverse-video t))
+        "Alternative magenta face for `pulsar-face'."
+        :group 'pulsar-faces)
+
       (customize-set-variable
-       'pulsar-pulse-functions ; Read the doc string for why not `setq'
+       'pulsar-pulse-functions              ; Read the doc string for why not `setq'
        '(;; recenter-top-bottom
          move-to-window-line-top-bottom
          reposition-window
@@ -17183,7 +17193,7 @@
       (setq pulsar-pulse t)
       (setq pulsar-delay 0.055)
       (setq pulsar-iterations 5)
-      (setq pulsar-face 'pulsar-blue)
+      (setq pulsar-face 'pulsar-mode-line)
 
       ;; pulsar does not define any key bindings.  This is just a sample that
       ;; respects the key binding conventions.  Evaluate:
