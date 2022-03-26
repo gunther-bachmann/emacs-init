@@ -6535,6 +6535,7 @@
                )
        :config
        (progn
+         (custom-set-faces '(tide-hl-identifier-face ((t (:inherit highlight :underline t)))))
          (defun gb/setup-tide-mode ()
            (interactive)
            (tide-setup)
