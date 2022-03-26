@@ -13444,6 +13444,46 @@
           "set cpu freq to unlimited, (which is the max capable)"
           (interactive)
           (gb/cpu-freq-set (gb/cpu-freq-max-get)))
+
+        (defun gb/cpu-base-frequency ()
+          "in Hz"
+          (string-to-number (shell-command-to-string "cat /sys/devices/system/cpu/cpu0/cpufreq/base_frequency")))
+
+        (defun gb/cpu-min-frequency ()
+          "in Hz"
+          (string-to-number (shell-command-to-string "cat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_min_freq")))
+
+        (defun gb/cpu-max-frequency ()
+          "in Hz"
+          (string-to-number (shell-command-to-string "cat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq")))
+
+        (defun gb/cpu-core-count ()
+          "get the number of cpus in the system"
+          (string-to-number (shell-command-to-string "ls /sys/devices/system/cpu/cpu* -d1 | grep -e \"/cpu[0-9]\" | wc -l")))
+
+        (defun gb/cpupower-cpu-parameter ()
+          "generate cpu parameter for cpupower tool"
+          (--> (number-sequence 0 (1- (gb/cpu-core-count)))
+               (-map #'number-to-string it)
+               (string-join it ",")))
+
+        (defun gb/cpu-powersave ()
+          "experimental"
+          (interactive)
+          (message (shell-command-to-string
+                    (format "sudo cpupower -c \"%s\" frequency-set -g powersave -d %i -u %s"
+                            (gb/cpupower-cpu-parameter)
+                            (gb/cpu-min-frequency)
+                            (gb/cpu-base-frequency)))))
+
+        (defun gb/cpu-performance ()
+          "experimental"
+          (interactive)
+          (message (shell-command-to-string
+                    (format "sudo cpupower -c \"%s\" frequency-set -g performance -d %i -u %i"
+                            (gb/cpupower-cpu-parameter)
+                            (gb/cpu-min-frequency)
+                            (gb/cpu-max-frequency)))))
       #+end_src
   - exwm configuration
     #+BEGIN_SRC emacs-lisp
@@ -16572,6 +16612,7 @@
       (remove-hook 'pre-command-hook  #'gb/on-typing)
       (gb/audio-unmute-mic)
       (gb/cpu-freq-unlimit)
+      (gb/cpu-powersave)
       (setq global-mode-string (remove gb/video-modeline-indicator global-mode-string)))
   #+end_src
 * TODO org babel tangle utilities - for dired
@@ -18150,6 +18191,8 @@
     ;; (--each minor-mode-alist (ignore-errors (message (format "%S" it) )) )
 
     (gb/diminish-minor-modes)
+    (when (fboundp 'gb/cpu-powersave)
+      (gb/cpu-powersave))
 
     (report-elapsed "exit finish - up")
     (lisp-interaction-mode)
