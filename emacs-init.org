@@ -17212,6 +17212,17 @@
       ;;   (define-key map (kbd "C-c h h") #'pulsar-highlight-line))
       )
   #+end_src
+* EVAL undo-hl
+  #+begin_src emacs-lisp
+    (when (file-exists-p "~/.emacs.d/additionals/undo-hl.el")
+      (use-package undo-hl
+        :load-path "~/.emacs.d/additionals"
+        :hook (prog-mode . undo-hl-mode)
+        (text-mode . undo-hl-mode)
+        :diminish
+        :custom
+        (undo-hl-undo-commands '(undo undo-only undo-redo undo-fu-only-undo undo-fu-only-redo undo-tree-redo undo-tree-undo))))
+  #+end_src
 * utility functions
   - open dired to mounted folders
     #+begin_src emacs-lisp
