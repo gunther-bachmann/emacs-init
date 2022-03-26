@@ -3554,16 +3554,21 @@
    #+BEGIN_SRC emacs-lisp
      (use-package shackle
        :ensure t
+       :diminish
+       :custom
+       (shackle-rules
+        '(
+          ("*helm M-x*"            :align right :size 0.3)
+          ("*helm imenu-anywhere*" :align right :size 0.5)
+          ("*helm for files*"      :align right :size 0.5)
+          ("*undo-tree*"           :align right :size 0.25)
+          ("*Compile-Log*"         :align right :size 0.25)
+          ("COMMIT_EDITMSG"        :same nil)
+          (magit-diff-mode         :same nil)
+          ))
+       (shackle-default-rule '(:same t))
        :config
-       (progn
-         (shackle-mode 1)
-         (setq shackle-rules
-               '(
-                 ("*helm M-x*"            :align right :size 0.3)
-                 ("*helm imenu-anywhere*" :align right :size 0.5)
-                 ("*helm for files*"      :align right :size 0.5)
-                 ("*undo-tree*"           :align right :size 0.25)
-                 ))))
+       (shackle-mode 1))
    #+END_SRC
 ** linenumbers
    #+BEGIN_SRC emacs-lisp
