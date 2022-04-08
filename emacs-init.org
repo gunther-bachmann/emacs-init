@@ -127,6 +127,8 @@
         (apply fun type args)))
     (advice-add 'display-warning :around #'dont-delay-compile-warnings)
 
+     (setq package-native-compile nil) ;; make sure (for the moment no native compile on package installation takes place
+
     (report-elapsed "preset")
   #+END_SRC
 * benchmarking
@@ -355,6 +357,8 @@
     (setq  frame-inhibit-implied-resize t) ;; inhibit font (or other) based resize of frames
     (put 'list-timers 'disabled nil)
     (put 'list-threads 'disabled nil)
+    (add-to-list 'debug-ignored-errors 'minibuffer-quit)
+    ;; (setq server-use-tcp t)
   #+END_SRC
 * initial function setup
   #+BEGIN_SRC emacs-lisp
@@ -6963,6 +6967,7 @@
         :commands magit-status magit-list-repositories
         :custom ((magit-fetch-arguments (quote ("--prune")))
                  (magit-item-highlight-face nil)
+                 (with-editor-emacsclient-executable (s-trim (shell-command-to-string "command -v emacsclient")))
                  (magit-last-seen-setup-instructions "1.4.0")
                  (magit-log-arguments (quote ("--graph" "--color" "--decorate" "-n200")))
                  (magit-pull-arguments (quote ("--rebase")))
@@ -9682,7 +9687,7 @@
      :init
      (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
      :config
-     (setq org-bullets-bullet-list '("●" "⚫" "⚪" "⚬" "∘" "◦" "∙" "◉" "◯" "◎" "○" "◌" "◎" "○" "☉" "￮" "⊙" "❍" "⊚" "⊛"))
+     (setq org-bullets-bullet-list '("◉" "●" "◯" "⚬" "∘" "◦" "∙" "◉" "◯" "◎" "○" "◌" "◎" "○" "☉" "￮" "⊙" "❍" "⊚" "⊛"))
      ;; override fontify buffer of org-bullets, since it forces fontifying again, which was already done => waste of time
      ;; (defun org-bullets--fontify-buffer ()
      ;;   (when font-lock-mode
@@ -13357,7 +13362,7 @@
                   (is-running (not (string-empty-p (shell-command-to-string (concat "ps -A | grep " program))))))
              (cond ((and is-executable is-running) (message (format "OK: %s already running." program)))
                    (is-executable (progn (message (format "OK: starting %s." program))
-                                         (start-process-shell-command filename nil)))
+                                         (start-process-shell-command program nil filename)))
                    (t (message (format "WARNING: program %s could not be run." filename))))
              ))
 
@@ -14211,22 +14216,23 @@
           ;; start pasystray from within emacs, starting it within xinitrc does not work
           (add-hook 'exwm-init-hook
                     (lambda ()
-                      (gb/start-if-not-running (s-trim (shell-command-to-string "command -v pasystray")))
-                      ;; (start-process "yabar" nil  "/usr/bin/yabar") ;; see here: https://github.com/geommer/yabar
-                      (ido-mode -1)
-                      (set-fringe-mode 10)
-                      (toggle-truncate-lines 1)
-                      (gb/disable-ligatures)
-                      (setq pomodoro-mode-line-string nil)
-                      ;; (exwm-mff-mode)
-                      (setq global-mode-string
-                            (append '("" 
-                                      (:eval (s-concat "[" (number-to-string (exwm-workspace--position exwm-workspace--current)) "]" ))
-                                      (:eval (unless (string-empty-p pomodoro-mode-line-string) " ") pomodoro-mode-line-string))
-                                    global-mode-string))
-                      (setq auto-hscroll-mode t)
-                      (when (eq gb/completion-framework 'ivy)
-                        (ivy-mode 1))))
+                      (ignore-errors
+                        (gb/start-if-not-running (s-trim (shell-command-to-string "command -v pasystray")))
+                        ;; (start-process "yabar" nil  "/usr/bin/yabar") ;; see here: https://github.com/geommer/yabar
+                        (ido-mode -1)
+                        (set-fringe-mode 10)
+                        (toggle-truncate-lines 1)
+                        ;; (gb/disable-ligatures)
+                        (setq pomodoro-mode-line-string nil)
+                        ;; (exwm-mff-mode)
+                        (setq global-mode-string
+                              (append '("" 
+                                        (:eval (s-concat "[" (number-to-string (exwm-workspace--position exwm-workspace--current)) "]" ))
+                                        (:eval (unless (string-empty-p pomodoro-mode-line-string) " ") pomodoro-mode-line-string))
+                                      global-mode-string))
+                        (setq auto-hscroll-mode t)
+                        (when (eq gb/completion-framework 'ivy)
+                          (ivy-mode 1)))))
 
           ))
     #+END_SRC
@@ -16300,8 +16306,8 @@
     (when (file-exists-p "~/repo/org-roam-stack/org-roam-stack.el")
       (use-package org-roam-stack
         :load-path "~/repo/org-roam-stack/"
-        :after (org org-roam)
-        :diminish 'org-roam-stack-mode
+        :after (org org-roam bind-key)
+        :diminish 
         :custom (org-roam-stack--link-adjustments t)
         (org-roam-stack--open-ro t)))
   #+end_src
@@ -16740,7 +16746,7 @@
 * project configuration
   #+begin_src emacs-lisp
     (use-package project
-      :ensure t
+      ;; :ensure t ;; (it is builtin)
       :config
       (setq vc-handled-backends
     ;;=> (RCS CVS SVN SCCS SRC Bzr Git Hg)
