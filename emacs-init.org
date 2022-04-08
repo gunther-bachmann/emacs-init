@@ -4934,6 +4934,7 @@
      (use-package company-box
        :ensure t
        :after (company)
+       :diminish
        :hook (company-mode . company-box-mode)
        :custom ((company-box-show-single-candidate 'when-no-other-frontend)
                 (company-box-enable-icon t))
@@ -4960,6 +4961,7 @@
      (use-package company
        ;; :after (selected)
        :ensure t
+       :diminish
        :bind  (:map company-active-map
                ("<tab>" . company-complete-selection))
        :config
@@ -5015,6 +5017,7 @@
 
      (use-package company-statistics
        :ensure t
+       :diminish
        ;; :after (company)
        :init
        (progn
