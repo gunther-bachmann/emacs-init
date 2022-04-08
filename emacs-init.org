@@ -16437,6 +16437,7 @@
   #+begin_src emacs-lisp
     (use-package org-tree-slide-pauses
       :load-path "~/repo/org-tree-slide-pauses"
+      :after (bind-key)
       :bind (:map  org-tree-slide-mode-map ("C-M->" . #'org-tree-slide-pause-goto-end-pause))
       :config
       (cond
@@ -17480,7 +17481,8 @@
          (use-package yaml-imode)
          #+END_SRC
    - skerrit - repl driven dev for javascript ([[https://github.com/anonimitoraf/skerrick][home page]])
-   - prettier-rc - minor mode to use prettier rules to format typescript/javascript source 
+   - prettier-rc - minor mode to use prettier rules to format typescript/javascript source
+   - eslint-disable-rule - Commands to add JS comments disabling eslint rules 
 ** lisp/racket/haskell/clojure/scheme
   - macrostep-geiser
   - ob-clojure-literate
