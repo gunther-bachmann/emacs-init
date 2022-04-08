@@ -17230,8 +17230,6 @@
       :ensure t
       :config
 
-      (pulsar-setup)
-
       (defface pulsar-mode-line
         '((default :extend t)
           (((class color) (min-colors 88) (background light))
@@ -17255,6 +17253,10 @@
          ;; backward-page
          ;; scroll-up-command
          ;; scroll-down-command
+         gb/windmove-right
+         gb/windmove-left
+         gb/windmove-up
+         gb/windmove-down
          windmove-right
          windmove-left
          windmove-up
@@ -17297,7 +17299,7 @@
       ;; (let ((map global-map))
       ;;   (define-key map (kbd "C-c h p") #'pulsar-pulse-line)
       ;;   (define-key map (kbd "C-c h h") #'pulsar-highlight-line))
-      )
+      (pulsar-global-mode t))
   #+end_src
 * EVAL undo-hl
   #+begin_src emacs-lisp
