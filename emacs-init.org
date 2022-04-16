@@ -127,7 +127,8 @@
         (apply fun type args)))
     (advice-add 'display-warning :around #'dont-delay-compile-warnings)
 
-     (setq package-native-compile nil) ;; make sure (for the moment no native compile on package installation takes place
+    (setq package-native-compile nil) ;; make sure (for the moment no native compile on package installation takes place
+    (setq warning-minimum-level ':error)
 
     (report-elapsed "preset")
   #+END_SRC
@@ -3318,7 +3319,7 @@
                           (+ (length (replace-regexp-in-string
                                       ":[a-zA-Z]+:" "LL"
                                       (format-mode-line right-global-mode-string)))
-                             (if (and mlscroll-mode (gb/modeline-line-selected-window-active-p)) 5 -2)))))
+                             (if (and mlscroll-mode (gb/modeline-line-selected-window-active-p)) 5 0)))))
           (when (not gb/disable-modeline-updates)
             (setq gb/mode-line--last-padding-cache r-length))
           (propertize " "
@@ -10334,6 +10335,7 @@
      (when (file-exists-p "~/repo/emacs-slack/slack.el")
        (use-package slack
          :load-path "~/repo/emacs-slack"
+         :after (dash)
          ;; :commands (gb/slack-on gb/slack-off)
          :custom (slack-log-level 'warn "make log less verbose")
          (slack-file-dir (expand-file-name "~/Downloads/"))
@@ -10354,6 +10356,7 @@
          ;; channel that wasn't open.
 
          :config
+         (require 'dash)
          (setq lui-time-stamp-format "[%m-%d %H:%M]")
          (setq lui-fill-column 110)
          (setq slack-thread-also-send-to-room nil) ;; never send thread message to channel, too
@@ -14220,7 +14223,7 @@
           (add-hook 'exwm-init-hook
                     (lambda ()
                       (ignore-errors
-                        (gb/start-if-not-running (s-trim (shell-command-to-string "command -v pasystray")))
+                        ;; (gb/start-if-not-running (s-trim (shell-command-to-string "command -v pasystray")))
                         ;; (start-process "yabar" nil  "/usr/bin/yabar") ;; see here: https://github.com/geommer/yabar
                         (ido-mode -1)
                         (set-fringe-mode 10)
