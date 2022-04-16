@@ -359,6 +359,7 @@
     (put 'list-timers 'disabled nil)
     (put 'list-threads 'disabled nil)
     (add-to-list 'debug-ignored-errors 'minibuffer-quit)
+    (setq gb/execute-on-soft-reset '())
     ;; (setq server-use-tcp t)
   #+END_SRC
 * initial function setup
@@ -387,6 +388,15 @@
       (--each gb/registered-keys-for-late-binding (ignore-errors (gb/global-set-key (nth 0 it) (nth 1 it))))
       ;; (setq gb/registered-keys-for-late-binding nil)
       (message "finished registering global keys"))
+
+    (defun gb/execute-soft-reset ()
+      (interactive)
+      (dolist (rfun gb/execute-on-soft-reset)
+        (ignore-errors
+          (funcall rfun)))
+      (message "soft reset finished"))
+
+    (gb/register-global-key (kbd "H-s-x") #'gb/execute-soft-reset)
 
     (defun slurp (file-name)
       "Return file content."
