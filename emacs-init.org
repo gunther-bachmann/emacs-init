@@ -15541,8 +15541,49 @@
 #+BEGIN_SRC emacs-lisp
 (report-elapsed "check-point - org roam")
 #+END_SRC
-* emacs-mini-frame
+* ivy-posframe
   #+begin_src emacs-lisp
+    (use-package ivy-posframe
+      :ensure t
+      :after (posframe)
+      :diminish
+      :config
+      (setq ivy-posframe-parameters
+            '((left-fringe . 8)
+              (right-fringe . 8)
+              (border-width . 3)))
+      (setq ivy-height 28)
+      (setq ivy-posframe-height nil)
+      (setq ivy-posframe-min-height 10)
+      (setq ivy-posframe-min-width 30)
+      (setq ivy-posframe-style 'frame-bottom-center)
+      (setq ivy-truncate-lines t)
+
+      (setq ivy-posframe-border-width 3)
+
+      (setq ivy-posframe-command-width-alist
+            '((counsel-M-x . 120)
+              (counsel-buffer-or-recentf . nil)
+              (ivy-switch-buffer . nil)
+              (gb/ivy--program-select-and-run . nil)
+              (counsel-org-goto . 120)))
+
+      (dolist (posframe-command-width ivy-posframe-command-width-alist)
+        (let ((cmd (car posframe-command-width))
+              (width (cdr posframe-command-width)))
+          (when (fboundp cmd)
+            (advice-add cmd :before `(lambda (&rest params) (setq ivy-posframe-width ,width))))))
+
+      (defun ivy-posframe-display-at-frame-bottom-center (str)
+        (ivy-posframe--display str #'posframe-poshandler-frame-bottom-center))
+
+      (ivy-posframe-mode 1)
+
+      (add-to-list 'gb/execute-on-soft-reset #'(lambda () (ivy-posframe-mode -1))))
+  #+end_src
+* emacs-mini-frame (disabled)
+  - currently collides with output filtering of comint processes
+  #+begin_src emacs-lisp :tangle no
     (use-package mini-frame
       :load-path "~/repo/emacs-mini-frame"
       :config
