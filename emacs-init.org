@@ -5417,20 +5417,21 @@
          (define-key ivy-minibuffer-map (kbd "TAB") 'gb/ivy-partial-or-done)
 
          :init
-         (defun gb/collect-external-commands (sort)
+         (defun gb/collect-external-commands (sort?)
            "collect external commands"
-           (cl-loop
-            for dir in (split-string (getenv "PATH") path-separator)
-            when (and (file-exists-p dir) (file-accessible-directory-p dir))
-            for lsdir = (cl-loop for i in (directory-files dir t)
-                                 for bn = (file-name-nondirectory i)
-                                 when (and (not (member bn completions))
-                                         (not (file-directory-p i))
-                                         (file-executable-p i))
-                                 collect bn)
-            append lsdir into completions
-            finally return
-            (if sort (sort completions 'string-lessp) completions)))
+           (with-temp-message "loading accessible program list ..."
+             (cl-loop
+              for dir in (split-string (getenv "PATH") path-separator)
+              when (and (file-exists-p dir) (file-accessible-directory-p dir))
+              for lsdir = (cl-loop for i in (directory-files dir t)
+                                   for bn = (file-name-nondirectory i)
+                                   when (and (not (member bn completions))
+                                           (not (file-directory-p i))
+                                           (file-executable-p i))
+                                   collect bn)
+              append lsdir into completions
+              finally return
+              (if sort? (sort completions 'string-lessp) completions))))
 
          (defvar gb/external-commands nil)
 
