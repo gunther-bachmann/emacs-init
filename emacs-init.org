@@ -6998,7 +6998,7 @@
                     (unpushed . show)
                     (stashes . show)
                     (unpulled . show))))
-                 (magit-repository-directories '(( "~/repo" . 3)))
+                 (magit-repository-directories '(( "~/repo" . 10)))
                  (magit-log-margin '(t "%Y-%m-%d %H:%M " magit-log-margin-width t 18) "format the margin in log view"))
         :bind (("C-c v s" . magit-status)
                ("C-c v l" . magit-list-repositories)
@@ -10345,9 +10345,9 @@
        :hook (slack-mode . emojify-turn-on-emojify-mode)
        (org-mode . emojify-turn-off-emojify-mode ))
 
-     (when (file-exists-p "~/repo/emacs-slack/slack.el")
+     (when (file-exists-p "~/repo/emacs/emacs-slack/slack.el")
        (use-package slack
-         :load-path "~/repo/emacs-slack"
+         :load-path "~/repo/emacs/emacs-slack"
          :after (dash)
          ;; :commands (gb/slack-on gb/slack-off)
          :custom (slack-log-level 'warn "make log less verbose")
@@ -11426,7 +11426,7 @@
   versions can be ediffed with the current
 #+BEGIN_SRC emacs-lisp
   (use-package helm-backup
-    :load-path "~/repo/helm-backup"
+    :load-path "~/repo/emacs/helm-backup"
     :init (add-hook 'after-save-hook #'helm-backup-versioning)
     :config
     (setq helm-backup-excluded-entries
@@ -11886,7 +11886,7 @@
 
      (use-package dired-annotator
        :after (posframe all-the-icons)
-       :load-path "~/repo/emacs-dired-annotator"
+       :load-path "~/repo/emacs/emacs-dired-annotator"
        :custom ((dired-annotator-note-icon (propertize (all-the-icons-faicon "sticky-note") 'face '(:height 0.9 ) 'display '(:v-adjust: -0.2 )))
                 (dired-annotator-annotations-folder (expand-file-name "~/documents/annotations"))
                 (dired-annotator-note-popup-hook #'dired-annotator--posframe-note-popup)
@@ -12168,7 +12168,7 @@
      #+end_src
    #+BEGIN_SRC emacs-lisp
      (use-package posframe
-       ;; :load-path "~/repo/posframe"
+       ;; :load-path "~/repo/emacs/posframe"
        :ensure t
        :bind ("H-k" . #'gb/delete-all-open-posframes)
        :init
@@ -14012,7 +14012,7 @@
           (defun gb/emacs-init-open ()
             ""
             (interactive)
-            (find-file "~/repo/emacs-init/emacs-init.org"))
+            (find-file "~/repo/emacs/emacs-init/emacs-init.org"))
 
           (defun gb/slack-open-on-workspace-1 ()
             ""
@@ -14445,7 +14445,7 @@
   - package
     #+begin_src emacs-lisp
       (use-package org-tree-slide
-        :load-path "~/repo/org-tree-slide"
+        :load-path "~/repo/emacs/org-tree-slide"
         :commands (gb/presentation-on gb/presentation-off)
         :config
         (setq org-tree-slide-header nil)
@@ -15255,11 +15255,11 @@
                (:map notdeft-mode-map
                      ("C-c t" . gb/notdeft--filter-by-tag)
                      ("C-c r" . gb/notdeft--select-random)))
-        :load-path "~/repo/notdeft"
+        :load-path "~/repo/emacs/notdeft"
         :hook (notdeft-mode . org-roam-stack-mode)
         :custom
         (notdeft-directories '("~/documents/roam"))
-        (notdeft-xapian-program "/home/pe/repo/notdeft/xapian/notdeft-xapian")
+        (notdeft-xapian-program "/home/pe/repo/emacs/notdeft/xapian/notdeft-xapian")
         (notdeft-xapian-max-results 1000 "show up to 1000 entries in the notdef query buffer")
         :config
         (require 'notdeft-autoloads)
@@ -15504,7 +15504,7 @@
 
 
           ;; (use-package nroam
-          ;;   ;; :load-path "/home/pe/repo/nroam/"
+          ;;   ;; :load-path "/home/pe/repo/emacs/nroam/"
           ;;   :ensure t
           ;;   :config
           ;;   (defun gb/nroam-insert-line-separator ()
@@ -16306,12 +16306,12 @@
     - links, backlinks, date last modified, date the link established on, tag usage
     - format is: <modification> <icon> ( <tags-of-zettel> ) <n-incoming-links> <zettel-title> <m-outgoing-links>
   #+begin_src emacs-lisp
-    (when (and (file-exists-p "~/repo/lister/lister.el")
-             (file-exists-p "~/repo/delve/delve.el"))
+    (when (and (file-exists-p "~/repo/emacs/lister/lister.el")
+             (file-exists-p "~/repo/emacs/delve/delve.el"))
       (use-package lister
-        :load-path "~/repo/lister")
+        :load-path "~/repo/emacs/lister")
       (use-package delve
-        :load-path "~/repo/delve/"
+        :load-path "~/repo/emacs/delve/"
         :commands (delve-open-or-select)
         :bind (:map delve-mode-map
                     ("C-l" . #'recenter-top-bottom))
@@ -16356,9 +16356,9 @@
     one method needed adjust to make idle gc not go over 10s idle time
   - seems to be fixed by setting the max idle time to 10s, never longer even in auto mode!
   #+begin_src emacs-lisp
-    (when (file-exists-p "~/repo/gcmh/gcmh.el")
+    (when (file-exists-p "~/repo/emacs/gcmh/gcmh.el")
       (use-package gcmh
-        :load-path "~/repo/gcmh/"
+        :load-path "~/repo/emacs/gcmh/"
         :demand t
         :custom
         (gcmh-verbose t)
@@ -16379,7 +16379,7 @@
       :ensure t)
 
     (use-package regexp-expand
-      :load-path "~/repo/regexp-expand"
+      :load-path "~/repo/emacs/regexp-expand"
       :commands (regexp-expand))
   #+end_src
 * EVAL rec-mode - show rec files (human readable db)
@@ -16391,14 +16391,14 @@
 * EVAL diredc - dired commander (midnight commander)
   #+begin_src emacs-lisp
     (use-package diredc
-      :load-path "~/repo/emacs-diredc"
+      :load-path "~/repo/emacs/emacs-diredc"
       :commands (diredc))
   #+end_src
 * org-roam-stack
   #+begin_src emacs-lisp
-    (when (file-exists-p "~/repo/org-roam-stack/org-roam-stack.el")
+    (when (file-exists-p "~/repo/emacs/org-roam-stack/org-roam-stack.el")
       (use-package org-roam-stack
-        :load-path "~/repo/org-roam-stack/"
+        :load-path "~/repo/emacs/org-roam-stack/"
         :after (org org-roam bind-key)
         :diminish 
         :custom (org-roam-stack--link-adjustments t)
@@ -16485,7 +16485,7 @@
   - see https://github.com/casouri/valign
   #+begin_src emacs-lisp
     (use-package valign
-      :load-path "~/repo/valign"
+      :load-path "~/repo/emacs/valign"
       :hook (org-mode . valign-mode)
       :diminish 'valign-mode
       :config (setq valign-fancy-bar t))
@@ -16493,7 +16493,7 @@
 * org-tree-slide-pause
   #+begin_src emacs-lisp
     (use-package org-tree-slide-pauses
-      :load-path "~/repo/org-tree-slide-pauses"
+      :load-path "~/repo/emacs/org-tree-slide-pauses"
       :after (bind-key)
       :bind (:map  org-tree-slide-mode-map ("C-M->" . #'org-tree-slide-pause-goto-end-pause))
       :config
@@ -16947,9 +16947,9 @@
       ;;                      (require 'lsp-ltex)
       ;;                      (lsp)))
       )
-    (when (file-exists-p "~/repo/eglot-ltex")
+    (when (file-exists-p "~/repo/emacs/eglot-ltex")
       (use-package eglot-ltex
-        :load-path "~/repo/eglot-ltex"
+        :load-path "~/repo/emacs/eglot-ltex"
         ;; :hook (text-mode . (lambda ()
         ;;                      (require 'eglot-ltex)
         ;;                      (call-interactively #'eglot)))
@@ -16969,7 +16969,7 @@
   - browser devdocs documentation for developers
   #+begin_src emacs-lisp
     (use-package devdocs-browser
-      :load-path "~/repo/emacs-devdocs-browser/"
+      :load-path "~/repo/emacs/emacs-devdocs-browser/"
       :bind (("C-c C-d C-h" . devdocs-browser-open)
              ("C-c C-d C-i" . devdocs-browser-open-in))
       :commands (devdocs-browser-open                  ;; open devdocs
@@ -17159,16 +17159,16 @@
   - browse to http://127.0.0.1:35901/
   #+begin_src emacs-lisp
     ;; (when (and (file-directory-p "~/repo")
-    ;;          (not (file-directory-p "~/repo/org-roam-ui")))
+    ;;          (not (file-directory-p "~/repo/emacs/org-roam-ui")))
     ;;   (let ((old-dir default-directory))
     ;;     (cd "~/repo")
     ;;     (shell-command-to-string "git clone https://github.com/org-roam/org-roam-ui.git")
     ;;     (cd old-dir)))
     
-    ;; when (file-directory-p "~/repo/org-roam-ui")
+    ;; when (file-directory-p "~/repo/emacs/org-roam-ui")
     
     (use-package org-roam-ui
-      ;; :load-path "~/repo/org-roam-ui"
+      ;; :load-path "~/repo/emacs/org-roam-ui"
       :ensure t
       :commands (org-roam-ui-mode)
       :after (org-roam)
@@ -17193,14 +17193,14 @@
   - see https://github.com/misohena/el-easydraw
   #+begin_src emacs-lisp
     (use-package edraw-org
-      :load-path "~/repo/el-easydraw/"
+      :load-path "~/repo/emacs/el-easydraw/"
       :config (edraw-org-setup-default))
   #+end_src
 * EVAL apheleia - code formatter package
   - see https://github.com/raxod502/apheleia
   #+begin_src emacs-lisp
     (use-package apheleia
-      :load-path "~/repo/apheleia"
+      :load-path "~/repo/emacs/apheleia"
       :commands (apheleia-format-buffer)
       :config
       ;; (apheleia-global-mode +1)
@@ -17710,7 +17710,7 @@
 ** continuous scroll mode (disabled, no scroll end detection, not working out of the box)
    #+begin_src emacs-lisp :tangle no
      (use-package pdf-continuous-scroll-mode
-       :load-path "~/repo/pdf-continuous-scroll-mode.el/"
+       :load-path "~/repo/emacs/pdf-continuous-scroll-mode.el/"
        :config
        (add-hook 'pdf-view-mode-hook 'pdf-continuous-scroll-mode) ;; pdf-view-mode-hook
        (setq pdf-view-have-image-mode-pixel-vscroll nil))
@@ -18180,7 +18180,7 @@
 ** compass (interesting, but too many dependencies: docker, python ...)
   #+begin_src emacs-lisp :tangle no
     (use-package code-compass
-      :load-path "~/repo/code-compass"
+      :load-path "~/repo/emacs/code-compass"
       ;; :requires diminish bind-key async dash f s simple-httpd
       )
   #+end_src
