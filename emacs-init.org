@@ -15559,99 +15559,103 @@
 #+END_SRC
 * ivy-posframe
   #+begin_src emacs-lisp
-    (use-package ivy-posframe
-      :ensure t
-      :after (posframe)
-      :diminish
-      :config
-      (setq ivy-posframe-parameters
-            '((left-fringe . 8)
-              (right-fringe . 8)
-              (border-width . 3)))
-      (setq ivy-height 28)
-      (setq ivy-posframe-height nil)
-      (setq ivy-posframe-min-height 10)
-      (setq ivy-posframe-min-width 30)
-      (setq ivy-posframe-style 'frame-bottom-center)
-      (setq ivy-truncate-lines t)
+    (when (eq gb/use-frame-completion 'ivy-posframe)
+      (use-package ivy-posframe
+        :ensure t
+        :after (posframe)
+        :diminish
+        :config
+        (setq ivy-posframe-parameters
+              '((left-fringe . 8)
+                (right-fringe . 8)
+                (border-width . 3)))
+        (setq ivy-height 28)
+        (setq ivy-posframe-height nil)
+        (setq ivy-posframe-min-height 10)
+        (setq ivy-posframe-min-width 30)
+        (setq ivy-posframe-style 'frame-bottom-center)
+        (setq ivy-truncate-lines t)
 
-      (setq ivy-posframe-border-width 3)
+        (setq ivy-posframe-border-width 3)
 
-      (setq ivy-posframe-command-width-alist
-            '((counsel-M-x . 120)
-              (counsel-buffer-or-recentf . nil)
-              (ivy-switch-buffer . nil)
-              (gb/ivy--program-select-and-run . nil)
-              (counsel-org-goto . 120)))
+        (setq ivy-posframe-command-width-alist
+              '((counsel-M-x . 120)
+                (counsel-buffer-or-recentf . nil)
+                (ivy-switch-buffer . nil)
+                (gb/ivy--program-select-and-run . nil)
+                (counsel-org-goto . 120)))
 
-      (dolist (posframe-command-width ivy-posframe-command-width-alist)
-        (let ((cmd (car posframe-command-width))
-              (width (cdr posframe-command-width)))
-          (when (fboundp cmd)
-            (advice-add cmd :before `(lambda (&rest params) (setq ivy-posframe-width ,width))))))
+        (dolist (posframe-command-width ivy-posframe-command-width-alist)
+          (let ((cmd (car posframe-command-width))
+                (width (cdr posframe-command-width)))
+            (when (fboundp cmd)
+              (advice-add cmd :before `(lambda (&rest params) (setq ivy-posframe-width ,width))))))
 
-      (defun ivy-posframe-display-at-frame-bottom-center (str)
-        (ivy-posframe--display str #'posframe-poshandler-frame-bottom-center))
+        (defun ivy-posframe-display-at-frame-bottom-center (str)
+          (ivy-posframe--display str #'posframe-poshandler-frame-bottom-center))
 
-      (ivy-posframe-mode 1)
+        (ivy-posframe-mode 1)
 
-      (add-to-list 'gb/execute-on-soft-reset #'(lambda () (ivy-posframe-mode -1))))
+        (add-to-list 'gb/execute-on-soft-reset #'(lambda () (ivy-posframe-mode -1)))))
   #+end_src
-* emacs-mini-frame (disabled)
+* emacs-mini-frame 
   - currently collides with output filtering of comint processes
-  #+begin_src emacs-lisp :tangle no
-    (use-package mini-frame
-      :load-path "~/repo/emacs-mini-frame"
-      :config
-      (custom-set-variables
-       '(mini-frame-internal-border-color "#654865")
-       '(mini-frame-completions-show-parameters
-         '((top . 0.7)
-           (width . 0.5)
-           (left . 0.5)
-           (height . 1)
-           (background-color . "#251825")
-           (border-color . "#654865")))
-       '(mini-frame-show-parameters
-         '((top . 0.7)
-           (width . 0.5)
-           (left . 0.5)
-           (height . 1)
-           (background-color . "#251825")
-           (border-color . "#654865"))))
+  #+begin_src emacs-lisp
+    (when (eq gb/use-frame-completion 'mini-frame)
+      (use-package mini-frame
+        :load-path "~/repo/emacs/emacs-mini-frame"
+        :custom ((mini-frame-create-lazy t "create the frame when: t = first usage, nil = entering the mini-frame mode")) ;; non  lazy fails with exwm!
+        :config
+        (custom-set-variables
+         '(mini-frame-internal-border-color "#654865")
+         '(mini-frame-completions-show-parameters
+           '((top . 0.7)
+             (width . 0.5)
+             (left . 0.5)
+             (height . 1)
+             (background-color . "#251825")
+             (border-color . "#654865")))
+         '(mini-frame-show-parameters
+           '((top . 0.7)
+             (width . 0.5)
+             (left . 0.5)
+             (height . 1)
+             (background-color . "#251825")
+             (border-color . "#654865"))))
 
-      (setq mini-frame--command-adjusted-show-parameters
-            '((counsel-buffer-or-recentf (width . 0.8))
-              (gb/ivy--program-select-and-run (width . 0.2))
-              (ivy-switch-buffer (width  . 0.8))
-              (counsel-git-grep (width .  0.8))
-              (counsel-ag-popup-search-here (width . 0.9))
-              (counsel-ag-popup-search (width . 0.9))))
+        (setq mini-frame--command-adjusted-show-parameters
+              '((counsel-buffer-or-recentf (width . 0.8))
+                (gb/ivy--program-select-and-run (width . 0.2))
+                (ivy-switch-buffer (width  . 0.8))
+                (counsel-git-grep (width .  0.8))
+                (counsel-ag-popup-search-here (width . 0.9))
+                (counsel-ag-popup-search (width . 0.9))))
 
-      (setq mini-frame-ignore-commands
-            '(
-              helm-for-files
-              helm-M-x
-              helm-find-files
-              helm-mini
-              helm-imenu-anywhere
-              byte-compile-file
-              gb/helm-bufler-switch
-              helm-org-in-buffer-headings
-              helm-imenu-anywhere
-              gb/exwm-program-select
-              embark-keymap-help
-              embark--completing-read-map
-              ignore
-              calcDigit-start
-              helm-swoop
-              helm-switch-shell
-              helm-multi-swoop
-              helm-multi-swoop-all
-              helm-cmd-t
-              helm-cmd-t-repos))
-      (when (eq gb/completion-framework 'ivy)
-        (mini-frame-mode 1)))
+        (setq mini-frame-ignore-commands
+              '(
+                helm-for-files
+                helm-M-x
+                helm-find-files
+                helm-mini
+                helm-imenu-anywhere
+                byte-compile-file
+                gb/helm-bufler-switch
+                helm-org-in-buffer-headings
+                helm-imenu-anywhere
+                gb/exwm-program-select
+                embark-keymap-help
+                embark--completing-read-map
+                ignore
+                calcDigit-start
+                helm-swoop
+                helm-switch-shell
+                helm-multi-swoop
+                helm-multi-swoop-all
+                helm-cmd-t
+                helm-cmd-t-repos))
+        (when (eq gb/completion-framework 'ivy)
+          (mini-frame-mode 1)
+          (add-to-list 'gb/execute-on-soft-reset #'(lambda () (mini-frame-mode -1))))))
   #+end_src
 * share2computer
   - allow easy download from handy by simply starting 'M-x share2computer'
