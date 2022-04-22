@@ -7474,8 +7474,11 @@
 ** settings
    #+BEGIN_SRC emacs-lisp
      ;; make sure M-x shell opens into currently open window (and does not open a new one)
-     (add-to-list 'display-buffer-alist
-                  '("^\\*shell.*\\*$" . (display-buffer-same-window)))
+     (dolist (el '(("^\\*shell.*\\*$" . (display-buffer-same-window))
+                   ("\\*Async Shell Command\\*.*" . (display-buffer-no-window))))
+       (add-to-list 'display-buffer-alist
+                    el))
+
      (require 'comint) ;; part of emacs
      (setq comint-password-prompt-regexp
            ;; (concat comint-password-prompt-regexp
