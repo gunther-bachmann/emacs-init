@@ -7486,6 +7486,8 @@
            ;; )
            )
 
+     (add-hook 'comint-output-filter-functions #'comint-osc-process-output) ;; add default output escape handlers
+
      (setq-default sh-basic-offset 2)
      (setq-default sh-indentation 2)
      (setq async-shell-command-display-buffer t)
@@ -11896,6 +11898,7 @@
        :hook (dired-mode . dired-annotator-check-dir-local-show)
        :config
        (require 'posframe)
+       (add-to-list 'recentf-exclude (format "%s/.*" (regexp-quote dired-annotator-annotations-folder)))
        (defconst dired-annotator-note-popup-width 58 "width of the note that pops up (less since serif fonts are used)")
        (defconst dired-annotator-note-popup-height 40 "max height of the note that pops up")
 
