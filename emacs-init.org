@@ -17222,10 +17222,10 @@
   #+end_src
 * EVAL coterm - support for tui apps in shell
   - start with coterm-mode, then M-x into a shell
-  #+begin_src emacs-lisp
+  #+begin_src emacs-lisp :tangle no
     (use-package coterm
       :after (native-complete)
-      :ensure t
+      :load-path "~/repo/emacs/emacs-coterm"
       :config 
       (defun gb/coterm-on (&rest _args)
         (unless coterm-mode
