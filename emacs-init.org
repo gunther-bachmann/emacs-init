@@ -37,6 +37,8 @@
     (setq gb/profile--org-experimental t)
     (setq gb/frame-creation-speedup nil) ;; font caching for frame creation, provides speed up on 28.0.50, posing problems on 28.0.91
     (setq gb/exwm-use-custom-workspaces t) ;; customized workspace switching in exwm
+
+    (setq gb/use-frame-completion 'mini-frame) ;; 'ivy-posframe, 'mini-frame, nil
   #+end_src
 * startup
 #+begin_src emacs-lisp
@@ -5463,27 +5465,33 @@
          (memoize #'ivy-rich-switch-buffer-path 5))
        (use-package all-the-icons-ivy
          :ensure t)
+       (defun gb/ivy-candidates-offset (cand) (make-string (if mini-frame-mode 0 (max 0 (- (frame-width) (ivy-rich-minibuffer-width 0.77)))) ? ))
+       (defun gb/ivy-candidates-offset-20 (cand) (make-string (if mini-frame-mode 0 20) ? ))
+       (defun gb/prefixed-20-all-the-icons-ivy-rich-buffer-icon (cand)
+         (concat (gb/ivy-candidates-offset-20 cand) (all-the-icons-ivy-rich-buffer-icon cand)))
+       (defun gb/prefixed-20-all-the-icons-ivy-rich-file-icon (cand)
+         (concat (gb/ivy-candidates-offset-20 cand) (all-the-icons-ivy-rich-file-icon cand)))
        (use-package all-the-icons-ivy-rich
          :config
          (setq ivy-rich-display-transformer--buffer
                '(:columns
-                  ((all-the-icons-ivy-rich-buffer-icon)
-                   (ivy-rich-candidate
-                    (:width 40))
-                   (ivy-rich-switch-buffer-size
-                    (:width 7))
-                   (ivy-rich-switch-buffer-indicators
-                    (:width 4 :face error :align right))
-                   (ivy-rich-switch-buffer-major-mode
-                    (:width 20 :face warning))
-                   (ivy-rich-switch-buffer-project
-                    (:width 25 :face success))
-                   (ivy-rich-switch-buffer-path
-                    (:width
-                     (lambda (x) (ivy-rich-switch-buffer-shorten-path x (ivy-rich-minibuffer-width 0.5))))))
-                  :predicate
-                  (lambda (cand) (get-buffer cand))
-                  :delimiter "	"))
+                 ((gb/prefixed-20-all-the-icons-ivy-rich-buffer-icon)
+                  (ivy-rich-candidate
+                   (:width 40))
+                  (ivy-rich-switch-buffer-size
+                   (:width 7))
+                  (ivy-rich-switch-buffer-indicators
+                   (:width 4 :face error :align right))
+                  (ivy-rich-switch-buffer-major-mode
+                   (:width 20 :face warning))
+                  (ivy-rich-switch-buffer-project
+                   (:width 25 :face success))
+                  (ivy-rich-switch-buffer-path
+                   (:width
+                    (lambda (x) (ivy-rich-switch-buffer-shorten-path x (ivy-rich-minibuffer-width 0.5))))))
+                 :predicate
+                 (lambda (cand) (get-buffer cand))
+                 :delimiter "	"))
          (setq ivy-rich-display-transformers-list
                `(ivy-switch-buffer
                  ,ivy-rich-display-transformer--buffer
@@ -5495,7 +5503,8 @@
                  ,ivy-rich-display-transformer--buffer
                  counsel-M-x
                  (:columns
-                  ((all-the-icons-ivy-rich-function-icon)
+                  ((gb/ivy-candidates-offset)
+                   (all-the-icons-ivy-rich-function-icon)
                    (counsel-M-x-transformer
                     (:width 40))
                    (ivy-rich-counsel-function-docstring
@@ -5543,7 +5552,7 @@
                   :delimiter "	")
                  counsel-find-file
                  (:columns
-                  ((all-the-icons-ivy-rich-file-icon)
+                  ((gb/prefixed-20-all-the-icons-ivy-rich-file-icon)
                    (ivy-read-file-transformer))
                   :delimiter "	")
                  counsel-file-jump
@@ -5553,7 +5562,8 @@
                   :delimiter "	")
                  counsel-dired
                  (:columns
-                  ((all-the-icons-ivy-rich-file-icon)
+                  ((gb/ivy-candidates-offset)
+                   (all-the-icons-ivy-rich-file-icon)
                    (ivy-read-file-transformer))
                   :delimiter "	")
                  counsel-dired-jump
@@ -5586,9 +5596,9 @@
                   :delimiter "	")
                  counsel-buffer-or-recentf
                  (:columns
-                  ((all-the-icons-ivy-rich-file-icon)
+                  ((gb/prefixed-20-all-the-icons-ivy-rich-file-icon)
                    (counsel-buffer-or-recentf-transformer
-                    (:width 0.65))
+                    (:width 0.6))
                    (ivy-rich-file-last-modified-time
                     (:face font-lock-comment-face)))
                   :delimiter "	")
