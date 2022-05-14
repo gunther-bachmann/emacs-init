@@ -17400,6 +17400,11 @@
         :custom
         (undo-hl-undo-commands '(undo undo-only undo-redo undo-fu-only-undo undo-fu-only-redo undo-tree-redo undo-tree-undo))))
   #+end_src
+* EVAL subed
+  #+begin_src emacs-lisp
+    (use-package subed
+      :ensure t)
+  #+end_src
 * utility functions
   - open dired to mounted folders
     #+begin_src emacs-lisp
