@@ -6937,6 +6937,12 @@
               ("s-s" . helm-projectile-switch-project))))
  #+END_SRC
 ** git
+*** git commit
+    #+begin_src emacs-lisp
+      (use-package git-commit
+        :ensure t
+        :config (global-git-commit-mode t))
+    #+end_src
 *** magithub (disabled)
     - disabled because ghub+ fails to load (some interface failure to git hub)
     #+BEGIN_SRC emacs-lisp :tangle no
