@@ -1,0 +1,34 @@
+#+title: get-touchpad
+* get touchpad status
+  #+begin_src sh :comments link :shebang "#!/usr/bin/env bash" :eval no :tangle ~/bin/get-touchpad :tangle-mode (identity #o755)
+    #------------------------------------------------------------------
+    # THIS FILE IS GENERATED (To edit please open file from link above)
+    #------------------------------------------------------------------
+    #
+    # get touchpad status
+    #
+    param=$1
+
+    d=`xinput list | grep -i touchpad | awk '{for(i=1;i<=NF;i++){ tmp=match($i, /id=[0-9]/); if(tmp){print $i} } }' | awk --field-separator== '{ print $2 }'`
+    # echo 'xinput list'
+    # echo " SynPS/2 Synaptics TouchPad device ID: $d"
+
+    # Find the touchpad, in my case it's called "SynPS/2 Synaptics TouchPad", with ID 11.
+    # echo "xinput list-props $d"
+    de=`xinput list-props $d | grep 'Device Enabled' | awk '{ print $3}' | awk --field-separator=\( '{print $2}' | awk --field-separator=\) '{print $1}'`
+    ds=`xinput list-props $d | grep 'Device Enabled' | awk '{ print $4}'`
+
+
+      if [ $ds == 0 ]; then
+        echo "off"
+      elif [ $ds == 1 ]; then
+        echo "on"
+      fi
+
+    # There should be one called 'Device Enabled'; at least mine has.
+    # echo "xinput set-prop $d $de $newStatus"
+    # xinput set-prop $d $de $newStatus
+
+    # ds2=`xinput list-props $d | grep 'Device Enabled' | awk '{ print $4}'`
+    # echo " Device Enabled setting ID: $de, Device Enabled status: $ds2"
+  #+end_src

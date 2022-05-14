@@ -17423,6 +17423,52 @@
           (kill-region beg end)
           (insert (org-element-interpret-data  new-context)))) 
     #+end_src
+  - en/disable touchpad depending on currently visited buffer
+    #+begin_src emacs-lisp
+      (if (not (executable-find "set-touchpad"))
+          (message "[off] enable touchpad en/disable depending on buffer type")
+        (message "[on] enable touchpad en/disable depending on buffer type")
+
+        (setq touchpad-active (string-equal "on" (string-trim (shell-command-to-string "get-touchpad"))))
+
+        (add-to-list 'gb/execute-on-soft-reset #'gb/touchpad-on)
+
+        (defun gb/touchpad-on ()
+          "switch the touchpad on"
+          (interactive)
+          (shell-command-to-string (format "set-touchpad on"))
+          (setq touchpad-active t))
+
+        (defun gb/touchpad-off ()
+          "switch the touchpad off"
+          (interactive)
+          (shell-command-to-string (format "set-touchpad off"))
+          (setq touchpad-active nil))
+
+        (defun gb/touchpad-toggle ()
+          "toggle the touchpad status"
+          (interactive)
+          (shell-command-to-string (format "set-touchpad"))
+          (setq touchpad-active (not touchpad-active)))
+
+        (bind-key "C-x t t" #'gb/touchpad-toggle)
+
+        (defun gb/update-touchpad ()
+          "set the touchpad status depending on the buffer type
+
+      enable touchpad for exwm buffers
+      disable touchpad for all other buffers"
+          (let* ((should-activate-touchpad (exwm--buffer->id (current-buffer))))
+            (when (and (not (bound-and-true-p gb/running-exwm-monitor-setup))
+                     (xor should-activate-touchpad touchpad-active))
+              (ignore-errors
+                (with-ignored-messages
+                 (shell-command-to-string (format "set-touchpad %s" (if should-activate-touchpad "on" "off")))
+                 (setq touchpad-active should-activate-touchpad)))))
+          t)
+
+        (add-hook 'buffer-list-update-hook #'gb/update-touchpad))
+    #+end_src
 * discarded eldoc-overlay - too invasive
   #+begin_src emacs-lisp :tangle no
     (use-package eldoc-overlay
