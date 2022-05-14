@@ -530,6 +530,7 @@
              ;; see here  https://github.com/jwiegley/use-package
              ;; makes sure that a system program is installed
              use-package-ensure-system-package
+             names-dev ;; enable emacs namespacing (see https://github.com/Malabarba/names)
              s))
 
     ;; add mac specific packages
@@ -3563,7 +3564,7 @@
            "Call `flash-crosshairs' after switching with `ace-window'"
            (cursor-ping 1)))))
    #+END_SRC
-** window arrangement (shackle)
+** window arrangement (shackle) 
    - [[https://github.com/wasamasa/shackle][github]]
    - [[https://github.com/kaushalmodi/.emacs.d/blob/master/setup-files/setup-shackle.el][example usage]]
    #+BEGIN_SRC emacs-lisp
@@ -3579,6 +3580,7 @@
           ("*undo-tree*"              :align right :size 0.25)
           ("*Compile-Log*"            :align right :size 0.25)
           (slack-message-buffer-mode  :same t)
+          (shell-mode                 :same t)
           ;; ("COMMIT_EDITMSG"        :same nil)
           ;; (magit-diff-mode         :same nil)
           ;; ("*transient*"           :same nil)
@@ -9706,7 +9708,7 @@
      :init
      (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
      :config
-     (setq org-bullets-bullet-list '("◉" "●" "◯" "⚬" "∘" "◦" "∙" "◉" "◯" "◎" "○" "◌" "◎" "○" "☉" "￮" "⊙" "❍" "⊚" "⊛"))
+     (setq org-bullets-bullet-list '("◉" "●" "⚬" "∘" "◦" "∙" "◉" "◯" "◎" "○" "◌" "◎" "○" "☉" "￮" "⊙" "❍" "⊚" "⊛" "◯" ))
      ;; override fontify buffer of org-bullets, since it forces fontifying again, which was already done => waste of time
      ;; (defun org-bullets--fontify-buffer ()
      ;;   (when font-lock-mode
@@ -13814,36 +13816,40 @@
             ""
             (car (s-split "+" (s-trim (shell-command-to-string (format "xrandr | grep -e '%s connected' | sed \"s/%s connected \\\(primary \\\)*//g\" | cut -f1 -d' '" monitor monitor))))))
 
+          (setq gb/running-exwm-monitor-setup nil)
           (defun gb/refresh-exwm-monitor-setup ()
             "refresh current multi monitor setup for exwm"
             (interactive)
-            (let ((dual-monitor (<= 2 (length (gb/exwm--get-connected-monitors))))
-                  (primary-monitor (gb/exwm--get-primary-monitor)))
-              (message "exwm change hook")
-              (if dual-monitor
-                  (let* ((second-monitor (gb/exwm--get-secondary-monitor))
-                         (sm-resolution (gb/exwm--get-geometry-str second-monitor)))
-                    (message (format "dual-monitor setup (primary: %s, secondary: %s@%s)" primary-monitor second-monitor sm-resolution))
-                    (cond
-                     ((string-empty-p second-monitor)
-                      (setq exwm-randr-workspace-monitor-plist (-interleave (number-sequence 0 (-  (exwm-workspace--count) 1)) (-repeat (exwm-workspace--count) primary-monitor))))
-                     ((or (eq gb/dual-screen-mode 'presentation) (eq gb/dual-screen-mode 'shared-screen))
-                      (progn
-                        (message "dual monitor presentation/shared-screen mode")
-                        (setq  exwm-randr-workspace-monitor-plist (append `(0 ,primary-monitor) (-interleave (number-sequence 1 (-  (exwm-workspace--count) 1)) (-repeat (- (exwm-workspace--count) 1) primary-monitor))))
-                        (shell-command (s-concat "xrandr --output " second-monitor " --same-as "  primary-monitor " --mode " (gb/xrandr-monitor-resolution primary-monitor)))))
-                     (t
-                      (progn
-                        (message "dual monitor")
-                        (setq  exwm-randr-workspace-monitor-plist (append `(0 ,primary-monitor) (-interleave (number-sequence 1 (-  (exwm-workspace--count) 1)) (-repeat (- (exwm-workspace--count) 1) second-monitor))))
-                        (shell-command (s-concat "xrandr --output " primary-monitor " --left-of "  second-monitor " --auto"))
-                        (shell-command (s-concat "xrandr --output " second-monitor " --preferred"))))))
-                (progn
-                  (message "single monitor")
-                  (setq exwm-randr-workspace-monitor-plist (-interleave (number-sequence 0 (-  (exwm-workspace--count) 1)) (-repeat (exwm-workspace--count) primary-monitor)))
-                  (shell-command-to-string "xrandr --auto")))
-              (gb/reset-main-fonts)
-              (exwm-randr-refresh)))
+            (unwind-protect
+                (let ((dual-monitor (<= 2 (length (gb/exwm--get-connected-monitors))))
+                      (primary-monitor (gb/exwm--get-primary-monitor)))
+                  (setq gb/running-exwm-monitor-setup t)
+                  (message "exwm change hook")
+                  (if dual-monitor
+                      (let* ((second-monitor (gb/exwm--get-secondary-monitor))
+                             (sm-resolution (gb/exwm--get-geometry-str second-monitor)))
+                        (message (format "dual-monitor setup (primary: %s, secondary: %s@%s)" primary-monitor second-monitor sm-resolution))
+                        (cond
+                         ((string-empty-p second-monitor)
+                          (setq exwm-randr-workspace-monitor-plist (-interleave (number-sequence 0 (-  (exwm-workspace--count) 1)) (-repeat (exwm-workspace--count) primary-monitor))))
+                         ((or (eq gb/dual-screen-mode 'presentation) (eq gb/dual-screen-mode 'shared-screen))
+                          (progn
+                            (message "dual monitor presentation/shared-screen mode")
+                            (setq  exwm-randr-workspace-monitor-plist (append `(0 ,primary-monitor) (-interleave (number-sequence 1 (-  (exwm-workspace--count) 1)) (-repeat (- (exwm-workspace--count) 1) primary-monitor))))
+                            (shell-command (s-concat "xrandr --output " second-monitor " --same-as "  primary-monitor " --mode " (gb/xrandr-monitor-resolution primary-monitor)))))
+                         (t
+                          (progn
+                            (message "dual monitor")
+                            (setq  exwm-randr-workspace-monitor-plist (append `(0 ,primary-monitor) (-interleave (number-sequence 1 (-  (exwm-workspace--count) 1)) (-repeat (- (exwm-workspace--count) 1) second-monitor))))
+                            (shell-command (s-concat "xrandr --output " primary-monitor " --left-of "  second-monitor " --auto"))
+                            (shell-command (s-concat "xrandr --output " second-monitor " --preferred"))))))
+                    (progn
+                      (message "single monitor")
+                      (setq exwm-randr-workspace-monitor-plist (-interleave (number-sequence 0 (-  (exwm-workspace--count) 1)) (-repeat (exwm-workspace--count) primary-monitor)))
+                      (shell-command-to-string "xrandr --auto")))
+                  (gb/reset-main-fonts)
+                  (exwm-randr-refresh))
+              (setq gb/running-exwm-monitor-setup nil)))
 
           ;; make sure multi monitor support is active
           (progn
@@ -16340,7 +16346,8 @@
       (--each `(,(regexp-quote " * generated by Xtext"))
         (push it hardhat-bof-content-protected-regexps))
 
-      (--each '("^/nix/store/")
+      (--each '("^/nix/store/"
+                "^/gnu/store/")
         (push it hardhat-fullpath-protected-regexps))
 
       (global-hardhat-mode 1))
@@ -17658,6 +17665,7 @@
   - org-ros - Rahul's Org-Mode Screenshot
   - org-download - download images from the browser/internet inserting into org files
   - osm - open street map interface (with the possibility to create org links) https://github.com/minad/osm
+  - ox-review - Re:VIEW Back-End for Org Export Engine (re:VIEW generates ePub, PDF, markdown etc., see https://github.com/kmuto/review)
 ** os/system
   - network-watch (allows hooks to run when network is goiing down/up)
   - scp (use scp to transfer files)
@@ -17734,7 +17742,8 @@
    - logms - logging form elisp into log buffer with clickable links (to jump to log line), see [[https://github.com/jcs-elpa/logms][here]]
    - session-async - Asynchronous processing in a forked process session
    - impostman - Import Postman collections (https://github.com/flashcode/impostman)
-   - eglot-java - Java extension for the eglot LSP client 
+   - eglot-java - Java extension for the eglot LSP client
+   - plz - HTTP library (easily get work with web resources into elisp)
 ** graphics
    - vega-view - allow preview of vega graphics (graphics described by json), see https://vega.github.io/vega/ and https://github.com/applied-science/emacs-vega-view
 ** system
