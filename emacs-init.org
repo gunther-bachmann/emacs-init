@@ -12200,7 +12200,8 @@
            (let ((buffer-info (frame-parameter frame 'posframe-buffer)))
              (when buffer-info
                (posframe-delete-frame (car buffer-info))
-               (message (format "delete %s" (car buffer-info))))))))
+               (message (format "delete %s" (car buffer-info)))))))
+       (add-to-list 'gb/execute-on-soft-reset #'gb/delete-all-open-posframes))
    #+END_SRC
 #+BEGIN_SRC emacs-lisp
 (report-elapsed "check point - posframe")
@@ -17459,7 +17460,14 @@
 
         (setq touchpad-active (string-equal "on" (string-trim (shell-command-to-string "get-touchpad"))))
 
-        (add-to-list 'gb/execute-on-soft-reset #'gb/touchpad-on)
+        (defun gb/reset-touchpad-processing ()
+          (remove-hook 'buffer-list-update-hook #'gb/update-touchpad)
+          (gb/touchpad-on))
+
+        (defun gb/set-touchpad-processing ()
+          (add-hook 'buffer-list-update-hook #'gb/update-touchpad))
+
+        (add-to-list 'gb/execute-on-soft-reset #'gb/reset-touchpad-processing)
 
         (defun gb/touchpad-on ()
           "switch the touchpad on"
@@ -17495,7 +17503,7 @@
                  (setq touchpad-active should-activate-touchpad)))))
           t)
 
-        (add-hook 'buffer-list-update-hook #'gb/update-touchpad))
+        (gb/set-touchpad-processing))
     #+end_src
 * discarded eldoc-overlay - too invasive
   #+begin_src emacs-lisp :tangle no
