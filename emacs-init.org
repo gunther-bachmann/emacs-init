@@ -17406,6 +17406,11 @@
     (use-package subed
       :ensure t)
   #+end_src
+* EVAL ca65-mode
+  #+begin_src emacs-lisp
+    (use-package ca65-mode
+      :ensure t)
+  #+end_src
 * utility functions
   - open dired to mounted folders
     #+begin_src emacs-lisp
