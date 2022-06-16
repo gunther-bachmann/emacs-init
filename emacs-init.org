@@ -1721,6 +1721,9 @@
        ;; :ensure t ;; builtin => no ensure
        :config
        (setq epa-pinentry-mode 'loopback)
+       (setq auto-encryption-mode t)
+       (setq epa-file-cache-passphrase-for-symmetric-encryption t)
+       (setq epa-file-inhibit-auto-save t)
 
        (defun gb/gpg-keys-private-fingerprint ()
          (s-split "\n" (string-trim (shell-command-to-string "gpg -K | grep -e '^uid' -B 1 | grep -ve '^uid' | grep -v -e '--' | sed -e 's/ *//g'"))))
