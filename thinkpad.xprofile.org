@@ -78,7 +78,7 @@
     xsetroot -cursor_name left_ptr
 
     # Keyboard repeat rate
-    xset r rate 500 50  # r rate delay (ms) (repeats/second)
+    xset r rate 500 60  # r rate delay (ms) (repeats/second)
     # xset r off # switch repeat off
   #+end_src
 ** configure powermanager for lid-close
