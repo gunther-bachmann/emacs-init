@@ -5105,6 +5105,11 @@
    (use-package pos-tip
      :ensure t)
    #+END_SRC
+** general configuration for help and such
+   #+begin_src emacs-lisp
+     (require 'bind-key)
+     (bind-key "C-h s" #'shortdoc-display-group)
+   #+end_src
 ** help at point
    - show help in modeline to text that is propertized as button... (e.g. in customize-.... modes)
    - the timer will make the help appear after x seconds (can be a float)
