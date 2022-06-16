@@ -16258,9 +16258,14 @@
   #+begin_src emacs-lisp
     (use-package google-translate
       :ensure t
+      :custom ((google-translate-backend-method 'curl)
+               (google-translate-base-url "https://translate.googleapis.com/translate_a/single")
+               (google-translate-listen-url "https://translate.googleapis.com/translate_tts")
+               (google-translate-tkk-url "https://translate.googleapis.com/"))
       :bind (("H-h l" . google-translate-at-point)
              ("H-h h" . gb/translate-at-point-eng-ger))
       :init
+      (defun google-translate--search-tkk () "Search TKK." (list 430675 2721866130))
       (defun gb/translate-at-point-eng-ger ()
         "translate region or word at point english->geman"
         (interactive)
