@@ -56,8 +56,9 @@
     (let ((default-output "alsa_output.pci-0000_00_1f.3.analog-stereo"))
       (shell-command-to-string "amixer sset Master on") ;; unmute
       (shell-command-to-string (format "pactl set-default-sink %s" default-output))
-      (shell-command-to-string (format "pactl set-sink-volume %s 30%%" default-output))
-      (start-process-shell-command "startup" nil  "play ~/sound/it_crowd.mp3")))
+      (shell-command-to-string (format "pactl set-sink-volume %s 40%%" default-output))
+      (start-process-shell-command "startup" nil  "sidplayfp -t56 -os ~/documents/roam/media/Ghostbusters_Theme.sid" ;; "play ~/sound/it_crowd.mp3"
+                                   )))
 
   (defun gb/play-startup-sound-when-ctrlkey-down ()
     "very biased method to check whether a ctrl-key is pressed while emacs starts up and start playing a startup sound"
