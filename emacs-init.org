@@ -2462,11 +2462,21 @@
          ;; make sure not to use sublimity in the following modes
          ;; all terminal modes (does reposition to the bottom)
          ;; pdf view mode (does mix up left and right scrolling if active, since repositioning does not work here)
-         (add-to-list 'sublimity-handle-scroll-criteria '(not (memq major-mode (list 'ansi-term-mode 'term-mode 'shell-mode 'pdf-view-mode 'image-mode))))
+         (add-to-list 'sublimity-handle-scroll-criteria
+                      '(not (memq major-mode
+                                (list 'ansi-term-mode
+                                      'term-mode
+                                      'shell-mode
+                                      'pdf-view-mode
+                                      'image-mode))))
 
          (setq sublimity-auto-hscroll-mode t)
-         (setq sublimity-scroll-drift-length 3)
-         (setq sublimity-scroll-weight 3)
+         (if (native-comp-available-p)
+             (progn
+               (setq sublimity-scroll-drift-length 6)
+               (setq sublimity-scroll-weight 10))
+           (setq sublimity-scroll-drift-length 3)
+           (setq sublimity-scroll-weight 3))
          (setq auto-hscroll-mode t) ;; does not work in sublimity scroll mode
          ;; minimap is explicitly not enabled, since another minimap-mode is used for that
          ;; enable minimap
