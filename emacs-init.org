@@ -10763,7 +10763,7 @@
              (plist-get info :message)
              "\n")
             nil
-            "/home/pe/slack.org"
+            (format "/home/%s/slack.org" (user-login-name))
             t))
 
          (defun gb/alert-message-notify-dunst (info)
@@ -11469,16 +11469,18 @@
     :load-path "~/repo/emacs/helm-backup"
     :init (add-hook 'after-save-hook #'helm-backup-versioning)
     :config
-    (setq helm-backup-excluded-entries
-          `(,(regexp-quote "/home/pe/.emacs-bmk-bmenu-state.el")
-            ,(regexp-quote "/home/pe/.emacs.d/company-statistics-cache.el")
-            ,(s-concat (regexp-quote "/home/pe/.emacs.d/emms/") ".*")
-            ,(regexp-quote "/home/pe/.emacs.d/init.el")
-            ,(regexp-quote "/home/pe/.newsrc-dribble" )
-            ,(regexp-quote "/home/pe/.newsrc.eld")
-            ,(regexp-quote "/home/pe/cal-based-diary")
-            ,(s-concat (regexp-quote "/home/pe/documents/roam/" ) ".*")
-            ,(s-concat (regexp-quote "/home/pe/repo/") ".*"))))
+    (let* ((uname (user-login-name))
+           (udir (format "/home/%s" uname)))
+      (setq helm-backup-excluded-entries
+            `(,(regexp-quote (format "%s/.emacs-bmk-bmenu-state.el" udir))
+              ,(regexp-quote (format"%s/.emacs.d/company-statistics-cache.el" udir))
+              ,(s-concat (regexp-quote (format "%s/.emacs.d/emms/" udir)) ".*")
+              ,(regexp-quote (format "%s/.emacs.d/init.el" udir))
+              ,(regexp-quote (format "%s/.newsrc-dribble" udir) )
+              ,(regexp-quote (format "%s/.newsrc.eld" udir))
+              ,(regexp-quote (format "%s/cal-based-diary" udir))
+              ,(s-concat (regexp-quote (format "%s/documents/roam/" udir) ) ".*")
+              ,(s-concat (regexp-quote (format "%s/repo/" udir)) ".*")))))
 #+END_SRC
 * latex (auctex)
 ** auctex
@@ -11610,7 +11612,7 @@
        (defun gb/dired-open-media ()
          "open mount point for media in separate dired window"
          (interactive)
-         (dired "/run/media/pe"))
+         (dired (format "/run/media/%s" (user-login-name))))
        :config
        (setq dired-omit-size-limit 60000)
        (setq dired-dwim-target t) ;; try to guess the directory to use for dired
@@ -14318,7 +14320,7 @@
   - tested with cifs-utils-6.9
   #+begin_src emacs-lisp
     (defvar gb/fritz-mount-point
-      "/home/pe/temp/fp2_mountpoint"
+      (format "/home/%s/temp/fp2_mountpoint" (user-login-name))
       "mount fritz nas to this folder")
 
     (defvar gb/fritz-mount-point-check-folder
@@ -15305,7 +15307,7 @@
         :hook (notdeft-mode . org-roam-stack-mode)
         :custom
         (notdeft-directories '("~/documents/roam"))
-        (notdeft-xapian-program "/home/pe/repo/emacs/notdeft/xapian/notdeft-xapian")
+        (notdeft-xapian-program (format "/home/%s/repo/emacs/notdeft/xapian/notdeft-xapian" (user-login-name)))
         (notdeft-xapian-max-results 1000 "show up to 1000 entries in the notdef query buffer")
         :config
         (require 'notdeft-autoloads)
@@ -15385,7 +15387,7 @@
                 :target (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n")
                 :unnarrowed t)))
             (org-roam-graph-viewer "emacsclient")
-            (org-notes "/home/pe/documents/roam")
+            (org-notes (format "/home/%s/documents/roam" (user-login-name)))
             (org-directory org-notes)
             (deft-directory org-notes)
             (notdeft-directories `(,org-notes))
@@ -15549,56 +15551,7 @@
             (add-to-list 'company-backends 'company-org-roam))
 
 
-          ;; (use-package nroam
-          ;;   ;; :load-path "/home/pe/repo/emacs/nroam/"
-          ;;   :ensure t
-          ;;   :config
-          ;;   (defun gb/nroam-insert-line-separator ()
-          ;;     (hack-local-variables)
-          ;;     (goto-char (point-max))
-          ;;     (org-show-entry)
-          ;;     (previous-line)
-          ;;     (beginning-of-line)
-          ;;     (insert "\n\n")
-          ;;     (goto-char (point-max)))
-
-          ;;   ;; redefine this function to execute org-content at the end
-          ;;   (defun nroam--set-sections-visibility ()
-          ;;     "Set nroam section visibility according to `org-set-startup-visibility'."
-          ;;     (when (nroam--sections-inserted-p)
-          ;;       (save-restriction
-          ;;         (narrow-to-region nroam-start-marker nroam-end-marker)
-          ;;         (org-set-startup-visibility)
-          ;;         (org-content 2))))
-
-          ;;   (add-hook 'nroam--sections #'gb/nroam-insert-line-separator) ;; nroam--sections
-          ;;   (add-hook 'org-mode-hook #'nroam-setup-maybe)
-          ;;   (custom-set-faces  '(form-feed-line ((t (:strike-through "dim gray"))))))
           )))
-    ;; failed with "run-hooks: Symbol’s value as variable is void: bibtex-completion-find-note-functions"
-
-    ;; (use-package org-ref-helm-bibtex
-    ;;   :ensure t)
-    ;; (use-package org-roam-bibtex
-    ;;   :after (org-roam)
-    ;;   :hook (org-roam-mode . org-roam-bibtex-mode)
-    ;;   :ensure t
-    ;;   :config
-    ;;   (setq bibtex-completion-display-formats nil)
-    ;;   (setq org-roam-bibtex-preformat-keywords
-    ;;         '("=key=" "title" "url" "file" "author-or-editor" "keywords"))
-    ;;   (setq orb-templates
-    ;;         '(("r" "ref" plain (function org-roam-capture--get-point)
-    ;;            ""
-    ;;            :file-name "${slug}"
-    ;;            :head "#+TITLE: ${=key=}: ${title}\n#+ROAM_KEY: ${ref}
-
-    ;; - tags ::
-    ;; - keywords :: ${keywords}
-
-    ;; \n* ${title}\n  :PROPERTIES:\n  :Custom_ID: ${=key=}\n  :URL: ${url}\n  :AUTHOR: ${author-or-editor}\n  :NOTER_DOCUMENT: %(orb-process-file-field \"${=key=}\")\n  :NOTER_PAGE: \n  :END:\n\n"
-
-    ;;            :unnarrowed t))))
   #+end_src
 #+BEGIN_SRC emacs-lisp
 (report-elapsed "check-point - org roam")
@@ -16996,7 +16949,7 @@
                 (lsp-ltex-extension-name "ltex-ls-12.1.0.tar.gz")
                 (lsp-ltex-server-download-url
                  "https://github.com/valentjn/ltex-ls/releases/download/12.1.0/ltex-ls-12.1.0.tar.gz")
-                (lsp-ltex-server-store-path "/home/pe/bin")
+                (lsp-ltex-server-store-path (format "/home/%s/bin" (user-login-name)))
                 (lsp-ltex-version "12.1.0"))
 
       ;; :hook (text-mode . (lambda ()
@@ -17331,10 +17284,13 @@
   #+begin_src emacs-lisp
     (use-package wallpaper
       :ensure t
-      :hook ((exwm-randr-screen-change . wallpaper-set-wallpaper))
+      :hook ((exwm-randr-screen-change . gb/wallpaper-set-wallpaper-wrapped))
       :custom (wallpaper-directory "~/media")
       (single-wallpaper t)
-      (wallpaper-static-wallpaper-list '("/home/pe/media/nix-wallpaper-simple-vdark-gray_bottom.png")))
+      (wallpaper-static-wallpaper-list (list (format "/home/%s/media/nix-wallpaper-simple-vdark-gray_bottom.png" (user-login-name))))
+      :init
+      (defun gb/wallpaper-set-wallpaper-wrapped ()
+        (ignore-errors (wallpaper-set-wallpaper))))
     (use-package wallpreview
       :ensure t)
   #+end_src
@@ -17448,8 +17404,11 @@
       (defun gb/select-mounted-folder ()
         "open dired folder selection on mount point for media"
         (interactive)
-        (let ((default-directory "/run/media/pe"))
-          (call-interactively #'dired)))
+        (let ((uname (user-login-name)))
+          (when (file-exists-p (format "/run/media/%s" uname))
+            (shell-command-to-string (format "sudo chown %s:users /run/media/%s/" uname uname)))
+          (let ((default-directory (format "/run/media/%s" uname)))
+            (call-interactively #'dired))))
     #+end_src
   - resize image and adjust org link automatically
     #+begin_src emacs-lisp
@@ -17744,6 +17703,7 @@
   - nixpkgs-fmt - format nix using nixpkgs-fmt
   - modern-sh - shell script edit mode, see https://github.com/damon-kwok/modern-sh
   - rsync-mode - emacs minor mode to interact with rsync, syncing projects to multiple servers
+  - detached - A package to launch, and manage, detached processes, combines with dired, shell and more
 ** project
    - treemacs-persp - integration of perspective into treemacs buffer visibility
    - browse-at-remote - Open github/gitlab/bitbucket/stash/gist/phab/sourcehut page from Emacs
