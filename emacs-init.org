@@ -17430,6 +17430,12 @@
     (use-package ca65-mode
       :ensure t)
   #+end_src
+* EVAL inspector
+  - inspector - Tool for inspection of Emacs Lisp objects. 
+  #+begin_src emacs-lisp
+    (use-package inspector
+      :ensure t)
+  #+end_src
 * utility functions
   - open dired to mounted folders
     #+begin_src emacs-lisp
