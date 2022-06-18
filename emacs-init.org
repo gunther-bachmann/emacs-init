@@ -17456,11 +17456,23 @@
         (setq touchpad-active (string-equal "on" (string-trim (shell-command-to-string "get-touchpad"))))
 
         (defun gb/reset-touchpad-processing ()
-          (remove-hook 'buffer-list-update-hook #'gb/update-touchpad)
-          (gb/touchpad-on))
+          (ignore-errors
+            (remove-hook 'kill-buffer-hook #'gb/delayed-touchpad-hook)
+            (remove-hook 'buffer-list-update-hook #'gb/update-touchpad)
+            (gb/touchpad-on)))
+
+        (add-hook 'kill-emacs-hook #'gb/reset-touchpad-processing)
 
         (defun gb/set-touchpad-processing ()
-          (add-hook 'buffer-list-update-hook #'gb/update-touchpad))
+          (add-hook 'buffer-list-update-hook #'gb/update-touchpad)
+          (add-hook 'kill-buffer-hook #'gb/delayed-touchpad-hook))
+
+        (defun gb/delayed-touchpad-hook ()
+          "run the update touchpad hook, delayed
+
+      this ensures that closed floating windows will not result
+      in disabled touchpads (in exwm apps)"
+          (run-at-time 0.1 nil #'gb/update-touchpad))
 
         (add-to-list 'gb/execute-on-soft-reset #'gb/reset-touchpad-processing)
 
