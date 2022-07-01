@@ -15427,6 +15427,11 @@
             :config
             (require 'org-roam-protocol)
 
+            (defun gb/org-roam-buffer-fold-level-2 ()
+              (magit-section-show-level-2-all))
+            ;; make sure when opening org roam buffer, the links are folded on level 2
+            (add-hook 'org-roam-buffer-postrender-functions #'gb/org-roam-buffer-fold-level-2)
+
             (defvar gb/set-tag-config-list '(;; ("ROAM_TAGS" . " ")
                                              ;; ("FILETAGS" . ":")
                                              )
