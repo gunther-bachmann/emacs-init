@@ -1,12 +1,15 @@
 #+title: GC execute
 * gc execute
   - make sure that nix collects all user garbage
-    and guix collects enough garbage to have 12G free
+    and guix removes generations older than 1 week
+    and guix collects enough garbage to have xG free
   #+begin_src sh :comments link :shebang "#!/usr/bin/env bash" :eval no :tangle ~/bin/gc-execute :tangle-mode (identity #o755)
     #------------------------------------------------------------------
     # THIS FILE IS GENERATED (To edit please open file from link above)
     #------------------------------------------------------------------
     #
+    [ $EUID -eq 0 ] && { echo "don't run as root"; exit 1;}
     nix-collect-garbage -d
+    guix package --delete-generations=1w
     guix gc -F 15G
   #+end_src
