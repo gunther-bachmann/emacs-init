@@ -8886,8 +8886,8 @@
 
         (require 'org-crypt)
         (org-crypt-use-before-save-magic)
-        (setq org-tags-exclude-from-inheritance '("crypt"))  ;; tag to use
-        (setq org-crypt-key nil) ;; for symmetric en/decryption
+        (setq org-tags-exclude-from-inheritance '("crypt")) ;; tag to use
+        (setq org-crypt-key nil)                              ;; for symmetric en/decryption
         (bind-key "C-c s d" #'org-decrypt-entry)
         (bind-key "C-c s e" #'org-encrypt-entry)
 
@@ -8938,9 +8938,9 @@
                                  (looking-at "^[ \t]*#\\+begin_src[ \t]+[^ \f\t\n\r\v]+[ \t]*"))))
             ;; Test if we moved out of a block.
             (when (or (and rasmus/org-at-src-begin
-                           (not at-src-block))
-                      ;; File was just opened.
-                      (eq rasmus/org-at-src-begin -1))
+                        (not at-src-block))
+                     ;; File was just opened.
+                     (eq rasmus/org-at-src-begin -1))
               (rasmus/org-prettify-src--update))
             ;; Remove composition if at line; doesn't work properly.
             ;; (when at-src-block
@@ -10244,7 +10244,7 @@
       :ensure t
        :after ( org async))
     #+END_SRC
-*** adaptive warp
+*** adaptive wrap (disabled)
     #+BEGIN_SRC emacs-lisp :tangle no
     (when (locate-library "adaptive-wrap")
       (use-package adaptive-wrap))
@@ -17253,8 +17253,9 @@
       :ensure t
       :pin manual)
   #+end_src
-* EVAL coterm - support for tui apps in shell
+* coterm - support for tui apps in shell (disabled)
   - start with coterm-mode, then M-x into a shell
+  - currently poses a problem in combination with emacs 28 native compilation and mini-frame
   #+begin_src emacs-lisp :tangle no
     (use-package coterm
       :after (native-complete)
@@ -17650,6 +17651,8 @@
   - flycheck-indent
   - ob-deno - Babel Functions for Javascript/TypeScript with Deno
   - flycheck-languagetool - flycheck using the language tool
+  - ebnf-mode - Major mode for EBNF files 
+  - lingva - Access Google Translate via lingva.ml (anonymously)
 ** javascript/json/yaml/html
    - indium (java script development environment) [[https://github.com/NicolasPetton/Indium][home page]]
    - lsp-html - lsp frontend for html serving
@@ -17663,7 +17666,8 @@
          #+END_SRC
    - skerrit - repl driven dev for javascript ([[https://github.com/anonimitoraf/skerrick][home page]])
    - prettier-rc - minor mode to use prettier rules to format typescript/javascript source
-   - eslint-disable-rule - Commands to add JS comments disabling eslint rules 
+   - eslint-disable-rule - Commands to add JS comments disabling eslint rules
+   - jsonian - A major mode for editing JSON files 
 ** lisp/racket/haskell/clojure/scheme
   - macrostep-geiser
   - ob-clojure-literate
