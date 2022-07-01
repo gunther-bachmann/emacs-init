@@ -8853,6 +8853,34 @@
       (org-hide-leading-stars t) ;; each level only one star
       (org-special-ctrl-a/e t)   ;; jump to the head text only (not to the star marking the head)
       :init
+
+      ;; https://kitchingroup.cheme.cmu.edu/blog/2014/09/13/Make-some-org-sections-read-only/
+      (progn
+        (defun org-mark-readonly ()
+          (interactive)
+          (org-map-entries
+           (lambda ()
+             (let* ((element (org-element-at-point))
+                    (begin (org-element-property :begin element))
+                    (end (org-element-property :end element)))
+               (add-text-properties begin (- end 1) '(read-only t))))
+           "read_only")
+          (message "Made readonly!"))
+
+
+        (defun org-remove-readonly ()
+          (interactive)
+          (org-map-entries
+           (lambda ()
+             (let* ((element (org-element-at-point))
+                    (begin (org-element-property :begin element))
+                    (end (org-element-property :end element))
+                    (inhibit-read-only t))
+               (remove-text-properties begin (- end 1) '(read-only t))))
+           "read_only"))
+
+        (add-hook 'org-mode-hook 'org-mark-readonly))
+
       ;; thanks to https://pank.eu/blog/pretty-babel-src-blocks.html
       (with-eval-after-load 'org
 
