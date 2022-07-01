@@ -151,7 +151,7 @@
 
     ; Seconds to sleep between updates
     ; Default: 1
-    interval = 1
+    interval = 3
 
     ; Available tags:
     ;   <label> (default)
