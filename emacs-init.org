@@ -8854,6 +8854,11 @@
       (org-special-ctrl-a/e t)   ;; jump to the head text only (not to the star marking the head)
       :init
 
+      ;; make sure that emphasis (* bold, / slant ...) works over 5 lines (not just to the next linebreak
+      ;; this incurs a performance overhead (of course), since the regex has to walk more lines
+      (setcar (nthcdr 4 org-emphasis-regexp-components) 5)
+      (org-set-emph-re 'org-emphasis-regexp-components org-emphasis-regexp-components)
+
       ;; https://kitchingroup.cheme.cmu.edu/blog/2014/09/13/Make-some-org-sections-read-only/
       (progn
         (defun org-mark-readonly ()
