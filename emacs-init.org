@@ -16403,7 +16403,7 @@
   - works alright, seems to interfer with some other package though, which then uses up to 30s blocking emacs
     one method needed adjust to make idle gc not go over 10s idle time
   - seems to be fixed by setting the max idle time to 10s, never longer even in auto mode!
-  #+begin_src emacs-lisp
+  #+begin_src emacs-lisp :tangle no
     (when (file-exists-p "~/repo/emacs/gcmh/gcmh.el")
       (use-package gcmh
         :load-path "~/repo/emacs/gcmh/"
@@ -16411,6 +16411,7 @@
         :custom
         (gcmh-verbose t)
         (gcmh-idle-delay 'auto)
+        (gcmh-auto-idle-max-delay 8 "max seconds to wait until gc")
         (gcmh-modeline-element '(:eval (let ((str (format "▽%.2f" gcmh-last-gc-time)))
                                          (cond ((and (fboundp #'gb/modeline-line-selected-window-active-p) (not (gb/modeline-line-selected-window-active-p))) "")
                                                ((> 0.2 gcmh-last-gc-time) (propertize str 'face '(:foreground "#208020")))
