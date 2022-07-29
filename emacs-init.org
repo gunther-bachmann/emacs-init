@@ -2030,7 +2030,7 @@
    #+begin_src emacs-lisp
      (set-default 'image-use-external-converter t) ;; use external converter for exotic graphics formats
    #+end_src
-** COMMENT display symbols (pretty-mode, prettify-greek)
+** display symbols (pretty-mode, prettify-greek)
    #+BEGIN_SRC emacs-lisp
      (use-package pretty-mode
        :ensure t
@@ -3780,7 +3780,7 @@
    #+BEGIN_SRC emacs-lisp
      (defun split-window-below-and-select-scratch (&optional arg)
        (interactive "P")
-       (let* ((new-window (split-window-below)))
+       (let* ((new-window (split-window-below arg)))
          (unless arg
            (set-window-buffer new-window "*scratch*"))
          (aw-switch-to-window new-window)
@@ -3790,7 +3790,7 @@
      (defun split-window-above-and-select-scratch (&optional arg)
        (interactive "P")
        (let* ((old-window (get-buffer-window))
-              (new-window (split-window-below)))
+              (new-window (split-window-below arg)))
          (unless arg
            (set-window-buffer old-window "*scratch*"))
          (aw-switch-to-window old-window)
@@ -3799,7 +3799,7 @@
 
      (defun split-window-right-and-select-scratch (&optional arg)
        (interactive "P")
-       (let* ((new-window (split-window-right)))
+       (let* ((new-window (split-window-right arg)))
          (unless arg
            (set-window-buffer new-window "*scratch*"))
          (aw-switch-to-window new-window)
@@ -3809,7 +3809,7 @@
      (defun split-window-left-and-select-scratch (&optional arg)
        (interactive "P")
        (let* ((old-window (get-buffer-window))
-              (new-window (split-window-right)))
+              (new-window (split-window-right arg)))
          (unless arg
            (set-window-buffer old-window "*scratch*"))
          (aw-switch-to-window old-window)
@@ -6185,129 +6185,130 @@
     #+END_SRC
 *** cider
     #+BEGIN_SRC emacs-lisp
-    ;;;;
-    ;; Cider
-    ;;;;
-    (use-package cider
-      :ensure t
-      :commands cider-jack-in
-      :after ( clojure-mode
-               company ;; optional for completion
-               flycheck-clojure ;; optional for checking on the fly
-               rainbow-delimiters ;; optional minor mode to switch on
-               paredit ;; optional paredit minor mode to switch to
-               spinner)
-      :bind (:map clojure-mode-map
-                  ("C-c C-v" . cider-start-http-server)
-                  ("C-M-r" . cider-refresh)
-                  ("C-c u" . cider-user-ns)
-                  :map cider-mode-map
-                  ("C-c u" . cider-user-ns))
-      :init (progn
-              ;; provides minibuffer documentation for the code you're typing into the repl
-              (add-hook 'cider-mode-hook 'turn-on-eldoc-mode)
+      ;;;;
+      ;; Cider
+      ;;;;
+      (use-package cider
+        :ensure t
+        :commands cider-jack-in
+        :after ( clojure-mode
+                 company ;; optional for completion
+                 flycheck-clojure ;; optional for checking on the fly
+                 rainbow-delimiters ;; optional minor mode to switch on
+                 paredit ;; optional paredit minor mode to switch to
+                 spinner)
+        :bind (:map clojure-mode-map
+                    ("C-c C-v" . cider-start-http-server)
+                    ("C-M-r" . cider-refresh)
+                    ("C-c u" . cider-user-ns)
+                    :map cider-mode-map
+                    ("C-c u" . cider-user-ns))
+        :init (progn
+                ;; provides minibuffer documentation for the code you're typing into the repl
+                (add-hook 'cider-mode-hook 'turn-on-eldoc-mode)
 
-              ;; add company hooks
-              (when (package-installed-p 'company)
-                (add-hook 'cider-repl-mode-hook #'company-mode)
-                (add-hook 'cider-mode-hook #'company-mode))
+                ;; add company hooks
+                (when (package-installed-p 'company)
+                  (add-hook 'cider-repl-mode-hook #'company-mode)
+                  (add-hook 'cider-mode-hook #'company-mode))
 
-              ;; enable paredit in your REPL
-              (when (package-installed-p 'paredit) (add-hook 'cider-repl-mode-hook 'paredit-mode))
+                ;; enable paredit in your REPL
+                (when (package-installed-p 'paredit) (add-hook 'cider-repl-mode-hook 'paredit-mode))
 
-              ;; make delimiters colorful
-              (when (package-installed-p 'rainbow-delimiters)  (add-hook 'cider-repl-mode-hook #'rainbow-delimiters-mode))
+                ;; make delimiters colorful
+                (when (package-installed-p 'rainbow-delimiters)  (add-hook 'cider-repl-mode-hook #'rainbow-delimiters-mode))
 
-              ;; Replace return key with newline-and-indent when in cider mode.
-              (add-hook 'cider-mode-hook '(lambda () (local-set-key (kbd "RET") 'newline-and-indent)))
+                ;; Replace return key with newline-and-indent when in cider mode.
+                (add-hook 'cider-mode-hook '(lambda () (local-set-key (kbd "RET") 'newline-and-indent)))
 
-              ;; Use clojure mode for other extensions
-              (add-to-list 'auto-mode-alist '("\\.edn$" . clojure-mode))
-              (add-to-list 'auto-mode-alist '("\\.boot$" . clojure-mode))
-              ;; (add-to-list 'auto-mode-alist '("\\.cljs.*$" . clojure-mode)) ;; might collide with clojure mode check of current major mode!!
-              (add-to-list 'auto-mode-alist '("lein-env" . enh-ruby-mode))
+                ;; Use clojure mode for other extensions
+                (add-to-list 'auto-mode-alist '("\\.edn$" . clojure-mode))
+                (add-to-list 'auto-mode-alist '("\\.boot$" . clojure-mode))
+                ;; (add-to-list 'auto-mode-alist '("\\.cljs.*$" . clojure-mode)) ;; might collide with clojure mode check of current major mode!!
+                (add-to-list 'auto-mode-alist '("lein-env" . enh-ruby-mode))
 
-              (autoload 'cider--make-result-overlay "cider-overlays")
+                (autoload 'cider--make-result-overlay "cider-overlays")
 
-              (defun endless/eval-overlay (value point)
-                (cider--make-result-overlay (format "%S" value)
-                  :where point
-                  :duration 'command)
-                ;; Preserve the return value.
-                value)
+                (defun endless/eval-overlay (value point)
+                  (cider--make-result-overlay (format "%S" value)
+                    :where point
+                    :duration 'command)
+                  ;; Preserve the return value.
+                  value)
 
-              (advice-add 'eval-region :around
-                          (lambda (f beg end &rest r)
-                            (endless/eval-overlay
-                             (apply f beg end r)
-                             end)))
+                (advice-add 'eval-region :around
+                            (lambda (f beg end &rest r)
+                              (endless/eval-overlay
+                               (apply f beg end r)
+                               end)))
 
-              (advice-add 'eval-last-sexp :filter-return
-                          (lambda (r)
-                            (endless/eval-overlay r (point))))
+                (advice-add 'eval-last-sexp :filter-return
+                            (lambda (r)
+                              (endless/eval-overlay r (point))))
 
-              (advice-add 'eval-defun :filter-return
-                          (lambda (r)
-                            (endless/eval-overlay
-                             r
-                             (save-excursion
-                               (end-of-defun)
-                               (point)))))
+                (advice-add 'eval-defun :filter-return
+                            (lambda (r)
+                              (endless/eval-overlay
+                               r
+                               (save-excursion
+                                 (end-of-defun)
+                                 (point)))))
 
-              ;; these help me out with the way I usually develop web apps
-              (defun cider-start-http-server ()
-                (interactive)
-                (cider-load-current-buffer)
-                (let ((ns (cider-current-ns)))
-                  (cider-repl-set-ns ns)
-                  (cider-interactive-eval (format "(println '(def server (%s/start))) (println 'server)" ns))
-                  (cider-interactive-eval (format "(def server (%s/start)) (println server)" ns))))
+                ;; these help me out with the way I usually develop web apps
+                (defun cider-start-http-server ()
+                  (interactive)
+                  (cider-load-current-buffer)
+                  (let ((ns (cider-current-ns)))
+                    (cider-repl-set-ns ns)
+                    (cider-interactive-eval (format "(println '(def server (%s/start))) (println 'server)" ns))
+                    (cider-interactive-eval (format "(def server (%s/start)) (println server)" ns))))
 
-              (defun cider-refresh ()
-                (interactive)
-                (cider-interactive-eval (format "(user/reset)")))
+                (defun cider-refresh ()
+                  (interactive)
+                  (cider-interactive-eval (format "(user/reset)")))
 
-              (defun cider-user-ns ()
-                (interactive)
-                (cider-repl-set-ns "user"))
+                (defun cider-user-ns ()
+                  (interactive)
+                  (cider-repl-set-ns "user"))
 
-              )
-      :config
-      (progn
+                )
+        :config
+        (progn
 
-        ;; try to display some context information additionally to regular eldoc
-        (setq cider-eldoc-display-context-dependent-info t)
+          ;; try to display some context information additionally to regular eldoc
+          (setq cider-eldoc-display-context-dependent-info t)
 
-        ;; don't autoinject, because refactor-nrepl is injected, too, which fails to load
-        ;; for (java 1.8, clojure 1.9, cider 0.17.0, lein 2.8.1)
-        (setq cider-inject-dependencies-at-jack-in t)
+          ;; don't autoinject, because refactor-nrepl is injected, too, which fails to load
+          ;; for (java 1.8, clojure 1.9, cider 0.17.0, lein 2.8.1)
+          (setq cider-inject-dependencies-at-jack-in t)
 
-        ;; use 1.9.0 if autoinjecting during cider startup
-        (setq cider-jack-in-auto-inject-clojure "1.9.0")
+          ;; -- use 1.9.0 if autoinjecting during cider startup
+          ;; no longer, using the default (currently 1.11.1) works fine
+          ;; (setq cider-jack-in-auto-inject-clojure "1.9.0")
 
-        ;; make sure that nrepl does not automatically scroll down!
-        (setq cider-repl-scroll-on-output nil)
-        ;; use pretty print output in repl
-        (setq cider-repl-use-pretty-printing t)
+          ;; make sure that nrepl does not automatically scroll down!
+          (setq cider-repl-scroll-on-output nil)
+          ;; use pretty print output in repl
+          (setq cider-repl-use-pretty-printing t)
 
-        ;; go right to the REPL buffer when it's finished connecting
-        (setq cider-repl-pop-to-buffer-on-connect t)
+          ;; go right to the REPL buffer when it's finished connecting
+          (setq cider-repl-pop-to-buffer-on-connect t)
 
-        ;; When there's a cider error, show its buffer and switch to it
-        (setq cider-show-error-buffer t)
-        (setq cider-auto-select-error-buffer t)
+          ;; When there's a cider error, show its buffer and switch to it
+          (setq cider-show-error-buffer t)
+          (setq cider-auto-select-error-buffer t)
 
-        ;; Where to store the cider history.
-        (setq cider-repl-history-file (concat user-emacs-directory "cider-history"))
-        ;; keep that much history
-        (setq cider-repl-history-size 1000)
-        ;; Wrap when navigating history.
-        (setq cider-repl-wrap-history t)
+          ;; Where to store the cider history.
+          (setq cider-repl-history-file (concat user-emacs-directory "cider-history"))
+          ;; keep that much history
+          (setq cider-repl-history-size 1000)
+          ;; Wrap when navigating history.
+          (setq cider-repl-wrap-history t)
 
-        ;; do flycheck setup for clojure
-        (when (package-installed-p 'flycheck-clojure)  (flycheck-clojure-setup))
+          ;; do flycheck setup for clojure
+          (when (package-installed-p 'flycheck-clojure)  (flycheck-clojure-setup))
 
-        ))
+          ))
     #+END_SRC
 *** helm-cider
     #+BEGIN_SRC emacs-lisp
@@ -17638,7 +17639,8 @@
   - gerrit - interface to gerrit, code reviews
   - magit-patch-changelog: Generate a patch according to emacs-mirror/CONTRIBUTE
   - git-modes - major modes for git attributes, ignore and config files
-  - magit-commit-mark - Support marking commits as read 
+  - magit-commit-mark - Support marking commits as read
+  - sideline-blame - Show blame messages with sideline 
 ** java/kotlin/scala
   - lsp-javacomp
     - lsp support for java using [[https://github.com/tigersoldier/JavaComp][java-comp]]
@@ -17663,6 +17665,7 @@
   - flycheck-languagetool - flycheck using the language tool
   - ebnf-mode - Major mode for EBNF files 
   - lingva - Access Google Translate via lingva.ml (anonymously)
+  - external-dict - Query external dictionary like goldendict, Bob.app etc     
 ** javascript/json/yaml/html
    - indium (java script development environment) [[https://github.com/NicolasPetton/Indium][home page]]
    - lsp-html - lsp frontend for html serving
@@ -17724,8 +17727,6 @@
   - doct: Declarative Org capture templates
   - walkman: write http requests within org
   - org-pdftools - links to documents in pdfmode
-  - org-roam - Roam Research replica with Org-mode, allows something like zettelkasten  (see
-    https://blog.jethro.dev/posts/introducing_org_roam/)
   - org-roam-bibtex - Connector between Org-roam, BibTeX-completion, and Org-ref
   - org-treeusage - Examine the usage of org headings in a tree-like manner
   - org-noter-pdftools - integration of org-noter and pdftools
@@ -17733,7 +17734,6 @@
   - org-ml - Functional Org Mode API
   - orgstrap - allow elisp usage in org source blocks more freely (less cryptic header configuration) see https://github.com/tgbugs/orgstrap)
   - org-appear - Auto-toggle visibility of Org elements
-  - org-notifications - Creates notifications for org-mode entries
   - org-movies - Manage watchlist with Org mode (import imdb stuff)
   - ob-spice - org-babel functions for spice evaluation
   - org-visibility - Persistent org tree visibility
@@ -17744,6 +17744,8 @@
   - org-download - download images from the browser/internet inserting into org files
   - osm - open street map interface (with the possibility to create org links) https://github.com/minad/osm
   - ox-review - Re:VIEW Back-End for Org Export Engine (re:VIEW generates ePub, PDF, markdown etc., see https://github.com/kmuto/review)
+  - org-notifications - Creates notifications for org-mode entries
+  - org-notify - Notifications for Org-mode 
 ** os/system
   - network-watch (allows hooks to run when network is goiing down/up)
   - scp (use scp to transfer files)
@@ -17805,6 +17807,10 @@
   - crdt - collaborative editing using Conflict-free Replicated Data Types (share editing buffers over several emacs instances)
     see https://code.librehq.com/qhong/crdt.el
   - puni - Parentheses Universalistic (delete parenthesis softly while keeping them balanced, working in several modes)
+  - fancy-compilation - Enhanced compilation output 
+  - readable-numbers - Visually separate long integers 
+  - sideline-lsp - Show lsp information with sideline 
+  - yaml-pro - Parser-aided YAML editing features 
 ** development
    - navigel (develop modes based on tablist more efficiently)
    - helm-taskrunner (select from tasks the build system of the current project provides (e.g. gradle tasks)) https://github.com/emacs-taskrunner/helm-taskrunner
@@ -17817,6 +17823,7 @@
    - origami - code folding (several languages, default = indentlevel)
      see https://github.com/gregsexton/origami.el
    - tree-sitter - tooling to make language toolin within emacs more tractable (see https://github.com/ubolonton/emacs-tree-sitter)
+   - tree-sitter-ess-r - R with tree-sitter 
    - yaml - YAML parser for Elisp
    - logms - logging form elisp into log buffer with clickable links (to jump to log line), see [[https://github.com/jcs-elpa/logms][here]]
    - session-async - Asynchronous processing in a forked process session
