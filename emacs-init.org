@@ -17553,6 +17553,25 @@
 
         (gb/set-touchpad-processing))
     #+end_src
+  - de/encode URL (parameter)
+    see https://stackoverflow.com/questions/611831/how-can-i-url-decode-a-string-in-emacs-lisp
+    #+begin_src emacs-lisp
+      (defun func-region (start end func)
+        "run a function over the region between START and END in current buffer."
+        (save-excursion
+          (let ((text (delete-and-extract-region start end)))
+            (insert (funcall func text)))))
+
+      (defun url-encode-region (start end)
+        "urlencode the region between START and END in current buffer."
+        (interactive "r")
+        (func-region start end #'url-hexify-string))
+
+      (defun url-decode-region (start end)
+        "de-urlencode the region between START and END in current buffer."
+        (interactive "r")
+        (func-region start end #'url-unhex-string))
+    #+end_src
 * discarded eldoc-overlay - too invasive
   #+begin_src emacs-lisp :tangle no
     (use-package eldoc-overlay
