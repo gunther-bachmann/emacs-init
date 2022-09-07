@@ -23,15 +23,18 @@
     shopt -s autocd # cd into folder on just using the folder name
   #+end_src
 * bash history
+  - see https://www.shellhacks.com/tune-command-line-history-bash/
   #+begin_src sh :eval no :tangle ~/.bashrc
     # append to bash history (don't overwrite)
     shopt -s histappend
+    # store multiline commands in one entry
+    shopt -s cmdhist
     # don't save command lines starting with space into the command history file (only bash)
     # don't save duplicate lines
-    export HISTCONTROL=ignoreboth
+    export HISTCONTROL=ignoreboth:erasedups
     export HISTIGNORE='( *)'
-    export HISTSIZE="INFINITY"     # non numeric does not truncate
-    export HISTFILESIZE="INFINITY" # non numeric does not truncate
+    export HISTSIZE=10000000    
+    export HISTFILESIZE=10000000
     # append and reload the history after each command
     PROMPT_COMMAND="history -a; history -n"
   #+end_src
