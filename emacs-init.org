@@ -1718,6 +1718,7 @@
          str))
    #+end_src
    #+BEGIN_SRC emacs-lisp
+     (use-package epg)
      (use-package epa ;; requires epg
        ;; :ensure t ;; builtin => no ensure
        :config
@@ -1733,7 +1734,7 @@
          (string-trim (shell-command-to-string (format "gpg -K '%s' | grep -e '^uid' | sed -e 's/uid[^]]*. //g'" fingerprint))))
        ;; (gb/gpg-key-mail-for-fingerprint "52E23AA97F38A97B10A18DD3C01A97CB875878BD")
 
-       (defun gb/cache-gpg ()
+       (defun gb/gpg-key-unlock-and-cache ()
          "cache gpg password for private key prompted for"
          (interactive)
          (progn
@@ -8309,16 +8310,15 @@
               ;; Sign messages by default
               (add-hook 'message-setup-hook 'mml-secure-sign-pgpmime)
 
-              (defun gb/cache-sender-key ()
-                "cache the gpg key based on the from field of this message"
-                (interactive)
-
-                (save-excursion
-                  (save-restriction
-                    (message-narrow-to-headers)
-                    (let ((from (message-fetch-field "from")))
-                      (message (concat "cache password for " from))
-                      (gb/cache-gpg-key from)))))
+              ;; (defun gb/cache-sender-key ()
+              ;;   "cache the gpg key based on the from field of this message"
+              ;;   (interactive)
+              ;;   (save-excursion
+              ;;     (save-restriction
+              ;;       (message-narrow-to-headers)
+              ;;       (let ((from (message-fetch-field "from")))
+              ;;         (message (concat "cache password for " from))
+              ;;         (gb/cache-gpg-key from)))))
 
               ;; no need to cache gpg key with a working pinentry-emacs running!
               ;; (add-hook 'gnus-message-setup-hook 'gb/cache-sender-key)
