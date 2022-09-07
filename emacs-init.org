@@ -12208,6 +12208,7 @@
        :hook (image-mode-hook . blimp-mode))
    #+END_SRC
 ** emms (emacs music system)
+   - emms-cache-reset to reread information from tags in files
    #+BEGIN_SRC emacs-lisp
      (use-package emms
        :ensure t
@@ -12220,7 +12221,7 @@
        (setq emms-playlist-buffer-name "*Music*")
        (setq emms-info-asynchronously t)
        ;; (require 'emms-info-libtag) ;;; load functions that will talk to emms-print-metadata which in turn talks to libtag and gets metadata
-       (setq emms-info-functions '(emms-info-mp3info)) ;;; make sure libtag is the only thing delivering metadata
+       (setq emms-info-functions '(emms-info-native)) 
        (require 'emms-mode-line)
        ;; (emms-mode-line 1)
        (bind-key "<tab>" 'emms-browser-toggle-subitems emms-browser-mode-map)
