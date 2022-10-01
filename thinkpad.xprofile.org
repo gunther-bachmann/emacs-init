@@ -6,7 +6,14 @@
     #------------------------------------------------------------------
   #+end_src
 * xprofile
+** path
+   - ensure that path is set before initializing guix
+  #+begin_src sh :eval no :tangle ~/.xprofile
+    # make sure that custom scripts are reachable
+    export PATH=${HOME}/bin:${HOME}/bin/bin:${HOME}/.local/bin:$PATH
+  #+end_src
 ** set guix profile(s)
+   - make sure that the path is not modified after guix profile init
   #+begin_src sh :eval no :tangle ~/.xprofile
     source $HOME/bin/guix-set-profiles
   #+end_src
@@ -26,12 +33,6 @@
   #+begin_src sh :eval no :tangle ~/.xprofile
     # Make Java applications aware this is a non-reparenting window manager.
     export _JAVA_AWT_WM_NONREPARENTING=1
-  #+end_src
-** path
-  #+begin_src sh :eval no :tangle ~/.xprofile
-
-    # make sure that custom scripts are reachable
-    export PATH=${HOME}/bin:${HOME}/bin/bin:${HOME}/.local/bin:$PATH
   #+end_src
 ** compositor (disabled)
   #+begin_src sh :eval no :tangle ~/.xprofile
