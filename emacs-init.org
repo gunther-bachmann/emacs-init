@@ -17453,6 +17453,10 @@
                   ("M-g M-r" . dogears-remember)
                   ("M-g M-D" . dogears-sidebar)))
   #+end_src
+* EVAL jit lock status in modeline
+  #+begin_src emacs-lisp :tangle no
+    (use-package jit-lock-stealth-progress)
+  #+end_src
 * EVAL vale - spell checker for org mode
   - works in org mode!
   - as package: https://github.com/abingham/flycheck-vale/blob/master/flycheck-vale.el
