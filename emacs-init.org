@@ -11657,6 +11657,7 @@
        (setq  dired-omit-files "^\\.?#\\|^\\.$\\|^\\.\\.$\\|^\\..*\\|^build$\\|^out$")
        (setq dired-guess-shell-alist-user '(
                                             ("\\.webm\\'\\|\\.mkv\\'\\|\\.mpe?g\\'\\|\\.avi\\'\\|\\.mp4\\'\\|\\.flv\\'" "cvlc")
+                                            ("\\.d64\\'\\|\\.prg\\'" "x64sc")
                                             ("\\.sid\\'" "sidplayfp")
                                             ("\\.html?\\'" "firefox")
                                             ("\\.docx?\\'\\|\\.xlsx?\\'\\|\\.pptx?\\'\\|\\.odt\\'" "soffice")
