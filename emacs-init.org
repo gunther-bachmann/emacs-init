@@ -3345,8 +3345,8 @@
         (let ((r-length (if gb/disable-modeline-updates
                             gb/mode-line--last-padding-cache
                           (+ (length (replace-regexp-in-string
-                                      ":[a-zA-Z]+:" "LL"
-                                      (format-mode-line right-global-mode-string)))
+                                      ":[a-zA-Z_-]+:" "LL"
+                                      (substring-no-properties (format-mode-line right-global-mode-string))))
                              (if (and mlscroll-mode (gb/modeline-line-selected-window-active-p)) 5 0)))))
           (when (not gb/disable-modeline-updates)
             (setq gb/mode-line--last-padding-cache r-length))
