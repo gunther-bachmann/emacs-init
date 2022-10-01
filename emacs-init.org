@@ -17453,6 +17453,21 @@
                   ("M-g M-r" . dogears-remember)
                   ("M-g M-D" . dogears-sidebar)))
   #+end_src
+* EVAL vale - spell checker for org mode
+  - works in org mode!
+  - as package: https://github.com/abingham/flycheck-vale/blob/master/flycheck-vale.el
+  #+begin_src emacs-lisp
+    (when (executable-find "vale")
+      (flycheck-define-checker vale
+        "A checker for prose"
+        :command ("vale" "--output" "line"
+                  source)
+        :standard-input nil
+        :error-patterns
+        ((error line-start (file-name) ":" line ":" column ":" (id (one-or-more (not (any ":")))) ":" (message) line-end))
+        :modes (markdown-mode org-mode text-mode))
+      (add-to-list 'flycheck-checkers 'vale 'append))
+  #+end_src
 * utility functions
   - open dired to mounted folders
     #+begin_src emacs-lisp
