@@ -1,4 +1,4 @@
-#+title: backup read only meda
+#+title: backup read only media
 * backup ro media data (temp/music)
   #+begin_src racket :comments link :shebang "#!/usr/bin/env racket" :eval no :tangle ~/bin/backup.ro.media :tangle-mode (identity #o755)
     ;; ------------------------------------------------------------------
@@ -8,7 +8,8 @@
 
     (require readline/readline)
 
-    ;; see https://docs.racket-lang.org/reference/os.html
+    ;; for general os function see https://docs.racket-lang.org/reference/os.html
+    ;; for shell pipelining look at https://docs.racket-lang.org/shell-pipeline/pipeline.html
 
     (displayln "Util to rsync read only data to mount (if present)\n")
     (define MOUNT_NAME "60a68d4f-b024-4f57-959a-7f3c91ebfa2d")

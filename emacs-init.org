@@ -17722,12 +17722,6 @@
         (interactive "r")
         (func-region start end #'url-unhex-string))
     #+end_src
-* discarded eldoc-overlay - too invasive
-  #+begin_src emacs-lisp :tangle no
-    (use-package eldoc-overlay
-      :ensure t
-      :config (eldoc-overlay-mode 1))
-  #+end_src
 * INTERESTING
 ** blog/presentation
   - org-present using a cell phone to switch pages
@@ -18463,6 +18457,12 @@
      :bind (("C-z SPC h d" . dash-at-point-with-docset)
             ("C-z SPC h D" . dash-at-point)))
    #+END_SRC
+** eldoc-overlay - too invasive
+   #+begin_src emacs-lisp :tangle no
+     (use-package eldoc-overlay
+       :ensure t
+       :config (eldoc-overlay-mode 1))
+   #+end_src
 * useful but discarded because of drawback that might be fixed
 ** magit-delta (disabled - speed degradation on large change sets)
    #+begin_src emacs-lisp :tangle no
