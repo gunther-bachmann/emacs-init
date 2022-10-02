@@ -8869,14 +8869,15 @@
       (progn
         (defun org-mark-readonly ()
           (interactive)
-          (org-map-entries
-           (lambda ()
-             (let* ((element (org-element-at-point))
-                    (begin (org-element-property :begin element))
-                    (end (org-element-property :end element)))
-               (add-text-properties begin (- end 1) '(read-only t))))
-           "read_only")
-          (message "Made readonly!"))
+          (when (file-exists-p (buffer-file-name))
+            (org-map-entries
+             (lambda ()
+               (let* ((element (org-element-at-point))
+                      (begin (org-element-property :begin element))
+                      (end (org-element-property :end element)))
+                 (add-text-properties begin (- end 1) '(read-only t))))
+             "read_only")
+            (message "Made readonly!")))
 
 
         (defun org-remove-readonly ()
