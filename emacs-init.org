@@ -17729,13 +17729,13 @@
         (defun gb/capture-new-script-file ()
           (interactive)
           (if-let* ((repo-location (cdr (assoc "emacs-init" (magit-repos-alist))))
-                    (s-filename (read-string "script-name (no extension, no spaces): ")))
+                    (script-name (read-string "script-name (no extension, no spaces): ")))
               (progn
-                (find-file (expand-file-name (format "%s.org" s-filename) "~/repo/emacs/emacs-init/utils/"))
-                (insert (format (slurp (format "%s/utils/racket-cli-script.template.org" repo-location))
-                                s-filename
-                                s-filename
-                                s-filename)))
+                (find-file (expand-file-name (format "%s.org" script-name) "~/repo/emacs/emacs-init/utils/"))
+                (yas-expand-snippet (slurp (format "%s/utils/racket-cli-script.template.org" repo-location))
+                                    nil nil                              
+                                    `((script-name ,script-name)))
+                (insert ))
             (message "repo 'emacs-init' not found or script name invalid."))))
     #+end_src
 * INTERESTING
