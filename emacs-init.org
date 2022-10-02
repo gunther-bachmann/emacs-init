@@ -17722,6 +17722,22 @@
         (interactive "r")
         (func-region start end #'url-unhex-string))
     #+end_src
+  - create racket based cli script file (like org capture)
+    #+begin_src emacs-lisp
+      (when (and (package-installed-p 'magit)
+               (package-installed-p 'org))
+        (defun gb/capture-new-script-file ()
+          (interactive)
+          (if-let* ((repo-location (cdr (assoc "emacs-init" (magit-repos-alist))))
+                    (s-filename (read-string "script-name (no extension, no spaces): ")))
+              (progn
+                (find-file (expand-file-name (format "%s.org" s-filename) "~/repo/emacs/emacs-init/utils/"))
+                (insert (format (slurp (format "%s/utils/racket-cli-script.template.org" repo-location))
+                                s-filename
+                                s-filename
+                                s-filename)))
+            (message "repo 'emacs-init' not found or script name invalid."))))
+    #+end_src
 * INTERESTING
 ** blog/presentation
   - org-present using a cell phone to switch pages

@@ -1,0 +1,29 @@
+#+title: %s
+* %s
+  #+begin_src racket :comments link :shebang "#!/usr/bin/env racket" :eval no :tangle ~/bin/%s :tangle-mode (identity #o755)
+    ;; ------------------------------------------------------------------
+    ;;  THIS FILE IS GENERATED (To edit please open file from link above)
+    ;; ------------------------------------------------------------------
+    #lang racket
+
+    (require readline/readline)
+
+    ;; for general os function see https://docs.racket-lang.org/reference/os.html
+    ;; for shell pipelining look at https://docs.racket-lang.org/shell-pipeline/pipeline.html
+
+    ;; (system "<<shell command>>")      ;; sync execution of shell command
+    ;; (displayln "<<echo this string>>) ;; display string
+    ;; (readline "<<prompt string>>")    ;; read from keyboard input
+
+    (define (execute-after-confirmation prompt fn)
+      (when (string-ci=? "y" (readline prompt))
+        (apply fn '())))
+
+    ;; define functions
+
+    (define (running-in-shell)
+      (getenv "PS1"))
+
+    (when (running-in-shell)
+      (displayln "running."))
+  #+end_src
