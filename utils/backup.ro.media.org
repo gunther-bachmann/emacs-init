@@ -1,40 +1,46 @@
 #+title: backup read only meda
 * backup ro media data (temp/music)
-  #+begin_src sh :comments link :shebang "#!/usr/bin/env bash" :eval no :tangle ~/bin/backup.ro.media.sh :tangle-mode (identity #o755)
-    #------------------------------------------------------------------
-    # THIS FILE IS GENERATED (To edit please open file from link above)
-    #------------------------------------------------------------------
-    echo -e "Util to rsync read only data to mount (if present)\n"
+  #+begin_src racket :comments link :shebang "#!/usr/bin/env racket" :eval no :tangle ~/bin/backup.ro.media :tangle-mode (identity #o755)
+    ;; ------------------------------------------------------------------
+    ;;  THIS FILE IS GENERATED (To edit please open file from link above)
+    ;; ------------------------------------------------------------------
+    #lang racket
 
-    MOUNT_NAME="60a68d4f-b024-4f57-959a-7f3c91ebfa2d"
+    (require readline/readline)
 
-    function execute_ro_backup () {
-      # $1 = folder
-      TARGET="/run/media/$USER/$MOUNT_NAME/backup-media$1"
-      if [[ -d $TARGET  &&  -d $HOME$1 ]]; then
-        echo "Source and Target found, ready to backup $1 (c-c to stop)"
-        CMD="rsync -h -a -P $HOME$1 $TARGET"
-        echo "running '$CMD'"
-        read -p "Are you sure (y)? " -r
-        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-          exit 1
-        fi
-        $CMD
-        echo "done."
-      else
-        echo "Source or Target $TARGET not found"
-      fi
-    }
+    ;; see https://docs.racket-lang.org/reference/os.html
 
-    if [ -d /run/media/$USER/$MOUNT_NAME/backup-media$FOLDER ]; then
-      echo "Mount found, ready to backup $FOLDER (c-c to stop)"
-      read -p "Are you sure (y)? " -r
-      echo    # (optional) move to a new line
-      if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        exit 1
-      fi
+    (displayln "Util to rsync read only data to mount (if present)\n")
+    (define MOUNT_NAME "60a68d4f-b024-4f57-959a-7f3c91ebfa2d")
+    (define MOUNT_POINT (format "/run/media/~a/~a" (getenv "USER") MOUNT_NAME))
 
-      execute_ro_backup "/temp/music"
-      execute_ro_backup "/music"
-    fi
+    (define (execute-after-confirmation prompt fn)
+      (when (string-ci=? "y" (readline prompt))
+        (apply fn '())))
+
+    (define (execute-ro-backup folder)
+      (define TARGET (format "/run/media/~a/~a/backup-media~a" (getenv "USER") MOUNT_NAME folder))
+      (define SOURCE (format "~a~a" (getenv "HOME") folder))
+      (if (not (and (directory-exists? TARGET)
+                (directory-exists? SOURCE)))
+          (displayln "source or target not present. no backup run")
+          (begin
+            (displayln "source and target found.")
+            (let ((CMD (format "rsync -h -a -P ~a ~a" SOURCE TARGET)))
+              (displayln (format "about to execute command: ~a" CMD))
+              (execute-after-confirmation
+               "continue (y)? "
+               (lambda ()
+                 (system CMD)
+                 (displayln "done.")))))))
+
+    (define (running-in-shell)
+      (getenv "PS1"))
+
+    (when (running-in-shell) 
+      (if (directory-exists? MOUNT_POINT)
+          (begin
+            (execute-ro-backup "/temp/music")
+            (execute-ro-backup "/music"))
+          (displayln "mountpoint not found, no backup made.")))
   #+end_src
