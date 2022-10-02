@@ -4979,7 +4979,12 @@
            (frame-local-setq company-box-doc-frame nil)
            ;; (set-frame-parameter nil 'company-box-doc-frame nil) ;; necessary for old company-box version < company-box-20200909.714
            )
+         (defun gb/company-box--set-parameter (&rest args)
+           "make sure to use the right linespacing, box will be too small otherwise!"
+           (with-current-buffer (company-box--get-buffer)
+             (setq line-spacing 0)))
          (advice-add 'company-box-doc--show :before #'gb/company-box-doc--init-frame-parameter)
+         (advice-add 'company-box--display :after #'gb/company-box--set-parameter)
          ;; (advice-remove 'company-box-doc--show #'gb/company-box-doc--init-frame-parameter)
          (cond
           ((eq gb/theme-mode 'light) nil) ;; TODO complete
