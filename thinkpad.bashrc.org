@@ -63,13 +63,30 @@
     # [[ $PS1 && -f $BASH_COMPLETION ]] && \
     #   . $BASH_COMPLETION
 
-    source /home/pe/bin/mvn.bash_completion.bash
-    source /home/pe/bin/npm.completion
-    source /home/pe/bin/yarn.bash-completion
-    source <(kubectl completion bash)
-    source <(kops completion bash)
-    source /home/pe/bin/terraform-completion.sh
-    source /home/pe/bin/racket-completion.bash
+    # maven (java) ----------------------------------------
+    [ -f /home/pe/bin/mvn.bash_completion.bash ] && source /home/pe/bin/mvn.bash_completion.bash
+
+    # npm ----------------------------------------
+    [ -f /home/pe/bin/npm.completion ] && source /home/pe/bin/npm.completion
+
+    # yarn ----------------------------------------
+    [ -f /home/pe/bin/yarn.bash-completion ] && source /home/pe/bin/yarn.bash-completion
+
+    # terraform ----------------------------------------
+    [ -f /home/pe/bin/terraform-completion.sh ] && source /home/pe/bin/terraform-completion.sh
+
+    # racket ----------------------------------------
+    [ -f /home/pe/bin/racket-completion.bash ] && source /home/pe/bin/racket-completion.bash
+
+    # kubectl ----------------------------------------
+    [ -f "$(which kubectl 2>/dev/null)" ] && source <(kubectl completion bash)
+
+    # kops ----------------------------------------
+    [ -f "$(which kops 2>/dev/null)" ] && source <(kops completion bash)
+
+    # ng ----------------------------------------
+    [ -f "$(which ng 2>/dev/null)" ] && source <(ng completion script)
+
   #+end_src
 * gradle
   #+begin_src sh :eval no :tangle ~/.bashrc
