@@ -8,11 +8,15 @@
 * compton conf
   #+begin_src sh :eval no :tangle ~/.config/compton.conf
     # for ideas on how to configure, see https://gist.github.com/renidantass/a223cd2a892ac8dc6e46d862dacf3b7a
+    # the delay seems to be reducable by configuring nvidia card by
+    # `nvidia-settings -a 'AllowFlipping=0'`
 
     # no tearing in videos
-    vsync = true;
+    vsync = true; # picom fails on this one but works fine otherwise
 
     backend = "glx";
+    # backend = "xrender";
+    # backend = "xr_glx_hybrid";
 
     # Opacity
     fading = true;
@@ -32,7 +36,7 @@
     shadow-offset-x = -10;
     shadow-offset-y = -9;
     shadow-opacity = 0.4;
-    clear-shadow = true;
+    # clear-shadow = true;
     shadow-red = 0.3;
     shadow-green = 0.2;
     shadow-blue = 0.3;

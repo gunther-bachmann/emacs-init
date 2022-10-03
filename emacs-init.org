@@ -13338,7 +13338,8 @@
          (defun gb/compositor-enable ()
            "run compton compositor if not already running"
            (interactive)
-           (unless (string-equal "running" (s-trim (shell-command-to-string "pgrep compton && echo 'running'")))
+           (unless (= 0 (shell-command "pgrep -x compton"))
+             (shell-command "nvidia-settings -a 'AllowFlipping=0'") ;; prevent emacs keyboard delay
              (async-start-process "compton" "compton" nil)))
 
          (defun gb/compositor-disable ()
@@ -18528,6 +18529,8 @@
 * finish - up
   #+BEGIN_SRC emacs-lisp
     (report-elapsed "enter finish - up")
+
+    (gb/compositor-enable)
 
     (require 'server)
     ;; start a server to allow reuse of this server when opening other files from within the os
