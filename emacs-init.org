@@ -9117,7 +9117,7 @@
                            ((and (not (gb/org-is-checkbox-line line))  (gb/org-return-dwim--is-list-or-item list-type))
                             (gb/org-return-dwim--on-list-item))
                            (t (progn (goto-char saved-position)
-                                     (org-return-indent)))))))))
+                                     (org-return-and-maybe-indent)))))))))
 
         (defun gb/org-smart-return (&optional ignore)
           "Add new list item, heading or table row with RET.
@@ -9982,11 +9982,36 @@
       (setq org-babel-sed-command (s-trim (shell-command-to-string "command -v sed")))
 
       (setq org-src-fontify-natively t)
-      (setq org-src-tab-acts-natively t)
-      (setq electric-indent-inhibit t)
       (setq org-edit-src-content-indentation 2)
       (setq org-adapt-indentation t)
       (setq org-src-preserve-indentation nil)
+
+      (defun set-org-indent-tab-config (val)
+        (setq org-src-tab-acts-natively val)
+        (setq electric-indent-inhibit val))
+
+      (set-org-indent-tab-config t)
+
+      (defun org-babel-in-shell-src-block ()
+        "currently in a org file, in a babel source block of a shell language?"
+        (and (eq major-mode 'org-mode)
+           (org-babel-when-in-src-block t)
+           (seq-contains org-babel-shell-names
+                         (nth 0 (org-babel-get-src-block-info 'light))
+                         #'string-equal)))
+
+      (defun gb/org-return-and-maybe-indent-with-exceptions (orig-fun &rest args)
+        "execute org-return-and-maybe-indent with exceptions in indent behaviour e.g. shell-mode"
+        (let ((in-shell-source (org-babel-in-shell-src-block)))
+          ;; (message (format "insource? %S" in-shell-source))
+          ;; prevent execution of "TAB" in shell mode, that results in an additional completion
+          ;; (see  org-indent-line, "(org-babel-do-key-sequence-in-edit-buffer (kbd "TAB"))")
+          (when in-shell-source (set-org-indent-tab-config nil)) 
+          (apply orig-fun args)
+          (when in-shell-source (set-org-indent-tab-config t))))
+
+      (advice-add 'org-return-and-maybe-indent :around #'gb/org-return-and-maybe-indent-with-exceptions)
+      ;; (advice-remove 'org-return-and-maybe-indent #'gb/org-return-and-maybe-indent-with-exceptions)
 
       ;; (addToList org-babel-shell-names "fish")
 
