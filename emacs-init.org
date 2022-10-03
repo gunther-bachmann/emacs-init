@@ -5477,7 +5477,24 @@
            (when (or refresh (not gb/external-commands))
              (setq gb/external-commands (remove-duplicates (gb/collect-external-commands nil))))
            (gb/exwm--switch-or-run-sel
-            (completing-read "RunProgram: " gb/external-commands nil t))))
+            (completing-read "RunProgram: " gb/external-commands nil t)))
+
+         (defun gb/with-disabled-mouse (orig-func &rest args)
+           "moves the mouse out of the way (of character selection)"
+           (let* ((pos (mouse-position))
+                  (mframe (or (car pos) (window-frame)))
+                  (mx     (or (cadr pos) 1))
+                  (my     (or (cddr pos) 1)))
+             (set-mouse-position mframe mx 0)
+             (unwind-protect
+                 (apply orig-func args)
+               (set-mouse-position mframe mx my))))
+
+         (advice-add 'ivy-read :around #'gb/with-disabled-mouse)
+         (advice-add 'ivy-completing-read :around #'gb/with-disabled-mouse)
+         ;; (advice-remove 'ivy-completing-read #'gb/with-disabled-mouse)
+         ;; (advice-remove 'ivy-read #'gb/with-disabled-mouse)
+         )
 
        (use-package swiper
          :ensure t
