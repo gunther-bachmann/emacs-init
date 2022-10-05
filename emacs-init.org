@@ -10314,7 +10314,7 @@
         :bind ("C-c i i" . org-easy-img-insert)
         :config (progn))
     #+END_SRC
-*** org reveal (presentation)
+*** *DISABLED* org reveal (presentation)
     #+BEGIN_SRC emacs-lisp :tangle no
     (use-package ox-reveal
       :ensure t
@@ -18073,7 +18073,8 @@
    - modern-fringes - Replaces default fringe bitmaps with better looking ones
    - simple-modeline -
    - theme-anchor - Apply theme in current buffer only
-   - perspective-exwm - Better integration for perspective.el and EXWM 
+   - perspective-exwm - Better integration for perspective.el and EXWM
+   - per-buffer-theme - Change theme and font according to buffer name or major mode. 
 * discarded
 ** notate - indentation aware of prettified symbols (disabled, does not work out of the box)
    - see https://github.com/ekaschalk/notate

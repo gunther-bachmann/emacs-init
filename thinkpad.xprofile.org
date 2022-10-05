@@ -34,13 +34,15 @@
     # Make Java applications aware this is a non-reparenting window manager.
     export _JAVA_AWT_WM_NONREPARENTING=1
   #+end_src
-** compositor (disabled)
+** *DISABLED* compositor
+   - is actually loaded by emacs during startup
   #+begin_src sh :eval no :tangle ~/.xprofile
 
     # compositor
     # pgrep compton || compton & # start only if wanted (e.g. for window effects and watching videos)
   #+end_src
-** kmonad (disabled)
+** *DISABLED* kmonad
+   - done by systemd (configured in configuration.nix)
   #+begin_src sh :eval no :tangle ~/.xprofile
 
     # keyboard configuration (now done via systemctl)
@@ -103,8 +105,8 @@
     xset 300 60
     xss-lock -n ~/bin/dim-screen.sh -- i3lock -c 000000 &
   #+end_src
-** configure touchpad (to be not too touchy)
-   - synclient (disabled)
+** *DISABLED* configure touchpad (to be not too touchy)
+   - synclient 
      synaptics (and thus synclient) was disabled because on the thinkpad it regularly lost connection to the touchpad => touchpad was no longer usable
      now libinput is used instead, which cannot be configured like this and has some shortcomings :-(
      #+begin_src sh :eval no :tangle no
@@ -147,7 +149,7 @@
     xinput --set-prop 21 "Device Accel Constant Deceleration" 0.5
     xinput --set-prop 21 "Evdev Scrolling Distance" 1 1 1
   #+end_src
-** imwheel configuration (disabled)
+** *DISABLED* imwheel configuration (disabled)
   #+begin_src sh :eval no :tangle ~/.xprofile
 
     # allow for application specific scroll speed (currently experiencing problems with google-chrome-stable watching netflix and eclipse [cpu load going up])
@@ -170,7 +172,8 @@
     # add red to color on night hours (location = berlin/hamburg)
     pgrep redshift || redshift -l 52.5:13.4 &
   #+end_src
-** altr2hype
+** altr2hyper
+   - map altr to hyper
   #+begin_src sh :eval no :tangle ~/.xprofile
 
     # now completely covered by kmonad!
@@ -182,7 +185,7 @@
     # disable for gaming
     altr2hyper &
   #+end_src
-** experimentals (disabled)
+** *DISABLED* experimentals (disabled)
   #+begin_src sh :eval no :tangle ~/.xprofile
 
     # now completely covered by kmonad!
