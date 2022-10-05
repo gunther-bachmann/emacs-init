@@ -6,8 +6,10 @@
     #------------------------------------------------------------------
   #+end_src
 * mailcap
+  - pdfs should be opened with evince, since the pdf view throws errors for files that contain spaces and are passed this way to emacsclient
+  - you could however use emacsclient-pdf to open pdfs this way, but since pdfs sent per email often cause display problems in pdf-tools ...
   #+begin_src sh :eval no :tangle ~/.mailcap
-    application/pdf; emacsclient -s /run/user/1000/emacs/server %s
-    image/jpeg; emacsclient -s /run/user/1000/emacs/server %s
-    application/vnd.openxmlformats-officedocument.wordprocessingml.document; emacsclient -s /run/user/1000/emacs/server %s
+    application/pdf; evince %s # emacsclient-pdf %s
+    image/jpeg; emacsclient %s
+    application/vnd.openxmlformats-officedocument.wordprocessingml.document; emacsclient %s
   #+end_src

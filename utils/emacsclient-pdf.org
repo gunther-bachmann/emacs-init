@@ -1,0 +1,11 @@
+#+title: emacsclient-pdf
+* header
+  #+begin_src sh :comments link :shebang "#!/usr/bin/env bash" :eval no :tangle ~/bin/emacsclient-pdf :tangle-mode (identity #o755)
+    #------------------------------------------------------------------
+    # THIS FILE IS GENERATED (To edit please open file from link above)
+    #------------------------------------------------------------------
+  #+end_src
+* open pdfs with emacsclient in the face of special shell escaping (used in mailcap)
+  #+begin_src sh :comments link :shebang "#!/usr/bin/env bash" :eval no :tangle ~/bin/emacsclient-pdf :tangle-mode (identity #o755)
+    emacsclient -e "(find-file \"$1\")"
+  #+end_src
