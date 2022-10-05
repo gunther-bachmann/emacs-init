@@ -10298,10 +10298,11 @@
       :ensure t
        :after ( org async))
     #+END_SRC
-*** adaptive wrap (disabled)
-    #+BEGIN_SRC emacs-lisp :tangle no
-    (when (locate-library "adaptive-wrap")
-      (use-package adaptive-wrap))
+*** adaptive wrap 
+    #+BEGIN_SRC emacs-lisp 
+      (use-package adaptive-wrap
+        :custom (adaptive-wrap-extra-indent 2)
+        :config (adaptive-wrap-prefix-mode))
     #+END_SRC
 *** insertion of web images
     - allow insertion of images via url, which automatically downloads
