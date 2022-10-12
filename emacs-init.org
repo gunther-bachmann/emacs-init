@@ -1551,12 +1551,16 @@
      (put 'web-mode-markup-indent-offset 'safe-local-variable #'integerp)
      (put 'dired-annotator-show 'safe-local-variable 'booleanp)
      (put 'gb/org-indent 'safe-local-variable 'booleanp)
+     (put 'text-scale 'safe-local-variable #'integerp)
+     (put 'read-only-mode 'safe-local-variable #'integerp)
+
      (custom-set-variables
       '(safe-local-variable-values
         '((org-tree-slide-content--pos)
           (org-confirm-babel-evaluate)
           (web-mode-enable-auto-identation nil)
           (eval toggle-serif)
+          (eval gb/serif-on)
           (eval gb/set-dictionary "en")
           (eval org-show-all)
           (eval org-hide-block-all)
