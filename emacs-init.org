@@ -3476,10 +3476,13 @@
                       mode-line-misc-info)
                      (list mode-line-process)))
 
+      (defconst mlscroll-model-line-const (list '(:eval (when (gb/modeline-line-selected-window-active-p) (mlscroll-mode-line)))))
       (setq-default mode-line-format
-                    (list  left-global-mode-string
-                           '(:eval (gb/mode-line-padding))
-                           right-global-mode-string))
+                    (append
+                     (list  left-global-mode-string
+                            '(:eval (gb/mode-line-padding))
+                            right-global-mode-string)
+                     mlscroll-model-line-const))
 
     #+end_src
 ** rainbow mode
@@ -17014,8 +17017,6 @@
                (mlscroll-out-color "#251422"))
       :config
       (mlscroll-mode 1)      
-      (defconst mlscroll-model-line-const (list '(:eval (when (gb/modeline-line-selected-window-active-p) (mlscroll-mode-line)))))
-      (setq global-mode-string (append global-mode-string  mlscroll-model-line-const))
       (setq mlscroll-flank-face-properties `(:foreground ,mlscroll-out-color :background ,mlscroll-out-color :overline "#504050"))
       (setq mlscroll-cur-face-properties `(:forground ,mlscroll-in-color :background ,mlscroll-in-color :overline "#504050")))
   #+end_src
