@@ -1551,7 +1551,8 @@
      (put 'web-mode-markup-indent-offset 'safe-local-variable #'integerp)
      (put 'dired-annotator-show 'safe-local-variable 'booleanp)
      (put 'gb/org-indent 'safe-local-variable 'booleanp)
-     (put 'text-scale 'safe-local-variable #'integerp)
+     (put 'text-scale-adjust 'safe-local-variable #'integerp)
+     (put 'set-fill-column 'safe-local-variable #'integerp)
      (put 'read-only-mode 'safe-local-variable #'integerp)
 
      (custom-set-variables
@@ -5136,6 +5137,11 @@
          (setq help-at-pt-timer-delay 1)
          (help-at-pt-set-timer)))
    #+END_SRC
+* play startup sound (check again 3.1)
+  #+begin_src emacs-lisp
+    ;; if not playing test again and play 1
+    (gb/play-startup-sound-when-ctrlkey-down)
+  #+end_src
 * navigation
 ** iy-go-to-char
    - prompts for a character and the jumps forward/backward to the next occurrance of that char
@@ -5981,6 +5987,11 @@
                (--each '((minimap-active-region-background ((t (:extend t :background "gray23")))))
                  (add-to-list 'gb/list-of-faces-to-set it)(custom-set-faces it)))))))
    #+END_SRC
+* play startup sound (check again 3.2)
+  #+begin_src emacs-lisp
+    ;; if not playing test again and play 1
+    (gb/play-startup-sound-when-ctrlkey-down)
+  #+end_src
 * programming language related
 ** all
    #+begin_src emacs-lisp
@@ -6883,6 +6894,11 @@
      (use-package xml+
        :after ( dash))
    #+END_SRC
+* play startup sound (check again 3.3)
+  #+begin_src emacs-lisp
+    ;; if not playing test again and play 1
+    (gb/play-startup-sound-when-ctrlkey-down)
+  #+end_src
 * programming related
 ** editorconfig
    #+BEGIN_SRC emacs-lisp
@@ -7452,6 +7468,11 @@
    (use-package ecukes)
    (use-package espuds)
    #+END_SRC
+* play startup sound (check again 3.4)
+  #+begin_src emacs-lisp
+    ;; if not playing test again and play 1
+    (gb/play-startup-sound-when-ctrlkey-down)
+  #+end_src
 * shell
 ** eshell
    #+begin_src emacs-lisp 
@@ -7731,6 +7752,11 @@
      (interactive)
      (ansi-term (s-trim (shell-command-to-string "command -v zsh"))))
    #+END_SRC
+* play startup sound (check again 3.5)
+  #+begin_src emacs-lisp
+    ;; if not playing test again and play 1
+    (gb/play-startup-sound-when-ctrlkey-down)
+  #+end_src
 * cleanup  
 ** recently used and stuff of ui programs
    #+begin_src emacs-lisp
@@ -17009,7 +17035,6 @@
   - dynamic on/off could be an option
   #+begin_src emacs-lisp
     (use-package mlscroll
-      :disabled t
       :custom ((mlscroll-width-chars 10)
                (mlscroll-right-align nil)
                ;; (mlscroll-border nil)
@@ -18019,6 +18044,7 @@
   - docopt - a docopt implementation in elisp (docopt allows generating cli options for bash scripts)
   - leo - Interface for dict.leo.org
   - diredc - Extensions for dired (acting similar to midnight commander)
+  - cloak-mode - hide information by regex, mode specific
 ** windowmanager/x-integration
   - edwin (dynamic window manager)
   - zoom
