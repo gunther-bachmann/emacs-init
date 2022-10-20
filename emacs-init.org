@@ -7658,6 +7658,17 @@
        ;; :after (eldoc-overlay)
        :ensure t
        :config
+       (defun gb/shell-here (&optional args)
+         (interactive "P")
+         (let* ((new args)
+                (base-name "*shell*")
+                (buf (cond
+                      (new (generate-new-buffer base-name))
+                      ((eq major-mode 'shell-mode) (current-buffer))
+                      (t (get-buffer-create base-name)))))
+           (shell buf)
+           (gb/install-proc-listener)))
+
        (defun gb/install-proc-listener (&rest r)
          "install process listener to close window ofter exited or finished message"
          (message "advicing to exit buffer")
@@ -7670,9 +7681,9 @@
                   (progn
                     (kill-buffer (current-buffer)))))))))
        (advice-add 'shell-here :after #'gb/install-proc-listener)
-       :bind (("C-x C-h" . shell-here)
+       :bind (("C-x C-h" . gb/shell-here)
               :map dired-mode-map
-              ("C-x C-h" . shell-here)))
+              ("C-x C-h" . gb/shell-here)))
      ;;      (define-key (current-global-map) "\C-c!" 'shell-here) ;
    #+END_SRC
 ** shell ansi colors configuration (disabled)
