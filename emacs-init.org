@@ -3788,7 +3788,7 @@
    #+BEGIN_SRC emacs-lisp
      (defun split-window-below-and-select-scratch (&optional arg)
        (interactive "P")
-       (let* ((new-window (split-window-below arg)))
+       (let* ((new-window (split-window-below)))
          (unless arg
            (set-window-buffer new-window "*scratch*"))
          (aw-switch-to-window new-window)
@@ -3798,7 +3798,7 @@
      (defun split-window-above-and-select-scratch (&optional arg)
        (interactive "P")
        (let* ((old-window (get-buffer-window))
-              (new-window (split-window-below arg)))
+              (new-window (split-window-below)))
          (unless arg
            (set-window-buffer old-window "*scratch*"))
          (aw-switch-to-window old-window)
@@ -3807,7 +3807,7 @@
 
      (defun split-window-right-and-select-scratch (&optional arg)
        (interactive "P")
-       (let* ((new-window (split-window-right arg)))
+       (let* ((new-window (split-window-right)))
          (unless arg
            (set-window-buffer new-window "*scratch*"))
          (aw-switch-to-window new-window)
@@ -3817,7 +3817,7 @@
      (defun split-window-left-and-select-scratch (&optional arg)
        (interactive "P")
        (let* ((old-window (get-buffer-window))
-              (new-window (split-window-right arg)))
+              (new-window (split-window-right)))
          (unless arg
            (set-window-buffer old-window "*scratch*"))
          (aw-switch-to-window old-window)
