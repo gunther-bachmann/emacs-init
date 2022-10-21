@@ -4017,7 +4017,8 @@
 
      (defun gb/enable-auto-fill-mode ()
        "enable auto-fill-mode regardless of current state"
-       (auto-fill-mode +1))
+       (ignore-errors
+         (auto-fill-mode +1)))
    #+END_SRC
 ** keep some session stuff
    - will keep helm-M-x history after restart
@@ -8930,15 +8931,16 @@
       (progn
         (defun org-mark-readonly ()
           (interactive)
-          (when (file-exists-p (buffer-file-name))
-            (org-map-entries
-             (lambda ()
-               (let* ((element (org-element-at-point))
-                      (begin (org-element-property :begin element))
-                      (end (org-element-property :end element)))
-                 (add-text-properties begin (- end 1) '(read-only t))))
-             "read_only")
-            (message "Made readonly!")))
+          (ignore-errors
+            (when (file-exists-p (buffer-file-name))
+              (org-map-entries
+               (lambda ()
+                 (let* ((element (org-element-at-point))
+                        (begin (org-element-property :begin element))
+                        (end (org-element-property :end element)))
+                   (add-text-properties begin (- end 1) '(read-only t))))
+               "read_only")
+              (message "Made readonly!"))))
 
 
         (defun org-remove-readonly ()
@@ -9005,36 +9007,38 @@
 
           `prettify-symbols-mode' is used because it has uncollpasing. It's
           may not be efficient."
-          (let* ((case-fold-search t)
-                 (at-src-block (save-excursion
-                                 (beginning-of-line)
-                                 (looking-at "^[ \t]*#\\+begin_src[ \t]+[^ \f\t\n\r\v]+[ \t]*"))))
-            ;; Test if we moved out of a block.
-            (when (or (and rasmus/org-at-src-begin
-                        (not at-src-block))
-                     ;; File was just opened.
-                     (eq rasmus/org-at-src-begin -1))
-              (rasmus/org-prettify-src--update))
-            ;; Remove composition if at line; doesn't work properly.
-            ;; (when at-src-block
-            ;;   (with-silent-modifications
-            ;;     (remove-text-properties (match-end 0)
-            ;;                             (1+ (line-end-position))
-            ;;                             '(composition))))
-            (setq rasmus/org-at-src-begin at-src-block)))
+          (ignore-errors
+            (let* ((case-fold-search t)
+                   (at-src-block (save-excursion
+                                   (beginning-of-line)
+                                   (looking-at "^[ \t]*#\\+begin_src[ \t]+[^ \f\t\n\r\v]+[ \t]*"))))
+              ;; Test if we moved out of a block.
+              (when (or (and rasmus/org-at-src-begin
+                          (not at-src-block))
+                       ;; File was just opened.
+                       (eq rasmus/org-at-src-begin -1))
+                (rasmus/org-prettify-src--update))
+              ;; Remove composition if at line; doesn't work properly.
+              ;; (when at-src-block
+              ;;   (with-silent-modifications
+              ;;     (remove-text-properties (match-end 0)
+              ;;                             (1+ (line-end-position))
+              ;;                             '(composition))))
+              (setq rasmus/org-at-src-begin at-src-block))))
 
         (defun rasmus/org-prettify-symbols ()
-          (mapc (apply-partially 'add-to-list 'prettify-symbols-alist)
-                (cl-reduce 'append
-                           (mapcar (lambda (x) (list x (cons (upcase (car x)) (cdr x))))
-                                   `(("#+begin_src" . ?λ)
-                                     ("#+end_src"   . ?□)
-                                     ("#+results:" . ?⟾)
-                                     ("#+header:" . ,rasmus/ob-header-symbol)
-                                     ("#+begin_quote" . ?»)
-                                     ("#+end_quote" . ?«)))))
-          (turn-on-prettify-symbols-mode)
-          (add-hook 'post-command-hook 'rasmus/org-prettify-src t t))
+          (ignore-errors
+            (mapc (apply-partially 'add-to-list 'prettify-symbols-alist)
+                  (cl-reduce 'append
+                             (mapcar (lambda (x) (list x (cons (upcase (car x)) (cdr x))))
+                                     `(("#+begin_src" . ?λ)
+                                       ("#+end_src"   . ?□)
+                                       ("#+results:" . ?⟾)
+                                       ("#+header:" . ,rasmus/ob-header-symbol)
+                                       ("#+begin_quote" . ?»)
+                                       ("#+end_quote" . ?«)))))
+            (turn-on-prettify-symbols-mode)
+            (add-hook 'post-command-hook 'rasmus/org-prettify-src t t)))
         (add-hook 'org-mode-hook #'rasmus/org-prettify-symbols))
 
 
@@ -9547,11 +9551,6 @@
 
         (setq org-default-notes-file "~/notes.org")
 
-        ;; TODO: define additional capture templates
-        (setq org-capture-templates
-              (append '(("t" "Todo" entry (file+headline "~/notes.org" "Tasks") "* TODO %?\n  %i\n  %a"))
-                      org-capture-templates))
-
         (require 'org-protocol)
         (defun transform-square-brackets-to-round-ones(string-to-transform)
           "Transforms [ into ( and ] into ), other chars left unchanged."
@@ -9843,7 +9842,7 @@
      :ensure t
      :after ( org)
      :init
-     (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
+     (add-hook 'org-mode-hook (lambda () (ignore-errors (org-bullets-mode 1))))
      :config
      (setq org-bullets-bullet-list '("◉" "●" "⚬" "∘" "◦" "∙" "◉" "◯" "◎" "○" "◌" "◎" "○" "☉" "￮" "⊙" "❍" "⊚" "⊛" "◯" ))
      ;; override fontify buffer of org-bullets, since it forces fontifying again, which was already done => waste of time
