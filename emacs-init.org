@@ -4424,6 +4424,7 @@
       - d save defun at point
       - D save defun name at point
       - f save file at point
+      - m save emphasised org string at point
     - the following keys modify the selection (following the key above)
       - @ append selection to previous kill
       - C-w kill selection and exit
@@ -4433,9 +4434,24 @@
       - C-g abort
       - ? help
     #+BEGIN_SRC emacs-lisp
-    (use-package easy-kill
-      :ensure t
-      :init (global-set-key [remap kill-ring-save] 'easy-kill))
+      (use-package easy-kill
+        :ensure t
+        :init (global-set-key [remap kill-ring-save] 'easy-kill)
+        :config
+        (setq easy-kill-alist (append easy-kill-alist '((?m emphasised-org-string " "))))
+
+        (defun easy-kill-on-emphasised-org-string (_n)
+          "Get current emphasised org string."
+          (let ((org-emphasises (--map (org-in-regexp
+                                        (format "\%s[^ ][^%s]*[^ ]\%s" (car it) (car it)(car it)))
+                                       org-emphasis-alist)))
+            (if (easy-kill-get mark)
+                (easy-kill-echo "Not supported in `easy-mark'")
+              (pcase (-any #'identity org-emphasises)
+                (`nil (easy-kill-echo "No `org-emphasis' at point"))
+                (region (easy-kill-adjust-candidate
+                         'emphasised-org-string
+                         (substring-no-properties (buffer-substring (1+ (car region)) (1- (cdr region)))))))))))
     #+END_SRC
 *** expand region
     expand / shrink region smartly
