@@ -3352,7 +3352,9 @@
                           (+ (length (replace-regexp-in-string
                                       ":[a-zA-Z_-]+:" "LL"
                                       (substring-no-properties (format-mode-line right-global-mode-string))))
-                             (if (and mlscroll-mode (gb/modeline-line-selected-window-active-p)) 5 0)))))
+                             (if (and mlscroll-mode (gb/modeline-line-selected-window-active-p)) (- mlscroll-width-chars 1) 0)
+                             ;; (if dired-annotator-show 3 0)
+                             ))))
           (when (not gb/disable-modeline-updates)
             (setq gb/mode-line--last-padding-cache r-length))
           (propertize " "
