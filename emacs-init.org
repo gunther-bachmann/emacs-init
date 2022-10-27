@@ -15369,7 +15369,7 @@
       :ensure-system-package fzf
       :ensure t)
   #+end_src
-* EVAL helm-fish-completion (disabled)
+* DISABLED helm-fish-completion 
   - interferes with programs started from the shell (mame looses keyboard control, dosbox too)
   #+begin_src emacs-lisp
     ;; (use-package helm-fish-completion)
@@ -15391,7 +15391,8 @@
       :config
       (pomodoro-add-to-mode-line))
   #+end_src
-* deft (deactivated, using notdeft instead)
+* DISABLED deft
+  - using notdeft instead
   #+begin_src emacs-lisp :tangle no
     (use-package deft
       :commands deft
@@ -15823,6 +15824,7 @@
 * EVAL bufler see
   #+begin_src emacs-lisp
     (use-package bufler
+      :bind (("H-b" . #'bufler-switch-buffer))
       :ensure t)
     (when (eq gb/completion-framework 'helm)
       (use-package helm-bufler
@@ -15880,7 +15882,8 @@
       :config
       (company-prescient-mode 1))
   #+end_src
-* EVAL selectrum (disabled, ivy seems to be ok)
+* DISABLED selectrum
+  - using ivy instead
   #+begin_src emacs-lisp :tangle no
     (when (eq gb/completion-framework 'selectrum)
       (use-package selectrum
@@ -16018,7 +16021,8 @@
             keypression-y-offset 40
             keypression-font-face-attribute '(:width normal :height 200 :weight bold)))
   #+end_src
-* EVAl languagetool (see language-tool in other config) collides with langtool!, currently disabled
+* DISABLED languagetool (see language-tool in other config)
+  - collides with langtool!, currently disabled
   #+begin_src emacs-lisp :tangle no
     (use-package languagetool)
   #+end_src
@@ -16331,9 +16335,10 @@
     (use-package gitconfig-mode
       :ensure t)
   #+end_src
-* EVAL yascroll - yet another scroll bar mode
+* DISABLED yascroll - yet another scroll bar mode
   - see https://github.com/emacsorphanage/yascroll
-  #+begin_src emacs-lisp
+  - seems to eat lots of memory during scrolling                
+  #+begin_src emacs-lisp :tangle no
     (use-package yascroll
       :ensure t
       :config
