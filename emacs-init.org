@@ -15151,8 +15151,8 @@
 #+BEGIN_SRC emacs-lisp
 (report-elapsed "check-point - browse kill ring")
 #+END_SRC
-* EVAL pdf-view-restore (disabled)
-  - stores .pdf-view-restore in each folder where pdfs are opned!
+* DISABLED pdf-view-restore 
+  - stores .pdf-view-restore in each folder where pdfs are opened!
   #+begin_src emacs-lisp :tangle no
   (use-package pdf-view-restore
     :after pdf-tools
@@ -15171,12 +15171,12 @@
     (use-package sysctl
       :commands (sysctl))
   #+end_src
-* EVAL (DISABLED) dianyou (gnus mail searching see https://github.com/redguardtoo/dianyou/blob/master/dianyou.el)
+* DISABLED dianyou (gnus mail searching see https://github.com/redguardtoo/dianyou/blob/master/dianyou.el)
   #+begin_src emacs-lisp :tangle no
     (use-package dianyou
       :ensure t)
   #+end_src
-* EVAL tempbuff mode
+* tempbuff mode
   - remove buffers deemed unused see https://www.emacswiki.org/emacs/TempbufMode
   #+begin_src emacs-lisp
     (when (file-exists-p "~/.emacs.d/additionals/tempbuf.el")
@@ -15224,7 +15224,7 @@
       :ensure t
       :hook (shell-mode . awscli-capf-add))
   #+end_src
-* EVAL fast scroll (currently disabled)
+* DISABLED fast scroll 
   - disable font lock during C-v and M-v pagewise scrolling (if doing it fast)
   #+begin_src emacs-lisp :tangle no
     (use-package fast-scroll
@@ -16387,7 +16387,7 @@
                  (buffer-substring-no-properties (car bounds) (cdr bounds)))
               (error "No word at point."))))))
   #+end_src
-* EVAL dir-treeview
+* DISABLED dir-treeview
   - patched function ~dir-treeview-get-control~ to return dir-treeview-file-control in case of file node
     #+begin_src emacs-lisp :tangle no
       (defun dir-treeview-get-control (node)
@@ -16401,7 +16401,7 @@
           dir-treeview-file-control))
     #+end_src
   - open via ~dir-treeview~
-  #+begin_src emacs-lisp
+  #+begin_src emacs-lisp :tangle no
     (use-package dir-treeview
       :commands (dir-treeview)
       :config
@@ -16516,10 +16516,11 @@
       :ensure t
       :commands (key-assist))
   #+end_src
-* gcmh - gc magic hack, defer gc to idle times
+* DISABLED gcmh - gc magic hack, defer gc to idle times
   - works alright, seems to interfer with some other package though, which then uses up to 30s blocking emacs
     one method needed adjust to make idle gc not go over 10s idle time
   - seems to be fixed by setting the max idle time to 10s, never longer even in auto mode!
+  - disabled: vanilla emacs 28.1 seems not to have additional gc problems anymore
   #+begin_src emacs-lisp :tangle no
     (when (file-exists-p "~/repo/emacs/gcmh/gcmh.el")
       (use-package gcmh
@@ -17395,7 +17396,7 @@
           (coterm-mode -1)))
       (advice-add 'shell :before #'gb/coterm-on))
   #+end_src
-* EVAL blamer - a modern git blame
+* blamer - a modern git blame
   #+begin_src emacs-lisp
     (use-package blamer
       :ensure t
@@ -17449,7 +17450,7 @@
     (use-package wallpreview
       :ensure t)
   #+end_src
-* EVAL pulsar
+* pulsar
   #+begin_src emacs-lisp
     (use-package pulsar
       :ensure t
