@@ -13100,7 +13100,7 @@
       :ensure t
       :diminish
       :custom (racket-show-functions '(racket-show-echo-area))
-      ;; (racket-xp-mode-lighter #'(lambda () ""))
+      (racket-xp-mode-lighter '(:eval (gb/racket--xp-mode-lighter)))
       :bind (:map racket-mode-map
                   ("C-c r" . #'racket-run)
                   ("C-c C-." . #'racket-repl-describe)
@@ -13108,6 +13108,28 @@
                   ("C-c C-f" . #'gb/racket-fold-all-tests)
                   ("C-c C-u" . #'gb/racket-unfold-all-tests))
       :config
+      ;; copy of racket--xp-mode-lighter, except that checkmark is replaced with smaller variant, such that the modeline does not grow in height
+      (defun gb/racket--xp-mode-lighter ()
+        (let ((prefix "Rkt"))
+          (pcase-let*
+              ((status (and (racket--cmd-open-p)
+                          racket--xp-mode-status))
+               (`(,suffix ,face ,help-echo)
+                (cl-case status
+                  ((ok)       '("✔" nil
+                                "Syntax OK"))
+                  ((err)      `("✗" (face (:inherit error))
+                                "Syntax error"))
+                  ((outdated) `("…" nil
+                                "Outdated: Waiting for `racket-xp-after-change-refresh-delay' or manual `racket-xp-annotate'"))
+                  ((running)  '("λ" nil
+                                "Getting analysis from Racket Mode back-end and annotating"))
+                  (otherwise  '("λ" (face (:strike-through t))
+                                "Racket Mode back-end not available")))))
+            `(" " (:propertize ,(concat prefix suffix)
+                               ,@face
+                               help-echo ,help-echo)))))
+
       (when (fboundp 'coterm-mode)
         ;; make sure the comint buffer created for racket interaction does not use coterm!
         (setq gb-racket-coterm-status -1)
