@@ -17233,6 +17233,8 @@
     (defun gb/github-polling-on ()
       "allow github polling"
       (interactive)
+      (when (boundp 'gb/main-key)
+        (gb/gpg-key-query-if-locked gb/main-key))
       (setq gb/github-polling-token (string-trim (shell-command-to-string "gpg --batch -d ~/.github-token.polybar.read.txt.gpg 2>/dev/null")))
       (setq gb/github-polling-active t))
 
