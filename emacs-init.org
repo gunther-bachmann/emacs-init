@@ -17102,7 +17102,7 @@
       :config
       (mlscroll-mode 1)      
       (setq mlscroll-flank-face-properties `(:foreground ,mlscroll-out-color :background ,mlscroll-out-color :overline "#504050"))
-      (setq mlscroll-cur-face-properties `(:forground ,mlscroll-in-color :background ,mlscroll-in-color :overline "#504050")))
+      (setq mlscroll-cur-face-properties `(:foreground ,mlscroll-in-color :background ,mlscroll-in-color :overline "#504050")))
   #+end_src
 * tree-sitter
   - see https://ubolonton.github.io/emacs-tree-sitter/getting-started/
