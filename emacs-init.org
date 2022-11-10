@@ -659,36 +659,38 @@
 
 
   #+end_src
-* mac related settings
-  #+begin_src emacs-lisp
-    ;; fonts anti-aliasing einschalten
-    (setq mac-allow-anti-aliasing t)
+* systemspecific settings
+** mac specific (if running on mac)
+   #+begin_src emacs-lisp
+     (when (string-equal "ns" (window-system))
+       ;; fonts anti-aliasing einschalten
+       (setq mac-allow-anti-aliasing t)
 
-    ;; Some mac-bindings interfere with Emacs bindings.
-    (when (boundp 'mac-pass-command-to-system)
-      (setq mac-pass-command-to-system nil))
-    ;; Some mac-bindings interfere with Emacs bindings.
-    (when (boundp 'mac-pass-control-to-system)
-      (setq mac-pass-control-to-system nil))
+       ;; Some mac-bindings interfere with Emacs bindings.
+       (when (boundp 'mac-pass-command-to-system)
+         (setq mac-pass-command-to-system nil))
+       ;; Some mac-bindings interfere with Emacs bindings.
+       (when (boundp 'mac-pass-control-to-system)
+         (setq mac-pass-control-to-system nil))
 
-    ;; Make sure the right alt key is not bound to meta (such that the right alt key can be used on a mac to create []{}...)
-    (setq ns-command-modifier 'super)
-    (setq ns-function-modifier 'hyper)
-    (setq ns-alternate-modifier 'meta)
-    (setq ns-control-modifier 'control)
-    (setq ns-right-command-modifier 'super)
+       ;; Make sure the right alt key is not bound to meta (such that the right alt key can be used on a mac to create []{}...)
+       (setq ns-command-modifier 'super)
+       (setq ns-function-modifier 'hyper)
+       (setq ns-alternate-modifier 'meta)
+       (setq ns-control-modifier 'control)
+       (setq ns-right-command-modifier 'super)
 
-    ;; on macos x the right alt key is used to get e.g. the pipe '|' (alt-7)
-    (setq ns-right-alternate-modifier nil) ;; 'meta
+       ;; on macos x the right alt key is used to get e.g. the pipe '|' (alt-7)
+       (setq ns-right-alternate-modifier nil) ;; 'meta
 
-    ;; make sure this is run before anything else, since all shell program starts need the correct path
-    ;; exec-path-from-shell alread required (w/i initial package setup)
-    (when (is-macos-p)
-      (require 'exec-path-from-shell)
-      (exec-path-from-shell-initialize)
-      (exec-path-from-shell-copy-envs
-       '("PATH")))
-  #+end_src
+       ;; make sure this is run before anything else, since all shell program starts need the correct path
+       ;; exec-path-from-shell alread required (w/i initial package setup)
+       (when (is-macos-p)
+         (require 'exec-path-from-shell)
+         (exec-path-from-shell-initialize)
+         (exec-path-from-shell-copy-envs
+          '("PATH"))))
+   #+end_src
 * font lock configuration
   #+begin_src emacs-lisp
     (require 'jit-lock)
