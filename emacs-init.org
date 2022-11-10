@@ -8518,6 +8518,11 @@
       (setq mm-html-blocked-images ".*") ;; block images
       (setq mm-enable-external nil) ;; don't allow execution of external programs for mm parts
       (setq gnus-inhibit-images t) ;; don't show any images in html messages
+      (setq mm-html-inhibit-images t)
+      (setq mm-automatic-display
+            (--filter
+             (not (string-prefix-p "image/" it))
+             mm-automatic-display))
 
       (setq nnmail-extra-headers (quote (To Newsgroups Cc Content-Type)))
 
@@ -17608,8 +17613,7 @@
     (when (executable-find "vale")
       (flycheck-define-checker vale
         "A checker for prose"
-        :command ("vale" "--output" "line"
-                  source)
+        :command ("vale" "--output" "line" source)
         :standard-input nil
         :error-patterns
         ((error line-start (file-name) ":" line ":" column ":" (id (one-or-more (not (any ":")))) ":" (message) line-end))
@@ -18666,7 +18670,13 @@
   #+BEGIN_SRC emacs-lisp
     (report-elapsed "enter finish - up")
 
-    (gb/compositor-enable)
+    (defun run-kill-sd-parse-watchdog ()
+      "execute shell command that installs a watchdog, killing sd-parse-elf if hung"
+      (ignore-errors
+        (async shell-command "delayed-kill-sd-parse-elf")))
+
+    (add-hook 'kill-emacs-hook #'run-kill-sd-parse-watchdog)
+    ;; (remove-hook 'kill-emacs-hook #'run-kill-sd-parse-watchdog)
 
     (require 'server)
     ;; start a server to allow reuse of this server when opening other files from within the os
