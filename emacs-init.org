@@ -10165,8 +10165,10 @@
           (progn
             (let ((has-source-regions (gb/buffer-contains-string "^ *#\\+BEGIN_SRC"))
                   (should-tangle (gb/buffer-contains-string "^#\\+PROPERTY: +header-args +:tangle"))
+                  (branch-name (or (ignore-errors (string-trim (shell-command-to-string "git branch --show-current"))) "any"))
+                  (tangle-branch (or (ignore-errors (string-trim (shell-command-to-string "cat ~/.tangle-branch-name.txt"))) ""))
                   (target-is-initel (gb/buffer-contains-string (concat "^#\\+PROPERTY: +header-args +:tangle +" (regexp-quote "~/.emacs.d/init.el")))))
-              (if (and has-source-regions should-tangle)
+              (when (and has-source-regions should-tangle (or (not target-is-initel) (string-equal branch-name tangle-branch)))
                   (progn
                     (when (package-installed-p 'yankpad)
                       (remove-hook 'after-change-major-mode-hook #'yankpad-local-category-to-major-mode))
