@@ -1146,138 +1146,181 @@
    #+END_SRC
 ** other
    #+BEGIN_SRC emacs-lisp
+     ;; source: https://stackoverflow.com/questions/5580562/formatting-an-integer-using-iso-prefixes-for-kb-mb-gb-and-kib-mib-gib
+     (defconst number-to-string-approx-suffixes
+       '("k" "M" "G" "T" "P" "E" "Z" "Y"))
 
-   ;; source: https://stackoverflow.com/questions/5580562/formatting-an-integer-using-iso-prefixes-for-kb-mb-gb-and-kib-mib-gib
-   (defconst number-to-string-approx-suffixes
-     '("k" "M" "G" "T" "P" "E" "Z" "Y"))
+     (defun number-to-string-approx-suffix (n &optional binary)
+       "Return an approximate decimal representation of NUMBER as a string,
+     followed by a multiplier suffix (k, M, G, T, P, E, Z, Y). The representation
+     is at most 5 characters long for numbers between 0 and 10^19-5*10^16.
+     Uses a minus sign if negative.
+     NUMBER may be an integer or a floating point number.
+     If the optional argument BINARY is non-nil, use 1024 instead of 1000 as
+     the base multiplier."
+       (if (zerop n)
+           "0"
+         (let ((sign "")
+               (b (if binary 1024 1000))
+               (suffix "")
+               (bigger-suffixes number-to-string-approx-suffixes))
+           (if (< n 0)
+               (setq n (- n)
+                     sign "-"))
+           (while (and (>= n 9999.5) (consp bigger-suffixes))
+             (setq n (/ n b) ; TODO: this is rounding down; nearest would be better
+                   suffix (car bigger-suffixes)
+                   bigger-suffixes (cdr bigger-suffixes)))
+           (concat sign
+                   (if (integerp n)
+                       (int-to-string n)
+                     (number-to-string (floor n)))
+                   suffix))))
 
-   (defun number-to-string-approx-suffix (n &optional binary)
-     "Return an approximate decimal representation of NUMBER as a string,
-   followed by a multiplier suffix (k, M, G, T, P, E, Z, Y). The representation
-   is at most 5 characters long for numbers between 0 and 10^19-5*10^16.
-   Uses a minus sign if negative.
-   NUMBER may be an integer or a floating point number.
-   If the optional argument BINARY is non-nil, use 1024 instead of 1000 as
-   the base multiplier."
-     (if (zerop n)
-         "0"
-       (let ((sign "")
-             (b (if binary 1024 1000))
-             (suffix "")
-             (bigger-suffixes number-to-string-approx-suffixes))
-         (if (< n 0)
-             (setq n (- n)
-                   sign "-"))
-         (while (and (>= n 9999.5) (consp bigger-suffixes))
-           (setq n (/ n b) ; TODO: this is rounding down; nearest would be better
-                 suffix (car bigger-suffixes)
-                 bigger-suffixes (cdr bigger-suffixes)))
-         (concat sign
-                 (if (integerp n)
-                     (int-to-string n)
-                   (number-to-string (floor n)))
-                 suffix))))
+     (defun sudo-shell-command (command)
+       (interactive "MShell command (root): ")
+       (with-temp-buffer
+         (cd "/sudo::/")
+         (async-shell-command command)))
 
-   (defun sudo-shell-command (command)
-     (interactive "MShell command (root): ")
-     (with-temp-buffer
-       (cd "/sudo::/")
-       (async-shell-command command)))
+     (defun dont-kill-emacs()
+       "Disable C-x C-c binding execute kill-emacs."
+       (interactive)
+       (error (substitute-command-keys "To exit emacs: \\[kill-emacs]"))) ;;\] closing bracket in comment to satisfy font locking
+     (bind-key "C-x C-c" 'dont-kill-emacs)
 
-   (defun dont-kill-emacs()
-     "Disable C-x C-c binding execute kill-emacs."
-     (interactive)
-     (error (substitute-command-keys "To exit emacs: \\[kill-emacs]"))) ;;\] closing bracket in comment to satisfy font locking
-   (bind-key "C-x C-c" 'dont-kill-emacs)
+     (defun ibuffer-list-buffers-and-switch ()
+       "Shows a list of buffers"
+       (interactive)
+       (ibuffer-list-buffers)
+       (other-window 1))
 
-   (defun ibuffer-list-buffers-and-switch ()
-     "Shows a list of buffers"
-     (interactive)
-     (ibuffer-list-buffers)
-     (other-window 1))
+     (require 'subr-x)
+     (defun _nix-program-exists-in-path-p (program-string)
+       "Does the given exist as file and is on the path?
+          PROGRAM is the name of the program without path, given as string.
 
-   (require 'subr-x)
-   (defun _nix-program-exists-in-path-p (program-string)
-     "Does the given exist as file and is on the path?
-        PROGRAM is the name of the program without path, given as string.
+          (fn PROGRAM)
 
-        (fn PROGRAM)
+          This program won't work in non unix environments.
 
-        This program won't work in non unix environments.
+          the return value is either t or nil."
+       (let* ((which-result (shell-command-to-string (concat "command -v " program-string))))
+         (not (or (string-empty-p which-result)
+               (string-match (concat "no " program-string " in") which-result)
+               (string-match "not found"  which-result)))))
 
-        the return value is either t or nil."
-     (let* ((which-result (shell-command-to-string (concat "command -v " program-string))))
-       (not (or (string-empty-p which-result)
-                (string-match (concat "no " program-string " in") which-result)
-                (string-match "not found"  which-result)))))
+     (defun all-files-exist (full-file-string-list)
+       "does the given file (list of files, all) exist?
+     pass either list of strings or a string."
+       (if (stringp full-file-string-list)
+           (file-regular-p full-file-string-list)
+         (-none-p 'null (-map 'file-regular-p full-file-string-list))))
 
-   (defun all-files-exist (full-file-string-list)
-     "does the given file (list of files, all) exist?
-   pass either list of strings or a string."
-     (if (stringp full-file-string-list)
-         (file-regular-p full-file-string-list)
-       (-none-p 'null (-map 'file-regular-p full-file-string-list))))
+     (defun all-files-excutable (full-file-string-list)
+       "is the given file (list of files, all) executable?
+     pass either list of strings or a string."
+       (if (stringp full-file-string-list)
+           (file-executable-p full-file-string-list)
+         (-none-p 'null (-map 'file-executable-p full-file-string-list))))
 
-   (defun all-files-excutable (full-file-string-list)
-     "is the given file (list of files, all) executable?
-   pass either list of strings or a string."
-     (if (stringp full-file-string-list)
-         (file-executable-p full-file-string-list)
-       (-none-p 'null (-map 'file-executable-p full-file-string-list))))
+     (defun all-_nix-program-exists-in-path-p (program-string)
+       "make sure that the PROGRAM-STRING exists as executable reachable for unix.
+     If PROGRAM-STRING is a list, make sure this is true for all elements of the list"
+       (if (stringp program-string)
+           (executable-find program-string)
+         (-none? 'null (-map 'executable-find program-string))))
 
-   (defun all-_nix-program-exists-in-path-p (program-string)
-     "make sure that the PROGRAM-STRING exists as executable reachable for unix.
-   If PROGRAM-STRING is a list, make sure this is true for all elements of the list"
-     (if (stringp program-string)
-         (executable-find program-string)
-       (-none? 'null (-map 'executable-find program-string))))
+     (defun report-string-or-list (string-or-list)
+       "return STRING-OR-LIST if it is a string, else join the list of strings with comma"
+       (if (stringp string-or-list)
+           string-or-list
+         (string-join string-or-list ", ")))
 
-   (defun report-string-or-list (string-or-list)
-     "return STRING-OR-LIST if it is a string, else join the list of strings with comma"
-     (if (stringp string-or-list)
-         string-or-list
-       (string-join string-or-list ", ")))
+     (defmacro check-file-existence-status (var-name full-file-string file-name warning)
+       "set VAR-NAME to t iff all files in FULL-FILE-STRING exist. additionall
+     report existing files (with ok) and non existing files (with warning)."
+       `(progn
+          (setq ,var-name (all-files-exist ,full-file-string))
+          (if (not ,var-name)
+              (message (concat "WARNING: " ,file-name " missing, " ,warning))
+            (message (concat "OK: " ,file-name " exists.")))))
 
-   (defmacro check-file-existence-status (var-name full-file-string file-name warning)
-     "set VAR-NAME to t iff all files in FULL-FILE-STRING exist. additionall
-   report existing files (with ok) and non existing files (with warning)."
-     `(progn
-        (setq ,var-name (all-files-exist ,full-file-string))
-        (if (not ,var-name)
-            (message (concat "WARNING: " ,file-name " missing, " ,warning))
-          (message (concat "OK: " ,file-name " exists.")))))
+     (defmacro check-windows-program-status (var-name full-program-string program-name warning)
+       "Will check that FULL-PROGRAM-STRING is a full path to an executable and setq's VAR-NAME to installation status
+          A WARNING will be logged if no installation is found.
 
-   (defmacro check-windows-program-status (var-name full-program-string program-name warning)
-     "Will check that FULL-PROGRAM-STRING is a full path to an executable and setq's VAR-NAME to installation status
-        A WARNING will be logged if no installation is found.
-
-        (macro VAR-NAME FULL-PROGRAM-STRING PROGRAM-NAME WARNING)
-        "
-     `(if (is-ms-windows-p)
+          (macro VAR-NAME FULL-PROGRAM-STRING PROGRAM-NAME WARNING)
+          "
+       `(if (is-ms-windows-p)
+            (progn
+              (setq ,var-name (all-files-executable ,full-program-string))
+              (if (not ,var-name)
+                  (message (concat "WARNING: " ,program-name " installation missing, " ,warning))
+                (message (concat "OK: " ,program-name " installed."))))
           (progn
-            (setq ,var-name (all-files-executable ,full-program-string))
-            (if (not ,var-name)
-                (message (concat "WARNING: " ,program-name " installation missing, " ,warning))
-              (message (concat "OK: " ,program-name " installed."))))
-        (progn
-          (setq ,var-name nil)
-          (message (concat "UNCHECKED (win): " ,program-name)))))
+            (setq ,var-name nil)
+            (message (concat "UNCHECKED (win): " ,program-name)))))
 
-   (defmacro check-_nix-program-status (var-name program-string program-name warning)
-     "Will check that PROGRAM-STRING is an executable on the path and setq's VAR-NAME to installation status
-        A WARNING will be logged if no installation is found.
+     (defmacro check-_nix-program-status (var-name program-string program-name warning)
+       "Will check that PROGRAM-STRING is an executable on the path and setq's VAR-NAME to installation status
+          A WARNING will be logged if no installation is found.
 
-        (macro VAR-NAME PROGRAM-STRING PROGRAM-NAME WARNING)
-        "
-     `(if (is-_nix-p)
+          (macro VAR-NAME PROGRAM-STRING PROGRAM-NAME WARNING)
+          "
+       `(if (is-_nix-p)
+            (progn
+              (setq ,var-name (all-_nix-program-exists-in-path-p ,program-string))
+              (if (not ,var-name)
+                  (message (concat "WARNING: " ,program-name " installation missing, " ,warning))
+                (message (concat "OK: " ,program-name " installed."))))
           (progn
-            (setq ,var-name (all-_nix-program-exists-in-path-p ,program-string))
-            (if (not ,var-name)
-                (message (concat "WARNING: " ,program-name " installation missing, " ,warning))
-              (message (concat "OK: " ,program-name " installed."))))
-        (progn
-          (setq ,var-name nil)
-          (message (concat "UNCHECKED (*nix) : " ,program-name)))))
+            (setq ,var-name nil)
+            (message (concat "UNCHECKED (*nix) : " ,program-name)))))
+
+     (require 'map)
+     (require 'proced)
+     (require 'seq)
+
+     ;; copied from https://xenodium.com/emacs-quick-kill-process/
+     (defun gb/quick-kill-process ()
+       (interactive)
+       (let* ((pid-width 5)
+              (comm-width 25)
+              (user-width 10)
+              (processes (proced-process-attributes))
+              (candidates
+               (mapcar (lambda (attributes)
+                         (let* ((process (cdr attributes))
+                                (pid (format (format "%%%ds" pid-width) (map-elt process 'pid)))
+                                (user (format (format "%%-%ds" user-width)
+                                              (truncate-string-to-width
+                                               (map-elt process 'user) user-width nil nil t)))
+                                (comm (format (format "%%-%ds" comm-width)
+                                              (truncate-string-to-width
+                                               (map-elt process 'comm) comm-width nil nil t)))
+                                (args-width (- (window-width) (+ pid-width user-width comm-width 3)))
+                                (args (map-elt process 'args)))
+                           (cons (if args
+                                     (format "%s %s %s %s" pid user comm (truncate-string-to-width args args-width nil nil t))
+                                   (format "%s %s %s" pid user comm))
+                                 process)))
+                       processes))
+              (selection (map-elt candidates
+                                  (completing-read "kill process: "
+                                                   (seq-sort
+                                                    (lambda (p1 p2)
+                                                      (string-lessp (nth 2 (split-string (string-trim (car p1))))
+                                                                    (nth 2 (split-string (string-trim (car p2))))))
+                                                    candidates) nil t)))
+              (prompt-title (format "%s %s %s"
+                                    (map-elt selection 'pid)
+                                    (map-elt selection 'user)
+                                    (map-elt selection 'comm))))
+         (when (y-or-n-p (format "Kill? %s" prompt-title))
+           (if (eq (signal-process (map-elt selection 'pid) 9) 0)
+               (message "killed: %s" prompt-title)
+             (message "error: could not kill %s" prompt-title)))))
 
    #+END_SRC
 * delete old backup files
