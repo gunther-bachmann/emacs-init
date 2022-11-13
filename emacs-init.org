@@ -11826,7 +11826,8 @@
                                             ("\\.sid\\'" "sidplayfp")
                                             ("\\.html?\\'" "firefox")
                                             ("\\.docx?\\'\\|\\.xlsx?\\'\\|\\.pptx?\\'\\|\\.odt\\'" "soffice")
-                                            ("\\.eps\\'\\|\\.pdf\\'\\|\\.cb[rz]\\'" "evince")))
+                                            ("\\.eps\\'\\|\\.pdf\\'\\|\\.cb[rz]\\'" "evince")
+                                            ("\\.ttf\\'" "display")))
 
        (defun gb/dired-create-directory-with-marked-files (directory)
          "Create a directory called DIRECTORY and move all marked files into that directory (if any).
