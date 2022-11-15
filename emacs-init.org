@@ -4056,7 +4056,7 @@
      (setq fill-column 140)
      (set-default 'fill-column 140)
      (set-default 'display-fill-column-indicator t)
-     (set-default 'display-fill-column-indicator-character 9474)
+     (set-default 'display-fill-column-indicator-character 124)
 
      (cond
       ((eq gb/theme-mode 'light) nil) ;; TODO complete
@@ -5506,7 +5506,7 @@
                      (counsel-shell-history) ;; no sorting of shell history
                      (counsel-yank-pop) ;; no sorting of clipboard
                      (t . ivy-prescient-sort-function)))
-                  (ivy--display-transformers-list '())
+                  (ivy--display-transformers-alist '())
                   (ivy-display-style 'fancy)
                   (ivy-height 45 "default height of ivy completion")
                   (ivy-use-selectable-prompt t "make prompt a selectable option"))
@@ -5595,6 +5595,7 @@
        (defun gb/prefixed-20-all-the-icons-ivy-rich-file-icon (cand)
          (concat (gb/ivy-candidates-offset-20 cand) (all-the-icons-ivy-rich-file-icon cand)))
        (use-package all-the-icons-ivy-rich
+         :after (ivy ivy-rich all-the-icons-ivy)
          :config
          (setq ivy-rich-display-transformer--buffer
                '(:columns
@@ -5920,6 +5921,9 @@
                   ((all-the-icons-ivy-rich-file-icon)
                    (ivy-rich-candidate))
                   :delimiter "	")))
+         (when (not (boundp 'ivy--display-transformers-list))
+           ;; initialize unknown but used variable (used by ivy-rich)
+           (setq ivy--display-transformers-list 'nil))
          (ivy-rich-mode 1)
          :ensure t))
 
@@ -15588,19 +15592,8 @@
           (message "ERROR: could not find executable sqlite3")
         (progn
           (use-package emacsql-sqlite)
+          (setq org-notes (format "/home/%s/documents/roam" (user-login-name)))
           (use-package org-roam
-            :commands (org-roam-buffer-toggle-display
-                       org-roam-find-file
-                       org-roam-graph
-                       org-roam-insert
-                       org-roam-switch-to-buffer
-                       org-roam-dailies-date
-                       org-roam-dailies-today
-                       org-roam-dailies-tomorrow
-                       org-roam-dailies-yesterday)
-            :after (org emacsql-sqlite)
-            :hook (after-init . org-roam-setup)
-            :ensure t
             :custom
             (org-roam-completion-everywhere t)
             (org-roam-capture-templates 
@@ -15618,16 +15611,38 @@
                          "  #+end_src\n")
                 :target (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n")
                 :unnarrowed t)))
-            (org-roam-graph-viewer "emacsclient")
-            (org-notes (format "/home/%s/documents/roam" (user-login-name)))
+            ;; (org-roam-graph-viewer "emacsclient")
             (org-directory org-notes)
-            (deft-directory org-notes)
+            ;; (deft-directory org-notes)
             (notdeft-directories `(,org-notes))
             (org-roam-directory org-notes)
             (org-id-extra-files (find-lisp-find-files org-roam-directory "\.org$")) ;; prevents org export errors on id: type links
-            (org-roam-db-update-method 'immediate)
+            ;; (org-roam-db-update-method 'immediate)
             (org-ref-bibtex-completion-add-keywords-field nil) ;; make sure that some org helm ref package loads correctly when executing (org-roam-db-build-cache t)
-            (org-roam-v2-ack t) ;; migration is through
+            ;; (org-roam-v2-ack t)                              ;; migration is through
+            :commands (org-roam-buffer-toggle-display
+                       org-roam-find-file
+                       org-roam-graph
+                       org-roam-insert
+                       org-roam-switch-to-buffer
+                       org-roam-dailies-date
+                       org-roam-dailies-today
+                       org-roam-dailies-tomorrow
+                       org-roam-dailies-yesterday)
+            :after (org emacsql-sqlite notdeft)
+            :hook (after-init . org-roam-setup)
+            :ensure t
+            :bind (:map notdeft-mode-map
+                        (("C-c n f" . org-roam-node-find)
+                         ("C-c n n" . org-roam-node-find))
+                        :map org-roam-mode-map
+                        (("C-c n f" . org-roam-node-find)
+                         ("C-c n n" . org-roam-node-find)
+                         ("C-c n g" . org-roam-show-graph))
+                        :map org-mode-map
+                        (("C-c n i" . org-roam-node-insert)
+                         ("C-c n n" . org-roam-node-find)
+                         ("C-c n t" . gb/set-tags-in-org-roam-file)))
             :config
             (require 'org-roam-protocol)
 
@@ -15703,17 +15718,7 @@
                          "\n")))
 
             (org-roam-db-autosync-mode) ;; make sure db is immediately synced
-            :bind (:map notdeft-mode-map
-                        (("C-c n f" . org-roam-node-find)
-                         ("C-c n n" . org-roam-node-find))
-                        :map org-roam-mode-map
-                        (("C-c n f" . org-roam-node-find)
-                         ("C-c n n" . org-roam-node-find)
-                         ("C-c n g" . org-roam-show-graph))
-                        :map org-mode-map
-                        (("C-c n i" . org-roam-node-insert)
-                         ("C-c n n" . org-roam-node-find)
-                         ("C-c n t" . gb/set-tags-in-org-roam-file))))
+            )
 
           (use-package org-roam-server
             :commands (org-roam-server-mode)
@@ -15785,10 +15790,7 @@
                 (candidates
                  (company-org-roam--get-candidates arg))
                 (post-completion (company-org-roam--post-completion arg))))
-            (add-to-list 'company-backends 'company-org-roam))
-
-
-          )))
+            (add-to-list 'company-backends 'company-org-roam)))))
   #+end_src
 #+BEGIN_SRC emacs-lisp
 (report-elapsed "check-point - org roam")
