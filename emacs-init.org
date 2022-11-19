@@ -14252,17 +14252,25 @@
                      (downcase)))
               exwm--id-buffer-alist)))
 
+          ;; list of program (in linux) to buffer-name (in emacs)
+          (setq gb/exwm--program-buffer-name-map
+                '(("jfirefox" . "firefox")))
+
+          (defun gb/exwm--switch--translate-program-name (program-name)
+            (alist-get program-name
+                       gb/exwm--program-buffer-name-map
+                       program-name
+                       nil
+                       'string-equal))
+
           (defun gb/exwm--switch (program &optional alias)
-            "try to switch to a running program (nil on failure"
-            (let* ((browser-alias (s-concat program "-browser"))
-                   (stable-removed (s-replace "-stable" "" program)))
-              (if (-contains? (gb/exwm-distinct-exwm-buffer-names) program)
-                  (exwm-workspace-switch-to-buffer (s-capitalize program))
-                (if (-contains? (gb/exwm-distinct-exwm-buffer-names) browser-alias)
-                    (exwm-workspace-switch-to-buffer (s-capitalize browser-alias))
-                  ;; (exwm-reset) ;; make sure that keyboard is no longer captured
-                  (when (-contains? (gb/exwm-distinct-exwm-buffer-names) stable-removed)
-                    (exwm-workspace-switch-to-buffer (s-capitalize stable-removed)))))))
+            "try to switch to a running program, nil on failure"
+            (let* ((translated-program (gb/exwm--switch--translate-program-name program))
+                   (browser-alias      (s-concat translated-program "-browser"))
+                   (stable-removed     (s-replace "-stable" "" translated-program)))
+              (when-let ((actual (--first (-contains? (gb/exwm-distinct-exwm-buffer-names) it)
+                                          (list translated-program browser-alias stable-removed))))
+                (exwm-workspace-switch-to-buffer actual))))
 
           (when (eq gb/completion-framework 'helm)
             (require 'helm-external)
