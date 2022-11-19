@@ -2785,8 +2785,8 @@
      (cond
       ((eq gb/theme-mode 'light) nil) ;; TODO complete
       (t (progn
-           (--each '((mode-line ((t (:background "#251422" :foreground "#A5A5A5" :overline "#504050" :weight normal))))
-                     (mode-line-inactive ((t (:inherit mode-line :background "#251422" :foreground "#606060" :weight normal)))))
+           (--each '((mode-line ((t (:background "#251422" :foreground "#A5A5A5" :overline "#504050" :underline "#504050" :weight normal))))
+                     (mode-line-inactive ((t (:inherit mode-line :background "#161616" :foreground "#505050" :overline nil :weight normal)))))
              (progn (add-to-list 'gb/list-of-faces-to-set it)(custom-set-faces it))))))
    #+end_src
 *** all the icons
