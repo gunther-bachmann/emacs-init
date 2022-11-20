@@ -1,0 +1,11 @@
+#+title: cleanup breadcrumbs
+* cleanup breadcrumbs
+  - cleanup breadcrumbs of all kinds of programs leaking information unnecessarily 
+  #+begin_src sh :comments link :shebang "#!/usr/bin/env bash" :eval no :tangle ~/bin/cleanup-breadcrumbs :tangle-mode (identity #o755)
+    #------------------------------------------------------------------
+    # THIS FILE IS GENERATED (To edit please open file from link above)
+    #------------------------------------------------------------------
+    #
+    [ -d ~/.dvdcss ] && rm -rf ~/.dvdcss
+    [ -d ~/.local/share/Trash ] rm -rf ~/.local/share/Trash
+  #+end_src
