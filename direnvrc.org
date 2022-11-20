@@ -17,7 +17,11 @@
     # work around to define aliases within .envrc
     # (see https://github.com/direnv/direnv/issues/73#issuecomment-174295790)
     #
-    # Example: export_alias zz "# do ls with -la as default parameter" "ls -la"
+    # example: export_alias zz "# do ls with -la as default parameter" "ls -la"
+    #
+    # usage:   zz        # will call the alias
+    #          zz -1     # will call the alias and pass -h to the last command (i.e. ls)
+    #          zz --help # will printout the description of this alias
     export_alias() {
       local name=$1
       shift
@@ -35,9 +39,15 @@
       PATH_add "$alias_dir"
       echo "#! /usr/bin/env -S bash -e" > "$target"
       echo "$description" >> "$target"
-      echo "$@ \$@" >> "$target"
+      echo "{ if [ \"\$1\" == \"--help\" ]; then echo \"${description:2}\"; else $@ \$@; fi }" >> "$target"
+      # echo "$@ \$@" >> "$target"
       chmod +x "$target"
     }
+  #+end_src
+* define standard alias
+  - print out all defined aliases within this project
+  #+begin_src sh :eval no :tangle ~/.direnvrc
+    export_alias a "# get info of all defined aliases" "for al in \$(ls -1 \${DIRENV_DIR:1}/.direnv/aliases); do echo -n \$al; echo -ne \"\\t\"; \$al --help; done;"
   #+end_src
 * guix
   - allows for guix integration in ~.envrc~ to define a guix environment
