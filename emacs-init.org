@@ -4433,6 +4433,7 @@
           (add-to-list 'wrap-region-except-modes 'gnus-group-mode)
           (add-to-list 'wrap-region-except-modes 'gnus-summary-mode)  ;; don't remap / key, since it is used to limit mail list
           (add-to-list 'wrap-region-except-modes 'emms-playlist-mode)
+          (add-to-list 'wrap-region-except-modes 'dired-sidebar-mode)
           ;; hooks only useful if global region mode is not set (see above)
           ;; (add-hook 'org-mode-hook 'wrap-region-mode)
           ;; (add-hook 'latex-mode-hook 'wrap-region-mode)
@@ -12048,7 +12049,8 @@
               ( "C-x d" . gb/dired-open-file-from-here)
               ( "C-x C-f" . counsel-find-file)
               ( "<tab>" . gb/dired-toggle-expanding-single-dirs)
-              ( "+" . dired-create-directory))
+              ( "+" . dired-create-directory)
+              ( "/" . dired-narrow))
        ;; :after (dired all-the-icons vscode-icon)
        :config
        ;; make sure that long lines are truncated in sidebar
