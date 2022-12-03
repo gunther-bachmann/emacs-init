@@ -15341,6 +15341,10 @@
   #+end_src
 * EVAL awscli-capf
   - allow for awscli command line completion
+  - necessary patch for latest aws-cli
+    in awscli-capf.el function awscli-capf-refresh-data-from-cli, line 215
+    replace ~(opt-start (or (search-forward-regexp "^Options$" nil t) (search-forward-regexp "^OPTIONS$" nil t)))~
+    with ~(opt-start (or (search-forward-regexp "^Global Options$" nil t) (search-forward-regexp "^GLOBAL OPTIONS$" nil t)))~
   #+begin_src emacs-lisp
     (use-package awscli-capf
       :commands (awscli-add-to-capf awscli-capf-refresh-data-from-cli)
