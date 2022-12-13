@@ -1595,6 +1595,7 @@
      (put 'dired-annotator-show 'safe-local-variable 'booleanp)
      (put 'gb/org-indent 'safe-local-variable 'booleanp)
      (put 'read-only-mode 'safe-local-variable #'integerp)
+     (put 'fill-column 'safe-local-variable #'integerp)     
 
      (custom-set-variables
       '(safe-local-variable-values
@@ -1602,7 +1603,7 @@
           (org-confirm-babel-evaluate)
           (web-mode-enable-auto-identation nil)
           (eval text-scale-adjust 1)
-          (eval set-fill-column 100)
+          (eval gb/align-all-tables)
           (eval toggle-serif)
           (eval gb/serif-on)
           (eval gb/set-dictionary "en")
@@ -14852,9 +14853,17 @@
 
         (bind-key "C-?" #'gb/presentation-toggle-show-cursor org-tree-slide-mode-map)
 
+        (defun gb/align-all-tables ()
+          (interactive)
+          (save-excursion
+            (goto-char 0)
+            (while (and (not (equal (point) (point-max))) (re-search-forward "\|---"))
+              (valign-table))))
+
         (defun gb/presentation-on ()
           "make all relevant adjustments to present an org-tree-slide presentation"
           (interactive)
+          (gb/align-all-tables)
           (setq org-show-notification-handler
                 #'(lambda
                     (msg)
