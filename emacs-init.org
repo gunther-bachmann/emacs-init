@@ -15645,9 +15645,12 @@
           (message "ERROR: could not find executable sqlite3")
         (progn
           (use-package emacsql-sqlite)
+          (use-package emacsql-sqlite3
+            :ensure t)
           (setq org-notes (format "/home/%s/documents/roam" (user-login-name)))
           (use-package org-roam
             :custom
+            (org-roam-database-connector 'sqlite3)
             (org-roam-completion-everywhere t)
             (org-roam-capture-templates 
              `(("d" "default" plain
@@ -15742,18 +15745,19 @@
                   (make-local-variable 'gb-roam-visibility-set)
                   (setq gb-roam-visibility-set t)
                   (add-fira-code-symbol-keywords)
-                  (org-hide-block-all)
-                  (org-babel-result-hide-all)
-                  (org-display-inline-images)
-                  (org-content)
-                  (progn (setq current-prefix-arg '(16))(call-interactively 'org-latex-preview))
-                  (save-excursion
-                    (goto-char (point-min))
-                    (org-next-visible-heading 1)
-                    (org-show-entry))
-                  (gb/serif-on)
-                  (org-cycle-hide-drawers 'all)
-                  (run-at-time 0.5 nil #'(lambda () (progn (setq current-prefix-arg '(4)) (call-interactively 'org-reveal)))))))
+                  (ignore-errors (org-hide-block-all))
+                  (ignore-errors (org-babel-result-hide-all))
+                  (ignore-errors (org-display-inline-images))
+                  ;; (org-content)
+                  (ignore-errors (progn (setq current-prefix-arg '(16))(call-interactively 'org-latex-preview)))
+                  (ignore-errors (save-excursion
+                                   (goto-char (point-min))
+                                   (org-next-visible-heading 1)
+                                   (org-fold-show-entry)
+                                   (org-fold-show-children 3)))
+                  (ignore-errors (gb/serif-on))
+                  (ignore-errors (org-cycle-hide-drawers 'all))
+                  (run-at-time 0.5 nil #'(lambda () (progn (ignore-errors (setq current-prefix-arg '(4)) (call-interactively 'org-reveal))))))))
 
             (defun gb/org-roam--get-all-tags ()
               "get a unique list of tags that are available in annotated files"
