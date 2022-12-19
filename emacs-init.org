@@ -9568,17 +9568,17 @@
                                 ;;                          `(org-level-5 ((t (,@headline ,@variable-tuple))))
                                 ;;                          `(org-level-4 ((t (:foreground "#a97167"))))
                                 ;;                          `(org-level-3 ((t (:foreground "#4fa8a8" ,@headline))))
-                                `(org-legel-8 ((t (:foreground "#8abeb7"))))
+                                `(org-level-8 ((t (:foreground "#8abeb7"))))
                                 `(outline-8 ((t (:foreground "#8abeb7"))))                                
-                                `(org-legel-7 ((t (:foreground "#b294bb"))))
+                                `(org-level-7 ((t (:foreground "#b294bb"))))
                                 `(outline-7 ((t (:foreground "#b294bb"))))                                
-                                `(org-legel-6 ((t (:foreground "#81a2be"))))
+                                `(org-level-6 ((t (:foreground "#81a2be"))))
                                 `(outline-6 ((t (:foreground "#81a2be"))))                                
-                                `(org-legel-5 ((t (:foreground "#de935f"))))
+                                `(org-level-5 ((t (:foreground "#de935f"))))
                                 `(outline-5 ((t (:foreground "#de935f"))))                                
-                                `(org-legel-4 ((t (:foreground "#f0c674"))))
+                                `(org-level-4 ((t (:foreground "#f0c674"))))
                                 `(outline-4 ((t (:foreground "#f0c674"))))                                
-                                `(org-legel-3 ((t (:foreground "#8abeb7"))))
+                                `(org-level-3 ((t (:foreground "#8abeb7"))))
                                 `(outline-3 ((t (:foreground "#8abeb7"))))                                
                                 `(org-level-2 ((t (:foreground "burlywood"))))
                                 `(outline-2 ((t (:foreground "burlywood")))) ;; change both org-level and outline, since org-tree-slide uses them
@@ -14793,6 +14793,7 @@
           (bind-key "<f1>" #'hydra-tree-slide/body org-tree-slide-mode-map))
 
         (advice-add 'org-tree-slide-move-next-tree :after #'gb/presentation-hide-tags)
+        (advice-add 'org-tree-slide-move-next-tree :after #'gb/align-all-tables)
         (advice-add 'org-tree-slide-move-previous-tree :after #'gb/presentation-hide-tags)
         (advice-add 'org-tree-slide-content :after #'gb/presentation-hide-tags)
 
@@ -14857,13 +14858,13 @@
           (interactive)
           (save-excursion
             (goto-char 0)
-            (while (and (not (equal (point) (point-max))) (re-search-forward "\|---"))
-              (valign-table))))
+            (ignore-errors
+              (while (and (not (equal (point) (point-max))) (re-search-forward "^\s*\|.*\|\s*$"))
+                (valign-table)))))
 
         (defun gb/presentation-on ()
           "make all relevant adjustments to present an org-tree-slide presentation"
           (interactive)
-          (gb/align-all-tables)
           (setq org-show-notification-handler
                 #'(lambda
                     (msg)
@@ -14894,6 +14895,7 @@
           (appt-activate -1)
           (when (fboundp 'gb/serif-on)
             (gb/serif-on))
+          (gb/align-all-tables)
           ;; (when (boundp org-padding-mode)
           ;;   (setq org-padding-heading-padding-alist
           ;;         '((4.0 . 1.5) (3.0 . 0.5) (3.0 . 0.5) (3.0 . 0.5) (2.5 . 0.5) (2.0 . 0.5) (1.5 . 0.5) (0.5 . 0.5)))
