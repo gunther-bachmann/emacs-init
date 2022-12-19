@@ -17890,6 +17890,15 @@
           (kill-region beg end)
           (insert (org-element-interpret-data  new-context)))) 
     #+end_src
+  - dosbox
+    #+begin_src emacs-lisp
+      (defun gb/dosbox ()
+        (interactive)
+        (when (fboundp 'gb/reset-touchpad-processing)
+          (gb/reset-touchpad-processing))
+        (gb/compositor-disable)
+        (async-shell-command "dosbox"))
+    #+end_src
   - en/disable touchpad depending on currently visited buffer
     #+begin_src emacs-lisp
       (if (not (executable-find "set-touchpad"))
