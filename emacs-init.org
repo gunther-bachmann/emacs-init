@@ -12588,14 +12588,6 @@
      :ensure t
      :after ( company))
    #+END_SRC
-** dimmer (deactivated, slowing things down)
-   - dim non selected buffers (slightly)
-   #+BEGIN_SRC emacs-lisp :tangle no
-     (use-package dimmer
-       :ensure t
-       :config (dimmer-activate)
-       (setq dimmer-exclusion-regexp "\\*helm.*"))
-   #+END_SRC
 ** eterm-256color - (disabled, installs lots of fonts that slow down frame creation, since each font is recalculated)
    - see [[http://github.com/dieggsy/eterm-256color][here]]
    #+BEGIN_SRC emacs-lisp :tangle no
@@ -17841,6 +17833,17 @@
 
       (define-key magit-status-mode-map (kbd "#") #'gb/magit-aux-commands))
   #+end_src
+* dimmer
+  - dim non selected buffers (slightly)
+  #+BEGIN_SRC emacs-lisp
+    (use-package dimmer
+      :ensure t
+      :config 
+         (dimmer-configure-which-key)
+         (dimmer-configure-helm)
+         (dimmer-mode t)
+         (setq dimmer-buffer-exclusion-regexps '("\\*helm.*")))
+  #+END_SRC
 * utility functions
   - open dired to mounted folders
     #+begin_src emacs-lisp
