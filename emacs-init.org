@@ -3816,11 +3816,12 @@
        :config (global-form-feed-mode)
        :custom-face (form-feed-line ((t :foreground "gray40" :strike-through t))))
    #+END_SRC
-** hide show org like
+** DISABLED hide show org like
    - if tab does not indent, folding is done
-   #+BEGIN_SRC emacs-lisp
+   - not working anymore [2023-01-05 Thu]
+   #+BEGIN_SRC emacs-lisp :tangle no
      (use-package hideshow-org
-       :ensure t
+       :disabled t
        :init (add-hook 'text-mode #'hs-org/minor-mode))
    #+END_SRC
 ** highlight indent
@@ -11374,23 +11375,26 @@
    #+END_SRC
 * vagrant docker ansible
 ** docker
-#+BEGIN_SRC emacs-lisp
-  (use-package docker
-    :commands docker-machines docker-volumes docker-images docker-containers
-    :ensure t
-    :config
-    (progn
-      (if (is-macos-p)
-          (progn
-            (setenv "DOCKER_TLS_VERIFY" "1")
-            (setenv "DOCKER_HOST" "tcp://192.168.99.100:2376")
-            (setenv "DOCKER_CERT_PATH" "~/.docker/machine/machines/docker-host-4gb-2cpu")
-            (setenv "DOCKER_MACHINE_NAME" "docker-host-4gb-2cpu")))
-      ))
-  (use-package docker-tramp
-    :ensure t
-    :after ( docker))
-#+END_SRC
+  - NO LONGER IN USE: use tramp-container instead
+    #+BEGIN_SRC emacs-lisp :tangle no
+      (use-package docker
+        :commands docker-machines docker-volumes docker-images docker-containers
+        :ensure t
+        :config
+        (progn
+          (if (is-macos-p)
+              (progn
+                (setenv "DOCKER_TLS_VERIFY" "1")
+                (setenv "DOCKER_HOST" "tcp://192.168.99.100:2376")
+                (setenv "DOCKER_CERT_PATH" "~/.docker/machine/machines/docker-host-4gb-2cpu")
+                (setenv "DOCKER_MACHINE_NAME" "docker-host-4gb-2cpu")))
+          ))
+    #+END_SRC
+  - NO LONGER IN USE: use tramp-container instead
+    #+begin_src emacs-lisp :tangle no
+      (use-package docker-tramp
+        :after ( docker))
+    #+end_src
 ** vagrant
 #+BEGIN_SRC emacs-lisp
   (use-package vagrant
@@ -13157,9 +13161,9 @@
         :ensure t))
   #+end_src
   - use C-x C-f /kubectl:container:/path/to/file
-  #+begin_src emacs-lisp
-  (use-package kubernetes-tramp
-    :ensure t)
+  - NO LONGER IN USE: use tramp-container instead
+  #+begin_src emacs-lisp :tangle no
+  (use-package kubernetes-tramp)
   #+end_src
 * vue (disabled)
   #+begin_src emacs-lisp :tangle no
@@ -16622,8 +16626,9 @@
           :config
           (add-hook 'org-mode-hook #'delve-minor-mode-maybe-activate))))
   #+end_src
-* EVAL hardhat - make files r/o that should not be editable
-  #+begin_src emacs-lisp
+* DISABLED hardhat - make files r/o that should not be editable
+  - currently not used that much
+  #+begin_src emacs-lisp :tangle no
     (use-package hardhat
       :ensure t
       :config
@@ -17833,16 +17838,18 @@
 
       (define-key magit-status-mode-map (kbd "#") #'gb/magit-aux-commands))
   #+end_src
-* dimmer
+* dimmer (disabled)
   - dim non selected buffers (slightly)
-  #+BEGIN_SRC emacs-lisp
+  - doesn't work with my animated exwm switch workspace
+  #+BEGIN_SRC emacs-lisp :tangle no
     (use-package dimmer
       :ensure t
       :config 
          (dimmer-configure-which-key)
-         (dimmer-configure-helm)
-         (dimmer-mode t)
-         (setq dimmer-buffer-exclusion-regexps '("\\*helm.*")))
+         (dimmer-mode t)     
+         (when (equal gb/completion-framework 'helm)
+           (dimmer-configure-helm)
+           (setq dimmer-buffer-exclusion-regexps '("\\*helm.*" " \\*my-posframe-buffer\\*"))))
   #+END_SRC
 * utility functions
   - open dired to mounted folders
