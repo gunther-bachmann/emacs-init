@@ -6058,7 +6058,8 @@
          (cond
           ((eq gb/theme-mode 'light) nil) ;; TODO complete
           (t (progn
-               (--each '((minimap-active-region-background ((t (:extend t :background "gray23")))))
+               (--each '((minimap-active-region-background ((t (:extend t :background "gray12"))))
+                         (minimap-current-line-face ((t (:extend t :background "gray30")))))
                  (add-to-list 'gb/list-of-faces-to-set it)(custom-set-faces it)))))))
    #+END_SRC
 * play startup sound (check again 3.2)
