@@ -14789,7 +14789,8 @@
           (bind-key "<f1>" #'hydra-tree-slide/body org-tree-slide-mode-map))
 
         (advice-add 'org-tree-slide-move-next-tree :after #'gb/presentation-hide-tags)
-        (advice-add 'org-tree-slide-move-next-tree :after #'gb/align-all-tables)
+        (when (fboundp 'valign-mode)
+          (advice-add 'org-tree-slide-after-narrow-hook :after #'gb/align-all-tables))
         (advice-add 'org-tree-slide-move-previous-tree :after #'gb/presentation-hide-tags)
         (advice-add 'org-tree-slide-content :after #'gb/presentation-hide-tags)
 
@@ -14852,11 +14853,12 @@
 
         (defun gb/align-all-tables ()
           (interactive)
-          (save-excursion
-            (goto-char 0)
-            (ignore-errors
-              (while (and (not (equal (point) (point-max))) (re-search-forward "^\s*\|.*\|\s*$"))
-                (valign-table)))))
+          (when (and (eq major-mode 'org-mode) (fboundp 'valign-mode))
+            (save-excursion
+              (goto-char 0)
+              (ignore-errors
+                (while (and (not (equal (point) (point-max))) (re-search-forward "^\s*\|.*\|\s*$"))
+                  (valign-table))))))
 
         (defun gb/presentation-on ()
           "make all relevant adjustments to present an org-tree-slide presentation"
@@ -16807,6 +16809,7 @@
       :after (bind-key)
       :bind (:map  org-tree-slide-mode-map ("C-M->" . #'org-tree-slide-pause-goto-end-pause))
       :config
+      (add-hook 'org-tree-slide-pauses-after-list-unfold #'gb/align-all-tables)
       (cond
        ((eq gb/theme-mode 'light) nil) ;; TODO complete
        (t (progn
