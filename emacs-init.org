@@ -17854,6 +17854,20 @@
            (dimmer-configure-helm)
            (setq dimmer-buffer-exclusion-regexps '("\\*helm.*" " \\*my-posframe-buffer\\*"))))
   #+END_SRC
+* sticky-shell (shell header)
+  #+begin_src emacs-lisp
+    (use-package sticky-shell
+      :load-path "~/repo/emacs/sticky-shell"
+      :hook (shell-mode . sticky-shell-mode)
+      :custom (sticky-shell-get-prompt #'sticky-shell-prompt-above-cursor)
+      :config
+      (cond
+           ((eq gb/theme-mode 'light) nil) ;; TODO complete
+           (t (progn
+                (--each '((header-line ((t (:foreground "#808080" :underline t))))
+                          (header-line-highlight ((t (:foreground "#a0a0a0" :underline t)))))
+                  (progn (add-to-list 'gb/list-of-faces-to-set it)(custom-set-faces it)))))))
+  #+end_src
 * utility functions
   - open dired to mounted folders
     #+begin_src emacs-lisp
