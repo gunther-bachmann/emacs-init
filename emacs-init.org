@@ -10661,6 +10661,9 @@
 
          :config
          (require 'dash)
+         (advice-remove 'select-window 'slack-advice-select-window)
+         (advice-remove 'delete-window 'slack-advice-delete-window)
+
          (setq lui-time-stamp-format "[%m-%d %H:%M]")
          (setq lui-fill-column 110)
          (setq slack-thread-also-send-to-room nil) ;; never send thread message to channel, too
@@ -10968,6 +10971,8 @@
 
          (defun gb/slack-off ()
            (interactive)
+           (advice-remove 'select-window 'slack-advice-select-window)
+           (advice-remove 'delete-window 'slack-advice-delete-window)
            (ignore-errors
              (when (-contains? kill-emacs-hook #'gb/slack-off)
                (remove-hook 'kill-emacs-hook #'gb/slack-off)))
@@ -10981,6 +10986,8 @@
 
          (defun gb/slack-on ()
            (interactive)
+           (advice-add 'select-window :around 'slack-advice-select-window)
+           (advice-add 'delete-window :before 'slack-advice-delete-window)
            (gb/slack-register-teams)
            (slack-start)
            (slack-enable-modeline)
