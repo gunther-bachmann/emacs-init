@@ -17876,6 +17876,12 @@
 
       (define-key magit-status-mode-map (kbd "#") #'gb/magit-aux-commands))
   #+end_src
+* file-info - extended information about files
+  #+begin_src emacs-lisp
+    (use-package file-info
+      :commands (file-info-show)
+      :ensure t)
+  #+end_src
 * dimmer (disabled)
   - dim non selected buffers (slightly)
   - doesn't work with my animated exwm switch workspace
