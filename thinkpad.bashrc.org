@@ -87,6 +87,8 @@
     # ng ----------------------------------------
     [ -f "$(which ng 2>/dev/null)" ] && source <(ng completion script)
 
+    # guix --------------------------------------
+    [ -f "/etc/bash_completion.d/guix" ] && source /etc/bash_completion.d/guix
   #+end_src
 * gradle
   #+begin_src sh :eval no :tangle ~/.bashrc
