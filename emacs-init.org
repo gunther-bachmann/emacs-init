@@ -14459,9 +14459,9 @@
           (gb/register-global-key (kbd "S-s-<left>") #'gb/remove-left-window)
           (gb/register-global-key (kbd "S-s-<right>") #'gb/remove-right-window)
 
-          (gb/register-global-key (kbd "s-3") #'(lambda () (interactive) (split-window-right-and-select-scratch)))
-          (gb/register-global-key (kbd "s-2") #'(lambda () (interactive) (split-window-below-and-select-scratch)))
-          (gb/register-global-key (kbd "s-0") #'(lambda () (interactive) (delete-window)))
+          (gb/register-global-key (kbd "s-3") #'split-window-right-and-select-scratch)
+          (gb/register-global-key (kbd "s-2") #'split-window-below-and-select-scratch)
+          (gb/register-global-key (kbd "s-0") #'delete-window)
           (gb/register-global-key (kbd "s-k") #'gb/kill-a-buffer-and-delete-window)
 
           (gb/register-global-key (kbd "C-s-o") #'(lambda () (interactive) (gb/exwm-insert-string-anywhere "ö")))
@@ -15921,7 +15921,8 @@
     (when (eq gb/use-frame-completion 'mini-frame)
       (use-package mini-frame
         :load-path "~/repo/emacs/emacs-mini-frame"
-        :custom ((mini-frame-create-lazy t "create the frame when: t = first usage, nil = entering the mini-frame mode")) ;; non  lazy fails with exwm!
+        :custom ((mini-frame-create-lazy t "create the frame when: t = first usage, nil = entering the mini-frame mode (non lazy fails with exwm!)") 
+                 (mini-frame-color-shift-step 50)) ;; (setq mini-frame-color-shift-step 50)
         :config
         (custom-set-variables
          '(mini-frame-internal-border-color "#654865")
@@ -17891,7 +17892,6 @@
 * sticky-shell (shell header)
   #+begin_src emacs-lisp
     (use-package sticky-shell
-      :load-path "~/repo/emacs/sticky-shell"
       :hook (shell-mode . sticky-shell-mode)
       :custom (sticky-shell-get-prompt #'sticky-shell-prompt-above-cursor)
       :config
@@ -18811,6 +18811,70 @@
      (use-package eldoc-overlay
        :ensure t
        :config (eldoc-overlay-mode 1))
+   #+end_src
+** ibrowse - interact with browser (only with chrome)
+   #+begin_src emacs-lisp :tangle no
+     (use-package ibrowse)
+   #+end_src
+** DISABLED hydra-posframe
+   - display hydras in a posframe popup
+   - posframe has the problem of being displayed under exwm-x-windows
+   - mini-frame does not have this problem, but it cannot be used as a posframe replacement right away
+   #+begin_src emacs-lisp :tangle no
+     (use-package hydra-posframe
+       :load-path "~/repo/emacs/hydra-posframe"
+                                             ; :after (hydra posframe)
+       :bind (
+              ( "<f1>" . gb/delegate-hydra-allhydras/body) ;; globally defined, can be locally redefined
+              ( "<M-f1>" . gb/delegate-hydra-allhydras/body) ;; always jump to the global hydra
+              ;; make buffer specific f1 bindings
+              ;; :map org-agenda-mode-map
+              ;; ( "<f1>" . hydra-org-agenda-view/body )
+              )
+       :custom
+       (hydra-posframe-border-width 2)
+                                             ; (hydra-posframe-parameters switch-posframe-parameters)
+       (hydra-posframe-poshandler #'posframe-poshandler-frame-bottom-center)
+                                             ; hydra-posframe-font: font for posframe (default: nil)
+       :init 
+       (defun gb/hydra-posframe-show-window (orig &rest args)
+         (setq hydra-posframe-parameters
+               `((parent-frame) ;; . ,(window-frame)
+                 (display . ,(cdr (assoc 'display (frame-parameters (selected-frame))))) ;; (hopefully holds display of current monitor)
+                 (font . ,(cdr (assoc 'font (frame-parameters (selected-frame)))))
+                 (alpha 0.3 0.3)
+                 (z-group . above)
+                 ;; (left-fringe . 10)
+                 ;; (right-fringe . 10)
+                 ))
+         (apply orig args))
+
+       (defun gb/hydra-posframe-mode-off ()
+         (when (fboundp 'hydra-posframe-mode)
+           ;; (advice-remove 'hydra-posframe-show-window #'gb/hydra-posframe-show-window)
+           (hydra-posframe-mode 0)))
+
+       (defun gb/hydra-posframe-mode-on ()
+         (when (fboundp 'hydra-posframe-mode)
+           ;; (advice-add 'hydra-posframe-show-window :around #'gb/hydra-posframe-show-window)   
+           (hydra-posframe-mode 1)))
+
+       (defun gb/delegate-hydra-allhydras/body ()
+         (interactive)
+         (require 'hydra-posframe)
+         (when (and (fboundp 'hydra-posframe-mode)
+                  (not hydra-posframe-mode))
+           (gb/hydra-posframe-mode-on))
+         (hydra-allhydras/body))
+
+       :config
+       (hydra-posframe-mode 1)
+       (cond
+        ((eq gb/theme-mode 'light) nil) ;; TODO complete
+        (t (progn
+             (--each '((hydra-posframe-border-face ((t  (:background "#654865")))))
+               (progn (add-to-list 'gb/list-of-faces-to-set it)(custom-set-faces it))))))
+       (add-to-list 'gb/execute-on-soft-reset #'gb/hydra-posframe-mode-off))
    #+end_src
 * useful but discarded because of drawback that might be fixed
 ** magit-delta (disabled - speed degradation on large change sets)
