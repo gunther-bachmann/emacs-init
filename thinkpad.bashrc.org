@@ -33,8 +33,8 @@
     # don't save duplicate lines
     export HISTCONTROL=ignoreboth:erasedups
     export HISTIGNORE='( *)'
-    export HISTSIZE=10000000    
-    export HISTFILESIZE=10000000
+    export HISTSIZE=
+    export HISTFILESIZE=
     # append and reload the history after each command
     PROMPT_COMMAND="history -a; history -n"
   #+end_src
