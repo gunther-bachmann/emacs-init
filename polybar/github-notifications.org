@@ -4,21 +4,27 @@
     #------------------------------------------------------------------
     # THIS FILE IS GENERATED (To edit please open file from link above)
     #------------------------------------------------------------------
+    # set -euo pipefail    
     RUNNING_EMACS=$(pgrep -a "emacs$" 2>/dev/null)
     if [ "$RUNNING_EMACS" == "" ]; then
       exit 1
     fi
     [ -f ~/.github-token.polybar.read.txt.gpg ] || { exit 1; }
-    POLLING_ACTIVE=$(emacsclient -e 'gb/github-polling-active')
+    POLLING_ACTIVE=$(emacsclient -e 'gb/github-polling-active' 2>/dev/null)
     # echo $POLLING_ACTIVE
-    if [ $POLLING_ACTIVE == "t" ]; then
-      NOTIFICATION_NUM=$(emacsclient -e '(gb/github-polling-execute)' | bc)
-      if [[ $NOTIFICATION_NUM -lt "1" ]]; then
-        echo "%{F#558d48}γ ${NOTIFICATION_NUM}"
-      elif [[ $NOTIFICATION_NUM -lt "4" ]]; then
-        echo "%{F#FF0}γ ${NOTIFICATION_NUM}"
+    if [ "$POLLING_ACTIVE" == "t" ]; then
+      RESULT=$(emacsclient -e '(gb/github-polling-execute)' 2>/dev/null)
+      if [[ ${#RESULT} -gt 3 ]]; then
+        echo "%{F#444}γ ?"
       else
-        echo "%{F#F00}γ ${NOTIFICATION_NUM}"
+        NOTIFICATION_NUM=$(echo "${RESULT}" | bc)
+        if [[ $NOTIFICATION_NUM -lt "1" ]]; then
+          echo "%{F#558d48}γ ${NOTIFICATION_NUM}"
+        elif [[ $NOTIFICATION_NUM -lt "4" ]]; then
+          echo "%{F#FF0}γ ${NOTIFICATION_NUM}"
+        else
+          echo "%{F#F00}γ ${NOTIFICATION_NUM}"
+        fi
       fi
     else
       echo "%{F#444}γ -"

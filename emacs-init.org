@@ -17346,6 +17346,7 @@
   #+begin_src emacs-lisp
     (defvar gb/github-polling-active nil "poll github notifications")
     (defvar gb/github-polling-token nil "token to be used for notification retrieval")
+    (defvar gb/github-polling-timer nil "timer running")
 
     (defun gb/github-polling-on ()
       "allow github polling"
@@ -17353,17 +17354,28 @@
       (when (boundp 'gb/main-key)
         (gb/gpg-key-query-if-locked gb/main-key))
       (setq gb/github-polling-token (string-trim (shell-command-to-string "gpg --batch -d ~/.github-token.polybar.read.txt.gpg 2>/dev/null")))
-      (setq gb/github-polling-active t))
+      (setq gb/github-polling-active t)
+      (setq gb/github-polling-timer (run-at-time nil 60 #'gb/refresh-polybar-github)))
+
+    (defun gb/refresh-polybar-github ()
+      (shell-command-to-string "polybar-msg action github hook 0"))
 
     (defun gb/github-polling-execute ()
       "execute actual polling"
-      (string-trim (shell-command-to-string (format "curl --silent -q -X GET -u %s:x-oauth-basic 'https://api.github.com/notifications?unread=1' | jq length" gb/github-polling-token))))
+      (if gb/github-polling-active
+          (string-trim (shell-command-to-string (format "curl --silent -q -X GET -u %s:x-oauth-basic 'https://api.github.com/notifications?unread=1' | jq length" gb/github-polling-token)))
+        ""))
 
     (defun gb/github-polling-off ()
       "disable github polling"
       (interactive)
       (setq gb/github-polling-active nil)
-      (setq gb/github-polling-token nil))
+      (setq gb/github-polling-token nil)
+      (cancel-timer gb/github-polling-timer)
+      (setq gb/github-polling-timer nil)
+      (gb/refresh-polybar-github))
+
+    (gb/refresh-polybar-github)
   #+end_src
 * EVAL lf - language features (elisp additions through macros)
   #+begin_src emacs-lisp

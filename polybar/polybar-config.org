@@ -1,4 +1,5 @@
 #+title: polybar config
+- for ipc configuration see https://github.com/polybar/polybar/wiki/Module:-ipc
 * header
   #+begin_src conf :comments link :eval no :tangle ~/.config/polybar/config
     ;------------------------------------------------------------------
@@ -24,6 +25,8 @@
 * default bar
   #+begin_src conf :eval no :tangle ~/.config/polybar/config
     [bar/default]
+    enable-ipc = true
+    
     monitor = ${env:MONITOR:}
     width = 100%
     height = 20
@@ -572,9 +575,10 @@
 * github notification
   #+begin_src conf :eval no :tangle ~/.config/polybar/config
     [module/github]
-    type = custom/script
-    exec = ~/.config/polybar/github-notifications.sh
-    interval = 60
+    type = custom/ipc
+    hook-0 = ~/.config/polybar/github-notifications.sh
+    initial = 0
+    # interval = 60
   #+end_src
 
 # Local Variables:
