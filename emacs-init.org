@@ -11474,219 +11474,6 @@
    :bind (("C-u s-f" . crux-recentf-ido-find-file)) ;; recent file selection with ido
 )
 #+END_SRC
-* DISABLED flycheck-tip
-#+BEGIN_SRC emacs-lisp :tangle no
-  (use-package flycheck-tip
-    :disabled t)
-#+END_SRC
- * hydra
-#+BEGIN_SRC emacs-lisp
-  (use-package hydra
-    :ensure t
-    :bind (
-           ( "<f1>" . hydra-allhydras/body) ;; globally defined, can be locally redefined
-           ( "<M-f1>" . hydra-allhydras/body) ;; always jump to the global hydra
-           ;; make buffer specific f1 bindings
-           ;; :map org-agenda-mode-map
-           ;; ( "<f1>" . hydra-org-agenda-view/body )
-           )
-    :config
-
-
-
-    ;;--------------------------------------------------------------------------------
-    ;; (when (package-installed-p 'org)
-    ;;   (defun org-agenda-cts ()
-    ;;     (ignore-errors
-    ;;       (let* ((args (get-text-property
-    ;;                     (min (1- (point-max)) (point))
-    ;;                     'org-last-args)))
-
-    ;;         (nth 2 args))))
-
-    ;;   ;; currently not functional (probably because of hydra update)
-    ;;   (defhydra hydra-org-agenda-view ()
-    ;;     "
-    ;;         org agenda view
-    ;;         ------------------------------------------------------
-    ;;         _d_: ?d? day        _g_: time grid=?g? _a_: arch-trees
-    ;;         _w_: ?w? week       _[_: inactive      _A_: arch-files
-    ;;         _t_: ?t? fortnight  _f_: follow=?f?    _r_: report=?r?
-    ;;         _m_: ?m? month      _e_: entry =?e?    _D_: diary=?D?
-    ;;         _y_: ?y? year       _q_: quit          _L__l__c_: ?l?
-
-    ;;       %s(hydra-combine-functions-w-key-bindings
-    ;;         '((\"  [d]   day      \" . org-agenda-day-view)
-    ;;           (\"  [w]   week     \" . org-agenda-week-view)
-    ;;           (\"  [t]   fortnight\" . org-agenda-fortnight-view)
-    ;;           (\"  [m]   month    \" . org-agenda-month-view)
-    ;;           (\"  [y]   year     \" . org-agenda-year-view)
-    ;;           (\"  [lLc] log mode \" . org-agenda-log-mode)
-    ;;           (\"  [f]   follow   \" . org-agenda-follow-mode)
-    ;;           (\"  [aA]  archive  \" . org-agenda-archives-mode)
-    ;;           (\"  [r]   report   \" . org-agenda-clockreport-mode)
-    ;;           (\"  [e]   entry    \" . org-agenda-entry-text-mode)
-    ;;           (\"  [g]   grid     \" . org-agenda-toggle-time-grid)
-    ;;           (\"  [D]   diary    \" . org-agenda-toggle-diary)
-    ;;           ))
-    ;;       "
-    ;;     ("SPC" org-agenda-reset-view)
-    ;;     ("d" org-agenda-day-view
-    ;;      (if (eq 'day (org-agenda-cts))
-    ;;          "[x]" "[ ]"))
-    ;;     ("w" org-agenda-week-view
-    ;;      (if (eq 'week (org-agenda-cts))
-    ;;          "[x]" "[ ]"))
-    ;;     ("t" org-agenda-fortnight-view
-    ;;      (if (eq 'fortnight (org-agenda-cts))
-    ;;          "[x]" "[ ]"))
-    ;;     ("m" org-agenda-month-view
-    ;;      (if (eq 'month (org-agenda-cts)) "[x]" "[ ]"))
-    ;;     ("y" org-agenda-year-view
-    ;;      (if (eq 'year (org-agenda-cts)) "[x]" "[ ]"))
-    ;;     ("l" org-agenda-log-mode
-    ;;      (format "% -3S" org-agenda-show-log))
-    ;;     ("L" (org-agenda-log-mode '(4)))
-    ;;     ("c" (org-agenda-log-mode 'clockcheck))
-    ;;     ("f" org-agenda-follow-mode
-    ;;      (format "% -3S" org-agenda-follow-mode))
-    ;;     ("a" org-agenda-archives-mode)
-    ;;     ("A" (org-agenda-archives-mode 'files))
-    ;;     ("r" org-agenda-clockreport-mode
-    ;;      (format "% -3S" org-agenda-clockreport-mode))
-    ;;     ("e" org-agenda-entry-text-mode
-    ;;      (format "% -3S" org-agenda-entry-text-mode))
-    ;;     ("g" org-agenda-toggle-time-grid
-    ;;      (format "% -3S" org-agenda-use-time-grid))
-    ;;     ("D" org-agenda-toggle-diary
-    ;;      (format "% -3S" org-agenda-include-diary))
-    ;;     ("!" org-agenda-toggle-deadlines)
-    ;;     ("["
-    ;;      (let ((org-agenda-include-inactive-timestamps t))
-    ;;        (org-agenda-check-type t 'timeline 'agenda)
-    ;;        (org-agenda-redo)))
-    ;;     ("q" (message "Abort") :exit t)))
-
-    ;;--------------------------------------------------------------------------------
-    (defhydra hydra-profiler ()
-      "
-          profiler
-          ^-^-------------------^-^-----------------
-          _s_: start profiler   _r_: profiler report
-          _e_: end profiler
-        "
-      ("s" profiler-start :exit t)
-      ("e" profiler-stop :exit t)
-      ("r" profiler-report :exit t))
-
-    ;;--------------------------------------------------------------------------------
-    (when (eq gb/completion-framework 'helm)
-      (when (package-installed-p 'dash)
-        (defhydra hydra-dash ()
-          "
-           dash
-           ^-^---------------------^-^--------------------------
-           _h_ helm dash at point  _d_ dash at point
-           ^ ^                     _D_ dash at point with docset
-
-          %s(hydra-combine-functions-w-key-bindings
-            '((\"  [h] helm dash at point     \" . helm-dash-at-point)
-              (\"  [d] dash at point          \" . dash-at-point)
-              (\"  [D] dash at point w/ docset\" . dash-at-point-with-docset)))
-        "
-          ("h" helm-dash-at-point :exit t)
-          ("d" dash-at-point :exit t)
-          ("D" dash-at-point-with-docset :exit t)
-          )))
-
-    ;;--------------------------------------------------------------------------------
-    (when (package-installed-p 'avy-zap)
-      (defhydra hydra-avy ()
-        "
-          avy
-          ^-^-------------------^-^-----------------
-          _z_: zap up to char        _c_: jump to word
-          _Z_: zap to including char _l_: jump to line
-          ^ ^                        _i_: jump to char within line
-
-          %s(hydra-combine-functions-w-key-bindings
-            '((\"  [z] zap up to char       \" . avy-zap-up-to-char)
-              (\"  [Z] zap to including char\" . avy-zap-to-char-dwim)
-              (\"  [c] jump to word         \" . avy-goto-word-1)
-              (\"  [l] jump to line         \" . avy-goto-line)
-              (\"  [i] jump to char w/i line\" . avy-goto-char-in-line)))
-        "
-        ("c" avy-goto-word-1 :exit t)
-        ("z" avy-zap-to-char :exit t)
-        ("Z" avy-zap-to-char-dwim :exit t)
-        ("l" avy-goto-line :exit t)
-        ("i" avy-goto-char-in-line :exit t)))
-
-  (defhydra hydra-ui-info ()
-       "
-         ui-info
-         -----------------------------
-         _=_: what cursor position (C-u for font information)
-
-         %s(hydra-combine-functions-w-key-bindings
-            '((\" [=] what cursor position \" . what-cursor-position))))
-
-       "
-       ("=" what-cursor-position :exit t))
-
-    ;;--------------------------------------------------------------------------------
-    ;; TODO: install only those hydras that are actually defined
-    (defhydra hydra-allhydras ()
-      "
-          list of all hydras
-          ^--^------------------------^-^---------------
-          _cr_: clojure refactoring   _m_ : multi cursor
-          _n_ : navigate              _gm_: gnus mime
-          _oa_: org agenda view       _gs_: gnus summary
-          _om_: org mode              _gg_: gnus group
-          _pp_: emacs profiler        _a_ : avy
-          _i_ : ivy                   _d_ : dash
-          _u_ : ui info
-          ^ ^                         _q_ : quit
-        "
-      ("a" hydra-avy/body :exit t)
-      ("cr" hydra-all-clojure-refactorings/body :exit t)
-      ("m" hydra-multiple-cursors/body :exit t)
-      ("n"  hydra-navigate-history/body :exit t)
-      ("gs"  hydra-gnus-summary/body :exit t)
-      ("gm" hydra-gnus-article-mime-part/body :exit t)
-      ("gg" hydra-gnus-group/body :exit t)
-      ("oa" hydra-org-agenda-view/body :exit t)
-      ("om" hydra-org-mode/body :exit t)
-      ("pp" hydra-profiler/body :exit t)
-      ("i" hydra-ivy/body :exit t)
-      ("d" hydra-dash/body :exit t)
-      ("u" hydra-ui-info/body :exit t)
-      ("q" (message "Abort") :exit t))
-
-    )
-#+END_SRC
-** major mode hydra
-   - define pretty hydras for major modes pretty easy (see [[https://github.com/jerrypnz/major-mode-hydra.el][here]])
-   #+begin_src emacs-lisp
-   (use-package major-mode-hydra
-     :ensure t)
-   #+end_src
-* guide keys (disabled)
-** alternative to which-key
-*** can be tuned to react to certain prefixes only
-*** can be tuned to highlight displayed shortcuts based on regular expressions
-*** [[https://github.com/kai2nenobu/guide-key]]
-#+BEGIN_SRC emacs-lisp :tangle no
-(use-package guide-key
-  :disabled t
-  :init
-  (setq guide-key/guide-key-sequence '("C-c C-x"))
-  (guide-key-mode 1))
-(use-package guide-key-tip
-  :disabled t
-  :after ( guide-key))
-#+END_SRC
 * gnuplot
 ** major mode to edit .gp files and drive gnuplot directly from there
 #+BEGIN_SRC emacs-lisp
@@ -12242,26 +12029,10 @@
                    ("C-c a /" . #'dired-annotator-narrow-on-tag)
                    ("'" . #'dired-annotator-show-note)))
    #+end_src
-* stripe-buffer (disabled, doesn't play well with coterm)
-  add stripes to background of dired (or any other mode)
-  #+BEGIN_SRC emacs-lisp :tangle no
-    (when (locate-library "stripe-buffer")
-      (use-package stripe-buffer
-        :init (progn
-                ;; (add-hook 'dired-mode-hook 'turn-on-stripe-buffer-mode)
-                ;; (add-hook 'dired-mode-hook 'stripe-listify-buffer)
-                )
-        :config
-        (cond
-         ((eq gb/theme-mode 'light) nil) ;; TODO complete
-         (t (progn
-              (--each '((stripe-highlight ((t (:background "gray15")))))
-                (progn (add-to-list 'gb/list-of-faces-to-set it)(custom-set-faces it))))))))
-  #+END_SRC
-* figlet (text->ascii art)
+* figlet (text->ascii art) - not used
   - 'M-x figlet' to enter a text that is transformed into asci art
   - C-u will allow the selection of the font additionally
-  #+BEGIN_SRC emacs-lisp
+  #+BEGIN_SRC emacs-lisp :tangle no
   (use-package figlet
     :commands figlet)
   #+END_SRC
@@ -12339,13 +12110,13 @@
 #+BEGIN_SRC emacs-lisp
 (report-elapsed "check point currently evaluated")
 #+END_SRC
-** github reviews with emacs
-   #+begin_src emacs-lisp
+** github reviews with emacs (disabled)
+   #+begin_src emacs-lisp :tangle no
    (use-package greview
      :load-path "~/.emacs.d/additionals/greview"
      :commands (greview-start-review))
    #+end_src
-** switch buffer expose
+** buffer-expose - switch buffer expose
    #+begin_src emacs-lisp
      (when (file-exists-p "~/.emacs.d/additionals/buffer-expose/buffer-expose.el")
        (use-package buffer-expose
@@ -12353,7 +12124,7 @@
          :bind (( "s-e" . #'buffer-expose))
          :config (setq buffer-expose-show-current-buffer t)))
    #+end_src
-** switch buffers
+** nswbuff - switch buffers
    #+begin_src emacs-lisp
      (use-package nswbuff
        :commands (nswbuff-switch-to-next-buffer nswbuff-switch-to-previous-buffer)
@@ -12564,15 +12335,15 @@
      (use-package info-colors
        :init (add-hook 'Info-selection-hook 'info-colors-fontify-node)))
    #+END_SRC
-** flycheck gradle
-   #+BEGIN_SRC emacs-lisp
+** flycheck gradle - not used
+   #+BEGIN_SRC emacs-lisp :tangle no
      (use-package flycheck-gradle
        :ensure t
        :after ( flycheck)
        :config (flycheck-gradle-setup))
    #+END_SRC
-** cakecrumbs (show hierarchy in header for css and html)
-   #+BEGIN_SRC emacs-lisp
+** cakecrumbs (show hierarchy in header for css and html) - not used
+   #+BEGIN_SRC emacs-lisp :tangle no
      (use-package cakecrumbs
        :ensure t
        :commands (cakecrumbs-mode)
@@ -12740,10 +12511,10 @@
        (flycheck-inline-mode 1) ;; see readme
        )
    #+END_SRC
-** flymd
+** flymd - not used
    - opens firefox to display a live view of the markdown in the buffer.
      saving the buffer does automatically update the browser view of it!
-   #+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp :tangle no
      (if chromium-installed
          (use-package flymd
            :commands flymd-flyit
@@ -12858,8 +12629,8 @@
    (use-package language-detection
      :commands language-detection-buffer)
    #+END_SRC
-** butler (jenkins interface for emacs)
-   #+BEGIN_SRC emacs-lisp
+** butler (jenkins interface for emacs) - disabled
+   #+BEGIN_SRC emacs-lisp :tangle no
      (use-package butler
        :commands butler-status
        :config
@@ -12880,8 +12651,8 @@
          ;; machine SERVER-NAME login USERNAME password PASSWORD
          ))
    #+END_SRC
-** mode for unix tool pass
-   #+BEGIN_SRC emacs-lisp
+** mode for unix tool pass - disabled
+   #+BEGIN_SRC emacs-lisp :tangle no
    (use-package passmm
      :commands passmm-list-passwords)
    #+END_SRC
@@ -12959,7 +12730,7 @@
        :bind (("S-<backspace>" . smart-hungry-delete-backward-char)
    		      ("C-S-d" . smart-hungry-delete-forward-char)))
    #+END_SRC
-** org recent headings
+** org recent headings - disabled
    - keep a list of lru org headings to choose from
    #+BEGIN_SRC emacs-lisp :tangle no
      (use-package org-recent-headings
@@ -12971,15 +12742,15 @@
        (progn
          (org-recent-headings-mode)))
    #+END_SRC
-** org sticky headers
+** org sticky headers - disabled
    - keep last header of org in head line displayed if other wise scrolling out of view
    - problematic, sometimes org-sticky-header is empty
    #+BEGIN_SRC emacs-lisp :tangle no
    (use-package org-sticky-header
      :after ( org))
    #+END_SRC
-** lsp with source-graph language servers
-   #+BEGIN_SRC emacs-lisp
+** lsp with java source-graph language servers - disabled
+   #+BEGIN_SRC emacs-lisp :tangle no
    ;; (use-package lsp-go :after ( lsp-mode))
    ;; (use-package lsp-haskell :after ( lsp-mode))
    (use-package lsp-java
@@ -13082,52 +12853,32 @@
      (setq comint-input-ring-file-name "~/.comint_hist")
      (setq comint-input-ring-size 8192)
    #+end_src
-** ob-rust
+** ob-rust - not used
    #+BEGIN_SRC emacs-lisp :tangle no
    (use-package ob-rust
      :after( org))
    #+END_SRC
-** underline with char
+** underline with char - not used
    - call with prefix command let's you select with which char to underline
    - underlines previous line up to its end with '-'
-   #+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp :tangle no
      (use-package underline-with-char
        :commands underline-with-char)
    #+END_SRC
-** yarn mode
+** yarn mode - not used that much
    - open yarn lock files in a read only mode
-   #+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp :tangle no
    (use-package yarn-mode
      :ensure t
      :mode (("\\yarn.lock\\'" . yarn-mode)))
    #+END_SRC
-** all the icons dired
-   #+BEGIN_SRC emacs-lisp
+** all the icons dired - not used
+   #+BEGIN_SRC emacs-lisp :tangle no
      (use-package all-the-icons-dired
        :ensure t
        :after ( all-the-icons dired)
        :bind (:map dired-mode-map
                    ("C-x t t" . #'all-the-icons-dired-mode)))
-   #+END_SRC
-** all the icons gnus
-   - on hold, icons disturb custom ui settings of gnu
-   - [ ] test this package with gnus ui customizations off
-   #+BEGIN_SRC emacs-lisp :tangle no
-   (use-package all-the-icons-gnus
-     :after ( gnus all-the-icons dash)
-     :config (all-the-icons-gnus-setup))
-   #+END_SRC
-** docker compose mode
-   #+BEGIN_SRC emacs-lisp
-   (when (locate-library "docker-compose-mode")
-     (use-package docker-compose-mode))
-   #+END_SRC
-** comint (bifocal)
-   - will automatically split a comint buffer, if scrolling into the history (by bifocal-up, down, next, prev)
-     this will enable you to view current comint output (or just keep the input line) while looking at the history of the buffer
-   #+BEGIN_SRC emacs-lisp
-   (use-package bifocal
-     :commands bifocal-mode)
    #+END_SRC
 ** popwin (make windows like help, completion show in a popupwindow that can be closed via C-g
    #+BEGIN_SRC emacs-lisp
@@ -13136,20 +12887,6 @@
        :config
        (popwin-mode 1)
        (setq popwin:popup-window-height 30))
-   #+END_SRC
-** neotree (deactivated)
-   #+BEGIN_SRC emacs-lisp :tangle no
-     (use-package neotree
-       :config
-         (progn
-         (setq neo-theme (if (display-graphic-p) 'nerd 'arrow))
-         (setq neo-window-width 35)
-         (setq neo-banner-face '((t (:foreground "DarkGoldenrod3" :weight bold))))
-         (setq neo-dir-link-face '((t (:foreground "DarkOrange1"))))
-         (setq neo-expand-btn-face '((t (:foreground "DarkOrange1"))))
-         (setq neo-file-link-face '((t (:foreground "burlywood1"))))
-         (setq neo-smart-open t)
-         (setq projectile-switch-project-action 'neotree-projectile-action)))
    #+END_SRC
 * general (key binding)
   #+BEGIN_SRC emacs-lisp
@@ -13317,7 +13054,7 @@
              :map dired-mode-map
              ("C-c C-h" . gb/shell-pop-new)))
   #+end_src
-* restclient
+* restclient (currently disabled)
   - provide a mode that allows for rest calls and result presentation
     simply paste the following text into a buffer and activate restclient-mode
         :basicauth := (base64-encode-string "******:****")
@@ -15050,246 +14787,6 @@
       :config
       (setq org-noter-default-notes-file-names '("notes.org")))
   #+end_src
-* DISABLED treemacs (start with C-x t t)
-  - see [[https://github.com/Alexander-Miller/treemacs][here]]
-  #+begin_src emacs-lisp :tangle no
-    (use-package treemacs
-      :ensure t
-      :defer t
-      :init
-      (with-eval-after-load 'winum
-        (define-key winum-keymap (kbd "M-0") #'treemacs-select-window))
-      :config
-      (cond
-       ((eq gb/theme-mode 'light) nil) ;; TODO complete
-       (t (progn
-            (--each '( (treemacs-root-face ((t (:inherit font-lock-variable-name-face :weight bold :height 1.2)))))
-              (progn (add-to-list 'gb/list-of-faces-to-set it)(custom-set-faces it))))))
-      (defun gb/tremacs-themes-setup-tab-width (&rest _)
-        "Set `tab-width' to 1, so tab characters don't ruin formatting."
-        (setq tab-width 1))
-      (add-hook 'treemacs-mode-hook #'gb/tremacs-themes-setup-tab-width)
-      (let ((face-spec '(:inherit font-lock-doc-face :slant normal)))
-        (treemacs-create-theme "atom"
-          ;; :icon-directory (f-join treemacs-dir "icons/default")
-          :config
-          (progn
-            (treemacs-create-icon
-             :icon (format " %s\t" (all-the-icons-octicon "repo" :height 1.2 :v-adjust -0.1 :face face-spec))
-             :extensions (root))
-            (treemacs-create-icon
-             :icon (format "%s\t%s\t"
-                           (all-the-icons-octicon "chevron-down" :height 0.75 :v-adjust 0.1 :face face-spec)
-                           (all-the-icons-octicon "file-directory" :v-adjust 0 :face face-spec))
-             :extensions (dir-open))
-            (treemacs-create-icon
-             :icon (format "%s\t%s\t"
-                           (all-the-icons-octicon "chevron-right" :height 0.75 :v-adjust 0.1 :face face-spec)
-                           (all-the-icons-octicon "file-directory" :v-adjust 0 :face face-spec))
-             :extensions (dir-closed))
-            (treemacs-create-icon
-             :icon (format "%s\t%s\t"
-                           (all-the-icons-octicon "chevron-down" :height 0.75 :v-adjust 0.1 :face face-spec)
-                           (all-the-icons-octicon "package" :v-adjust 0 :height 0.9 :face face-spec)) :extensions (tag-open))
-            (treemacs-create-icon
-             :icon (format "%s\t%s\t"
-                           (all-the-icons-octicon "chevron-right" :height 0.75 :v-adjust 0.1 :face face-spec)
-                           (all-the-icons-octicon "package" :v-adjust 0 :height 0.9 :face face-spec))
-             :extensions (tag-closed))
-            (treemacs-create-icon
-             :icon (format "%s\t" (all-the-icons-octicon "tag" :height 0.9 :v-adjust 0 :face face-spec))
-             :extensions (tag-leaf))
-            (treemacs-create-icon
-             :icon (format "%s\t" (all-the-icons-octicon "flame" :v-adjust 0 :face face-spec))
-             :extensions (error))
-            (treemacs-create-icon
-             :icon (format "%s\t" (all-the-icons-octicon "stop" :v-adjust 0 :face face-spec))
-             :extensions (warning))
-            (treemacs-create-icon
-             :icon (format "%s\t" (all-the-icons-octicon "info" :height 0.75 :v-adjust 0.1 :face face-spec))
-             :extensions (info))
-            (treemacs-create-icon
-             :icon (format "  %s\t" (all-the-icons-octicon "file-media" :v-adjust 0 :face face-spec))
-             :extensions ("png" "jpg" "jpeg" "gif" "ico" "tif" "tiff" "svg" "bmp"
-                          "psd" "ai" "eps" "indd" "mov" "avi" "mp4" "webm" "mkv"
-                          "wav" "mp3" "ogg" "midi"))
-            (treemacs-create-icon
-             :icon (format "  %s\t" (all-the-icons-octicon "file-code" :height 1.1 :v-adjust 0 :face face-spec))
-             :extensions ("yml" "yaml" "sh" "zsh" "fish" "c" "h" "cpp" "cxx" "hpp"
-                          "tpp" "cc" "hh" "hs" "lhs" "cabal" "py" "pyc" "rs" "el"
-                          "elc" "clj" "cljs" "cljc" "ts" "tsx" "vue" "css" "html"
-                          "htm" "dart" "java" "kt" "scala" "sbt" "go" "js" "jsx"
-                          "hy" "json" "jl" "ex" "exs" "eex" "ml" "mli" "pp" "dockerfile"
-                          "vagrantfile" "j2" "jinja2" "tex" "racket" "rkt" "rktl" "rktd"
-                          "scrbl" "scribble" "plt" "makefile" "elm" "xml" "xsl" "rb"
-                          "scss" "lua" "lisp" "scm" "sql" "toml" "nim" "pl" "pm" "perl"
-                          "vimrc" "tridactylrc" "vimperatorrc" "ideavimrc" "vrapperrc"
-                          "cask" "r" "re" "rei" "bashrc" "zshrc" "inputrc" "editorconfig"
-                          "gitconfig" "csv" "cabal" "kt" "kts" "nim" "nims" "pm6" "sql"
-                          "styles" "lua" "adoc" "asciidoc" "pp" "j2" "jinja2" "dockerfile"
-                          "vagrantfile" "v" "vh" "sv"))
-            (treemacs-create-icon
-             :icon (format "  %s\t" (all-the-icons-octicon "book" :v-adjust 0 :face face-spec))
-             :extensions ("lrf" "lrx" "cbr" "cbz" "cb7" "cbt" "cba" "chm" "djvu"
-                          "doc" "docx" "pdb" "pdb" "fb2" "xeb" "ceb" "inf" "azw"
-                          "azw3" "kf8" "kfx" "lit" "prc" "mobi" "exe" "or" "html"
-                          "pkg" "opf" "txt" "pdb" "ps" "rtf" "pdg" "xml" "tr2"
-                          "tr3" "oxps" "xps"))
-            (treemacs-create-icon
-             :icon (format "  %s\t" (all-the-icons-octicon "file-text" :v-adjust 0 :face face-spec))
-             :extensions ("md" "markdown" "rst" "log" "org" "txt"
-                          "CONTRIBUTE" "LICENSE" "README" "CHANGELOG"))
-            (treemacs-create-icon
-             :icon (format "  %s\t" (all-the-icons-octicon "file-binary" :v-adjust 0 :face face-spec))
-             :extensions ("exe" "dll" "obj" "so" "o" "out"))
-            (treemacs-create-icon
-             :icon (format "  %s\t" (all-the-icons-octicon "file-pdf" :v-adjust 0 :face face-spec))
-             :extensions ("pdf"))
-            (treemacs-create-icon
-             :icon (format "  %s\t" (all-the-icons-octicon "file-zip" :v-adjust 0 :face face-spec))
-             :extensions ("zip" "7z" "tar" "gz" "rar" "tgz"))
-            (treemacs-create-icon
-             :icon (format "  %s\t" (all-the-icons-octicon "file-text" :v-adjust 0 :face face-spec))
-             :extensions (fallback))))
-
-        (defun gb/get-treemacs-extensions (ext)
-          "Expand the extension pattern EXT into a list of extensions.
-    This is used to generate extensions for `treemacs' from `all-the-icons-icon-alist'."
-          (let* ((e (s-replace-all
-                     '((".\\?" . "") ("\\?" . "") ("\\." . "")
-                       ("\\" . "") ("^" . "") ("$" . "")
-                       ("'" . "") ("*." . "") ("*" . ""))
-                     ext))
-                 (exts (list e)))
-            ;; Handle "[]"
-            (when-let* ((s (s-split "\\[\\|\\]" e))
-                        (f (car s))
-                        (m (cadr s))
-                        (l (caddr s))
-                        (mcs (delete "" (s-split "" m))))
-              (setq exts nil)
-              (dolist (c mcs)
-                (push (s-concat f c l) exts)))
-            ;; Handle '?
-            (dolist (ext exts)
-              (when (s-match "?" ext)
-                (when-let ((s (s-split "?" ext)))
-                  (setq exts nil)
-                  (push (s-join "" s) exts)
-                  (push (s-concat (if (> (length (car s)) 1)
-                                      (substring (car s) 0 -1))
-                                  (cadr s)) exts))))
-            exts))
-
-        (treemacs-create-theme "doom-colors"
-          :extends "atom"
-          :config
-          (progn
-            (treemacs-create-icon
-             :icon (format " %s\t" (all-the-icons-octicon "repo" :height 1.2 :v-adjust -0.1 :face 'font-lock-string-face))
-             :extensions (root))
-            (treemacs-create-icon
-             :icon (format "%s\t" (all-the-icons-octicon "flame" :v-adjust 0 :face 'all-the-icons-red))
-             :extensions (error))
-            (treemacs-create-icon
-             :icon (format "%s\t" (all-the-icons-octicon "stop" :v-adjust 0 :face 'all-the-icons-yellow))
-             :extensions (warning))
-            (treemacs-create-icon
-             :icon (format "%s\t" (all-the-icons-octicon "info" :height 0.75 :v-adjust 0.1 :face 'all-the-icons-green))
-             :extensions (info))
-            (treemacs-create-icon
-             :icon (format "  %s\t" (all-the-icons-alltheicon "git" :height 0.9 :face 'all-the-icons-red))
-             :extensions ("gitignore" "git" "gitconfig" "gitmodules"))
-
-            (dolist (item all-the-icons-icon-alist)
-              (let* ((extensions (gb/get-treemacs-extensions (car item)))
-                     (func (cadr item))
-                     (args (append (list (caddr item)) '(:v-adjust -0.05) '(:height 0.85) (cdddr item)))
-                     (icon (apply func args)))
-                (let* ((icon-pair (cons (format "  %s\t" icon) " "))
-                       (gui-icons (treemacs-theme->gui-icons treemacs--current-theme))
-                       (tui-icons (treemacs-theme->tui-icons treemacs--current-theme))
-                       (gui-icon  (car icon-pair))
-                       (tui-icon  (cdr icon-pair)))
-                  (--each extensions
-                    (ht-set! gui-icons it gui-icon)
-                    (ht-set! tui-icons it tui-icon))))))))
-      (progn
-        (setq treemacs-collapse-dirs                 (if (executable-find "python") 3 0)
-              treemacs-deferred-git-apply-delay      0.5
-              treemacs-display-in-side-window        t
-              treemacs-file-event-delay              5000
-              treemacs-file-follow-delay             0.2
-              treemacs-follow-after-init             t
-              treemacs-git-command-pipe              ""
-              treemacs-goto-tag-strategy             'refetch-index
-              treemacs-indentation                   2
-              treemacs-indentation-string            "\t"
-              treemacs-is-never-other-window         nil
-              treemacs-max-git-entries               5000
-              treemacs-no-png-images                 nil
-              treemacs-no-delete-other-windows       t
-              treemacs-project-follow-cleanup        nil
-              treemacs-persist-file                  (expand-file-name ".cache/treemacs-persist" user-emacs-directory)
-              treemacs-recenter-distance             0.1
-              treemacs-recenter-after-file-follow    nil
-              treemacs-recenter-after-tag-follow     nil
-              treemacs-recenter-after-project-jump   'always
-              treemacs-recenter-after-project-expand 'on-distance
-              treemacs-show-cursor                   nil
-              treemacs-show-hidden-files             nil
-              treemacs-silent-filewatch              nil
-              treemacs-silent-refresh                nil
-              treemacs-sorting                       'alphabetic-desc
-              treemacs-space-between-root-nodes      t
-              treemacs-tag-follow-cleanup            t
-              treemacs-tag-follow-delay              1.5
-              treemacs-width                         45)
-
-        ;; The default width and height of the icons is 22 pixels. If you are
-        ;; using a Hi-DPI display, uncomment this to double the icon size.
-        ;;(treemacs-resize-icons 44)
-
-        (treemacs-follow-mode t)
-        (treemacs-filewatch-mode t)
-        (treemacs-fringe-indicator-mode t)
-        (pcase (cons (not (null (executable-find "git")))
-                     (not (null (executable-find "python3"))))
-          (`(t . t)
-           (treemacs-git-mode 'deferred))
-          (`(t . _)
-           (treemacs-git-mode 'simple))))
-      (treemacs-load-theme "doom-colors") ;; "default" "atom"
-      :bind
-      (:map global-map
-            ("M-0"       . treemacs-select-window)
-            ("C-x t 1"   . treemacs-delete-other-windows)
-            ("C-x t t"   . treemacs)
-            ("C-x t B"   . treemacs-bookmark)
-            ("C-x t C-t" . treemacs-find-file)
-            ("C-x t M-t" . treemacs-find-tag)))
-
-    ;; (use-package treemacs-evil
-    ;;   :after treemacs evil
-    ;;   :ensure t)
-
-    (use-package treemacs-projectile
-      :after treemacs projectile
-      :ensure t)
-
-    ;; (use-package treemacs-icons-dired
-    ;;   :after treemacs dired
-    ;;   :ensure t
-    ;;   :config (treemacs-icons-dired-mode))
-
-    (use-package treemacs-magit
-      :after treemacs magit
-      :ensure t)
-
-    ;; (use-package lsp-treemacs
-    ;;   :after treemacs lsp-mode
-    ;;   :ensure t)
-  #+end_src
 * EVAL emacs surround (see [[https://github.com/ganmacs/emacs-surround][here]])
   #+begin_src emacs-lisp
   (when (file-exists-p "~/.emacs.d/additionals/emacs-surround/emacs-surround.el")
@@ -15306,15 +14803,6 @@
 #+BEGIN_SRC emacs-lisp
 (report-elapsed "check-point - browse kill ring")
 #+END_SRC
-* DISABLED pdf-view-restore 
-  - stores .pdf-view-restore in each folder where pdfs are opened!
-  #+begin_src emacs-lisp :tangle no
-  (use-package pdf-view-restore
-    :after pdf-tools
-    :ensure t
-    :init
-    (add-hook 'pdf-view-mode-hook 'pdf-view-restore-mode))
-  #+end_src
 * EVAL docker mode
   #+begin_src emacs-lisp
   (use-package dockerfile-mode
@@ -15341,6 +14829,199 @@
         (custom-set-variables '(tempbuf-minimum-timeout (* 60 60 4)))
         (add-hook 'after-change-major-mode-hook 'turn-on-tempbuf-mode)))
   #+end_src
+* hydra
+#+BEGIN_SRC emacs-lisp
+  (use-package hydra
+    :ensure t
+    :bind (
+           ( "<f1>" . hydra-allhydras/body) ;; globally defined, can be locally redefined
+           ( "<M-f1>" . hydra-allhydras/body) ;; always jump to the global hydra
+           ;; make buffer specific f1 bindings
+           ;; :map org-agenda-mode-map
+           ;; ( "<f1>" . hydra-org-agenda-view/body )
+           )
+    :config
+
+
+
+    ;;--------------------------------------------------------------------------------
+    ;; (when (package-installed-p 'org)
+    ;;   (defun org-agenda-cts ()
+    ;;     (ignore-errors
+    ;;       (let* ((args (get-text-property
+    ;;                     (min (1- (point-max)) (point))
+    ;;                     'org-last-args)))
+
+    ;;         (nth 2 args))))
+
+    ;;   ;; currently not functional (probably because of hydra update)
+    ;;   (defhydra hydra-org-agenda-view ()
+    ;;     "
+    ;;         org agenda view
+    ;;         ------------------------------------------------------
+    ;;         _d_: ?d? day        _g_: time grid=?g? _a_: arch-trees
+    ;;         _w_: ?w? week       _[_: inactive      _A_: arch-files
+    ;;         _t_: ?t? fortnight  _f_: follow=?f?    _r_: report=?r?
+    ;;         _m_: ?m? month      _e_: entry =?e?    _D_: diary=?D?
+    ;;         _y_: ?y? year       _q_: quit          _L__l__c_: ?l?
+
+    ;;       %s(hydra-combine-functions-w-key-bindings
+    ;;         '((\"  [d]   day      \" . org-agenda-day-view)
+    ;;           (\"  [w]   week     \" . org-agenda-week-view)
+    ;;           (\"  [t]   fortnight\" . org-agenda-fortnight-view)
+    ;;           (\"  [m]   month    \" . org-agenda-month-view)
+    ;;           (\"  [y]   year     \" . org-agenda-year-view)
+    ;;           (\"  [lLc] log mode \" . org-agenda-log-mode)
+    ;;           (\"  [f]   follow   \" . org-agenda-follow-mode)
+    ;;           (\"  [aA]  archive  \" . org-agenda-archives-mode)
+    ;;           (\"  [r]   report   \" . org-agenda-clockreport-mode)
+    ;;           (\"  [e]   entry    \" . org-agenda-entry-text-mode)
+    ;;           (\"  [g]   grid     \" . org-agenda-toggle-time-grid)
+    ;;           (\"  [D]   diary    \" . org-agenda-toggle-diary)
+    ;;           ))
+    ;;       "
+    ;;     ("SPC" org-agenda-reset-view)
+    ;;     ("d" org-agenda-day-view
+    ;;      (if (eq 'day (org-agenda-cts))
+    ;;          "[x]" "[ ]"))
+    ;;     ("w" org-agenda-week-view
+    ;;      (if (eq 'week (org-agenda-cts))
+    ;;          "[x]" "[ ]"))
+    ;;     ("t" org-agenda-fortnight-view
+    ;;      (if (eq 'fortnight (org-agenda-cts))
+    ;;          "[x]" "[ ]"))
+    ;;     ("m" org-agenda-month-view
+    ;;      (if (eq 'month (org-agenda-cts)) "[x]" "[ ]"))
+    ;;     ("y" org-agenda-year-view
+    ;;      (if (eq 'year (org-agenda-cts)) "[x]" "[ ]"))
+    ;;     ("l" org-agenda-log-mode
+    ;;      (format "% -3S" org-agenda-show-log))
+    ;;     ("L" (org-agenda-log-mode '(4)))
+    ;;     ("c" (org-agenda-log-mode 'clockcheck))
+    ;;     ("f" org-agenda-follow-mode
+    ;;      (format "% -3S" org-agenda-follow-mode))
+    ;;     ("a" org-agenda-archives-mode)
+    ;;     ("A" (org-agenda-archives-mode 'files))
+    ;;     ("r" org-agenda-clockreport-mode
+    ;;      (format "% -3S" org-agenda-clockreport-mode))
+    ;;     ("e" org-agenda-entry-text-mode
+    ;;      (format "% -3S" org-agenda-entry-text-mode))
+    ;;     ("g" org-agenda-toggle-time-grid
+    ;;      (format "% -3S" org-agenda-use-time-grid))
+    ;;     ("D" org-agenda-toggle-diary
+    ;;      (format "% -3S" org-agenda-include-diary))
+    ;;     ("!" org-agenda-toggle-deadlines)
+    ;;     ("["
+    ;;      (let ((org-agenda-include-inactive-timestamps t))
+    ;;        (org-agenda-check-type t 'timeline 'agenda)
+    ;;        (org-agenda-redo)))
+    ;;     ("q" (message "Abort") :exit t)))
+
+    ;;--------------------------------------------------------------------------------
+    (defhydra hydra-profiler ()
+      "
+          profiler
+          ^-^-------------------^-^-----------------
+          _s_: start profiler   _r_: profiler report
+          _e_: end profiler
+        "
+      ("s" profiler-start :exit t)
+      ("e" profiler-stop :exit t)
+      ("r" profiler-report :exit t))
+
+    ;;--------------------------------------------------------------------------------
+    (when (eq gb/completion-framework 'helm)
+      (when (package-installed-p 'dash)
+        (defhydra hydra-dash ()
+          "
+           dash
+           ^-^---------------------^-^--------------------------
+           _h_ helm dash at point  _d_ dash at point
+           ^ ^                     _D_ dash at point with docset
+
+          %s(hydra-combine-functions-w-key-bindings
+            '((\"  [h] helm dash at point     \" . helm-dash-at-point)
+              (\"  [d] dash at point          \" . dash-at-point)
+              (\"  [D] dash at point w/ docset\" . dash-at-point-with-docset)))
+        "
+          ("h" helm-dash-at-point :exit t)
+          ("d" dash-at-point :exit t)
+          ("D" dash-at-point-with-docset :exit t)
+          )))
+
+    ;;--------------------------------------------------------------------------------
+    (when (package-installed-p 'avy-zap)
+      (defhydra hydra-avy ()
+        "
+          avy
+          ^-^-------------------^-^-----------------
+          _z_: zap up to char        _c_: jump to word
+          _Z_: zap to including char _l_: jump to line
+          ^ ^                        _i_: jump to char within line
+
+          %s(hydra-combine-functions-w-key-bindings
+            '((\"  [z] zap up to char       \" . avy-zap-up-to-char)
+              (\"  [Z] zap to including char\" . avy-zap-to-char-dwim)
+              (\"  [c] jump to word         \" . avy-goto-word-1)
+              (\"  [l] jump to line         \" . avy-goto-line)
+              (\"  [i] jump to char w/i line\" . avy-goto-char-in-line)))
+        "
+        ("c" avy-goto-word-1 :exit t)
+        ("z" avy-zap-to-char :exit t)
+        ("Z" avy-zap-to-char-dwim :exit t)
+        ("l" avy-goto-line :exit t)
+        ("i" avy-goto-char-in-line :exit t)))
+
+  (defhydra hydra-ui-info ()
+       "
+         ui-info
+         -----------------------------
+         _=_: what cursor position (C-u for font information)
+
+         %s(hydra-combine-functions-w-key-bindings
+            '((\" [=] what cursor position \" . what-cursor-position))))
+
+       "
+       ("=" what-cursor-position :exit t))
+
+    ;;--------------------------------------------------------------------------------
+    ;; TODO: install only those hydras that are actually defined
+    (defhydra hydra-allhydras ()
+      "
+          list of all hydras
+          ^--^------------------------^-^---------------
+          _cr_: clojure refactoring   _m_ : multi cursor
+          _n_ : navigate              _gm_: gnus mime
+          _oa_: org agenda view       _gs_: gnus summary
+          _om_: org mode              _gg_: gnus group
+          _pp_: emacs profiler        _a_ : avy
+          _i_ : ivy                   _d_ : dash
+          _u_ : ui info
+          ^ ^                         _q_ : quit
+        "
+      ("a" hydra-avy/body :exit t)
+      ("cr" hydra-all-clojure-refactorings/body :exit t)
+      ("m" hydra-multiple-cursors/body :exit t)
+      ("n"  hydra-navigate-history/body :exit t)
+      ("gs"  hydra-gnus-summary/body :exit t)
+      ("gm" hydra-gnus-article-mime-part/body :exit t)
+      ("gg" hydra-gnus-group/body :exit t)
+      ("oa" hydra-org-agenda-view/body :exit t)
+      ("om" hydra-org-mode/body :exit t)
+      ("pp" hydra-profiler/body :exit t)
+      ("i" hydra-ivy/body :exit t)
+      ("d" hydra-dash/body :exit t)
+      ("u" hydra-ui-info/body :exit t)
+      ("q" (message "Abort") :exit t))
+
+    )
+#+END_SRC
+** major mode hydra
+   - define pretty hydras for major modes pretty easy (see [[https://github.com/jerrypnz/major-mode-hydra.el][here]])
+   #+begin_src emacs-lisp
+   (use-package major-mode-hydra
+     :ensure t)
+   #+end_src
 * EVAL hercules
   - see https://gitlab.com/jjzmajic/hercules.el
   - creates hydra like popups derived from which key information
@@ -15527,11 +15208,6 @@
       :commands (fzf fzf-git)
       :ensure-system-package fzf
       :ensure t)
-  #+end_src
-* DISABLED helm-fish-completion 
-  - interferes with programs started from the shell (mame looses keyboard control, dosbox too)
-  #+begin_src emacs-lisp
-    ;; (use-package helm-fish-completion)
   #+end_src
 * EVAL pomodoro
   #+begin_src emacs-lisp
@@ -16554,40 +16230,6 @@
                  (buffer-substring-no-properties (car bounds) (cdr bounds)))
               (error "No word at point."))))))
   #+end_src
-* DISABLED dir-treeview
-  - patched function ~dir-treeview-get-control~ to return dir-treeview-file-control in case of file node
-    #+begin_src emacs-lisp :tangle no
-      (defun dir-treeview-get-control (node)
-        "Return the control symbol for NODE.
-      If NODE represents a directory, `dir-treeview-folded-dir-control' or
-      `dir-treeview-expanded-dir-control' is returned depending on whether the
-      directory is folded or not.  Otherwise, nil (meaning: no control) is returned."
-        (if (dir-treeview-directory-p node)
-            (if (treeview-node-folded-p node) dir-treeview-folded-dir-control
-              dir-treeview-expanded-dir-control)
-          dir-treeview-file-control))
-    #+end_src
-  - open via ~dir-treeview~
-  #+begin_src emacs-lisp :tangle no
-    (use-package dir-treeview
-      :commands (dir-treeview)
-      :config
-      (load-theme 'dir-treeview-pleasant t)
-      (custom-set-variables
-       '(dir-treeview-control-margin-left "")
-       '(dir-treeview-control-margin-right "")
-       '(dir-treeview-dir-label-margin-left "")
-       '(dir-treeview-expanded-dir-control "- ")
-       '(dir-treeview-file-control "  ")
-       '(dir-treeview-file-icon "")
-       '(dir-treeview-file-label-margin-left "")
-       '(dir-treeview-folded-dir-control "+ ")
-       '(dir-treeview-icon-margin-left "")
-       '(dir-treeview-icon-margin-right " ")
-       '(dir-treeview-indent-last-unit "   ")
-       '(dir-treeview-indent-unit "|  "))
-      (setq dir-treeview-show-in-side-window t))
-  #+end_src
 * EVAL fill-page
   - activate via ~fill-page-mode~
   - automatically scroll so that no empty space is left at the bottom
@@ -16597,25 +16239,6 @@
       :ensure t
       :config (fill-page-mode 1))
   #+end_src
-* DISABLED greenbar-mode
-  - puts stripes on the comint output (shell output), making long lines a bit more tractable
-  #+begin_src emacs-lisp :tangle no
-    (use-package greenbar
-      :ensure t
-      :config
-      (add-hook 'comint-mode-hook #'greenbar-mode)
-      (add-to-list 'greenbar-color-themes
-                   (cons 'dark-gray-bar
-                         (list
-                          (if (eq (frame-parameter nil 'background-mode) 'dark)
-                              "gray10" "gray70")
-                          (face-background 'default))))
-      (setq greenbar-background-colors 'dark-gray-bar)
-      (setq greenbar-lines-per-bar 3))
-  #+end_src
-#+BEGIN_SRC emacs-lisp
-(report-elapsed "check-point - greenbar mode")
-#+END_SRC
 * eimp (internal)
   #+begin_src emacs-lisp
     (use-package eimp
@@ -17092,12 +16715,6 @@
 #+BEGIN_SRC emacs-lisp
 (report-elapsed "check-point - show-font-mode")
 #+END_SRC
-* good-scroll - (DISABLED) uses pixel scroll to provide more smooth scrolling behaviour (see https://github.com/io12/good-scroll.el)
-  - compared to sublimity scroll no real benefit
-  #+begin_src emacs-lisp :tangle no
-    (use-package good-scroll
-      :ensure t)
-  #+end_src
 * transient-posframe -  posframe to show transient (e.g. magit transient menus)
   #+begin_src emacs-lisp
     (use-package transient-posframe
@@ -17227,7 +16844,7 @@
       :ensure t
       :commands (symbolist-regexp symbolist-prefix))
   #+end_src
-* EVAL mlscrollbar
+* mlscrollbar
   - does not compose with doom bar if right aligned
   - wastes lots of space in minibuffer
   - to get an idea where you are, you have to move eyes away from content
@@ -17333,19 +16950,6 @@
     (use-package shellcop
       :ensure t
       :hook (shell-mode-hook . shellcop-start))
-  #+end_src
-* highlight tail (disabled, too much noise)
-  #+begin_src emacs-lisp :tangle no
-    (when (file-exists-p "~/.emacs.d/additionals/highlight-tail.el")
-      (use-package highlight-tail
-        :load-path "~/.emacs.d/additionals/"
-        :custom
-        (highlight-tail-steps 40)
-        (highlight-tail-timer 0.02)
-        (highlight-tail-colors '(("#505050" . 0)
-                                 ("#202020" . 100)))
-        :config
-        (highlight-tail-mode 1)))
   #+end_src
 * cursor-chg - change color of cursor
   #+begin_src emacs-lisp
@@ -17566,7 +17170,8 @@
 * coterm - support for tui apps in shell (disabled)
   - start with coterm-mode, then M-x into a shell
   - currently poses a problem in combination with emacs 28 native compilation and mini-frame
-  #+begin_src emacs-lisp :tangle no
+  - retrying it
+  #+begin_src emacs-lisp
     (use-package coterm
       :after (native-complete)
       :load-path "~/repo/emacs/emacs-coterm"
@@ -17617,20 +17222,6 @@
 * EVAL color-theme-buffer-local (disabled)
   #+begin_src emacs-lisp :tangle no
     (use-package color-theme-buffer-local
-      :ensure t)
-  #+end_src
-* EVAL wallpaper
-  #+begin_src emacs-lisp
-    (use-package wallpaper
-      :ensure t
-      :hook ((exwm-randr-screen-change . gb/wallpaper-set-wallpaper-wrapped))
-      :custom (wallpaper-directory "~/media")
-      (single-wallpaper t)
-      (wallpaper-static-wallpaper-list (list (format "/home/%s/media/nix-wallpaper-simple-vdark-gray_bottom.png" (user-login-name))))
-      :init
-      (defun gb/wallpaper-set-wallpaper-wrapped ()
-        (ignore-errors (wallpaper-set-wallpaper))))
-    (use-package wallpreview
       :ensure t)
   #+end_src
 * pulsar
@@ -17712,9 +17303,9 @@
   #+end_src
 * EVAL undo-hl
   #+begin_src emacs-lisp
-    (when (file-exists-p "~/.emacs.d/additionals/undo-hl.el")
+    (when (file-exists-p "~/.emacs.d/additionals/undo-hl/undo-hl.el")
       (use-package undo-hl
-        :load-path "~/.emacs.d/additionals"
+        :load-path "~/.emacs.d/additionals/undo-hl"
         :hook (prog-mode . undo-hl-mode)
         (text-mode . undo-hl-mode)
         :diminish
@@ -17748,10 +17339,6 @@
                   ("M-g M-d" . dogears-list)
                   ("M-g M-r" . dogears-remember)
                   ("M-g M-D" . dogears-sidebar)))
-  #+end_src
-* EVAL jit lock status in modeline
-  #+begin_src emacs-lisp :tangle no
-    (use-package jit-lock-stealth-progress)
   #+end_src
 * EVAL vale - spell checker for org mode
   - works in org mode!
@@ -18806,7 +18393,7 @@
     tar --exclude='.DS_Store' -cvzf <docset name>.tgz <docset name>.docset
 
     as explained here.
-** dash at point - dash is used differntly
+** dash at point - dash is used differently
    #+BEGIN_SRC emacs-lisp :tangle no
    (use-package dash-at-point
      :bind (("C-z SPC h d" . dash-at-point-with-docset)
@@ -18822,7 +18409,7 @@
    #+begin_src emacs-lisp :tangle no
      (use-package ibrowse)
    #+end_src
-** DISABLED hydra-posframe
+** hydra-posframe
    - display hydras in a posframe popup
    - posframe has the problem of being displayed under exwm-x-windows
    - mini-frame does not have this problem, but it cannot be used as a posframe replacement right away
@@ -18881,6 +18468,418 @@
              (--each '((hydra-posframe-border-face ((t  (:background "#654865")))))
                (progn (add-to-list 'gb/list-of-faces-to-set it)(custom-set-faces it))))))
        (add-to-list 'gb/execute-on-soft-reset #'gb/hydra-posframe-mode-off))
+   #+end_src
+** jit lock status in modeline (no benefit seen)
+   #+begin_src emacs-lisp :tangle no
+     (use-package jit-lock-stealth-progress)
+   #+end_src
+** wallpaper (disabled)
+   - no immediate use case
+   #+begin_src emacs-lisp :tangle no
+     (use-package wallpaper
+       :ensure t
+       :hook ((exwm-randr-screen-change . gb/wallpaper-set-wallpaper-wrapped))
+       :custom (wallpaper-directory "~/media")
+       (single-wallpaper t)
+       (wallpaper-static-wallpaper-list (list (format "/home/%s/media/nix-wallpaper-simple-vdark-gray_bottom.png" (user-login-name))))
+       :init
+       (defun gb/wallpaper-set-wallpaper-wrapped ()
+         (ignore-errors (wallpaper-set-wallpaper))))
+     (use-package wallpreview
+       :ensure t)
+   #+end_src
+** highlight tail (disabled, too much noise)
+   #+begin_src emacs-lisp :tangle no
+     (when (file-exists-p "~/.emacs.d/additionals/highlight-tail.el")
+       (use-package highlight-tail
+         :load-path "~/.emacs.d/additionals/"
+         :custom
+         (highlight-tail-steps 40)
+         (highlight-tail-timer 0.02)
+         (highlight-tail-colors '(("#505050" . 0)
+                                  ("#202020" . 100)))
+         :config
+         (highlight-tail-mode 1)))
+   #+end_src
+** good-scroll - (DISABLED) uses pixel scroll to provide more smooth scrolling behaviour (see https://github.com/io12/good-scroll.el)
+   - compared to sublimity scroll no real benefit
+   #+begin_src emacs-lisp :tangle no
+     (use-package good-scroll
+       :ensure t)
+   #+end_src
+** dir-treeview - (DISABLED) using dired-sidebar instead
+   - patched function ~dir-treeview-get-control~ to return dir-treeview-file-control in case of file node
+     #+begin_src emacs-lisp :tangle no
+       (defun dir-treeview-get-control (node)
+         "Return the control symbol for NODE.
+       If NODE represents a directory, `dir-treeview-folded-dir-control' or
+       `dir-treeview-expanded-dir-control' is returned depending on whether the
+       directory is folded or not.  Otherwise, nil (meaning: no control) is returned."
+         (if (dir-treeview-directory-p node)
+             (if (treeview-node-folded-p node) dir-treeview-folded-dir-control
+               dir-treeview-expanded-dir-control)
+           dir-treeview-file-control))
+     #+end_src
+   - open via ~dir-treeview~
+   #+begin_src emacs-lisp :tangle no
+     (use-package dir-treeview
+       :commands (dir-treeview)
+       :config
+       (load-theme 'dir-treeview-pleasant t)
+       (custom-set-variables
+        '(dir-treeview-control-margin-left "")
+        '(dir-treeview-control-margin-right "")
+        '(dir-treeview-dir-label-margin-left "")
+        '(dir-treeview-expanded-dir-control "- ")
+        '(dir-treeview-file-control "  ")
+        '(dir-treeview-file-icon "")
+        '(dir-treeview-file-label-margin-left "")
+        '(dir-treeview-folded-dir-control "+ ")
+        '(dir-treeview-icon-margin-left "")
+        '(dir-treeview-icon-margin-right " ")
+        '(dir-treeview-indent-last-unit "   ")
+        '(dir-treeview-indent-unit "|  "))
+       (setq dir-treeview-show-in-side-window t))
+   #+end_src
+** greenbar-mode - benefit too small, doesn't compose with extensions
+   - puts stripes on the comint output (shell output), making long lines a bit more tractable
+   #+begin_src emacs-lisp :tangle no
+     (use-package greenbar
+       :ensure t
+       :config
+       (add-hook 'comint-mode-hook #'greenbar-mode)
+       (add-to-list 'greenbar-color-themes
+                    (cons 'dark-gray-bar
+                          (list
+                           (if (eq (frame-parameter nil 'background-mode) 'dark)
+                               "gray10" "gray70")
+                           (face-background 'default))))
+       (setq greenbar-background-colors 'dark-gray-bar)
+       (setq greenbar-lines-per-bar 3))
+   #+end_src
+** helm-fish-completion  - no fish, no helm anymore
+   - interferes with programs started from the shell (mame looses keyboard control, dosbox too)
+   #+begin_src emacs-lisp :tangle no
+     ;; (use-package helm-fish-completion)
+   #+end_src
+** neotree (deactivated)
+   #+BEGIN_SRC emacs-lisp :tangle no
+     (use-package neotree
+       :config
+         (progn
+         (setq neo-theme (if (display-graphic-p) 'nerd 'arrow))
+         (setq neo-window-width 35)
+         (setq neo-banner-face '((t (:foreground "DarkGoldenrod3" :weight bold))))
+         (setq neo-dir-link-face '((t (:foreground "DarkOrange1"))))
+         (setq neo-expand-btn-face '((t (:foreground "DarkOrange1"))))
+         (setq neo-file-link-face '((t (:foreground "burlywood1"))))
+         (setq neo-smart-open t)
+         (setq projectile-switch-project-action 'neotree-projectile-action)))
+   #+END_SRC
+** comint (bifocal) - not used
+   - will automatically split a comint buffer, if scrolling into the history (by bifocal-up, down, next, prev)
+     this will enable you to view current comint output (or just keep the input line) while looking at the history of the buffer
+   #+BEGIN_SRC emacs-lisp :tangle no
+   (use-package bifocal
+     :commands bifocal-mode)
+   #+END_SRC
+** docker compose mode
+   #+BEGIN_SRC emacs-lisp
+   (when (locate-library "docker-compose-mode")
+     (use-package docker-compose-mode))
+   #+END_SRC
+** all the icons gnus - not much of a benefit
+   - on hold, icons disturb custom ui settings of gnu
+   - [ ] test this package with gnus ui customizations off
+   #+BEGIN_SRC emacs-lisp :tangle no
+   (use-package all-the-icons-gnus
+     :after ( gnus all-the-icons dash)
+     :config (all-the-icons-gnus-setup))
+   #+END_SRC
+** stripe-buffer (disabled, doesn't play well with coterm)
+   add stripes to background of dired (or any other mode)
+   #+BEGIN_SRC emacs-lisp :tangle no
+     (when (locate-library "stripe-buffer")
+       (use-package stripe-buffer
+         :init (progn
+                 ;; (add-hook 'dired-mode-hook 'turn-on-stripe-buffer-mode)
+                 ;; (add-hook 'dired-mode-hook 'stripe-listify-buffer)
+                 )
+         :config
+         (cond
+          ((eq gb/theme-mode 'light) nil) ;; TODO complete
+          (t (progn
+               (--each '((stripe-highlight ((t (:background "gray15")))))
+                 (progn (add-to-list 'gb/list-of-faces-to-set it)(custom-set-faces it))))))))
+   #+END_SRC
+** flycheck-tip
+ #+BEGIN_SRC emacs-lisp :tangle no
+   (use-package flycheck-tip
+     :disabled t)
+ #+END_SRC
+** guide keys (disabled)
+*** alternative to which-key
+**** can be tuned to react to certain prefixes only
+**** can be tuned to highlight displayed shortcuts based on regular expressions
+**** [[https://github.com/kai2nenobu/guide-key]]
+ #+BEGIN_SRC emacs-lisp :tangle no
+ (use-package guide-key
+   :disabled t
+   :init
+   (setq guide-key/guide-key-sequence '("C-c C-x"))
+   (guide-key-mode 1))
+ (use-package guide-key-tip
+   :disabled t
+   :after ( guide-key))
+ #+END_SRC
+** DISABLED treemacs (start with C-x t t)
+   - see [[https://github.com/Alexander-Miller/treemacs][here]]
+   #+begin_src emacs-lisp :tangle no
+     (use-package treemacs
+       :ensure t
+       :defer t
+       :init
+       (with-eval-after-load 'winum
+         (define-key winum-keymap (kbd "M-0") #'treemacs-select-window))
+       :config
+       (cond
+        ((eq gb/theme-mode 'light) nil) ;; TODO complete
+        (t (progn
+             (--each '( (treemacs-root-face ((t (:inherit font-lock-variable-name-face :weight bold :height 1.2)))))
+               (progn (add-to-list 'gb/list-of-faces-to-set it)(custom-set-faces it))))))
+       (defun gb/tremacs-themes-setup-tab-width (&rest _)
+         "Set `tab-width' to 1, so tab characters don't ruin formatting."
+         (setq tab-width 1))
+       (add-hook 'treemacs-mode-hook #'gb/tremacs-themes-setup-tab-width)
+       (let ((face-spec '(:inherit font-lock-doc-face :slant normal)))
+         (treemacs-create-theme "atom"
+           ;; :icon-directory (f-join treemacs-dir "icons/default")
+           :config
+           (progn
+             (treemacs-create-icon
+              :icon (format " %s\t" (all-the-icons-octicon "repo" :height 1.2 :v-adjust -0.1 :face face-spec))
+              :extensions (root))
+             (treemacs-create-icon
+              :icon (format "%s\t%s\t"
+                            (all-the-icons-octicon "chevron-down" :height 0.75 :v-adjust 0.1 :face face-spec)
+                            (all-the-icons-octicon "file-directory" :v-adjust 0 :face face-spec))
+              :extensions (dir-open))
+             (treemacs-create-icon
+              :icon (format "%s\t%s\t"
+                            (all-the-icons-octicon "chevron-right" :height 0.75 :v-adjust 0.1 :face face-spec)
+                            (all-the-icons-octicon "file-directory" :v-adjust 0 :face face-spec))
+              :extensions (dir-closed))
+             (treemacs-create-icon
+              :icon (format "%s\t%s\t"
+                            (all-the-icons-octicon "chevron-down" :height 0.75 :v-adjust 0.1 :face face-spec)
+                            (all-the-icons-octicon "package" :v-adjust 0 :height 0.9 :face face-spec)) :extensions (tag-open))
+             (treemacs-create-icon
+              :icon (format "%s\t%s\t"
+                            (all-the-icons-octicon "chevron-right" :height 0.75 :v-adjust 0.1 :face face-spec)
+                            (all-the-icons-octicon "package" :v-adjust 0 :height 0.9 :face face-spec))
+              :extensions (tag-closed))
+             (treemacs-create-icon
+              :icon (format "%s\t" (all-the-icons-octicon "tag" :height 0.9 :v-adjust 0 :face face-spec))
+              :extensions (tag-leaf))
+             (treemacs-create-icon
+              :icon (format "%s\t" (all-the-icons-octicon "flame" :v-adjust 0 :face face-spec))
+              :extensions (error))
+             (treemacs-create-icon
+              :icon (format "%s\t" (all-the-icons-octicon "stop" :v-adjust 0 :face face-spec))
+              :extensions (warning))
+             (treemacs-create-icon
+              :icon (format "%s\t" (all-the-icons-octicon "info" :height 0.75 :v-adjust 0.1 :face face-spec))
+              :extensions (info))
+             (treemacs-create-icon
+              :icon (format "  %s\t" (all-the-icons-octicon "file-media" :v-adjust 0 :face face-spec))
+              :extensions ("png" "jpg" "jpeg" "gif" "ico" "tif" "tiff" "svg" "bmp"
+                           "psd" "ai" "eps" "indd" "mov" "avi" "mp4" "webm" "mkv"
+                           "wav" "mp3" "ogg" "midi"))
+             (treemacs-create-icon
+              :icon (format "  %s\t" (all-the-icons-octicon "file-code" :height 1.1 :v-adjust 0 :face face-spec))
+              :extensions ("yml" "yaml" "sh" "zsh" "fish" "c" "h" "cpp" "cxx" "hpp"
+                           "tpp" "cc" "hh" "hs" "lhs" "cabal" "py" "pyc" "rs" "el"
+                           "elc" "clj" "cljs" "cljc" "ts" "tsx" "vue" "css" "html"
+                           "htm" "dart" "java" "kt" "scala" "sbt" "go" "js" "jsx"
+                           "hy" "json" "jl" "ex" "exs" "eex" "ml" "mli" "pp" "dockerfile"
+                           "vagrantfile" "j2" "jinja2" "tex" "racket" "rkt" "rktl" "rktd"
+                           "scrbl" "scribble" "plt" "makefile" "elm" "xml" "xsl" "rb"
+                           "scss" "lua" "lisp" "scm" "sql" "toml" "nim" "pl" "pm" "perl"
+                           "vimrc" "tridactylrc" "vimperatorrc" "ideavimrc" "vrapperrc"
+                           "cask" "r" "re" "rei" "bashrc" "zshrc" "inputrc" "editorconfig"
+                           "gitconfig" "csv" "cabal" "kt" "kts" "nim" "nims" "pm6" "sql"
+                           "styles" "lua" "adoc" "asciidoc" "pp" "j2" "jinja2" "dockerfile"
+                           "vagrantfile" "v" "vh" "sv"))
+             (treemacs-create-icon
+              :icon (format "  %s\t" (all-the-icons-octicon "book" :v-adjust 0 :face face-spec))
+              :extensions ("lrf" "lrx" "cbr" "cbz" "cb7" "cbt" "cba" "chm" "djvu"
+                           "doc" "docx" "pdb" "pdb" "fb2" "xeb" "ceb" "inf" "azw"
+                           "azw3" "kf8" "kfx" "lit" "prc" "mobi" "exe" "or" "html"
+                           "pkg" "opf" "txt" "pdb" "ps" "rtf" "pdg" "xml" "tr2"
+                           "tr3" "oxps" "xps"))
+             (treemacs-create-icon
+              :icon (format "  %s\t" (all-the-icons-octicon "file-text" :v-adjust 0 :face face-spec))
+              :extensions ("md" "markdown" "rst" "log" "org" "txt"
+                           "CONTRIBUTE" "LICENSE" "README" "CHANGELOG"))
+             (treemacs-create-icon
+              :icon (format "  %s\t" (all-the-icons-octicon "file-binary" :v-adjust 0 :face face-spec))
+              :extensions ("exe" "dll" "obj" "so" "o" "out"))
+             (treemacs-create-icon
+              :icon (format "  %s\t" (all-the-icons-octicon "file-pdf" :v-adjust 0 :face face-spec))
+              :extensions ("pdf"))
+             (treemacs-create-icon
+              :icon (format "  %s\t" (all-the-icons-octicon "file-zip" :v-adjust 0 :face face-spec))
+              :extensions ("zip" "7z" "tar" "gz" "rar" "tgz"))
+             (treemacs-create-icon
+              :icon (format "  %s\t" (all-the-icons-octicon "file-text" :v-adjust 0 :face face-spec))
+              :extensions (fallback))))
+
+         (defun gb/get-treemacs-extensions (ext)
+           "Expand the extension pattern EXT into a list of extensions.
+     This is used to generate extensions for `treemacs' from `all-the-icons-icon-alist'."
+           (let* ((e (s-replace-all
+                      '((".\\?" . "") ("\\?" . "") ("\\." . "")
+                        ("\\" . "") ("^" . "") ("$" . "")
+                        ("'" . "") ("*." . "") ("*" . ""))
+                      ext))
+                  (exts (list e)))
+             ;; Handle "[]"
+             (when-let* ((s (s-split "\\[\\|\\]" e))
+                         (f (car s))
+                         (m (cadr s))
+                         (l (caddr s))
+                         (mcs (delete "" (s-split "" m))))
+               (setq exts nil)
+               (dolist (c mcs)
+                 (push (s-concat f c l) exts)))
+             ;; Handle '?
+             (dolist (ext exts)
+               (when (s-match "?" ext)
+                 (when-let ((s (s-split "?" ext)))
+                   (setq exts nil)
+                   (push (s-join "" s) exts)
+                   (push (s-concat (if (> (length (car s)) 1)
+                                       (substring (car s) 0 -1))
+                                   (cadr s)) exts))))
+             exts))
+
+         (treemacs-create-theme "doom-colors"
+           :extends "atom"
+           :config
+           (progn
+             (treemacs-create-icon
+              :icon (format " %s\t" (all-the-icons-octicon "repo" :height 1.2 :v-adjust -0.1 :face 'font-lock-string-face))
+              :extensions (root))
+             (treemacs-create-icon
+              :icon (format "%s\t" (all-the-icons-octicon "flame" :v-adjust 0 :face 'all-the-icons-red))
+              :extensions (error))
+             (treemacs-create-icon
+              :icon (format "%s\t" (all-the-icons-octicon "stop" :v-adjust 0 :face 'all-the-icons-yellow))
+              :extensions (warning))
+             (treemacs-create-icon
+              :icon (format "%s\t" (all-the-icons-octicon "info" :height 0.75 :v-adjust 0.1 :face 'all-the-icons-green))
+              :extensions (info))
+             (treemacs-create-icon
+              :icon (format "  %s\t" (all-the-icons-alltheicon "git" :height 0.9 :face 'all-the-icons-red))
+              :extensions ("gitignore" "git" "gitconfig" "gitmodules"))
+
+             (dolist (item all-the-icons-icon-alist)
+               (let* ((extensions (gb/get-treemacs-extensions (car item)))
+                      (func (cadr item))
+                      (args (append (list (caddr item)) '(:v-adjust -0.05) '(:height 0.85) (cdddr item)))
+                      (icon (apply func args)))
+                 (let* ((icon-pair (cons (format "  %s\t" icon) " "))
+                        (gui-icons (treemacs-theme->gui-icons treemacs--current-theme))
+                        (tui-icons (treemacs-theme->tui-icons treemacs--current-theme))
+                        (gui-icon  (car icon-pair))
+                        (tui-icon  (cdr icon-pair)))
+                   (--each extensions
+                     (ht-set! gui-icons it gui-icon)
+                     (ht-set! tui-icons it tui-icon))))))))
+       (progn
+         (setq treemacs-collapse-dirs                 (if (executable-find "python") 3 0)
+               treemacs-deferred-git-apply-delay      0.5
+               treemacs-display-in-side-window        t
+               treemacs-file-event-delay              5000
+               treemacs-file-follow-delay             0.2
+               treemacs-follow-after-init             t
+               treemacs-git-command-pipe              ""
+               treemacs-goto-tag-strategy             'refetch-index
+               treemacs-indentation                   2
+               treemacs-indentation-string            "\t"
+               treemacs-is-never-other-window         nil
+               treemacs-max-git-entries               5000
+               treemacs-no-png-images                 nil
+               treemacs-no-delete-other-windows       t
+               treemacs-project-follow-cleanup        nil
+               treemacs-persist-file                  (expand-file-name ".cache/treemacs-persist" user-emacs-directory)
+               treemacs-recenter-distance             0.1
+               treemacs-recenter-after-file-follow    nil
+               treemacs-recenter-after-tag-follow     nil
+               treemacs-recenter-after-project-jump   'always
+               treemacs-recenter-after-project-expand 'on-distance
+               treemacs-show-cursor                   nil
+               treemacs-show-hidden-files             nil
+               treemacs-silent-filewatch              nil
+               treemacs-silent-refresh                nil
+               treemacs-sorting                       'alphabetic-desc
+               treemacs-space-between-root-nodes      t
+               treemacs-tag-follow-cleanup            t
+               treemacs-tag-follow-delay              1.5
+               treemacs-width                         45)
+
+         ;; The default width and height of the icons is 22 pixels. If you are
+         ;; using a Hi-DPI display, uncomment this to double the icon size.
+         ;;(treemacs-resize-icons 44)
+
+         (treemacs-follow-mode t)
+         (treemacs-filewatch-mode t)
+         (treemacs-fringe-indicator-mode t)
+         (pcase (cons (not (null (executable-find "git")))
+                      (not (null (executable-find "python3"))))
+           (`(t . t)
+            (treemacs-git-mode 'deferred))
+           (`(t . _)
+            (treemacs-git-mode 'simple))))
+       (treemacs-load-theme "doom-colors") ;; "default" "atom"
+       :bind
+       (:map global-map
+             ("M-0"       . treemacs-select-window)
+             ("C-x t 1"   . treemacs-delete-other-windows)
+             ("C-x t t"   . treemacs)
+             ("C-x t B"   . treemacs-bookmark)
+             ("C-x t C-t" . treemacs-find-file)
+             ("C-x t M-t" . treemacs-find-tag)))
+
+     ;; (use-package treemacs-evil
+     ;;   :after treemacs evil
+     ;;   :ensure t)
+
+     (use-package treemacs-projectile
+       :after treemacs projectile
+       :ensure t)
+
+     ;; (use-package treemacs-icons-dired
+     ;;   :after treemacs dired
+     ;;   :ensure t
+     ;;   :config (treemacs-icons-dired-mode))
+
+     (use-package treemacs-magit
+       :after treemacs magit
+       :ensure t)
+
+     ;; (use-package lsp-treemacs
+     ;;   :after treemacs lsp-mode
+     ;;   :ensure t)
+   #+end_src
+** DISABLED pdf-view-restore 
+   - stores .pdf-view-restore in each folder where pdfs are opened!
+   #+begin_src emacs-lisp :tangle no
+   (use-package pdf-view-restore
+     :after pdf-tools
+     :ensure t
+     :init
+     (add-hook 'pdf-view-mode-hook 'pdf-view-restore-mode))
    #+end_src
 * useful but discarded because of drawback that might be fixed
 ** magit-delta (disabled - speed degradation on large change sets)
