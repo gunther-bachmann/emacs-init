@@ -14290,6 +14290,7 @@
                                               )
                                              ((or (string= exwm-class-name "x64sc")
                                                  (string= (downcase exwm-class-name) "eclipse")
+                                                 (string= (downcase exwm-class-name) "nyxt")
                                                  (string= exwm-class-name "qutebrowser"))
                                               simulation-keys nil
                                               char-mode t)
