@@ -51,17 +51,25 @@
   #+end_src
 * guix
   - allows for guix integration in ~.envrc~ to define a guix environment
-  - example usage (for ebook decryption environment)
+    see [[https://direnv.net/man/direnv-stdlib.1.html#codeuse-guix-code][here]]
+  - DEPRECATED example usage (for ebook decryption environment)
     #+begin_src sh :tangle no
-      use_guix --ad-hoc \
-        python2 \
+      use_guix python2 \
         python2-cryptography \
         python2-pycrypto
     #+end_src
+  - example usage (for ebook decryption environment) UNTESTED
+    #+begin_src sh :tangle no
+      use guix python2 \
+        python2-cryptography \
+        python2-pycrypto
+    #+end_src
+  - direnv now provides a command 'use guix' (supposed to use caching)
+    it doesn't make use of guix time machine => use_guix is still useful (makes use of caching)
   #+begin_src sh :eval no :tangle ~/.direnvrc
-    # allow for guix environment execution (e.g. 'use_guix --ad-hoc guile')
+    # allow for guix environment execution (e.g. 'use_guix guile', or 'use_guix racket@8.7')
     use_guix() {
-      eval "$(guix environment "$@" --search-paths)"
+      eval "$(guix time-machine --commit=38ef37d4bb684849e1789d57e46a039e6d005579 -- shell "$@" --search-paths)"
     }
   #+end_src
 * nix
