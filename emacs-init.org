@@ -7295,9 +7295,7 @@
                                               (goto-char (point-min))
                                               (search-forward ,it nil t)))))))))
 
-        (add-hook 'magit-post-stage-hook 'my/find-console-log-in-js-staged-files)
-
-
+        (add-hook 'magit-post-stage-hook 'gb/find-console-log-in-js-staged-files)
 
         ;; make sure that magit closes all other windows on the frame
         ;; (when (fboundp 'gb/display-buffer-fullframe)
