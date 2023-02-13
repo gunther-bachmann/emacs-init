@@ -17166,11 +17166,11 @@
       :ensure t
       :pin manual)
   #+end_src
-* coterm - support for tui apps in shell (disabled)
+* DISABLED coterm - support for tui apps in shell (disabled)
   - start with coterm-mode, then M-x into a shell
   - currently poses a problem in combination with emacs 28 native compilation and mini-frame
-  - retrying it
-  #+begin_src emacs-lisp
+  - miniframe and coterm in combination => starting a terminal then running miniframe puts emacs in a infinite loop/race
+  #+begin_src emacs-lisp :tangle no
     (use-package coterm
       :after (native-complete)
       :load-path "~/repo/emacs/emacs-coterm"
