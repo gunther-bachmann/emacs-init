@@ -2191,18 +2191,28 @@
      (defun gb/get-font-heights (display-width win-system)
        "Get font heights depending on display width"
        (if (memq win-system '(mac ns))
-           (cond ((> display-width 3400)
+           (cond ((> display-width 3000)
                   (ht ('default-height 150) ('variable-pitch-height 140)))
                  ((ht ('default-height 130) ('variable-pitch-height 120))))
          (cond ((eq gb/dual-screen-mode 'presentation)
-                (ht ('default-height 250) ('variable-pitch-height 250)))
-               ((> display-width 5000)
-                (ht ('default-height 140) ('variable-pitch-height 140)))
-               ((> display-width 3400)
-                (ht ('default-height 130) ('variable-pitch-height 130)))
-               ((> display-width 1400)
-                (ht ('default-height 110) ('variable-pitch-height 110)))
-               ((ht ('default-height 85) ('variable-pitch-height 85))))))
+                (progn
+                  (setq-default line-spacing 6) ;; depends a bit on the type of font selected
+                  (ht ('default-height 250) ('variable-pitch-height 250))))
+               ((> display-width 3000)
+                (progn
+                  (setq-default line-spacing (if (< (frame-width) 250) 0.1 5)) ;; depends a bit on the type of font selected
+                  (ht ('default-height 140) ('variable-pitch-height 140))))
+               ((> display-width 2000)
+                (progn
+                  (setq-default line-spacing 4) ;; depends a bit on the type of font selected
+                  (ht ('default-height 130) ('variable-pitch-height 130))))
+               ((> display-width 1000)
+                (progn
+                  (setq-default line-spacing 3) ;; depends a bit on the type of font selected
+                  (ht ('default-height 110) ('variable-pitch-height 110))))
+               ((progn
+                  (setq-default line-spacing 2) ;; depends a bit on the type of font selected
+                  (ht ('default-height 85) ('variable-pitch-height 85)))))))
 
      (defun gb/get-font-weights (win-system)
        "Get font weights depending on windowing system"
@@ -2581,6 +2591,7 @@
      (setq ring-bell-function 'ignore)
      (setq fancy-splash-image "~/media/gnu-small.png")
      (setq mouse-avoidance-mode 'banish)
+     (add-hook 'text-mode #'mouse-avoidance-mode)
    #+END_SRC
 ** window/frame
    #+BEGIN_SRC emacs-lisp
@@ -5493,8 +5504,9 @@
                (progn
                  (message (s-concat "deleting too large recentf file '" recentf-save-file "' ( size: " rsf-size-str ")"))
                  (shell-command (s-concat "rm " recentf-save-file)))))
-         (setq recentf-exclude (list "^.*/\\.emacs\\.d/.*"))
-         (setq recentf-max-menu-items 40)
+         (setq recentf-exclude (list (expand-file-name "~/\\.emacs\\.d/")
+                                     (expand-file-name "~/Downloads/")))
+         (setq recentf-max-menu-items 1000)
          (recentf-mode 1)))
    #+END_SRC
 ** swiper and ivy
@@ -5526,7 +5538,7 @@
                      (t . ivy-prescient-sort-function)))
                   (ivy--display-transformers-alist '())
                   (ivy-display-style 'fancy)
-                  (ivy-height 45 "default height of ivy completion")
+                  (ivy-height 30 "default height of ivy completion")
                   (ivy-use-selectable-prompt t "make prompt a selectable option"))
          :config
          (defface ivy-current-match
@@ -9042,7 +9054,7 @@
       (org-hide-leading-stars t) ;; each level only one star
       (org-special-ctrl-a/e t)   ;; jump to the head text only (not to the star marking the head)
       :init
-
+      (add-hook 'org-mode-hook #'org-indent-mode)
       ;; make sure that emphasis (* bold, / slant ...) works over 5 lines (not just to the next linebreak
       ;; this incurs a performance overhead (of course), since the regex has to walk more lines
       (setcar (nthcdr 4 org-emphasis-regexp-components) 5)
@@ -15596,7 +15608,8 @@
     (when (eq gb/use-frame-completion 'mini-frame)
       (use-package mini-frame
         :load-path "~/repo/emacs/emacs-mini-frame"
-        :custom ((mini-frame-create-lazy t "create the frame when: t = first usage, nil = entering the mini-frame mode (non lazy fails with exwm!)") 
+        :custom ((mini-frame-create-lazy t "create the frame when: t = first usage, nil = entering the mini-frame mode (non lazy fails with exwm!)")
+                 (mini-frame-standalone t "keep miniframe standalone instead of child frame")
                  (mini-frame-color-shift-step 50)) ;; (setq mini-frame-color-shift-step 50)
         :config
         (custom-set-variables
@@ -17935,7 +17948,8 @@
    - eglot-java - Java extension for the eglot LSP client
    - plz - HTTP library (easily get work with web resources into elisp)
 ** graphics
-   - vega-view - allow preview of vega graphics (graphics described by json), see https://vega.github.io/vega/ and https://github.com/applied-science/emacs-vega-view
+- vega-view - allow preview of vega graphics (graphics described by json), see https://vega.github.io/vega/ and https://github.com/applied-science/emacs-vega-view
+- ffmpeg-utils - FFmpeg command utilities wrappers 
 ** system
    - arduino-cli-mode - Arduino-CLI command wrapper
    - etc-sudoers-mode - Edit Sudo security policies
