@@ -17475,6 +17475,19 @@
 
       (define-key magit-status-mode-map (kbd "#") #'gb/magit-aux-commands))
   #+end_src
+* PREVAL empv - interface to mpv
+  #+begin_src emacs-lisp
+    (use-package empv)
+  #+end_src
+* PREVAL flycheck-eglot
+  #+begin_src emacs-lisp
+    (use-package flycheck-eglot
+      :ensure t)
+  #+end_src
+* PREVAL langtool-popup
+  #+begin_src emacs-lisp
+    (use-package langtool-popup)
+  #+end_src
 * file-info - extended information about files
   #+begin_src emacs-lisp
     (use-package file-info
