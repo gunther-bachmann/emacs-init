@@ -4313,6 +4313,20 @@
      (use-package rainbow-delimiters
        :ensure t
        :init
+       (cond
+        ((eq gb/theme-mode 'light) nil) ;; TODO complete
+        (t (progn
+             (--each '((rainbow-delimiters-depth-1-face ((t (:foreground "gray38"))))
+                       (rainbow-delimiters-depth-2-face ((t (:foreground "gray38"))))
+                       (rainbow-delimiters-depth-3-face ((t (:foreground "gray38"))))
+                       (rainbow-delimiters-depth-4-face ((t (:foreground "gray38"))))
+                       (rainbow-delimiters-depth-5-face ((t (:foreground "gray38"))))
+                       (rainbow-delimiters-depth-6-face ((t (:foreground "gray38"))))
+                       (rainbow-delimiters-depth-7-face ((t (:foreground "gray38"))))
+                       (rainbow-delimiters-depth-8-face ((t (:foreground "gray38"))))
+                       (rainbow-delimiters-depth-9-face ((t (:foreground "gray38")))))
+               (progn (add-to-list 'gb/list-of-faces-to-set it) (custom-set-faces it))))))
+
        (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
 
      (defun die-tabs ()
@@ -13004,7 +13018,9 @@
        ((eq gb/theme-mode 'light) nil) ;; TODO complete
        (t (progn
             (--each '((racket-xp-use-face ((t (:weight bold))))
-                      (racket-xp-def-face ((t (:underline t :weight bold)))))
+                      (racket-xp-def-face ((t (:underline t :weight bold))))
+                      (racket-xp-tail-target-face ((t (:weight bold :foreground "green1"))))
+                      (racket-xp-tail-position-face ((t (:weight bold :foreground "green1")))))
               (progn (add-to-list 'gb/list-of-faces-to-set it)(custom-set-faces it))))))
 
       (when (boundp 'pretty-modes-aliases)
