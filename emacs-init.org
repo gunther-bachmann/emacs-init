@@ -3817,8 +3817,8 @@
                                                                                 ))
                             ((>= (frame-pixel-width) 1400) (text-scale-increase 0 ;; 1
                                                                                 )))
-                      (when (derived-mode-p 'org-mode)
-                        (org-indent-mode 1))
+                      ;; (when (derived-mode-p 'org-mode)
+                      ;;   (org-indent-mode 1))
                       (message "Turned on serif writing font."))
              ;; undo changes
              (progn (face-remap-remove-relative default-cookie)
@@ -3830,8 +3830,8 @@
                                                                                ))
                             ((>= (frame-pixel-width) 1400) (text-scale-decrease 0 ;; 1
                                                                                )))
-                    (when (derived-mode-p 'org-mode)
-                      (org-indent-mode -1))
+                    ;; (when (derived-mode-p 'org-mode)
+                    ;;   (org-indent-mode -1))
                     (message "Restored default fonts."))))))
    #+END_SRC
 ** form feed
@@ -9067,8 +9067,8 @@
       (org-ellipsis "…")         ;; make the ... at the end (that indicates folding) be a bit less invasive
       (org-hide-leading-stars t) ;; each level only one star
       (org-special-ctrl-a/e t)   ;; jump to the head text only (not to the star marking the head)
+      (org-startup-indented t)   ;; start always indented
       :init
-      (add-hook 'org-mode-hook #'org-indent-mode)
       ;; make sure that emphasis (* bold, / slant ...) works over 5 lines (not just to the next linebreak
       ;; this incurs a performance overhead (of course), since the regex has to walk more lines
       (setcar (nthcdr 4 org-emphasis-regexp-components) 5)
