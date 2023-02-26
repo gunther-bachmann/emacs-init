@@ -327,6 +327,7 @@
     (global-unset-key "\C-z")     ;; (now mapped to prefix -- dash)
     (global-unset-key "\C-x\C-k") ;; keyboard makros prefix (now mapped to kill buffer)
     (global-unset-key "\M-%")     ;; replaced by visual-regexp ...
+    (global-unset-key "\C-xl") ;; count lines is not used very often
     ;; unbind super key bindings with the given keys
     (dolist (key '(& \, \^ \` \| \~ \?))
       (global-unset-key (kbd (concat "s-" (symbol-name key))))
@@ -4964,7 +4965,6 @@
                ;; (add-hook 'message-mode-hook 'turn-on-flyspell)
                ;; (add-hook 'org-mode-hook 'gb/activate-ispell-in-org-mode)
                )
-       :bind (("C-x l" . gb/switch-dictionary))
        :config
        (progn
          (require 'ox)
@@ -17504,6 +17504,17 @@
   #+begin_src emacs-lisp
     (use-package langtool-popup)
   #+end_src
+* PREVAL deadgrep
+#+begin_src emacs-lisp
+  (use-package deadgrep
+    :ensure t
+    :defer t
+    :bind (("C-c g d" . deadgrep)
+           :map deadgrep-mode-map
+           ("C-x C-q" . deadgrep-edit-mode)
+           :map deadgrep-edit-mode-map
+           ("C-x C-q" . deadgrep-mode)))
+#+end_src
 * file-info - extended information about files
   #+begin_src emacs-lisp
     (use-package file-info
