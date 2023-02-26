@@ -17524,6 +17524,14 @@
            :map deadgrep-edit-mode-map
            ("C-x C-q" . deadgrep-mode)))
 #+end_src
+* PREVAL git-link
+#+begin_src emacs-lisp
+  (use-package git-link
+    :ensure t
+    :defer t
+    :bind
+    ("C-c g l" . git-link))
+#+end_src
 * file-info - extended information about files
   #+begin_src emacs-lisp
     (use-package file-info
