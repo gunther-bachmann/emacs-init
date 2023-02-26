@@ -47,7 +47,8 @@
 * define standard alias
   - print out all defined aliases within this project
   #+begin_src sh :eval no :tangle ~/.direnvrc
-    export_alias a "# get info of all defined aliases" "for al in \$(ls -1 \${DIRENV_DIR:1}/.direnv/aliases); do echo -n \$al; echo -ne \"\\t\"; \$al --help; done;"
+    export_alias \? "# get info of all defined aliases" "for al in \$(ls -1 \${DIRENV_DIR:1}/.direnv/aliases); do echo -n \$al; echo -ne \"\\t\"; \$al --help; done;"
+    alias a="?"
   #+end_src
 * guix
   - allows for guix integration in ~.envrc~ to define a guix environment
