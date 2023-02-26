@@ -17504,6 +17504,15 @@
   #+begin_src emacs-lisp
     (use-package langtool-popup)
   #+end_src
+* PREVAL link-hint
+#+begin_src emacs-lisp
+  (use-package link-hint
+    :ensure t
+    :defer t
+    :bind
+    ("C-x l o" . link-hint-open-link)
+    ("C-x l c" . link-hint-copy-link))
+#+end_src
 * PREVAL deadgrep
 #+begin_src emacs-lisp
   (use-package deadgrep
