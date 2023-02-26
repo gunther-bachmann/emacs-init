@@ -84,8 +84,8 @@
                    (executable-find "pactl")
                    (executable-find "play")
                    (executable-find "amixer"))
-          (gb/play-startup-sound)
-          (setq gb/playing-startup-sound t)))))
+          (setq gb/playing-startup-sound t)
+          (gb/play-startup-sound)))))
 
   (gb/play-startup-sound-when-ctrlkey-down)
 #+end_src
@@ -11692,7 +11692,7 @@
        (setq diredp-hide-details-propagate-flag t) ;; opening subfolders inherit details flag (shown/hidden)
        (if gnu-ls-installed
            (setq insert-directory-program gnu-ls-bin-path))
-       (setq  dired-omit-files "^\\.?#\\|^\\.$\\|^\\.\\.$\\|^\\..*\\|^build$\\|^out$")
+       (setq dired-omit-files "^\\.?#\\|^\\.$\\|^\\.\\.$\\|^\\..*\\|^build$\\|^out$")
        (setq dired-guess-shell-alist-user '(
                                             ("\\.webm\\'\\|\\.mkv\\'\\|\\.mpe?g\\'\\|\\.avi\\'\\|\\.mp4\\'\\|\\.flv\\'" "cvlc")
                                             ("\\.d64\\'\\|\\.prg\\'" "x64sc")
@@ -19102,6 +19102,7 @@
 
     (report-elapsed "exit finish - up")
     (lisp-interaction-mode)
+
     ;; (when (fboundp 'doom-modeline-mode)
     ;;   (doom-modeline-mode 1))
   #+END_SRC
