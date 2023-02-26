@@ -17513,6 +17513,10 @@
     ("C-x l o" . link-hint-open-link)
     ("C-x l c" . link-hint-copy-link))
 #+end_src
+* PREVAL fountain
+#+begin_src emacs-lisp
+  (use-package fontaine)
+#+end_src
 * PREVAL deadgrep
 #+begin_src emacs-lisp
   (use-package deadgrep
