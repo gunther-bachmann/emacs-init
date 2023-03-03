@@ -338,6 +338,7 @@
         (global-unset-key (kbd (concat "s-" letter)))
         (global-unset-key (kbd (concat "s-" (downcase letter))))))
     (global-unset-key (kbd "C-<down-mouse-1>"))
+    (global-unset-key  "\C-x\C-n")
   #+END_SRC
 * check account configuration files
   #+BEGIN_SRC emacs-lisp
@@ -776,6 +777,12 @@
           (unwind-protect
               (progn ,@body)
             (setq inhibit-message nil))))
+
+     (defun derived-mode-parents (mode)
+       (and mode
+         (cons mode
+               (derived-mode-parents
+                (get mode 'derived-mode-parent)))))
 
      (defun gb/disable-all-minor-modes ()
        (interactive)
@@ -1596,7 +1603,8 @@
      (put 'dired-annotator-show 'safe-local-variable 'booleanp)
      (put 'gb/org-indent 'safe-local-variable 'booleanp)
      (put 'read-only-mode 'safe-local-variable #'integerp)
-     (put 'fill-column 'safe-local-variable #'integerp)     
+     (put 'fill-column 'safe-local-variable #'integerp)
+     (put 'dired-omit-files 'safe-local-variable #'stringp)
 
      (custom-set-variables
       '(safe-local-variable-values
@@ -2593,6 +2601,9 @@
      (setq fancy-splash-image "~/media/gnu-small.png")
      (setq mouse-avoidance-mode 'banish)
      (add-hook 'text-mode-hook #'mouse-avoidance-mode)
+     (add-hook 'comint-mode-hook #'mouse-avoidance-mode)
+     (add-hook 'lisp-interaction-mode-hook #'mouse-avoidance-mode)
+     (add-hook 'special-mode-hook #'mouse-avoidance-mode)
    #+END_SRC
 ** window/frame
    #+BEGIN_SRC emacs-lisp
