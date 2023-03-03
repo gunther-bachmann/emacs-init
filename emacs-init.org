@@ -15638,23 +15638,25 @@
         :custom ((mini-frame-create-lazy t "create the frame when: t = first usage, nil = entering the mini-frame mode (non lazy fails with exwm!)")
                  (mini-frame-standalone t "keep miniframe standalone instead of child frame")
                  (mini-frame-color-shift-step 50)) ;; (setq mini-frame-color-shift-step 50)
+        :init
+        (setq gb/border-color "#7a388d")    ; #654865 #ba55d3
         :config
         (custom-set-variables
-         '(mini-frame-internal-border-color "#654865")
+         '(mini-frame-internal-border-color gb/border-color)
          '(mini-frame-completions-show-parameters
-           '((top . 0.7)
+           `((top . 0.7)
              (width . 0.5)
              (left . 0.5)
              (height . 1)
              (background-color . "#251825")
-             (border-color . "#654865")))
+             (border-color . ,gb/border-color)))
          '(mini-frame-show-parameters
-           '((top . 0.7)
+           `((top . 0.7)
              (width . 0.5)
              (left . 0.5)
              (height . 1)
              (background-color . "#251825")
-             (border-color . "#654865"))))
+             (border-color . ,gb/border-color))))
 
         (setq mini-frame--command-adjusted-show-parameters
               '((counsel-buffer-or-recentf (width . 0.8))
