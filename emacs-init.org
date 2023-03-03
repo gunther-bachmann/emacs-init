@@ -17549,6 +17549,16 @@
     :bind
     ("C-c g l" . git-link))
 #+end_src
+* eval ipa (inline annotations)
+#+begin_src emacs-lisp
+  (use-package ipa
+    :load-path "~/.emacs.d/additionals/ipa.el"
+    :custom (ipa-file "~/.ipa")
+    :bind ("C-x C-n i" . #'ipa-insert)
+    ("C-x C-n a" . #'ipa-insert)
+    ("C-x C-n e" . #'ipa-edit)
+    ("C-x C-n t" . #'ipa-toggle))
+#+end_src
 * file-info - extended information about files
   #+begin_src emacs-lisp
     (use-package file-info
