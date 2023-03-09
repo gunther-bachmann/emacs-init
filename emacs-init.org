@@ -3454,6 +3454,13 @@
       (defconst ml-test-prefix (concat ":" (propertize "[tst]" 'face '(:foreground "#10A010")) ":"))
       (defconst ml-home-prefix (propertize "~" 'face '(:foreground "green")))
       (defconst ml-project-prefix (propertize "-" 'face '(:foreground "orange")))
+      (defconst ml-timestamp-prefix (propertize "⏱ " 'face '(:foreground "blue")))
+
+      (require 'color)
+      (defconst mode-line-file-name-highlight-color "orange")
+      (defconst mode-line-file-name-disabled-color (color-darken-name mode-line-file-name-highlight-color 25))
+      (defconst mode-line-buffer-name-highlight-color (face-foreground 'mode-line-highlight))
+      (defconst mode-line-buffer-name-disabled-color (color-darken-name mode-line-buffer-name-highlight-color 25))
 
       (defun shorten-buffer-filename (fn)
         (if (and gb/disable-modeline-updates gb/mode-line--last-shortened-filename-cache)
@@ -3469,7 +3476,8 @@
                      (replace-if-starting-with "/nix/store/" "/nix/store/[a-z0-9]+-" ml-n-store-prefix)
                      (replace-if-starting-with "/gnu/store/" "/gnu/store/[a-z0-9]+-" ml-gnu-store-prefix)
                      (replace-regexp-in-string "/src/main/\\(java\\|scala\\|kotlin\\)/" ml-src-prefix)
-                     (replace-regexp-in-string "/src/test/\\(java\\|scala\\|kotlin\\)/" ml-test-prefix))))
+                     (replace-regexp-in-string "/src/test/\\(java\\|scala\\|kotlin\\)/" ml-test-prefix)
+                     (replace-regexp-in-string "[12][019][0-9][0-9][01][0-9][0-3][0-9][0-2][0-9][0-5][0-9][0-5][0-9]-" ml-timestamp-prefix))))
                  (psfn (gb/reorder-filename sfn)))
             (setq gb/mode-line--last-shortened-filename-cache psfn)
             psfn)))
@@ -3480,8 +3488,8 @@
 
       (defun propertize-base-name (filename)
         (when filename
-          (if-let* ((path-elements (split-string filename "/"))
-                    (last-pe (car (last path-elements)))
+          (if-let* ((path-elements       (split-string filename "/"))
+                    (last-pe             (car (last path-elements)))
                     (last-pe-propertized (propertize last-pe 'face 'mode-line-emphasis)))
               (if (> (length path-elements) 1)
                   (string-join (list (string-join (butlast path-elements) "/") last-pe-propertized) "/")
@@ -3537,13 +3545,19 @@
                                                                          ,@(unless (gb/modeline-line-selected-window-active-p) '(:face mode-line-inactive)))))))
                   " "
                   ;; Show the file name with sanitized
-                  '(:eval (let ((id (or (get-project-relative-buffer-filename)
-                                       mode-line-buffer-identification)))
-                            (if (gb/modeline-line-selected-window-active-p)
-                                id
-                              (if (stringp id)
-                                  (substring-no-properties id)
-                                (substring-no-properties (format-mode-line id))))))
+                  '(:eval (let* ((id        (or (get-project-relative-buffer-filename)
+                                               mode-line-buffer-identification))
+                                 (id-is-str (stringp id)))
+                              (if (gb/modeline-line-selected-window-active-p)
+                                  id
+                                (propertize  (if id-is-str
+                                                 (substring-no-properties id)
+                                               (substring-no-properties (format-mode-line id)))
+                                             'face (if (gb/modeline-line-selected-window-active-p)
+                                                       `(:foreground ,mode-line-file-name-highlight-color) ;; "orange"
+                                                     (if id-is-str
+                                                         `(:foreground ,mode-line-file-name-disabled-color) ;; "DarkGoldenrod4"
+                                                       `(:foreground ,mode-line-buffer-name-disabled-color))))))) ;; "#72547b" DarkOrchid3 #48226B b284bb
 
                   '(:eval (when (and (not (buffer-file-name)) (gb/modeline-line-selected-window-active-p))
                             (shorten-buffer-filename default-directory)))
