@@ -17896,6 +17896,7 @@
   - toc-mode - extract table of contents from a pdf document that has it printed, but not explicit within the pdf structure itself, clean it
     up and add the cleaned up toc to the pdf (such that it is usable). see https://github.com/dalanicolai/toc-mode
   - org-inline-pdf - inline preview of pdf (similiar to inlined images) in org mode, needs pdf2svg installed
+  - jit-spell - Just-in-time spell checking (asynchronously checking)
 ** (function) selection
   - helm-selected
   - helm-org - Helm for org headlines and keywords completion
@@ -18120,6 +18121,9 @@
    - ednc - Emacs Desktop Notification Center (pure lisp implementation of freedesktop org notification system, replacement for dunst)
 ** music
    - lyrics-fetcher - Fetch song lyrics and album covers (adds some functions to emms)
+** knowledge management / zettelkasten
+- denote-menu - View denote files in a tabulated list
+- denote - simple notes with an efficient file-naming scheme (leveraging timestamps, filenames, tags with usual emacs packages, just text)
 ** ui
    - modern-fringes - Replaces default fringe bitmaps with better looking ones
    - simple-modeline -
