@@ -3475,7 +3475,7 @@
                      (gb/string-replace-prefix "/sudo:root@pe-nixos:" ml-sudo-prefix)
                      (replace-if-starting-with "/nix/store/" "/nix/store/[a-z0-9]+-" ml-n-store-prefix)
                      (replace-if-starting-with "/gnu/store/" "/gnu/store/[a-z0-9]+-" ml-gnu-store-prefix)
-                     (replace-regexp-in-string "/src/main/\\(java\\|scala\\|kotlin\\)/" ml-src-prefix)
+                     (replace-regexp-in-string "/src/\\(main/\\(java/\\|scala/\\|kotlin/\\)\\)?" ml-src-prefix)
                      (replace-regexp-in-string "/src/test/\\(java\\|scala\\|kotlin\\)/" ml-test-prefix)
                      (replace-regexp-in-string "[12][019][0-9][0-9][01][0-9][0-3][0-9][0-2][0-9][0-5][0-9][0-5][0-9]-" ml-timestamp-prefix))))
                  (psfn (gb/reorder-filename sfn)))
