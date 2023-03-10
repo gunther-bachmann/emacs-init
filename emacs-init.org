@@ -3499,17 +3499,25 @@
       ;; Keep track of selected window, so we can render the modeline differently
       (defvar gb/modeline-line-selected-window (frame-selected-window))
       (defun gb/modeline-line-set-selected-window (&rest _args)
-        (when (not (minibuffer-window-active-p (frame-selected-window)))
-          (setq gb/modeline-line-selected-window (frame-selected-window))
+        (setq gb/modeline-line-selected-window (frame-selected-window))
+        (when (not (minibuffer-window-active-p gb/modeline-line-selected-window))
           (force-mode-line-update)))
+
       (defun gb/modeline-line-unset-selected-window ()
         (setq gb/modeline-line-selected-window nil)
         (force-mode-line-update))
-      (add-hook 'window-configuration-change-hook #'gb/modeline-line-set-selected-window)
+
+      ;; === hooks to update currently selected window
+      ;; (add-hook 'window-configuration-change-hook #'gb/modeline-line-set-selected-window)
+      ;; (remove-hook 'window-configuration-change-hook #'gb/modeline-line-set-selected-window)
       (add-hook 'focus-in-hook #'gb/modeline-line-set-selected-window)
-      (add-hook 'focus-out-hook #'gb/modeline-line-unset-selected-window)
-      (advice-add 'handle-switch-frame :after #'gb/modeline-line-set-selected-window)
+      ;; (remove-hook 'focus-in-hook #'gb/modeline-line-set-selected-window)
+      ;; (add-hook 'focus-out-hook #'gb/modeline-line-unset-selected-window)
+      ;; (advice-add 'handle-switch-frame :after #'gb/modeline-line-set-selected-window)
+      ;; (advice-remove 'handle-switch-frame #'gb/modeline-line-set-selected-window)
       (add-hook 'window-selection-change-functions #'gb/modeline-line-set-selected-window)
+      ;; (remove-hook 'window-selection-change-functions #'gb/modeline-line-set-selected-window)
+
       (defun gb/modeline-line-selected-window-active-p ()
         (eq gb/modeline-line-selected-window (selected-window)))
 
@@ -13710,7 +13718,11 @@
                     (let ((actualPrevIdx (or previousIdx (exwm-workspace--position exwm-workspace--current))))
                       (when (and (= index 0) (> actualPrevIdx 0))
                         (setq gb/exwm--previous-workspace actualPrevIdx))
-                      (exwm-workspace-switch index force)))
+                      (exwm-workspace-switch index force)
+                      (when (fboundp #'doom-modeline-set-selected-window)
+                        (doom-modeline-set-selected-window))
+                      (when (fboundp #'gb/modeline-line-set-selected-window)
+                        (gb/modeline-line-set-selected-window))))
 
                   (defun gb/exwm-workspace-left ()
                     "jump to workspace left of the current one (multi monitor)"
@@ -13725,8 +13737,6 @@
                         (gb/play-theme-sound gb/sound-theme-effect-switch-workspace)
                         (message (format "<<     now %s" (exwm-workspace--position exwm-workspace--current)))
                         ;; (x-focus-frame (selected-frame))
-                        (when (fboundp 'doom-modeline-set-selected-window)
-                          (doom-modeline-set-selected-window))
                         t)))
 
                   (defun gb/exwm-workspace-right ()
@@ -13742,8 +13752,6 @@
                             (gb/play-theme-sound gb/sound-theme-effect-switch-workspace)
                             (message (format ">>     now %s" (exwm-workspace--position exwm-workspace--current)))
                             ;; (x-focus-frame (selected-frame))
-                            (when (fboundp 'doom-modeline-set-selected-window)
-                              (doom-modeline-set-selected-window))
                             t)
                         (message "no workspace right of this.")
                         (when (fboundp 'beacon-blink) (beacon-blink))
@@ -13807,11 +13815,12 @@
                             (gb/exwm-workspace-switch (+ 1 workspaceIdx) t)
                             (while-no-input
                               (gb/exwm-visualize-workspace-switch (+ workspaceIdx (if single-mon-p 1 0)) (- (length exwm-workspace--list) (if single-mon-p 0 1)) 10)
-                              (gb/play-theme-sound gb/sound-theme-effect-switch-workspace)
+                              ;; (gb/play-theme-sound gb/sound-theme-effect-switch-workspace)
                               (message (format "\\/     now %s" (exwm-workspace--position exwm-workspace--current))))
                             ;; (x-focus-frame (selected-frame))
                             )
-                        (message "no workspace below this."))))
+                        (progn (message "no workspace below this.")
+                               (when (fboundp 'beacon-blink) (beacon-blink)) nil))))
 
                   (defun gb/exwm-workspace-up ()
                     "jump to workspace up of the current one (multi monitor)"
@@ -13827,22 +13836,23 @@
                             (gb/exwm-workspace-switch (- workspaceIdx 1) t)
                             (while-no-input
                               (gb/exwm-visualize-workspace-switch (- workspaceIdx (if single-mon-p 1 2)) (- (length exwm-workspace--list) (if single-mon-p 0 1)) 10)
-                              (gb/play-theme-sound gb/sound-theme-effect-switch-workspace)
+                              ;; (gb/play-theme-sound gb/sound-theme-effect-switch-workspace)
                               (message (format "/\\     now %s" (exwm-workspace--position exwm-workspace--current))))
                             ;; (x-focus-frame (selected-frame))
                             )
-                        (message "no workspace above this"))))
+                        (progn (message "no workspace above this.")
+                               (when (fboundp 'beacon-blink) (beacon-blink)) nil))))
 
-                    (defun gb/exwm-next-workspace (&optional inc)
-                      "jump to the next (inc) workspace"
-                      (interactive)
-                      (let* ((inc (or inc 1))
-                             (index (+ exwm-workspace-current-index inc))
-                             (len (length exwm-workspace--list)))
-                        (exwm-workspace-switch (cond
-                                                ((< index 0) (+ index len))
-                                                ((< index len) index)
-                                                (t (- index len))))) t)
+                  (defun gb/exwm-next-workspace (&optional inc)
+                    "jump to the next (inc) workspace"
+                    (interactive)
+                    (let* ((inc (or inc 1))
+                           (index (+ exwm-workspace-current-index inc))
+                           (len (length exwm-workspace--list)))
+                      (exwm-workspace-switch (cond
+                                              ((< index 0) (+ index len))
+                                              ((< index len) index)
+                                              (t (- index len))))) t)
                   (defun gb/exwm-previous-workspace (&optional inc)
                     "jump to the previous (inc) workspace"
                     (interactive)
