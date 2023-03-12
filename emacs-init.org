@@ -3436,25 +3436,28 @@
 
       (memoize #'project-current 60)
 
-      (defun gb/reorder-filename (filename)
-        (let ((elements (split-string filename "/")))
-          (if (< (length elements) 2)
-              (propertize filename 'face 'mode-line-emphasis)
-            (concat (propertize (car (last elements)) 'face 'mode-line-emphasis) " " (string-join (butlast elements) "/")))))
-
       (defun replace-if-starting-with (prefix regexp replacement string)
         (if (string-prefix-p prefix string)
             (replace-regexp-in-string regexp replacement string)
           string))
 
-      (defconst ml-sudo-prefix (concat (propertize "sudo" 'face '(:foreground "red")) ":"))
-      (defconst ml-n-store-prefix (concat (propertize "[n-store]" 'face '(:foreground "#A01010")) ":"))
-      (defconst ml-gnu-store-prefix (concat  (propertize "[store]" 'face '(:foreground "#A01010")) ":"))
-      (defconst ml-src-prefix (concat ":" (propertize "[src]" 'face '(:foreground "#A01010")) ":"))
-      (defconst ml-test-prefix (concat ":" (propertize "[tst]" 'face '(:foreground "#10A010")) ":"))
-      (defconst ml-home-prefix (propertize "~" 'face '(:foreground "green")))
-      (defconst ml-project-prefix (propertize "-" 'face '(:foreground "orange")))
-      (defconst ml-timestamp-prefix (propertize "⏱ " 'face '(:foreground "blue")))
+      (defconst ml-sudo-prefix-face '(:foreground "red"))
+      (defconst ml-n-store-prefix-face '(:foreground "IndianRed"))
+      (defconst ml-gnu-store-prefix-face '(:foreground "IndianRed"))
+      (defconst ml-src-prefix-face '(:foreground "SlateBlue"))
+      (defconst ml-test-prefix-face  '(:foreground "LimeGreen"))
+      (defconst ml-home-prefix-face '(:foreground "green"))
+      (defconst ml-project-prefix-face '(:foreground "orange"))
+      (defconst ml-timestamp-prefix-face '(:foreground "blue"))
+
+      (defun ml-sudo-prefix (active) (concat (propertize "sudo" 'face (if active ml-sudo-prefix-face 'mode-line-inactive)) ":"))
+      (defun ml-n-store-prefix (active) (concat (propertize "[n-store]" 'face (if active ml-n-store-prefix-face 'mode-line-inactive)) ":"))
+      (defun ml-gnu-store-prefix (active) (concat  (propertize "[store]" 'face (if active ml-gnu-store-prefix-face 'mode-line-inactive)) ":"))
+      (defun ml-src-prefix (active)  (propertize ":src/" 'face (if active ml-src-prefix-face 'mode-line-inactive)))
+      (defun ml-test-prefix (active) (propertize ":tst/" 'face (if active ml-test-prefix-face 'mode-line-inactive)))
+      (defun ml-home-prefix (active) (propertize "~" 'face (if active ml-home-prefix-face 'mode-line-inactive)))
+      (defun ml-project-prefix (active) (propertize "=" 'face (if active ml-project-prefix-face 'mode-line-inactive)))
+      (defun ml-timestamp-prefix (active) (propertize "⏱ " 'face (if active ml-timestamp-prefix-face 'mode-line-inactive)))
 
       (require 'color)
       (defconst mode-line-file-name-highlight-color "orange")
@@ -3462,7 +3465,13 @@
       (defconst mode-line-buffer-name-highlight-color (face-foreground 'mode-line-highlight))
       (defconst mode-line-buffer-name-disabled-color (color-darken-name mode-line-buffer-name-highlight-color 25))
 
-      (defun shorten-buffer-filename (fn)
+      (defun gb/reorder-filename (filename active)
+        (let ((elements (split-string filename "/")))
+          (if (< (length elements) 2)
+              (propertize filename 'face (if active 'mode-line-emphasis (list ':foreground mode-line-file-name-disabled-color)))
+            (concat (propertize (car (last elements)) 'face (if active 'mode-line-emphasis (list ':foreground mode-line-file-name-disabled-color))) " " (string-join (butlast elements) "/"))))) 
+
+      (defun shorten-buffer-filename (fn active)
         (if (and gb/disable-modeline-updates gb/mode-line--last-shortened-filename-cache)
             gb/mode-line--last-shortened-filename-cache
           (let* ((sfn 
@@ -3470,21 +3479,23 @@
                     (->>
                      (if-let* ((project (project-current nil default-directory))
                                (project-root (string-remove-suffix "/" (expand-file-name (cdr project)))))
-                         (gb/string-replace-prefix project-root ml-project-prefix prop-fn)
-                       (gb/string-replace-prefix (expand-file-name "~") ml-home-prefix prop-fn))
-                     (gb/string-replace-prefix "/sudo:root@pe-nixos:" ml-sudo-prefix)
-                     (replace-if-starting-with "/nix/store/" "/nix/store/[a-z0-9]+-" ml-n-store-prefix)
-                     (replace-if-starting-with "/gnu/store/" "/gnu/store/[a-z0-9]+-" ml-gnu-store-prefix)
-                     (replace-regexp-in-string "/src/\\(main/\\(java/\\|scala/\\|kotlin/\\)\\)?" ml-src-prefix)
-                     (replace-regexp-in-string "/src/test/\\(java\\|scala\\|kotlin\\)/" ml-test-prefix)
-                     (replace-regexp-in-string "[12][019][0-9][0-9][01][0-9][0-3][0-9][0-2][0-9][0-5][0-9][0-5][0-9]-" ml-timestamp-prefix))))
-                 (psfn (gb/reorder-filename sfn)))
+                         (gb/string-replace-prefix project-root (ml-project-prefix active) prop-fn)
+                       (gb/string-replace-prefix (expand-file-name "~") (ml-home-prefix active) prop-fn))
+                     (gb/string-replace-prefix "/sudo:root@pe-nixos:" (ml-sudo-prefix active))
+                     ;; (replace-if-starting-with "/nix/store/" "/nix/store/[a-z0-9]+-" (ml-n-store-prefix active))
+                     ;; (replace-if-starting-with "/gnu/store/" "/gnu/store/[a-z0-9]+-" (ml-gnu-store-prefix active))
+                     (replace-regexp-in-string "/nix/store/[a-z0-9]+-" (ml-n-store-prefix active))
+                     (replace-regexp-in-string "/gnu/store/[a-z0-9]+-" (ml-gnu-store-prefix active))
+                     (replace-regexp-in-string "/src/\\(main/\\(java/\\|scala/\\|kotlin/\\)\\)?" (ml-src-prefix active))
+                     (replace-regexp-in-string "/src/test/\\(java/\\|scala/\\|kotlin/\\)?" (ml-test-prefix active))
+                     (replace-regexp-in-string "[12][019][0-9][0-9][01][0-9][0-3][0-9][0-2][0-9][0-5][0-9][0-5][0-9]-" (ml-timestamp-prefix active)))))
+                 (psfn (gb/reorder-filename sfn active)))
             (setq gb/mode-line--last-shortened-filename-cache psfn)
             psfn)))
 
-      (defun get-project-relative-buffer-filename ()
+      (defun get-project-relative-buffer-filename (active)
         (when-let* ((fn (buffer-file-name)))
-          (shorten-buffer-filename fn)))
+          (shorten-buffer-filename fn active)))
 
       (defun propertize-base-name (filename)
         (when filename
@@ -3506,6 +3517,16 @@
       (defun gb/modeline-line-unset-selected-window ()
         (setq gb/modeline-line-selected-window nil)
         (force-mode-line-update))
+
+      (defun gb/modeline-buffer-id (active)
+        "formatted mode-line-buffer-identification based on in/active window"
+        (let ((id mode-line-buffer-identification))
+          (if active
+              id
+            (propertize
+             (substring-no-properties (format-mode-line id))
+             'face
+             `(:foreground ,mode-line-buffer-name-disabled-color)))))
 
       ;; === hooks to update currently selected window
       ;; (add-hook 'window-configuration-change-hook #'gb/modeline-line-set-selected-window)
@@ -3553,22 +3574,13 @@
                                                                          ,@(unless (gb/modeline-line-selected-window-active-p) '(:face mode-line-inactive)))))))
                   " "
                   ;; Show the file name with sanitized
-                  '(:eval (let* ((id        (or (get-project-relative-buffer-filename)
-                                               mode-line-buffer-identification))
-                                 (id-is-str (stringp id)))
-                              (if (gb/modeline-line-selected-window-active-p)
-                                  id
-                                (propertize  (if id-is-str
-                                                 (substring-no-properties id)
-                                               (substring-no-properties (format-mode-line id)))
-                                             'face (if (gb/modeline-line-selected-window-active-p)
-                                                       `(:foreground ,mode-line-file-name-highlight-color) ;; "orange"
-                                                     (if id-is-str
-                                                         `(:foreground ,mode-line-file-name-disabled-color) ;; "DarkGoldenrod4"
-                                                       `(:foreground ,mode-line-buffer-name-disabled-color))))))) ;; "#72547b" DarkOrchid3 #48226B b284bb
+                  '(:eval (let* ((active (gb/modeline-line-selected-window-active-p))
+                                 (id (or (get-project-relative-buffer-filename active)
+                                        (gb/modeline-buffer-id active))))
+                            id))
 
                   '(:eval (when (and (not (buffer-file-name)) (gb/modeline-line-selected-window-active-p))
-                            (shorten-buffer-filename default-directory)))
+                            (shorten-buffer-filename default-directory t)))
 
                   '(:eval (when (and (fboundp 'gb/keycast-mode) gb/keycast-mode (gb/modeline-line-selected-window-active-p)) keycast-mode-line))))
 
