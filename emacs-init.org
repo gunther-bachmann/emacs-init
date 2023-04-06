@@ -13042,6 +13042,12 @@
                   ("C-c C-f" . #'gb/racket-fold-all-tests)
                   ("C-c C-u" . #'gb/racket-unfold-all-tests))
       :config
+
+      ;; grab the name of the function defined right before cursor position
+      ;; and create a template of the forn "(module+ test #| <func-name> |# (check-equal? (<func-name> |)))"
+      (fset 'racket-insert-test-module
+       (kmacro-lambda-form [?\C-\M-b ?\C-f ?\C-\M-f ?\C-f ?\C-f ?\C-  ?\C-\M-f ?\M-w ?\C-a ?\C-\M-f ?\C-j ?\C-j ?\( ?m ?o ?d ?u ?l ?e ?+ ?  ?t ?e ?s ?t ?  ?# ?| ?  ?\C-y ?  ?| ?# ?\C-j ?\( ?c ?h ?e ?c ?k ?- ?e ?q ?u ?a ?l ?? ?  ?\( ?\C-y ? ] 0 "%d"))
+
       ;; copy of racket--xp-mode-lighter, except that checkmark is replaced with smaller variant, such that the modeline does not grow in height
       (defun gb/racket--xp-mode-lighter ()
         (let ((prefix "Rkt"))
