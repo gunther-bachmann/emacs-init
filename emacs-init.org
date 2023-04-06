@@ -11947,6 +11947,9 @@
               ( "/" . dired-narrow))
        ;; :after (dired all-the-icons vscode-icon)
        :config
+       (when (fboundp #'gb/modeline-buffer-id)
+         (setq dired-sidebar-mode-line-format
+               '("%e" mode-line-front-space (:eval (gb/modeline-buffer-id (gb/modeline-line-selected-window-active-p))) " " mode-line-end-spaces)))
        ;; make sure that long lines are truncated in sidebar
        (defun gb/dired-keep-cursor-during-tui-update (orig-fun &rest args)
          "execute dired omit expunge after dired sidebar tui update"
