@@ -17688,7 +17688,21 @@
     :bind
     ("C-c g l" . git-link))
 #+end_src
-* eval ipa (inline annotations)
+* EVAL hop.el
+- doesn't exclude folded text -> large org files won't work
+- idea is cool (providing short completions for close locations)
+#+begin_src emacs-lisp
+  (use-package pcre
+    :load-path "~/repo/emacs/emacs-pcre/")
+
+  (use-package hop
+    :load-path "~/.emacs.d/additionals/"
+    :custom ((hop-all-windows nil))
+    :bind (("H-," . #'hop-word)
+           :map org-mode-map
+           ("H-," . #'avy-goto-char-timer)))
+#+end_src
+* EVAL ipa (inline annotations)
 #+begin_src emacs-lisp
   (use-package ipa
     :load-path "~/.emacs.d/additionals/ipa.el"
