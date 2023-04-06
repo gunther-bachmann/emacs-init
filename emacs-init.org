@@ -17011,6 +17011,32 @@
                 scala-mode-hook
                 json-mode-hook)
         (add-hook it #'tree-sitter-hl-mode)))
+
+    (use-package ts-fold
+      :load-path "~/repo/emacs/ts-fold"
+      :hook (typescript-mode . gb/ts-fold-mode)
+      :config
+      (custom-set-faces '(ts-fold-fringe-face ((t (:foreground "gray20")))))
+      (require 'ts-fold-indicators)
+  
+      (defun gb/ts-fold-mode ()
+        "make sure yafolding is turned off and fringe indicator mode is on"
+        (when (fboundp 'yafolding-mode)
+          (yafolding-mode -1))
+        (ts-fold-mode)
+        (ts-fold-indicators-mode)
+        (bind-key "C-<return>" #'gb/ts-fold-toggle))
+  
+      (defun gb/ts-fold-toggle ()
+        "toggle fold if on foldable node, else try beginning and end of line"
+        (interactive)
+        (if (ts-fold--foldable-node-at-pos (point))
+            (ts-fold-toggle)
+          (save-excursion
+            (end-of-line)
+            (unless (ts-fold--foldable-node-at-pos (point))
+              (beginning-of-line))
+            (ts-fold-toggle)))))
   #+end_src
 * EVAL ltex
   - use language tool to spell check different markup (BibTEX, LATEX, Markdown, Org, reStructuredText, R Sweave)
