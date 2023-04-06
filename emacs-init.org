@@ -11983,11 +11983,13 @@
                     (current-root (expand-file-name (replace-regexp-in-string "^:" "" (buffer-name (dired-sidebar-buffer))))))
                (select-window (get-buffer-window (dired-sidebar-buffer)))
                (setq line-spacing 0)
-               (if (s-starts-with? current-root filename)
-                   (let* ((omitmode dired-omit-mode))
-                     (dired-omit-mode -1) ;; make sure to switch off omit mode for cursor placement (since this is disrupted otherwise)
-                     (dired-sidebar-point-at-file filename current-root)
-                     (when omitmode (dired-omit-mode t))))))))
+               ;; (message "root=%S, filename=%S" current-root filename)
+               (when (s-starts-with? current-root filename)
+                 (let* ((omitmode dired-omit-mode))
+                   (dired-omit-mode -1) ;; make sure to switch off omit mode for cursor placement (since this is disrupted otherwise)
+                   ;; (message "executing dired-sidebar-point-at-file")
+                   (dired-sidebar-point-at-file filename (regexp-quote current-root))
+                   (when omitmode (dired-omit-mode t))))))))
        (progn
          (setq truncate-partial-width-windows 20) ;; ensure that windows smaller than 20 truncate long lines
          (setq dired-sidebar-width (min 70 (/ (* 60 (frame-width)) (/ 1920 (default-font-width)))))
