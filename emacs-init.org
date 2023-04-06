@@ -2600,10 +2600,12 @@
      (setq ring-bell-function 'ignore)
      (setq fancy-splash-image "~/media/gnu-small.png")
      (setq mouse-avoidance-mode 'banish)
-     (add-hook 'text-mode-hook #'mouse-avoidance-mode)
-     (add-hook 'comint-mode-hook #'mouse-avoidance-mode)
-     (add-hook 'lisp-interaction-mode-hook #'mouse-avoidance-mode)
-     (add-hook 'special-mode-hook #'mouse-avoidance-mode)
+     (defun gb/mouse-avoidance-mode ()
+       (mouse-avoidance-mode 1))
+     (add-hook 'text-mode-hook #'gb/mouse-avoidance-mode)
+     (add-hook 'comint-mode-hook #'gb/mouse-avoidance-mode)
+     (add-hook 'lisp-interaction-mode-hook #'gb/mouse-avoidance-mode)
+     (add-hook 'special-mode-hook #'gb/mouse-avoidance-mode)
    #+END_SRC
 ** window/frame
    #+BEGIN_SRC emacs-lisp
