@@ -10768,6 +10768,14 @@
                (org-hide-tags--update-headings t))
               (t (org-hide-tags--update-headings nil))))
     #+end_src
+*** org tidy (hides properties drawers in overlay)
+#+begin_src emacs-lisp
+  (use-package org-tidy
+    :ensure t
+    :config
+    ;; (add-hook 'org-mode-hook #'org-tidy-mode)
+    )
+#+end_src
 ** slack
  #+BEGIN_SRC emacs-lisp
    (when gb/profile--slack
