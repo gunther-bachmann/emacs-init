@@ -3420,10 +3420,13 @@
 
       (defun gb/mode-line-padding ()
         (let ((r-length (if gb/disable-modeline-updates
-                            gb/mode-line--last-padding-cache
-                          (+ (length (replace-regexp-in-string
-                                      ":[a-zA-Z_-]+:" "LL"
-                                      (substring-no-properties (format-mode-line right-global-mode-string))))
+                            (progn
+                              ;; (message "using padding cache")
+                              gb/mode-line--last-padding-cache)
+                          ;; (message "using real padding")
+                          (+ (right-global-mode-string-len);;  (length (replace-regexp-in-string
+                                         ;; ":[a-zA-Z_-]+:" "LL"
+                                         ;; (substring-no-properties (format-mode-line right-global-mode-string))))
                              (if (and mlscroll-mode (gb/modeline-line-selected-window-active-p)) (- mlscroll-width-chars 1) 0)
                              ;; (if dired-annotator-show 3 0)
                              ))))
@@ -3474,6 +3477,22 @@
               (propertize filename 'face (if active 'mode-line-emphasis (list ':foreground mode-line-file-name-disabled-color)))
             (concat (propertize (car (last elements)) 'face (if active 'mode-line-emphasis (list ':foreground mode-line-file-name-disabled-color))) " " (string-join (butlast elements) "/"))))) 
 
+      (defun shorten-buffer-filename--optimized-for-known-projects (fn active)
+        (cond ((and (boundp 'org-roam-directory) (string-prefix-p org-roam-directory fn))
+               (let ((psfn 
+                      (gb/reorder-filename 
+                       (string-join
+                        (list
+                         (ml-project-prefix active)
+                         (replace-regexp-in-string "[12][019][0-9][0-9][01][0-9][0-3][0-9][0-2][0-9][0-5][0-9][0-5][0-9]-"
+                                                   (ml-timestamp-prefix active)
+                                                   (substring-no-properties fn (length org-roam-directory))))
+                        " ")
+                       active)))
+                 (setq gb/mode-line--last-shortened-filename-cache psfn)
+                 psfn))
+              (t (shorten-buffer-filename fn active))))
+
       (defun shorten-buffer-filename (fn active)
         (if (and gb/disable-modeline-updates gb/mode-line--last-shortened-filename-cache)
             gb/mode-line--last-shortened-filename-cache
@@ -3498,7 +3517,7 @@
 
       (defun get-project-relative-buffer-filename (active)
         (when-let* ((fn (buffer-file-name)))
-          (shorten-buffer-filename fn active)))
+          (shorten-buffer-filename--optimized-for-known-projects fn active)))
 
       (defun propertize-base-name (filename)
         (when filename
@@ -3583,7 +3602,7 @@
                             id))
 
                   '(:eval (when (and (not (buffer-file-name)) (gb/modeline-line-selected-window-active-p))
-                            (shorten-buffer-filename default-directory t)))
+                            (shorten-buffer-filename--optimized-for-known-projects default-directory t)))
 
                   '(:eval (when (and (fboundp 'gb/keycast-mode) gb/keycast-mode (gb/modeline-line-selected-window-active-p)) keycast-mode-line))))
 
@@ -3597,6 +3616,17 @@
                       ;; '(:eval (when text-scale-mode (concat " (𝞿" text-scale-mode-lighter ") ")))
                       mode-line-misc-info)
                      (list mode-line-process)))
+
+      (defun right-global-mode-string-len ()
+        (length
+         (replace-regexp-in-string
+          ":[a-zA-Z_-]+:" "LL"
+          (string-join
+           (list
+            (format-mode-line mode-line-modes)
+            (format-mode-line mode-line-misc-info)
+            (when mode-line-process (format-mode-line (list mode-line-process))))
+           ""))))
 
       (defconst mlscroll-model-line-const (list '(:eval (when (gb/modeline-line-selected-window-active-p) (mlscroll-mode-line)))))
       (setq-default mode-line-format
