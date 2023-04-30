@@ -17835,6 +17835,20 @@
              ;; (org-imgtog-preview-delay-only-remote t) ;; only delay for remote images
              ))
 #+end_src
+* EVAL jinx
+- async, deferred spell checking
+- jinx module had to be compiled with (in folder ~~/.emacs.d/elpa/jinx-0.6~)
+  ~# guix shell enchang pkg-config~
+  ~# cc -I. -O2 -Wall -Wextra -fPIC -shared -o jinx-mod.so jinx-mod.c $(pkg-config --cflags --libs enchant-2)~
+#+begin_src emacs-lisp
+  (use-package jinx
+    :custom (jinx-languages "en_US de_DE")
+    :diminish 
+    :config
+    (dolist (hook '(text-mode-hook prog-mode-hook conf-mode-hook))
+      (add-hook hook #'jinx-mode))
+    (custom-set-faces  '(jinx-misspelled ((t (:underline (:color "orange3" :style wave)))))))
+#+end_src
 * file-info - extended information about files
   #+begin_src emacs-lisp
     (use-package file-info
