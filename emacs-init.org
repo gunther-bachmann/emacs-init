@@ -10776,6 +10776,12 @@
     ;; (add-hook 'org-mode-hook #'org-tidy-mode)
     )
 #+end_src
+*** org indent
+#+begin_src emacs-lisp
+  (use-package org-indent
+    :after org
+    :diminish)
+#+end_src
 ** slack
  #+BEGIN_SRC emacs-lisp
    (when gb/profile--slack
