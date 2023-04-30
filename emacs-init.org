@@ -14090,7 +14090,7 @@
           (progn
             (message "Starting multimonitor support for exwm.")
             (require 'exwm-randr)
-            (add-hook 'exwm-randr-screen-change-hook #'gb/refresh-exwm-monitor-setup)
+            (add-hook 'exwm-randr-screen-change-hook #'gb/reset-exwm-monitor-setup)
             (exwm-randr-enable))
 
 
