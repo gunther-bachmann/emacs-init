@@ -680,6 +680,7 @@
       ;; '(tool-bar-mode nil) ;; part of early-init.el
       )
 
+     (setq redisplay-dont-pause t) ;; redraw even if input is in queue (cursor always visible even during repeated next-line commands)
    #+END_SRC
 ** add theme
    - changed the value for the background from #1d1f21 -> #141618 in file color-theme-sanityinc-tomorrow.el
