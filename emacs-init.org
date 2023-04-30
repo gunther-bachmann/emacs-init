@@ -5631,7 +5631,9 @@
                   (ivy--display-transformers-alist '())
                   (ivy-display-style 'fancy)
                   (ivy-height 30 "default height of ivy completion")
-                  (ivy-use-selectable-prompt t "make prompt a selectable option"))
+                  (ivy-use-selectable-prompt t "make prompt a selectable option")
+                  ;; (ivy-ignore-buffers ("\\` " "\\`\\*tramp/" "\\`\\*Bookmark/"))
+                  )
          :config
          (defface ivy-current-match
            '((((class color) (background light))
@@ -5693,7 +5695,7 @@
                (set-mouse-position mframe mx my))))
 
          (advice-add 'ivy-read :around #'gb/with-disabled-mouse)
-         (advice-add 'ivy-completing-read :around #'gb/with-disabled-mouse)
+         ;; (advice-add 'ivy-completing-read :around #'gb/with-disabled-mouse)
          ;; (advice-remove 'ivy-completing-read #'gb/with-disabled-mouse)
          ;; (advice-remove 'ivy-read #'gb/with-disabled-mouse)
          )
