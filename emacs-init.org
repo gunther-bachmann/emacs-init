@@ -12188,6 +12188,11 @@
                    ("C-c a /" . #'dired-annotator-narrow-on-tag)
                    ("'" . #'dired-annotator-show-note)))
    #+end_src
+** dired-gitignore
+#+begin_src emacs-lisp
+  (use-package dired-gitignore
+    :ensure t)
+#+end_src
 * figlet (text->ascii art) - not used
   - 'M-x figlet' to enter a text that is transformed into asci art
   - C-u will allow the selection of the font additionally
