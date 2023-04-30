@@ -9171,6 +9171,7 @@
              ("C-<return>" . gb/org-control-return)
              ("C-c l" . org-store-link)
              ("C-c t i" . org-toggle-item))
+      :diminish 
       :custom
       (org-tags-column 0)        ;; 0 = show tags right after the headline, negative = right align to col, positive = left align to col
       (org-ellipsis "…")         ;; make the ... at the end (that indicates folding) be a bit less invasive
@@ -17008,10 +17009,21 @@
      '(Git)))
   #+end_src
 * EVAL docstr - adding documentation strings automatically for several languages
+- takes up a lot of time when globally enabled, thus only enabled for just a couple of programming modes
+- since not all programming languages are supported, just typescript and scala are enabled
+- the actual inserted doc strings can be customized
+- see https://emacs-vs.github.io/docstr/page/
   #+begin_src emacs-lisp
     (use-package docstr
       :ensure t
-      :config (global-docstr-mode 1))
+      :hook ((typescript-mode . gb/docstr-mode-hook)
+             (scala-mode . gb/docstr-mode-hook))
+      :config
+      (defun gb/docstr-mode-hook ()
+        "enable docstr-mode"
+        (docstr-mode 1))
+      ;; (global-docstr-mode 1)
+      )
   #+end_src
 * cloud formation
   #+begin_src emacs-lisp
@@ -18170,7 +18182,8 @@
   - modern-sh - shell script edit mode, see https://github.com/damon-kwok/modern-sh
   - rsync-mode - emacs minor mode to interact with rsync, syncing projects to multiple servers
   - detached - A package to launch, and manage, detached processes, combines with dired, shell and more
-  - dired-rsync-transient - Transient command for dired-rsync 
+  - dired-rsync-transient - Transient command for dired-rsync
+  - shell-maker - Interaction mode for making comint shells 
 ** project
    - treemacs-persp - integration of perspective into treemacs buffer visibility
    - browse-at-remote - Open github/gitlab/bitbucket/stash/gist/phab/sourcehut page from Emacs
@@ -18195,6 +18208,7 @@
   - leo - Interface for dict.leo.org
   - diredc - Extensions for dired (acting similar to midnight commander)
   - cloak-mode - hide information by regex, mode specific
+  - opensub - Search and download from open-subtitles 
 ** windowmanager/x-integration
   - edwin (dynamic window manager)
   - zoom
@@ -18256,9 +18270,12 @@
 ** knowledge management / zettelkasten
 - denote-menu - View denote files in a tabulated list
 - denote - simple notes with an efficient file-naming scheme (leveraging timestamps, filenames, tags with usual emacs packages, just text)
+- paperless - A major mode for sorting and filing PDF documents. 
 ** electrical engineering
 - ob-drawtiming - Functions for drawtiming evaluation in org-babel  (http://drawtiming.sourceforge.net/index.html)
 ** ui
+   - nerd-icons-dired - Shows icons for each file in dired mode 
+   - nerd-icons-ivy-rich - Excellent experience with nerd icons for ivy/counsel 
    - modern-fringes - Replaces default fringe bitmaps with better looking ones
    - simple-modeline -
    - theme-anchor - Apply theme in current buffer only
@@ -19372,6 +19389,7 @@
 # Local Variables:
 # eval: (read-only-mode 1)
 # eval: (flyspell-mode 0)
+# eval: (jinx-mode 0)
 # eval: (org-hide-block-all)
 # eval: (org-overview)
 # End:
