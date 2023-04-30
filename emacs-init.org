@@ -2522,6 +2522,12 @@
            (apply orig-func params)
            (gb/install-frame-creation-speedup)))
      #+end_src
+** nerd-font
+#+begin_src emacs-lisp
+  (use-package nerd-fonts
+    :load-path "~/repo/emacs/nerd-fonts.el"
+    :commands (nerd-fonts))
+#+end_src
 ** sublimity (smooth scrolling)
    - patched ~sublimity--post-command~ commented out ~(recenter)~ after vscroll detection
    - patched sublimity-scroll--vscroll-effect and  sublimity-scroll--hscroll-effect to ~NOT~ execute ~(force-window-update)~
