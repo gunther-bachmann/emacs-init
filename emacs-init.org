@@ -17815,6 +17815,26 @@
     ("C-x C-n e" . #'ipa-edit)
     ("C-x C-n t" . #'ipa-toggle))
 #+end_src
+* EVAL org-remoteimg
+- [[https://github.com/gaoDean/org-remoteimg][homepage]]
+- inlines and caches image references to remote
+#+begin_src emacs-lisp
+  (use-package org-remoteimg
+    :load-path "~/repo/emacs/org-remoteimg/"
+    :custom (org-display-remote-inline-images 'cache))
+#+end_src
+* EVAL org-imgtog
+- [[https://github.com/gaoDean/org-imgtog][homepage]]
+- toggles reference/image similar to org-fragtog
+#+begin_src emacs-lisp
+  (use-package org-imgtog
+    :load-path "~/repo/emacs/org-imgtog/"
+    :custom (
+             ;; customization interesting for non-caching case
+             ;; (org-imgtog-preview-delay 0.5) ;; wait 0.5 seconds before toggling
+             ;; (org-imgtog-preview-delay-only-remote t) ;; only delay for remote images
+             ))
+#+end_src
 * file-info - extended information about files
   #+begin_src emacs-lisp
     (use-package file-info
