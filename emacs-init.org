@@ -6276,11 +6276,32 @@
           (add-hook 'clojure-mode-hook          #'enable-paredit-mode))
         (eval-after-load "paredit"
         '(progn
-          (define-key paredit-mode-map (kbd "<RET>") nil))))
+          (define-key paredit-mode-map (kbd "<RET>") nil)
+          (define-key paredit-mode-map (kbd "C-j") 'paredit-newline))))
 
       ;; (autoload 'enable-paredit-mode "paredit" "Turn on pseudo-structural editing of Lisp code." t)
-
     #+END_SRC
+*** ielm (interative emacs lisp mode)
+- make history in ielm persistent
+#+begin_src emacs-lisp
+  ;; credits go to https://www.n16f.net/blog/making-ielm-more-comfortable/
+  (defun gb/ielm-init-history ()
+    (let ((path (expand-file-name "ielm/history" user-emacs-directory)))
+      (make-directory (file-name-directory path) t)
+      (setq-local comint-input-ring-file-name path))
+    (setq-local comint-input-ring-size 10000)
+    (setq-local comint-input-ignoredups t)
+    (comint-read-input-ring))
+
+  (add-hook 'ielm-mode-hook #'gb/ielm-init-history)
+
+  (defun gb/ielm-write-history (&rest _args)
+    (with-file-modes #o600
+      (comint-write-input-ring)))
+  
+  (advice-add 'ielm-send-input :after #'gb/ielm-write-history)
+
+#+end_src
 *** elisp slime nav
     #+BEGIN_SRC emacs-lisp
     ;; allows navigation M-. and M-, to jump to definition and return back
