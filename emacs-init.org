@@ -16833,15 +16833,26 @@
 
       (defun gb/udisksctl--get-mounts (device)
         (--filter
-         (not (gb/unmount-check--backup-relevant-mount? (nth 2 (split-string it " "))))
+         (and (< 0 (length it)) (not (gb/unmount-check--backup-relevant-mount? (nth 2 (split-string it " ")))))
          (split-string (string-trim (shell-command-to-string (format  "mount | grep -e '^%s'" device))) "\n")))
 
+      (defun gb/udisksctl--get-luks-mounts (device)
+        "get (encrypted) mount for the given device"
+        (-map 
+         #'cdr
+         (--filter
+          (< 0 (length (string-trim (shell-command-to-string (format "sudo cryptsetup status %s | grep -e 'device:.*%s'" (car it) device)))))
+          (--map
+           (cons (nth 0 (split-string it " ")) (nth 2 (split-string it " ")))
+           (split-string (string-trim (shell-command-to-string "mount | grep -e '/dev/mapper.*/run/media'")) "\n")))))
+
       (defun gb/udisksctl--completing-read-mount (device)
-        (when-let ((mounts (gb/udisksctl--get-mounts device)))
+        (when-let ((mounts (append (gb/udisksctl--get-mounts device) (gb/udisksctl--get-luks-mounts device))))
           (--first (not (string-empty-p it)) (s-split " " (completing-read "Mounts: " mounts nil t)))))
 
       (defun gb/udisksctl--unmount-mount (mount)
-        (message (string-trim (shell-command-to-string (format "udisksctl unmount -b %s" mount)))))
+         "other command that could be used: udisksctl unmount -b %s"
+        (message (string-trim (shell-command-to-string (format "sudo umount %s" mount)))))
 
       (defun gb/udisksctl--unmount ()
         (interactive)
