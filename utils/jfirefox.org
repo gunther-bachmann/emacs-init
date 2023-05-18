@@ -1,0 +1,8 @@
+#+title: jfirefox
+* start firefox in firejail
+  #+begin_src sh :comments link :shebang "#!/usr/bin/env bash" :eval no :tangle ~/bin/jfirefox :tangle-mode (identity #o755)
+    #------------------------------------------------------------------
+    # THIS FILE IS GENERATED (To edit please open file from link above)
+    #------------------------------------------------------------------
+    firejail --ignore='noexec ${HOME}' --name=firefox --keep-config-pulse $(readlink -f $(command -v firefox)) $@
+  #+end_src
