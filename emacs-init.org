@@ -14724,7 +14724,8 @@
 
         (advice-add 'org-tree-slide-move-next-tree :after #'gb/presentation-hide-tags)
         (when (fboundp 'valign-mode)
-          (advice-add 'org-tree-slide-after-narrow-hook :after #'gb/align-all-tables))
+          (advice-add 'org-tree-slide-after-narrow-hook :after #'gb/align-all-tables)
+          (advice-add 'org-tree-slide-move-next-tree :after #'gb/align-all-tables))
         (advice-add 'org-tree-slide-move-previous-tree :after #'gb/presentation-hide-tags)
         (advice-add 'org-tree-slide-content :after #'gb/presentation-hide-tags)
 
@@ -14788,11 +14789,23 @@
         (defun gb/align-all-tables ()
           (interactive)
           (when (and (eq major-mode 'org-mode) (fboundp 'valign-mode))
+            (gb/-align-all-tables)))
+
+        (defun gb/-align-all-tables (&rest args)
+          (when valign-mode
             (save-excursion
               (goto-char 0)
               (ignore-errors
                 (while (and (not (equal (point) (point-max))) (re-search-forward "^\s*\|.*\|\s*$"))
-                  (valign-table))))))
+                  (valign-table)
+                  (next-line)
+                  (beginning-of-line)
+                  (while (and (not (equal (point) (point-max))) (looking-at "^\s*\|.*\|\s*$"))
+                    (next-line)
+                    (beginning-of-line)))))))
+
+        (when (fboundp 'valign-mode)
+          (advice-add 'org-cycle :after #'gb/-align-all-tables))
 
         (defun gb/presentation-on ()
           "make all relevant adjustments to present an org-tree-slide presentation"
@@ -14824,10 +14837,14 @@
           (org-babel-result-hide-all)
           (read-only-mode +1)
           (flyspell-mode 0) ;; no spell check errors
+          (when (fboundp 'valign-mode)
+            (valign-mode 1)
+            (gb/align-all-tables))
+          (when (fboundp 'jinx-mode)
+            (jinx-mode 0))
           (appt-activate -1)
           (when (fboundp 'gb/serif-on)
-            (gb/serif-on))
-          (gb/align-all-tables)
+            (gb/serif-on))    
           ;; (when (boundp org-padding-mode)
           ;;   (setq org-padding-heading-padding-alist
           ;;         '((4.0 . 1.5) (3.0 . 0.5) (3.0 . 0.5) (3.0 . 0.5) (2.5 . 0.5) (2.0 . 0.5) (1.5 . 0.5) (0.5 . 0.5)))
@@ -14849,7 +14866,10 @@
           (when (fboundp 'remove-fira-code-symbol-keywords)
             (remove-fira-code-symbol-keywords))
           (when (boundp 'org-bullets-mode)
-            (setq org-bullets-bullet-list org-bullets-bullet-list-old))
+            (setq org-bullets-bullet-list org-bullets-bullet-list-old)
+            (org-bullets-mode 0)
+            (org-bullets-mode 1)
+            (font-lock-fontify-buffer))
           (when (fboundp 'gb/serif-off)
             (gb/serif-off))
           ;; (when (fboundp 'org-padding-mode)
