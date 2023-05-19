@@ -17901,6 +17901,27 @@
                           (header-line-highlight ((t (:foreground "#a0a0a0" :underline t)))))
                   (progn (add-to-list 'gb/list-of-faces-to-set it)(custom-set-faces it)))))))
   #+end_src
+* EVAL starhugger - connect to gpt-2 starcoder language model
+- see [[https://gitlab.com/daanturo/starhugger.el][here]]
+#+begin_src emacs-lisp
+  (use-package starhugger
+    :load-path "~/repo/emacs/starhugger.el"
+    :defer t
+    :commands (starhugger-trigger-suggestion)
+    :init
+    (keymap-global-set "M-\\" #'starhugger-trigger-suggestion)
+    :config
+    (setq starhugger-api-token (gethash "huggingfacetoken" (jde-read-properties-file "~/huggingface-token.properties.gpg")))
+    (setq starhugger-max-prompt-length (* 4 1024))
+
+    ;; `starhugger-inline-menu-item' makes a conditional binding that is only active at the inline suggestion start
+
+    (keymap-set starhugger-inlining-mode-map "TAB" (starhugger-inline-menu-item #'starhugger-accept-suggestion))
+    (keymap-set starhugger-inlining-mode-map "M-[" (starhugger-inline-menu-item #'starhugger-show-prev-suggestion))
+    (keymap-set starhugger-inlining-mode-map "M-]" (starhugger-inline-menu-item #'starhugger-show-next-suggestion))
+
+    (keymap-set starhugger-inlining-mode-map "M-f" (starhugger-inline-menu-item #'starhugger-accept-suggestion-by-word)))
+#+end_src
 * utility functions
   - open dired to mounted folders
     #+begin_src emacs-lisp
