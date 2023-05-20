@@ -17036,7 +17036,7 @@
         (interactive)
         (let* ((video (ytdious-get-current-video))
                (id    (ytdious-video-id-fun video)))
-          (start-process-shell-command "ytdious dl" nil (format "youtube-dl -x --audio-format mp3 %s" id))
+          (start-process-shell-command "ytdious dl" nil (format "yt-dlp -x --audio-format mp3 %s" id))
           (message (format "Downloading/Transcoding (%s)..." id))))
       (defun ytdious-watch ()
         "Stream video at point in mpv."
