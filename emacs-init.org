@@ -17649,19 +17649,24 @@
                   ("M-g M-r" . dogears-remember)
                   ("M-g M-D" . dogears-sidebar)))
   #+end_src
-* EVAL vale - spell checker for org mode
+* EVAL flycheck-vale - spell checker (for org mode, md and regular text)
   - works in org mode!
   - as package: https://github.com/abingham/flycheck-vale/blob/master/flycheck-vale.el
   #+begin_src emacs-lisp
     (when (executable-find "vale")
-      (flycheck-define-checker vale
-        "A checker for prose"
-        :command ("vale" "--output" "line" source)
-        :standard-input nil
-        :error-patterns
-        ((error line-start (file-name) ":" line ":" column ":" (id (one-or-more (not (any ":")))) ":" (message) line-end))
-        :modes (markdown-mode org-mode text-mode))
-      (add-to-list 'flycheck-checkers 'vale 'append))
+      ;; (flycheck-define-checker vale
+      ;;   "A checker for prose"
+      ;;   :command ("vale" "--output" "line" source)
+      ;;   :standard-input nil
+      ;;   :error-patterns
+      ;;   ((error line-start (file-name) ":" line ":" column ":" (id (one-or-more (not (any ":")))) ":" (message) line-end))
+      ;;   :modes (markdown-mode org-mode text-mode))
+      ;; (add-to-list 'flycheck-checkers 'vale 'append)
+
+
+      (use-package flycheck-vale
+        :load-path "~/repo/emacs/flycheck-vale/"
+        :config (flycheck-vale-setup)))
   #+end_src
 * EVAL difftastic magit integration
   - thanks to https://tsdh.org/posts/2022-08-01-difftastic-diffing-with-magit.html
