@@ -17625,11 +17625,17 @@
     (use-package ca65-mode
       :ensure t)
   #+end_src
-* EVAL inspector
-  - inspector - Tool for inspection of Emacs Lisp objects. 
+* EVAL inspector, tree-inspector
+  - inspector - Tool for inspection of Emacs Lisp objects (see [[https://github.com/mmontone/emacs-inspector][here]])
+  - tree-inspector - Tool to inspect Emacs Lisp objects with tree structure using a tree view (see [[https://github.com/mmontone/emacs-tree-inspector][here]])
   #+begin_src emacs-lisp
     (use-package inspector
-      :ensure t)
+      :ensure t
+      :commands (inspector-inspect-expression inspector-inspect-last-sexp))
+
+    (use-package tree-inspector
+      :ensure t
+      :commands (tree-inspector-inspect-expression tree-inspector-inspect-last-sexp))
   #+end_src
 * EVAL dogears
   #+begin_src emacs-lisp
