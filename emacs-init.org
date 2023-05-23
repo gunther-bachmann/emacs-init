@@ -3621,18 +3621,21 @@
                                 (substring-no-properties (format-mode-line mode-line-modes))))
                       ;; '(:eval (when text-scale-mode (concat " (𝞿" text-scale-mode-lighter ") ")))
                       mode-line-misc-info)
-                     (list mode-line-process)))
+                     ;; '(:eval (when mode-line-process (format-mode-line (list mode-line-process))))
+                     ))
 
       (defun right-global-mode-string-len ()
         (length
          (replace-regexp-in-string
           ":[a-zA-Z_-]+:" "LL"
-          (string-join
-           (list
-            (format-mode-line mode-line-modes)
-            (format-mode-line mode-line-misc-info)
-            (when mode-line-process (format-mode-line (list mode-line-process))))
-           ""))))
+          (substring-no-properties
+           (string-join
+            (list
+             (format-mode-line mode-line-modes)
+             (format-mode-line mode-line-misc-info)
+             ;;(when mode-line-process (format-mode-line (list mode-line-process)))
+             )
+            "")))))
 
       (defconst mlscroll-model-line-const (list '(:eval (when (gb/modeline-line-selected-window-active-p) (mlscroll-mode-line)))))
       (setq-default mode-line-format
@@ -12263,9 +12266,9 @@
       (use-package envrc
         :ensure t
         :custom
-        (envrc-on-lighter '(" [" (:propertize "on" face envrc-mode-line-on-face) "]"))
-        (envrc-error-lighter '(" [" (:propertize "error" face envrc-mode-line-error-face) "]"))
-        (envrc-none-lighter '(" [" (:propertize "none" face envrc-mode-line-none-face) "]"))
+        (envrc-on-lighter '((:propertize " Γ" face envrc-mode-line-on-face)))
+        (envrc-error-lighter '((:propertize " Γ" face envrc-mode-line-error-face)))
+        (envrc-none-lighter '((:propertize " Γ" face envrc-mode-line-none-face)))
         :config
         (envrc-global-mode 1)
         (define-key envrc-mode-map (kbd "C-c e") 'envrc-command-map)))
@@ -12384,6 +12387,7 @@
      (use-package emms
        :ensure t
        :commands (emms emms-browser)
+       :custom (emms-mode-line-icon-color "goldenrod4")
        :config
        (require 'emms-setup)
        (emms-all)
@@ -16612,7 +16616,6 @@
       (use-package org-roam-stack
         :load-path "~/repo/emacs/org-roam-stack/"
         :after (org org-roam bind-key)
-        :diminish 'org-roam-stack-mode
         :custom (org-roam-stack--link-adjustments t)
         (org-roam-stack--open-ro t)))
   #+end_src
