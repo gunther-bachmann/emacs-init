@@ -2522,8 +2522,8 @@
            (apply orig-func params)
            (gb/install-frame-creation-speedup)))
      #+end_src
-** nerd-font
-#+begin_src emacs-lisp
+** nerd-font (disabled)
+#+begin_src emacs-lisp :tangle no
   (use-package nerd-fonts
     :load-path "~/repo/emacs/nerd-fonts.el"
     :commands (nerd-fonts))
@@ -16989,8 +16989,8 @@
       :ensure t
       :commands (counsel-ag-popup))
   #+end_src
-* EVAL - org-tag-beautify - replace (some) tags with icons
-  #+begin_src emacs-lisp
+* EVAL - (disabled) org-tag-beautify - replace (some) tags with icons
+  #+begin_src emacs-lisp :tangle no
     (use-package org-tag-beautify
       :ensure t
       :config (org-tag-beautify-mode 1))
@@ -17236,11 +17236,11 @@
           (add-hook 'eww-after-render-hook #'gb/serif-on)))
 
   #+end_src
-* EVAL shellcop
+* DISABLED shellcop
   - press enter in the output of a command line program (in shell-mode) and the file (with line and col information) will open
   - useful to open file where error message was reported.
     see [[https://github.com/redguardtoo/shellcop][here]]
-  #+begin_src emacs-lisp
+  #+begin_src emacs-lisp :tangle no
     (use-package shellcop
       :ensure t
       :hook (shell-mode-hook . shellcop-start))
