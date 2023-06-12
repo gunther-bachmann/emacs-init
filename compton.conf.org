@@ -14,19 +14,29 @@
     # no tearing in videos
     vsync = true; # picom fails on this one but works fine otherwise
 
-    backend = "glx";
+    # backend = "glx";
+    # xrender-sync = true;
+    # xrender-sync-fence = true;
+
     # backend = "xrender";
-    # backend = "xr_glx_hybrid";
+
+    # see https://manpages.ubuntu.com/manpages/bionic/man1/compton.1.html
+    backend = "xr_glx_hybrid";
+    vsync-use-glfinish = true;
 
     # Opacity
     fading = true;
     # fade-delta = 20;
-    fade-in-step = 0.05;
+    fade-in-step = 0.03;
     fade-out-step = 0.03;
     inactive-opacity = 0.75;
     active-opacity = 1.0;
     frame-opacity = 0.9;
     no-fading-openclose = false;
+
+    paint-on-overlay = true;
+    detect-transient = true;
+    detect-client-leader = true;
 
     # shadow
     shadow = true;
