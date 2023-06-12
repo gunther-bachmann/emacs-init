@@ -18,7 +18,7 @@
       if [ "$LINK" != "" ]; then
         RELINK="~${LINK#'/home/pe'}"
         REFILE="~/documents/docbase${file#'.'}"
-        echo "ln '${RELINK}' '${REFILE}" >> $TARGETF
+        echo "ln '${REFILE}' '${RELINK}'" >> $TARGETF
       fi
     done
     cat $TARGETF
