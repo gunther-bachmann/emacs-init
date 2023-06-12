@@ -17956,6 +17956,16 @@
     :ensure t
     :defer t)
 #+end_src
+* EVAL media-progress-dired
+- see https://github.com/jumper047/media-progress
+#+begin_src emacs-lisp
+  (use-package media-progress-dired
+    :ensure t
+    :defer t
+    :diminish
+    ;; :hook (dired-mode . media-progress-dired-mode) ;; is enabled in dir locals
+    )
+#+end_src
 * utility functions
   - open dired to mounted folders
     #+begin_src emacs-lisp
