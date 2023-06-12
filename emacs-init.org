@@ -8606,12 +8606,19 @@
             :map gnus-group-mode-map
             ("<f1>" . hydra-gnus-group/body)
             ("C-c b l" . gnus-bookmark-bmenu-list)
+            ("C-c m" . gnus-group-mark-group)
+            ("C-c u" . gnus-group-unmark-group)
+            ("C-S-s" . gnus-group-make-nnir-group)
+            ;; ("C-s" . isearch-forward-regexp)
             :map gnus-summary-mode-map
             ("<f1>" . hydra-gnus-summary/body)
             ("C-c b l" . gnus-bookmark-bmenu-list)
             ("C-c b m" . gnus-bookmark-set)
             ("C-c b s" . gnus-bookmark-set)
-            ("@" . gnus-summary-mark-as-processable)
+            ("C-c m" . gnus-summary-mark-as-processable)
+            ("C-c u" . gnus-summary-unmark-all-processable)
+            ("C-c d" . gnus-summary-delete-article)
+            ("C-k" . gnus-summary-delete-article)
             :map gnus-article-edit-mode-map
             ("<f1>" . hydra-gnus-article-mime-part/body)
             :map gnus-article-mode-map
