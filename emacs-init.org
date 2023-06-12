@@ -12195,6 +12195,15 @@
   (use-package dired-filter
     :ensure t)
 #+end_src
+** doc-base
+#+begin_src emacs-lisp
+  (use-package doc-base
+    :load-path "~/repo/emacs/emacs-doc-base"
+    :commands (doc-base--file doc-base--file-repeat)
+    :bind (:map dired-mode-map
+           ("C-S-f" . #'doc-base--file)
+           ("C-." . #'doc-base--file-repeat)))
+#+end_src
 * figlet (text->ascii art) - not used
   - 'M-x figlet' to enter a text that is transformed into asci art
   - C-u will allow the selection of the font additionally
