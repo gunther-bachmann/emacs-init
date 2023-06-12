@@ -17949,6 +17949,13 @@
   (use-package git-related
     :load-path "~/.emacs.d/additionals/")
 #+end_src
+* EVAL mpvi - control mpv (seek, play, pause ...)
+- see https://github.com/lorniu/mpvi/blob/master/README-en.md for controls etc.
+#+begin_src emacs-lisp
+  (use-package mpvi
+    :ensure t
+    :defer t)
+#+end_src
 * utility functions
   - open dired to mounted folders
     #+begin_src emacs-lisp
