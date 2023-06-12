@@ -1,0 +1,27 @@
+#+title: backup.docbase.hardlink-information
+* read all inodes from files in ~/documents/docbase and write a info file
+  #+begin_src sh :comments link :shebang "#!/usr/bin/env bash" :eval no :tangle ~/bin/backup.docbase.hardlink-information.sh :tangle-mode (identity #o755)
+    #------------------------------------------------------------------
+    # THIS FILE IS GENERATED (To edit please open file from link above)
+    #------------------------------------------------------------------
+    #
+    echo "Make backup of hardlink information of files in ~/documents/docbase"
+    echo "This script can be executed anywhere and automatically."
+    TEMP=$(mktemp -u -t "XXXXX")
+    TARGETF="../$(date +%Y-%m-%d).$(basename "$TEMP").docbase.mapping.txt"
+    pushd .
+    cd ~/documents/docbase
+    echo "# execute this shell script to restore hardlinks in '~/documents/docbase'" > $TARGETF
+    find . | while read file; do
+      INODE=$(stat -c '%i' "$file")
+      LINK=$(find ~/documents/books -inum "${INODE}")
+      if [ "$LINK" != "" ]; then
+        RELINK="~${LINK#'/home/pe'}"
+        REFILE="~/documents/docbase${file#'.'}"
+        echo "ln '${RELINK}' '${REFILE}" >> $TARGETF
+      fi
+    done
+    cat $TARGETF
+    mv $TARGETF ~/backups/
+    popd
+  #+end_src

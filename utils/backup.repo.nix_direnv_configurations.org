@@ -1,5 +1,5 @@
 #+title: backup.repo.nix_direnv_configurations
-* Lookup all elbs, get descriptions for them, filter all that have the following TAG/VALUE combination
+* get files usually in git repositories but not checked in (like nix files)
   #+begin_src sh :comments link :shebang "#!/usr/bin/env bash" :eval no :tangle ~/bin/backup.repo.nix_direnv_configurations.sh :tangle-mode (identity #o755)
     #------------------------------------------------------------------
     # THIS FILE IS GENERATED (To edit please open file from link above)
