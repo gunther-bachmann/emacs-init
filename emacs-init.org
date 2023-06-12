@@ -12190,6 +12190,11 @@
   (use-package dired-gitignore
     :ensure t)
 #+end_src
+** dired-filter
+#+begin_src emacs-lisp
+  (use-package dired-filter
+    :ensure t)
+#+end_src
 * figlet (text->ascii art) - not used
   - 'M-x figlet' to enter a text that is transformed into asci art
   - C-u will allow the selection of the font additionally
