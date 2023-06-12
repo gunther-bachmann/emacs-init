@@ -17099,8 +17099,9 @@
     (use-package flycheck-cfn
       :ensure t)
   #+end_src
-* compilation mode configuration
-  #+begin_src emacs-lisp
+* DISABLED compilation mode configuration
+- does comint filtering, check that
+  #+begin_src emacs-lisp :tangle no
     (use-package compile
       :init
       ;; Shut up compile saves
@@ -18322,7 +18323,8 @@
   - ox-review - Re:VIEW Back-End for Org Export Engine (re:VIEW generates ePub, PDF, markdown etc., see https://github.com/kmuto/review)
   - org-notifications - Creates notifications for org-mode entries
   - org-notify - Notifications for Org-mode
-  - org-incoming - Sort incoming PDFs into your org files 
+  - org-incoming - Sort incoming PDFs into your org files
+  - org-bulletproof - plain list bullet cycling 
 ** os/system
   - network-watch (allows hooks to run when network is goiing down/up)
   - scp (use scp to transfer files)
@@ -18429,6 +18431,7 @@
 - paperless - A major mode for sorting and filing PDF documents. 
 ** electrical engineering
 - ob-drawtiming - Functions for drawtiming evaluation in org-babel  (http://drawtiming.sourceforge.net/index.html)
+- fpga - FPGA & ASIC Utils 
 ** ui
    - nerd-icons-dired - Shows icons for each file in dired mode 
    - nerd-icons-ivy-rich - Excellent experience with nerd icons for ivy/counsel 
@@ -19534,6 +19537,7 @@
       (gb/cpu-powersave))
 
     ;; (gb/compositor-enable)
+    (async-shell-command "nitrogen --restore &" nil nil)
 
     (report-elapsed "exit finish - up")
     (lisp-interaction-mode)
