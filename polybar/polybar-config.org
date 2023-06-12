@@ -269,7 +269,7 @@
     [module/wireless-network]
     type = internal/network
     interface = wlp4s0
-    interval = 3.0
+    interval = 3
 
     ; Available tags:
     ;   <label-connected> (default)
