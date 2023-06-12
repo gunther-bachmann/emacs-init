@@ -83,4 +83,6 @@
     noblacklist /run/user/1000/emacs/server
     whitelist /run/user/1000/emacs/server
 
+    # --- addition to allow DRM playback via widevine
+    ?BROWSER_ALLOW_DRM: ignore noexec ${HOME}
   #+end_src
