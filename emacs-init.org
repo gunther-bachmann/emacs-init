@@ -12395,9 +12395,9 @@
      (use-package emms
        :ensure t
        :commands (emms emms-browser)
-       :custom (emms-mode-line-icon-color "goldenrod4")
        :config
        (require 'emms-setup)
+       (setq emms-mode-line-icon-color "goldenrod4")
        (emms-all)
        (emms-default-players)
        (setq emms-source-file-default-directory "~/music/")
