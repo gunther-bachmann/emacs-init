@@ -17944,6 +17944,11 @@
 
     (keymap-set starhugger-inlining-mode-map "M-f" (starhugger-inline-menu-item #'starhugger-accept-suggestion-by-word)))
 #+end_src
+* EVAL git-related
+#+begin_src emacs-lisp
+  (use-package git-related
+    :load-path "~/.emacs.d/additionals/")
+#+end_src
 * utility functions
   - open dired to mounted folders
     #+begin_src emacs-lisp
