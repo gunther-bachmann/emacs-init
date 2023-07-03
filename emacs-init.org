@@ -1845,14 +1845,15 @@
 * browser
 ** w3m
    #+BEGIN_SRC emacs-lisp
-   (when w3m-installed
-       (use-package w3m
-         :commands w3m w3m-search w3m-browse-url
-         :ensure t
-         :config
-         (progn
-           (setq w3m-default-display-inline-images t)
-           (setq w3m-toggle-inline-images t))))
+     (when w3m-installed
+         (use-package w3m
+           :commands w3m w3m-search w3m-browse-url
+           :ensure t
+           :defer t
+           :config
+           (progn
+             (setq w3m-default-display-inline-images t)
+             (setq w3m-toggle-inline-images t))))
    #+END_SRC
 * ui related stuff
 ** read only => viewer mode
@@ -1941,7 +1942,7 @@
      :config
      (setq command-log-mode-auto-show t))
    #+END_SRC
-** inline docs
+** inline docs (disabled)
    - enable e.g. through: (setq eldoc-message-function #'inline-docs)
    - shows help inline, above the current line (scrolling down, which is a bit annoying)
    #+BEGIN_SRC emacs-lisp :tangle no
@@ -2003,11 +2004,11 @@
 
        ))
    #+END_SRC
-** interaction log
+** interaction log (disabled)
    - start via ilog-log-buffer-mode, creates a buffer called *Emacs log*, just open it
-   #+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp :tangle no
      (use-package interaction-log
-       :ensure
+       :ensure t
        :commands ilog-log-buffer-mode)
    #+END_SRC
 ** copy of window init from spacemacs
@@ -4197,20 +4198,20 @@
      (progn
        (setq session-name-disable-regexp "\\(\\`/tmp\\|COMMIT_EDITMSG\\)")))
    #+end_src
-** smart-region
+** smart-region (disabled)
    1. set mark, repetitive calls to M-x smart-region will call er/expand-region
    2. set mark, move up/down, stay in same column, call M-x smart-region will open mc/multiple-cursor on each line
       easier to reach via C-S-> and C-S-<
    3. set mark, move right/left/up/down, call M-x smart-region will make a rectangular selection
-   #+begin_src emacs-lisp 
+   #+begin_src emacs-lisp :tangle no
    (use-package smart-region
      ;; :commands smart-region
      :after (expand-region multiple-cursors)
      )
    #+end_src
-** edit-indirect
+** edit-indirect (disabled)
    - edit region in separate buffer (and guess mode)
-   #+begin_src emacs-lisp 
+   #+begin_src emacs-lisp :tangle no
    (use-package edit-indirect
      ;; :commands edit-indirect-region edit-indirect-commit
      :ensure t)
@@ -4531,10 +4532,10 @@
        :ensure t
        :config (require 'vlf-setup))
    #+END_SRC
-** volatile hightlighting
+** volatile hightlighting (disabled)
    - highlight blocks associated with buffer commands until any key is pressed
      (e.g. highlight pasted text)
-   #+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp :tangle no
    (when (locate-library "volatile-highlights")
       (use-package volatile-highlights
         :config
@@ -4891,9 +4892,9 @@
        (if (string-prefix-p (buffer-substring 1 6) "<?xml")
            (nxml-pretty-format))))
    #+END_SRC
-** aggressive indent mode (also used by parinfer)
+** aggressive indent mode (also used by parinfer) (disabled)
    automatically indents all while typing 
-   #+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp :tangle no
    (when (locate-library "aggressive-indent")
      (use-package aggressive-indent
        :config
@@ -5273,7 +5274,7 @@
      :config
      (with-eval-after-load 'company (add-hook 'company-mode-hook (lambda () (add-to-list 'company-backends 'company-capf))) (company-flx-mode +1)))
    #+END_SRC
-** IMPLEMENT company-shell
+** company-shell
    - provide company help for fish (or other shell) completions within modes like (fish-mode, shell-mode)
    #+BEGIN_SRC emacs-lisp
    (use-package company-shell
@@ -5313,7 +5314,7 @@
          (setq helm-swoop-split-direction (quote split-window-horizontally))))
    #+END_SRC
 ** pos tip
-   #+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp :tangle no
    (use-package pos-tip
      :ensure t)
    #+END_SRC
@@ -5485,7 +5486,7 @@
        ;; or add (visible-mark-mode) to specific hooks
        ))
    #+END_SRC
-** back-button
+** back-button (disabled)
    - currently disabled, since it depends (transitively on pcache, which takes eons during kill-emacs-hooks execution)
    #+BEGIN_SRC emacs-lisp :tangle no
    (use-package back-button
@@ -5537,9 +5538,9 @@
                      eclim-java-find-declaration eclim-java-find-references eclim-java-find-generic eclim-java-find-type
                      cider-find-resource cider-find-file cider-find-var cider-find-var-file))))
    #+END_SRC
-** region-state
+** region-state (disabled)
    - Show the number of chars/lines or rows/columns in the region
-   #+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp :tangle no
    (when (locate-library "region-state")
      (use-package region-state
        :config
@@ -6256,7 +6257,7 @@
     ;; (setq eldoc-message-function #'eldoc-minibuffer-message)
 
     #+END_SRC
-*** eldoc overlay mode
+*** eldoc overlay mode (disabled)
     - displays eldoc in an overlay right before cursor
     - does this all the time, after some delay.
     - this may become anoying
@@ -6589,8 +6590,8 @@
           :config
           (helm-cider-mode 1)))
     #+END_SRC
-*** litable
-    #+BEGIN_SRC emacs-lisp
+*** litable (disabled)
+    #+BEGIN_SRC emacs-lisp :tangle no
     ;; To start this up, simply enable the litable minor mode in the buffer by calling
     ;; M-x litable-mode.
     (use-package litable
@@ -6609,7 +6610,7 @@
     (use-package clojars
       :after ( clojure-mode))
     #+END_SRC
-*** expectations
+*** expectations (disabled)
     #+BEGIN_SRC emacs-lisp :tangle no
     ;;================================================== clojure
     ;; clojure expectations mode
@@ -6646,10 +6647,6 @@
       :init
       (add-hook 'clojure-mode-hook 'typed-clojure-mode))
     #+END_SRC
-*** org babel clojure
-    #+BEGIN_SRC emacs-lisp
-
-    #+END_SRC
 ** cypher mode (neo4j), disabled
    #+BEGIN_SRC emacs-lisp :tangle no
    (use-package cypher-mode
@@ -6682,12 +6679,12 @@
    (use-package elixir-mode
      :ensure t)
    #+END_SRC
-** elm
-   #+BEGIN_SRC emacs-lisp
+** elm (disabled)
+   #+BEGIN_SRC emacs-lisp :tangle no
    (use-package elm-mode
      :ensure t)
    #+END_SRC
-** erlang
+** erlang (disabled)
    #+BEGIN_SRC emacs-lisp :tangle no
    (use-package erlang
      :ensure t)
@@ -6702,8 +6699,8 @@
          :ensure t
          :after ( erlang ivy-erlang-complete company))
      #+END_SRC
-** groovy
-   #+BEGIN_SRC emacs-lisp
+** groovy (disabled)
+   #+BEGIN_SRC emacs-lisp :tangle no
    (use-package groovy-mode
      :commands groovy-mode
      :ensure t
@@ -6991,7 +6988,7 @@
 
 
    #+END_SRC
-*** java decompiler
+*** java decompiler (disabled)
     #+BEGIN_SRC emacs-lisp :tangle no
       ;; (add-to-list 'load-path "~/.emacs.d/java/")
       ;; (use-package javad
@@ -7086,12 +7083,6 @@
      :ensure t
      :config (setq lsp-metals-treeview-show-when-views-received t))
 
-   (use-package dap-mode
-     :ensure t
-     :hook
-     (lsp-mode . dap-mode)
-     (lsp-mode . dap-ui-mode))
-
    ;; (use-package ensime
    ;;   :ensure t
    ;;   ;; :after ( sbt-mode)
@@ -7113,6 +7104,15 @@
    ;;                       (ammonite-term-repl-minor-mode t))))
    ;; (use-package ob-ammonite)
  #+END_SRC
+** dap
+#+begin_src emacs-lisp
+     (use-package dap-mode
+       :ensure t
+       :hook
+       (lsp-mode . dap-mode)
+       (lsp-mode . dap-ui-mode))
+
+#+end_src
 ** xml
    #+BEGIN_SRC emacs-lisp :tangle no
      (use-package nxml-mode
@@ -7570,7 +7570,7 @@
           ;; :defer 40
           :after ( magit)))
     #+END_SRC
-*** forge (magit access to pull requests on github/gitlab)
+*** forge, disabled (magit access to pull requests on github/gitlab)
     #+BEGIN_SRC emacs-lisp :tangle no
     (use-package forge
       :after magit
@@ -7988,7 +7988,7 @@
                      ("M-/" . company-native-complete)
                      ("<tab>" . company-native-complete)))
      #+end_src
-   - bash completion
+   - bash completion (disabled)
    #+BEGIN_SRC emacs-lisp :tangle no
      (use-package bash-completion
        :ensure t
@@ -8043,8 +8043,8 @@
 
      (gb/register-delete-files-hourly)
    #+end_src
-* ebooks
-  #+BEGIN_SRC emacs-lisp
+* ebooks (disabled)
+  #+BEGIN_SRC emacs-lisp :tangle no
   (use-package ereader
     :after ( xml+ dash)
     :ensure t
@@ -12507,9 +12507,9 @@
    #+END_SRC
 ** info colors
    #+BEGIN_SRC emacs-lisp
-   (when (locate-library "info-colors")
      (use-package info-colors
-       :init (add-hook 'Info-selection-hook 'info-colors-fontify-node)))
+       :ensure t
+       :init (add-hook 'Info-selection-hook 'info-colors-fontify-node))
    #+END_SRC
 ** flycheck gradle - not used
    #+BEGIN_SRC emacs-lisp :tangle no
@@ -12618,13 +12618,12 @@
 ** lsp-ui
    - emacs ui integration for lsp (like flycheck etc.)
    #+BEGIN_SRC emacs-lisp
-     (when (locate-library "lsp-ui")
-       (use-package lsp-ui
-         :ensure t
-         :hook (lsp-mode-hook . lsp-ui-mode)
-         :custom
-         (lsp-ui-doc-max-width 100)
-         (lsp-ui-doc-position 'bottom)))
+     (use-package lsp-ui
+       :ensure t
+       :hook (lsp-mode-hook . lsp-ui-mode)
+       :custom
+       (lsp-ui-doc-max-width 100)
+       (lsp-ui-doc-position 'bottom))
    #+END_SRC
 #+BEGIN_SRC emacs-lisp
 (report-elapsed "check point - lsp-ui")
@@ -12640,18 +12639,18 @@
    - C-c f <char> : goto the next occurrance of <char>. <char> can then be repeatedly pressed to move on to the next after that
      #+BEGIN_SRC emacs-lisp
        (use-package iy-go-to-char
+         :ensure t
          :bind (("C-c f" . iy-go-to-char)
-                ("C-c F" . iy-go-to-char-backward))
-         )
+                ("C-c F" . iy-go-to-char-backward)))
      #+END_SRC
-** edit-at-point
+** edit-at-point (disabled)
    - edit(copy,cut..) current things(word,symbol..) under cursor
-   #+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp :tangle no
      (use-package edit-at-point
        :ensure t)
    #+END_SRC
-** eno, ace like copy, cut, past and move
-   #+BEGIN_SRC emacs-lisp
+** eno, ace like copy, cut, past and move (disable)
+   #+BEGIN_SRC emacs-lisp :tangle no
      (use-package eno
        :after ( dash edit-at-point)
        :bind
@@ -12733,7 +12732,8 @@
 #+END_SRC
 ** elisp refs (find references to elisp functions....)
    #+BEGIN_SRC emacs-lisp
-   (use-package elisp-refs) ;; allow M-x elisp-refs-...
+     (use-package elisp-refs
+       :ensure t) ;; allow M-x elisp-refs-...
    #+END_SRC
 #+BEGIN_SRC emacs-lisp
 (report-elapsed "check point - elisp efs")
@@ -12771,7 +12771,7 @@
 (report-elapsed "check point - cider stuff")
 #+END_SRC
 ** window / frame tiling
-   #+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp :tangle no
    (use-package tile
      :commands tile tile-select tile-frames-horizontal tile-frames-vertically tile-frames-top-to-bottom tile-frames-side-by-side) ;; see [https://github.com/IvanMalison/tile], tiles windows into predefined setups
    #+END_SRC
@@ -12851,8 +12851,8 @@
    #+END_SRC
 ** historian
    #+BEGIN_SRC emacs-lisp
-   (when (locate-library "historian")
-    (use-package historian))
+     (use-package historian
+       :ensure t)
    #+END_SRC
 ** org-brain (disabled - now using notdeft)
    organize org files within org-brain-path into somthing like a mindmap / wiki that can be browsed
@@ -12960,8 +12960,8 @@
                   (ypos (cdr (frame-position (selected-frame)))))
               (set-frame-position (selected-frame) (max (- xpos 800) 0) ypos)))
    #+END_SRC
-** json-navigator
-   #+BEGIN_SRC emacs-lisp
+** json-navigator disabled
+   #+BEGIN_SRC emacs-lisp :tangle no
    (when (locate-library "json-navigator")
      (use-package json-navigator))
    #+END_SRC
@@ -12974,7 +12974,7 @@
 #+BEGIN_SRC emacs-lisp
 (report-elapsed "check point - dired-collapse")
 #+END_SRC
-** org-pomodoro (time management technique)
+** org-pomodoro (time management technique) disabled
    - install libnotify (e.g. nix-env -iA nixos.libnotify)
    #+BEGIN_SRC emacs-lisp :tangle no
      (use-package org-pomodoro
@@ -14971,7 +14971,7 @@
                 (ad-set-args 0 `("%s" ,formatted-string))
                 ad-do-it))))))
   #+end_src
-* EVAL winum (select windows by number, which is shown in the modeline)
+* winum (select windows by number, which is shown in the modeline)
   - is useful for native applications in exwm, since ace-window cannot overlay those with the key to select those
   #+begin_src emacs-lisp
     (use-package winum
@@ -14996,10 +14996,10 @@
   #+end_src
 * EVAL emacs surround (see [[https://github.com/ganmacs/emacs-surround][here]])
   #+begin_src emacs-lisp
-  (when (file-exists-p "~/.emacs.d/additionals/emacs-surround/emacs-surround.el")
-    (use-package emacs-surround
-      :load-path "~/.emacs.d/additionals/emacs-surround"
-      :bind (("s-q c s" . emacs-surround))))
+    (when (file-exists-p "~/.emacs.d/additionals/emacs-surround/emacs-surround.el")
+      (use-package emacs-surround
+        :load-path "~/.emacs.d/additionals/emacs-surround"
+        :bind (("s-q c s" . emacs-surround))))
   #+end_src
 * EVAL browse-kill-ring
   #+begin_src emacs-lisp
@@ -15036,7 +15036,7 @@
         (custom-set-variables '(tempbuf-minimum-timeout (* 60 60 4)))
         (add-hook 'after-change-major-mode-hook 'turn-on-tempbuf-mode)))
   #+end_src
-* hydra
+* EVAL hydra
 #+BEGIN_SRC emacs-lisp
   (use-package hydra
     :ensure t
@@ -15353,7 +15353,9 @@
         :ensure-system-package rg
         :ensure t))
   #+end_src
-* EVAL keycast (incomplete) disabled
+* EVAL keycast
+- to en/disable ~M-x gb/keycast-mode~
+- to show a key log buffer ~M-x keycast-log-mode~
   #+begin_src emacs-lisp
     (use-package keycast
       :ensure t
@@ -15409,8 +15411,8 @@
         :bind (("s-n" . helm-switch-shell))
         :ensure t))
   #+end_src
-* EVAL fzf
-  #+begin_src emacs-lisp
+* EVAL fzf (disabled)
+  #+begin_src emacs-lisp :tangle no
     (use-package fzf
       :commands (fzf fzf-git)
       :ensure-system-package fzf
@@ -15974,8 +15976,8 @@
 
     ;; start by M-x imaxima
   #+end_src
-* EVAL ctrlf
-  #+begin_src emacs-lisp
+* EVAL ctrlf (disabled)
+  #+begin_src emacs-lisp :tangle no
     (use-package ctrlf
       :ensure t)
   #+end_src
@@ -16130,9 +16132,9 @@
   #+begin_src emacs-lisp :tangle no
     (use-package languagetool)
   #+end_src
-* EVAL shrface - allows browsing the web via org-mode like rendering
+* EVAL shrface - allows browsing the web via org-mode like rendering (unused)
   - see https://github.com/chenyanming/shrface
-  #+begin_src emacs-lisp
+  #+begin_src emacs-lisp :tangle no
     (use-package shrface
       :ensure t
       :config
@@ -16165,7 +16167,7 @@
       (with-eval-after-load 'mu4e
         (add-hook 'mu4e-view-mode-hook 'shrface-mode)))
   #+end_src
-* file grep and replace
+* file grep and replace (wgrep)
   #+begin_src emacs-lisp
     (when (eq gb/completion-framework 'helm)
       (use-package helm-ag
@@ -16199,10 +16201,10 @@
       :commands (format-all-buffer)
       :ensure t)
   #+end_src
-* EVAL compy - adjust programs via patterns
+* EVAL compy - adjust programs via patterns (unused)
   - use the current selection as input template for pattern matching and transformation
   - see https://comby.dev/
-  #+begin_src emacs-lisp
+  #+begin_src emacs-lisp :tangle no
     (use-package comby
       :commands (comby)
       :ensure t)
@@ -16326,8 +16328,8 @@
         (goto-char (point-max))
         (insert "\n")))
   #+end_src
-* EVAL esup - emacs startup profiling
-  #+begin_src emacs-lisp
+* EVAL esup - emacs startup profiling (not used)
+  #+begin_src emacs-lisp :tangle no
     (use-package esup
       :ensure t
       :commands (esup))
@@ -16393,45 +16395,15 @@
       (bind-key "C-c v c" #'smeargle-commits)
       (bind-key "C-c v k" #'smeargle-clear))
   #+end_src
-* TODO EVAL git-messenger - popup last commit information for line (uses popup should use posframe)
+* unused git-messenger - popup last commit information for line (uses popup should use posframe)
   - see https://github.com/emacsorphanage/git-messenger
-  #+begin_src emacs-lisp
+  #+begin_src emacs-lisp :tangle no
     (use-package git-messenger
       :ensure t
-      :bind (("C-c v p" . gb/git-messenger:popup-message)
+      :bind (("C-c v p" . git-messenger:popup-message)
              :map git-messenger-map
-             ("m" . gb/git-messenger:popup-message))
-      :custom (git-messenger:use-magit-popup nil "Use magit-show-commit for showing status/diff commands")
-      :init
-      (defun gb/git-messenger:popup-message ()
-        (interactive)
-        (let* ((vcs (git-messenger:find-vcs))
-               (file (buffer-file-name (buffer-base-buffer)))
-               (line (line-number-at-pos))
-               (commit-info (git-messenger:commit-info-at-line vcs file line))
-               (commit-id (car commit-info))
-               (author (cdr commit-info))
-               (msg (git-messenger:commit-message vcs commit-id))
-               (popuped-message (if (git-messenger:show-detail-p commit-id)
-                                    (git-messenger:format-detail vcs commit-id author msg)
-                                  (cl-case vcs
-                                    (git msg)
-                                    (svn (if (string= commit-id "-")
-                                             msg
-                                           (git-messenger:svn-message msg)))
-                                    (hg msg)))))
-          (setq git-messenger:vcs vcs
-                git-messenger:last-message popuped-message
-                git-messenger:last-commit-id commit-id)
-          (let (finish)
-            (run-hook-with-args 'git-messenger:before-popup-hook popuped-message)
-            ;;(pos-tip-show "some")
-            (let (key-read)
-              (loop-until (eq key-read ?q)
-                (posframe-show "* git messenger *" :string msg)
-                (setq key-read (read-key "[q]uit")))
-              (posframe-delete-all)))
-          (run-hook-with-args 'git-messenger:after-popup-hook popuped-message))))
+             ("m" . git-messenger:popup-message))
+      :custom (git-messenger:use-magit-popup nil "Use magit-show-commit for showing status/diff commands"))
   #+end_src
 * gitconfig-mode - mode to edit git config files
   - see https://github.com/magit/git-modes
@@ -16520,12 +16492,12 @@
       (bind-key "0" #'(lambda () (interactive) (setq gb/image-scale 1.0) (image-transform-set-scale gb/image-scale)) eimp-minor-mode-map)
       (bind-key "2" #'(lambda () (interactive) (setq gb/image-scale 2.0) (image-transform-set-scale gb/image-scale)) eimp-minor-mode-map))
   #+end_src
-* delve - org
+* delve - org (disabled)
   - see https://github.com/publicimageltd/delve
   - provides a alternative view on
     - links, backlinks, date last modified, date the link established on, tag usage
     - format is: <modification> <icon> ( <tags-of-zettel> ) <n-incoming-links> <zettel-title> <m-outgoing-links>
-  #+begin_src emacs-lisp
+  #+begin_src emacs-lisp :tangle no
     (when (and (file-exists-p "~/repo/emacs/lister/lister.el")
              (file-exists-p "~/repo/emacs/delve/delve.el"))
       (use-package lister
@@ -16606,14 +16578,14 @@
       :load-path "~/repo/emacs/regexp-expand"
       :commands (regexp-expand))
   #+end_src
-* EVAL rec-mode - show rec files (human readable db)
+* disabled rec-mode - show rec files (human readable db)
   - see [[https://www.gnu.org/software/recutils/][here]]
   #+begin_src emacs-lisp :tangle no
     (use-package rec-mode
       :ensure t)
   #+end_src
-* EVAL diredc - dired commander (midnight commander)
-  #+begin_src emacs-lisp
+* disabled diredc - dired commander (midnight commander)
+  #+begin_src emacs-lisp :tangle no
     (use-package diredc
       :load-path "~/repo/emacs/emacs-diredc"
       :commands (diredc))
