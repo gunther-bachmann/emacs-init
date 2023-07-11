@@ -1,0 +1,24 @@
+#+title: scan-recent-files
+* scan-recent-files
+- collect a list of files that changed the last 7 days
+- run scanner on file list
+- report scan run
+#+begin_src sh :comments link :shebang "#!/usr/bin/env bash" :eval no :tangle ~/bin/scan-recent-files :tangle-mode (identity #o755)
+  #------------------------------------------------------------------
+  # THIS FILE IS GENERATED (To edit please open file from link above)
+  #------------------------------------------------------------------
+  #
+  SCANDIR=${1:-"."}
+  SCANDATE=$(date +"%Y-%m-%d %T")
+  echo "scan ${SCANDIR} (only recent files)"
+  find ${SCANDIR} -type f -ctime -7  > ~/scan.list.txt
+  echo "scanning $(wc -l ~/scan.list.txt) files (starting $SCANDATE)"
+  echo "############################" >> ~/scan.report.txt
+  echo "scan run on dir: ${SCANDIR} on: ${SCANDATE}" >> ~/scan.report.txt
+  echo "############################" >> ~/scan.report.txt
+  mkdir -p ~/scan-positives 2> /dev/null
+  clamscan -l ~/scan.report.txt --file ~/scan.list.txt --copy ~/scan-positives
+  SCANFINISHED=$(date +"%Y-%m-%d %T")
+  echo "scan run on dir: ${SCANDIR} finished: ${SCANFINISHED}" >> ~/scan.report.txt
+  echo "" >> ~/scan.report.txt
+#+end_src
