@@ -9612,7 +9612,15 @@
           (advice-add 'org-hide-block-toggle-maybe :after #'gb/org-hide-block-toggle-maybe--fontify-if-src-block)
           (advice-add 'org-src-font-lock-fontify-block :around #'gb/org-src-font-lock-fontify-block--only-if-non-folded))
 
-        (setq org-file-apps (append '(("\\.sid\\'" . "sidplayfp %s" )) org-file-apps))
+        (setq org-file-apps (append '(("\\.sid\\'" . "sidplayfp '%s'" )
+                                      ("\\.webm\\'\\|\\.mkv\\'\\|\\.mpe?g\\'\\|\\.avi\\'\\|\\.mp4\\'\\|\\.flv\\'" . "mpv '%s'")
+                                      ("\\.d64\\'\\|\\.prg\\'" . "x64sc '%s'")
+                                      ("\\.html?\\'" . "firefox '%s'")
+                                      ("\\.docx?\\'\\|\\.xlsx?\\'\\|\\.pptx?\\'\\|\\.od[tps]\\'" . "soffice '%s'")
+                                      ("\\.eps\\'\\|\\.cb[rz]\\'" . "evince '%s'")
+                                      ("\\.ttf\\'" . "display '%s'"))
+                                    org-file-apps))
+
         (setq org-cycle-include-plain-lists 'integrate)
         ;; set org babel backgrounds for several languages
         (setq org-src-block-faces
@@ -11826,7 +11834,7 @@
                                             ("\\.d64\\'\\|\\.prg\\'" "x64sc")
                                             ("\\.sid\\'" "sidplayfp")
                                             ("\\.html?\\'" "firefox")
-                                            ("\\.docx?\\'\\|\\.xlsx?\\'\\|\\.pptx?\\'\\|\\.odt\\'" "soffice")
+                                            ("\\.docx?\\'\\|\\.xlsx?\\'\\|\\.pptx?\\'\\|\\.od[tps]\\'" "soffice")
                                             ("\\.eps\\'\\|\\.pdf\\'\\|\\.cb[rz]\\'" "evince")
                                             ("\\.ttf\\'" "display")))
 
