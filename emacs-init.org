@@ -12160,7 +12160,7 @@
        :config
        (require 'posframe)
        (add-to-list 'recentf-exclude (format "%s/.*" (regexp-quote dired-annotator-annotations-folder)))
-       (defconst dired-annotator-note-popup-width 58 "width of the note that pops up (less since serif fonts are used)")
+       (defconst dired-annotator-note-popup-width 59 "width of the note that pops up (less since serif fonts are used)")
        (defconst dired-annotator-note-popup-height 40 "max height of the note that pops up")
 
        (defun dired-annotator--remove-all-posframes ()
@@ -15429,6 +15429,7 @@
 * EVAL pomodoro
   #+begin_src emacs-lisp
     (use-package pomm
+      :custom (pomm-remaining-time-format "%m")
       :commands (pomm))
   #+end_src
   #+begin_src emacs-lisp :tangle no
@@ -16858,7 +16859,7 @@
            (split-string (string-trim (shell-command-to-string "mount | grep -e '/dev/mapper.*/run/media'")) "\n")))))
 
       (defun gb/udisksctl--completing-read-mount (device)
-        (when-let ((mounts (append (gb/udisksctl--get-mounts device) (gb/udisksctl--get-luks-mounts device))))
+        (when-let ((mounts (--filter it (append (gb/udisksctl--get-mounts device) (gb/udisksctl--get-luks-mounts device)))))
           (--first (not (string-empty-p it)) (s-split " " (completing-read "Mounts: " mounts nil t)))))
 
       (defun gb/udisksctl--unmount-mount (mount)
@@ -17946,6 +17947,20 @@
     :diminish
     ;; :hook (dired-mode . media-progress-dired-mode) ;; is enabled in dir locals
     )
+#+end_src
+* EVAL docsim
+- do document search on `org-notes` on documents similar to the currently open one
+#+begin_src emacs-lisp
+  (use-package docsim
+    :ensure t
+    :custom (docsim-search-paths (list org-notes)))
+#+end_src
+* EVAL vterm - better terminal emulation
+- installed ~cmake~, ~libvterm~ and ~libtool~ via nix-env
+#+begin_src emacs-lisp
+  (use-package vterm
+    :ensure t
+    :commands (vterm))
 #+end_src
 * utility functions
   - open dired to mounted folders
@@ -19362,12 +19377,6 @@
        (setq magit-delta-default-dark-theme "Solarized (dark)") ;; "base16", "ansi-dark"
        (setq magit-delta-hide-plus-minus-markers nil)
        (magit-delta-mode))
-   #+end_src
-** (disabled: does not compile) vterm - better terminal emulation
-   - installed ~cmake~, ~libvterm~ and ~libtool~ via nix-env
-   #+begin_src emacs-lisp :tangle no
-     (use-package vterm
-       :commands (vterm))
    #+end_src
 ** ytel (youtube interface via invidous) [disabled, needs youtube-dl as extractor, too]
    #+begin_src emacs-lisp :tangle no
