@@ -11046,6 +11046,41 @@
          (defvar gb/slack-modeline--status nil "current user status in slack")
          (defvar gb/slack-modeline-status--timer nil "running timer for status updates")
 
+         (defun gb/slack-default-modeline-formatter (alist)
+           "Element in ALIST is  '((team-name . ((thread . (has-unreads . mention-count)) (channel . (has-unreads . mention-count)))))"
+           (mapconcat #'(lambda (e)
+                          (let* ((team-name (car e))
+                                 (summary (cdr e))
+                                 (thread (cdr (cl-assoc 'thread summary)))
+                                 (channel (cdr (cl-assoc 'channel summary)))
+                                 (thread-has-unreads (car thread))
+                                 (channel-has-unreads (car channel))
+                                 (has-unreads (or thread-has-unreads
+                                                 channel-has-unreads))
+                                 (thread-mention-count (cdr thread))
+                                 (channel-mention-count (cdr channel)))
+                            (format "[ %s: %s, %s ]"
+                                    (if has-unreads
+                                        (propertize team-name
+                                                    'face (if (gb/modeline-line-selected-window-active-p)
+                                                              'slack-modeline-has-unreads-face
+                                                            'mode-line-inactive))
+                                      team-name)
+                                    (if (or channel-has-unreads (< 0 channel-mention-count))
+                                        (propertize (number-to-string channel-mention-count)
+                                                    'face (if (gb/modeline-line-selected-window-active-p)
+                                                              'slack-modeline-channel-has-unreads-face
+                                                            'mode-line-inactive))
+                                      channel-mention-count)
+                                    (if (or thread-has-unreads (< 0 thread-mention-count))
+                                        (propertize (number-to-string thread-mention-count)
+                                                    'face (if (gb/modeline-line-selected-window-active-p)
+                                                              'slack-modeline-thread-has-unreads-face
+                                                            'mode-line-inactive))
+                                      thread-mention-count))))
+                      alist " "))
+         (setq slack-modeline-formatter #'gb/slack-default-modeline-formatter)
+
          (defun gb/slack-modeline-status-activate ()
            "activate slack status in modeline"
            (setq gb/slack-modeline-status--timer (run-at-time 5 60 #'gb/slack-modeline-status-update))
@@ -11185,38 +11220,19 @@
             (format "/home/%s/slack.org" (user-login-name))
             t))
 
-         (defun gb/alert-message-notify-dunst (info)
-           ""
-           (let ((s-com (format "notify-send '%s' '%s'"
-                                (plist-get info :title)
-                                (plist-get info :message)
-                                ;; (symbol-name (plist-get info :severity)) ;; severity does not match
-                                )))
-             (message s-com)
-             (shell-command-to-string s-com)))
-
          (alert-define-style
           'gb-alert-via-org-file
           :title    "Make Org headings for slack messages I receive - Style"
           :notifier #'gb/alert-message-notify-org-file
           :remover  nil)
 
-         (alert-define-style
-          'gb-alert-via-dunst
-          :title    "Alert via dunstify - Style"
-          :notifier #'gb/alert-message-notify-dunst
-          :remover  nil)
-
-         (setq alert-default-style 'message)
+         (setq alert-default-style 'libnotify)
          ;; ;; disable all alerts
          (setq alert-user-configuration
                '((((:title . "\\(.*nord\\|Slackbot\\|.*generali\\|.*nintendo-pipe\\|.*offizielles\\|.* mpdm-.*\\)")(:category . "slack")) gb-alert-via-org-file nil)
                  (((:category . "slack")) ignore nil)
-                 (((:severity high)) gb-alert-via-dunst nil)))
+                 (((:severity high)) libnotify nil)))
 
-         ;; (add-to-list
-         ;;  'alert-user-configuration
-         ;;  '(((:title . "\\(nord\\|Slackbot\\|generali\\|nintendo\\)")(:category . "slack")) gb-alert-style nil))
          )))
  #+END_SRC
 * ido (disabled)
