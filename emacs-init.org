@@ -11632,16 +11632,15 @@
     ;; (use-package imenu+)
   #+END_SRC
 * imenu-anywhere
-  show ido/helm menu for all etags of currently open buffers
+  show ivy/ido/helm menu for all etags of currently open buffers
   the commands are
   - imenu-anyhwere
   - helm-imenu-anywhere
   #+BEGIN_SRC emacs-lisp
-    (when (eq gb/completion-framework 'helm)
-      (use-package imenu-anywhere
-        :ensure t
-        :bind (("s-i" . helm-imenu-anywhere)
-               ("s-I" . helm-imenu-anywhere))))
+    (use-package imenu-anywhere
+      :ensure t
+      :bind (("s-i" . imenu-anywhere)
+             ("s-I" . imenu-anywhere)))
   #+END_SRC
 * crux (disabled)
   - look at https://github.com/bbatsov/crux for additional functions that might be of interest
@@ -11692,8 +11691,12 @@
 #+BEGIN_SRC emacs-lisp
   (use-package helm-backup
     :load-path "~/repo/emacs/helm-backup"
-    :init (add-hook 'after-save-hook #'helm-backup-versioning)
+    :init (add-hook 'after-save-hook #'gb/helm-backup-versioning)
     :config
+    (defun gb/helm-backup-versioning ()
+      ; (gb/gpg-key-query-if-locked gb/main-key)
+      (helm-backup-versioning))
+
     (let* ((uname (user-login-name))
            (udir (format "/home/%s" uname)))
       (setq helm-backup-excluded-entries
@@ -11831,6 +11834,7 @@
               ("C-p" . diredp-previous-line)
               ("`" . gb/dired-open-term)
               ("e" . gb/dired-ediff-files))
+       :custom (dired-create-destination-dirs 'ask)
        :init
        (add-hook 'dired-mode-hook 'auto-revert-mode)
        (add-hook 'dired-mode-hook 'dired-omit-mode)
@@ -13648,6 +13652,7 @@
                (if (not (string-empty-p (shell-command-to-string "pgrep duplicity")))
                    (message "Running duplicity (backup), shutdown aborted.")
                  (add-hook 'kill-emacs-hook #'gb/shutdown--immediately t)
+                 (run-at-time 2 nil #'keyfreq-file-release-lock)
                  (save-buffers-kill-emacs)))))
 
          (defun gb/start-if-not-running (filename)

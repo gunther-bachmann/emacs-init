@@ -102,7 +102,7 @@
   #+begin_src sh :eval no :tangle ~/.xprofile
 
     # enable screen saver
-    xset s 300 60
+    xset s 900 60
     xss-lock -n ~/bin/dim-screen.sh -- i3lock -c 000000 &
   #+end_src
 ** *DISABLED* configure touchpad (to be not too touchy)
