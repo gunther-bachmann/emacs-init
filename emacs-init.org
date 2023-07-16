@@ -3621,8 +3621,8 @@
                                   mode-line-modes
                                 (substring-no-properties (format-mode-line mode-line-modes))))
                       ;; '(:eval (when text-scale-mode (concat " (𝞿" text-scale-mode-lighter ") ")))
-                      mode-line-misc-info)
-                     ;; '(:eval (when mode-line-process (format-mode-line (list mode-line-process))))
+                      mode-line-misc-info
+                      '(:eval (when (fboundp #'pomm-format-mode-line) (format-mode-line (pomm-format-mode-line)))))
                      ))
 
       (defun right-global-mode-string-len ()
@@ -3634,6 +3634,7 @@
             (list
              (format-mode-line mode-line-modes)
              (format-mode-line mode-line-misc-info)
+             (if (fboundp #'pomm-format-mode-line) (pomm-format-mode-line) "")
              ;;(when mode-line-process (format-mode-line (list mode-line-process)))
              )
             "")))))
