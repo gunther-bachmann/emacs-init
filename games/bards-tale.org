@@ -1,0 +1,10 @@
+#+title: Bards Tale
+* bards tale (see [[file:~/documents/roam/mame.org][mame]])
+#+begin_src sh :comments link :shebang "#!/usr/bin/env bash" :eval no :tangle ~/bin/bards-tale :tangle-mode (identity #o755)
+  #------------------------------------------------------------------
+  # THIS FILE IS GENERATED (To edit please open file from link above)
+  #------------------------------------------------------------------
+  #
+  cd ~/emu/apple2/games/bards_tale_1
+  mame apple2e -window -flop1 bt1_boot.dsk -flop2 bt1_char.dsk -ui_active -verbose
+#+end_src

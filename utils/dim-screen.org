@@ -5,5 +5,5 @@
     # THIS FILE IS GENERATED (To edit please open file from link above)
     #------------------------------------------------------------------
     #
-    xbacklight -set 0 -time 1000
+    xbacklight -set 20 -time 1000
   #+end_src

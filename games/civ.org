@@ -1,0 +1,9 @@
+#+title: civ
+* civilization (see [[file:~/documents/roam/dosbox.org][dosbox]])
+#+begin_src sh :comments link :shebang "#!/usr/bin/env bash" :eval no :tangle ~/bin/civ :tangle-mode (identity #o755)
+  #------------------------------------------------------------------
+  # THIS FILE IS GENERATED (To edit please open file from link above)
+  #------------------------------------------------------------------
+  #
+  dosbox ~/emu/dos/Civilization/CIV.BAT
+#+end_src
