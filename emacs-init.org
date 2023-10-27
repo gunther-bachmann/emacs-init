@@ -1100,6 +1100,15 @@
 
      (global-set-key (kbd "C-x k") 'gb/kill-a-buffer)
      (global-set-key (kbd "C-x C-k") 'gb/kill-a-buffer-and-delete-window)
+
+     (defun gb/set-fringe-bg-color (color-or-symbol)
+       (cond
+        ((stringp color-or-symbol)
+         (set-face-attribute 'fringe nil                             
+                             :background color-or-symbol))
+        (t
+         (set-face-attribute 'fringe nil
+                                 :background (face-background 'default)))))
    #+END_SRC
 ** printer
    extensions
@@ -1618,6 +1627,15 @@
      (put 'read-only-mode 'safe-local-variable #'integerp)
      (put 'fill-column 'safe-local-variable #'integerp)
      (put 'dired-omit-files 'safe-local-variable #'stringp)
+     (put 'gb/presentation-bg-color 'safe-local-variable #'stringp)
+     (put 'gb/presentation-l1-color 'safe-local-variable #'stringp)
+     (put 'gb/presentation-l2-color 'safe-local-variable #'stringp)
+     (put 'gb/presentation-l3-color 'safe-local-variable #'stringp)
+     (put 'gb/presentation-l4-color 'safe-local-variable #'stringp)
+     (put 'gb/presentation-l5-color 'safe-local-variable #'stringp)
+     (put 'gb/presentation-l6-color 'safe-local-variable #'stringp)
+     (put 'gb/presentation-l7-color 'safe-local-variable #'stringp)
+     (put 'gb/presentation-l8-color 'safe-local-variable #'stringp)
 
      (custom-set-variables
       '(safe-local-variable-values
@@ -2220,7 +2238,7 @@
          (cond ((eq gb/dual-screen-mode 'presentation)
                 (progn
                   (setq-default line-spacing 6) ;; depends a bit on the type of font selected
-                  (ht ('default-height 250) ('variable-pitch-height 250))))
+                  (ht ('default-height 200) ('variable-pitch-height 200))))
                ((> display-width 3000)
                 (progn
                   (setq-default line-spacing (if (< (frame-width) 250) 0.1 5)) ;; depends a bit on the type of font selected
@@ -14124,8 +14142,9 @@
                          ((or (eq gb/dual-screen-mode 'presentation) (eq gb/dual-screen-mode 'shared-screen))
                           (progn
                             (message "dual monitor presentation/shared-screen mode")
-                            (setq  exwm-randr-workspace-monitor-plist (append `(0 ,primary-monitor) (-interleave (number-sequence 1 (-  (exwm-workspace--count) 1)) (-repeat (- (exwm-workspace--count) 1) primary-monitor))))
-                            (shell-command (s-concat "xrandr --output " second-monitor " --same-as "  primary-monitor " --mode " (gb/xrandr-monitor-resolution primary-monitor)))))
+                            (setq  exwm-randr-workspace-monitor-plist (append `(0 ,primary-monitor) (-interleave (number-sequence 1 (-  (exwm-workspace--count) 1)) (-repeat (- (exwm-workspace--count) 1) second-monitor))))
+                            (shell-command (s-concat "xrandr --output " primary-monitor " --left-of "  second-monitor " --auto"))
+                            (shell-command (s-concat "xrandr --output " second-monitor " --mode " (gb/xrandr-monitor-resolution primary-monitor)))))
                          (t
                           (progn
                             (message "dual monitor")
@@ -14757,6 +14776,7 @@
         :config
         (setq org-tree-slide-header nil)
         (setq org-tree-slide-heading-emphasis t)
+        (setq org-tree-slide-slide-top-blank-lines 1)
         (setq original-org-show-notification-handler org-show-notification-handler)
 
         (defvar gb/org-indent t "should org indent be on or off during presentation?")
@@ -14778,10 +14798,11 @@
 
         (advice-add 'org-tree-slide-move-next-tree :after #'gb/presentation-hide-tags)
         (when (fboundp 'valign-mode)
-          (advice-add 'org-tree-slide-after-narrow-hook :after #'gb/align-all-tables)
+          (add-hook 'org-tree-slide-after-narrow-hook #'gb/align-all-tables)
           (advice-add 'org-tree-slide-move-next-tree :after #'gb/align-all-tables))
         (advice-add 'org-tree-slide-move-previous-tree :after #'gb/presentation-hide-tags)
         (advice-add 'org-tree-slide-content :after #'gb/presentation-hide-tags)
+        (add-hook 'org-tree-slide-while-animation-sitting-hook #'gb/presentation-hide-tags)
 
         (defconst gb/presentation-speaker-notes-buffer-name "* speaker notes *" "name of the buffer for speaker notes")
 
@@ -14861,6 +14882,20 @@
         (when (fboundp 'valign-mode)
           (advice-add 'org-cycle :after #'gb/-align-all-tables))
 
+        (defun gb/presentation--set-bg-color (col)
+          (set-background-color col)
+          (setq gb/presentation-face-remap-cookie (face-remap-add-relative 'org-hide `(:foreground ,col :background ,col))))
+
+        (defun gb/set-fringe-mode-on (aframe value)
+          (setq fringe-mode value)
+          (modify-frame-parameters
+           aframe
+           (list (cons 'left-fringe (if (consp fringe-mode)
+                                        (car fringe-mode)
+                                      fringe-mode))
+                 (cons 'right-fringe (if (consp fringe-mode)
+                                         (cdr fringe-mode)
+                                       fringe-mode))) ))
         (defun gb/presentation-on ()
           "make all relevant adjustments to present an org-tree-slide presentation"
           (interactive)
@@ -14868,6 +14903,8 @@
                 #'(lambda
                     (msg)
                     (message msg)))
+          (mlscroll-mode 0)
+          (global-git-gutter-mode 0)
           (when (boundp 'org-bullets-mode)
             (set (make-local-variable 'org-bullets-bullet-list-old) org-bullets-bullet-list)
             (set (make-local-variable 'org-bullets-bullet-list) '(" " " " " " " " " " " " " " " " " " " " " " " " " " " " " " " " " " " " " " " ")))
@@ -14904,19 +14941,48 @@
           ;;         '((4.0 . 1.5) (3.0 . 0.5) (3.0 . 0.5) (3.0 . 0.5) (2.5 . 0.5) (2.0 . 0.5) (1.5 . 0.5) (0.5 . 0.5)))
           ;;   (org-padding-mode))
           (org-tree-slide-mode)
+          (toggle-word-wrap 1)
+          (toggle-truncate-lines 0)
+          (setq gb/presentation-modeline mode-line-format)
+          (setq mode-line-format nil)
+          (gb/set-fringe-mode-on (selected-frame) 100)
           (redisplay t)
           (when (boundp beginend-org-mode)
             (beginend-org-mode-goto-beginning))
           (setq org-tree-slide-content--pos nil)
+          (display-fill-column-indicator-mode 0)
           (if gb/org-indent
               (org-indent-mode 1)
             (org-indent-mode -1))
+          (when (boundp 'gb/presentation-bg-color)
+            (let ((bg-color gb/presentation-bg-color))
+              ;; (gb/set-fringe-bg-color gb/presentation-bg-color)
+              (gb/presentation--set-bg-color bg-color)
+              (setq gb/presentation-fringe-bg-remap-cookie (face-remap-add-relative 'fringe `(:background ,bg-color :foreground ,bg-color)))
+              (with-current-buffer (window-buffer (minibuffer-window))
+                (setq gb/presentation-fringe-mini-bg-remap-cookie (face-remap-add-relative 'fringe `(:background ,bg-color :foreground ,bg-color))))
+              (setq gb/presentation-tree-slide-empty-line (face-remap-add-relative 'org-tree-slide-header-overlay-face `(:background ,bg-color :foreground ,bg-color)))
+              (setq gb/presentation-tree-slide-default (face-remap-add-relative 'default `(:background ,bg-color :foreground "#FFFFFF")))
+              (setq gb/presentation-mode-line-bg-remap-cookie (face-remap-add-relative 'mode-line `(:background ,bg-color)))
+              (setq gb/presentation-mode-line-in-bg-remap-cookie (face-remap-add-relative 'mode-line-inactive `(:background ,bg-color)))))
+          (when (boundp 'gb/presentation-l1-color)
+            (setq gb/presentation-l1-remap-cookie (face-remap-add-relative 'org-level-1 `(:foreground ,gb/presentation-l1-color))))
+          ;; todo: react to locally defined variables in presentation itself
+          (setq org-tree-slide-pauses--distance-color-values '("white" "gray80" "gray70"))
+          (setq org-tree-slide-pauses--disabled-color-value "gray50")
+          (setq inhibit-message t)
           (org-tree-slide-content))
 
         (defun gb/presentation-off ()
           "revert all adjustments done to present an org-tree-slide presentation"
           (interactive)
+          (setq inhibit-message nil)
+          (when (boundp 'gb/presentation-modeline)
+            (setq mode-line-format gb/presentation-modeline))
           (org-tree-slide-mode -1)
+          (gb/set-fringe-mode-on (selected-frame) 10)
+          (global-git-gutter-mode +1)
+          ;; (gb/set-fringe-bg-color "#141618")
           (when (fboundp 'remove-fira-code-symbol-keywords)
             (remove-fira-code-symbol-keywords))
           (when (boundp 'org-bullets-mode)
@@ -14926,6 +14992,31 @@
             (font-lock-fontify-buffer))
           (when (fboundp 'gb/serif-off)
             (gb/serif-off))
+          (when (and (boundp 'gb/presentation-face-remap-cookie) gb/presentation-face-remap-cookie)
+            (face-remap-remove-relative gb/presentation-face-remap-cookie)
+            (setq gb/presentation-face-remap-cookie nil))
+          (when (and (boundp 'gb/presentation-mode-line-bg-remap-cookie) gb/presentation-mode-line-bg-remap-cookie)
+            (face-remap-remove-relative gb/presentation-mode-line-bg-remap-cookie)
+            (setq gb/presentation-mode-line-bg-remap-cookie nil))
+          (when (and (boundp 'gb/presentation-mode-line-in-bg-remap-cookie) gb/presentation-mode-line-in-bg-remap-cookie)
+            (face-remap-remove-relative gb/presentation-mode-line-in-bg-remap-cookie)
+            (setq gb/presentation-mode-line-in-bg-remap-cookie nil))
+          (when (and (boundp 'gb/presentation-tree-slide-empty-line) 'gb/presentation-tree-slide-empty-line)
+            (face-remap-remove-relative gb/presentation-tree-slide-empty-line)
+            (setq gb/presentation-tree-slide-empty-line nil))
+          (when (and (boundp 'gb/presentation-fringe-bg-remap-cookie) gb/presentation-fringe-bg-remap-cookie)
+            (face-remap-remove-relative gb/presentation-fringe-bg-remap-cookie)
+            (setq gb/presentation-fringe-bg-remap-cookie nil))
+          (when (and (boundp 'gb/presentation-tree-slide-default) gb/presentation-tree-slide-default)
+            (face-remap-remove-relative gb/presentation-tree-slide-default)
+            (setq gb/presentation-tree-slide-default nil))         
+          (with-current-buffer (window-buffer (minibuffer-window))
+            (when (and (boundp 'gb/presentation-fringe-mini-bg-remap-cookie) gb/presentation-fringe-mini-bg-remap-cookie)
+              (face-remap-remove-relative gb/presentation-fringe-mini-bg-remap-cookie)
+              (setq gb/presentation-fringe-mini-bg-remap-cookie nil)))
+          (when (and (boundp 'gb/presentation-l1-remap-cookie) gb/presentation-l1-remap-cookie)
+            (face-remap-remove-relative gb/presentation-l1-remap-cookie)
+            (setq gb/presentation-l1-remap-cookie nil))
           ;; (when (fboundp 'org-padding-mode)
           ;;   (org-padding-mode -1)
           ;;   (setq org-padding-heading-padding-alist
@@ -14934,10 +15025,14 @@
           ;;   (redisplay t))
           (global-hl-line-mode 1)
           (appt-activate 1)
-          (setq cursor-type 'box)
+          (setq cursor-type 'bar)
           (setq org-show-notification-handler original-org-show-notification-handler)
+          (display-fill-column-indicator-mode 1)
+          (set-background-color "#141618")
           (when (fboundp 'org-hide-tags-mode)
-            (org-hide-tags-mode -1))))
+            (org-hide-tags-mode -1))
+          (toggle-truncate-lines 1)
+          (mlscroll-mode 1)))
     #+end_src
   - disabled original package
     #+begin_src emacs-lisp :tangle no
