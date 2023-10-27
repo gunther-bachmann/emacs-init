@@ -1153,6 +1153,18 @@
           (t (message "No viewer for postscript files known to display ~/temp.ps")))
          (gb/enable-ligatures)))
    #+END_SRC
+** shell
+#+begin_src emacs-lisp
+  (defun safe-shell-command-to-string (command)
+    (let ((loc
+           (if (buffer-file-name)
+               (file-name-directory (buffer-file-name))
+             default-directory)))
+      (if (file-directory-p loc)
+          (shell-command-to-string command)
+        (let ((default-directory "~"))
+          (shell-command-to-string command)))))
+#+end_src
 ** other
    #+BEGIN_SRC emacs-lisp
      ;; source: https://stackoverflow.com/questions/5580562/formatting-an-integer-using-iso-prefixes-for-kb-mb-gb-and-kib-mib-gib
@@ -1488,15 +1500,15 @@
   - make sure this is done, after path is properly setup (mac os problem)
   #+BEGIN_SRC emacs-lisp
     (setq running-nixos (getenv "NIX_PATH"))
-    (setq gb/use-exwm (or (string= "ok" (s-trim (shell-command-to-string "cat ~/.xinitrc | grep -q -e '^ *exec .*emacs' && echo 'ok'")))
+    (setq gb/use-exwm (or (string= "ok" (s-trim (safe-shell-command-to-string "cat ~/.xinitrc | grep -q -e '^ *exec .*emacs' && echo 'ok'")))
                           running-nixos))
     ;; (if (is-linux-p)
-    ;;     (let* ((tracepathResult (shell-command-to-string "tracepath -b -m 4 github.com"))
+    ;;     (let* ((tracepathResult (safe-shell-command-to-string "tracepath -b -m 4 github.com"))
     ;;            (gb/behind-comp (s-contains? "compal" tracepathResult))
     ;;            (gb/behind-kabeld (s-contains? "kabel-deutschland" tracepathResult)))
     ;;       (setq gb/network-home (and gb/behind-comp gb/behind-kabeld)))
     ;;   (setq gb/network-home nil))
-    (setq gb/dual-monitor-setup (string= "2" (s-trim (shell-command-to-string "xrandr --listmonitors | grep \"Monitors\" | awk '{ print $2; }'"))))
+    (setq gb/dual-monitor-setup (string= "2" (s-trim (safe-shell-command-to-string "xrandr --listmonitors | grep \"Monitors\" | awk '{ print $2; }'"))))
 
     ;; (setq gb/use-smart-mode-line (and gb/use-exwm gb/dual-monitor-setup (not gb/network-home) (not running-nixos))) ;;
     ;; (setq gb/use-space-line (not gb/use-smart-mode-line))
@@ -1554,12 +1566,12 @@
 
         (when chromium-installed
           (setq browse-url-browser-function 'browse-url-chromium)
-          (setq browse-url-chromium-program (s-trim (shell-command-to-string "command -v chromium"))))
+          (setq browse-url-chromium-program (s-trim (safe-shell-command-to-string "command -v chromium"))))
 
         ;; firefox takes precedence (over chromium)
         (when firefox-installed
           (setq browse-url-browser-function 'browse-url-firefox)
-          (setq browse-url-firefox-program (s-trim (shell-command-to-string "command -v firefox"))))
+          (setq browse-url-firefox-program (s-trim (safe-shell-command-to-string "command -v firefox"))))
 
         (when (and chromium-installed firefox-installed)
           (let ((chrome-regex ".*\\(/meet\\.jit\\.si/\\|/teams\\.microsoft\\|adventure\\|/meet\\.google\\.com/\\).*"))
@@ -1578,11 +1590,11 @@
         ;; (if icecat-installed
         ;;   (progn
         ;;     (setq browse-url-browser-function 'browse-url-default-browser)
-        ;;     (setq browse-url-chromium-program (s-trim (shell-command-to-string "command -v icecat")))))
+        ;;     (setq browse-url-chromium-program (s-trim (safe-shell-command-to-string "command -v icecat")))))
 
         (setq gnu-ls-installed (not (is-ms-windows-p)))
         (if gnu-ls-installed
-            (setq gnu-ls-bin-path (car (split-string (shell-command-to-string "command -v ls")))))
+            (setq gnu-ls-bin-path (car (split-string (safe-shell-command-to-string "command -v ls")))))
         ))
   #+END_SRC
 * project specific settings
@@ -1787,10 +1799,10 @@
        (setq epa-file-inhibit-auto-save t)
 
        (defun gb/gpg-keys-private-fingerprint ()
-         (s-split "\n" (string-trim (shell-command-to-string "gpg -K | grep -e '^uid' -B 1 | grep -ve '^uid' | grep -v -e '--' | sed -e 's/ *//g'"))))
+         (s-split "\n" (string-trim (safe-shell-command-to-string "gpg -K | grep -e '^uid' -B 1 | grep -ve '^uid' | grep -v -e '--' | sed -e 's/ *//g'"))))
 
        (defun gb/gpg-key-mail-for-fingerprint (fingerprint)
-         (string-trim (shell-command-to-string (format "gpg -K '%s' | grep -e '^uid' | sed -e 's/uid[^]]*. //g'" fingerprint))))
+         (string-trim (safe-shell-command-to-string (format "gpg -K '%s' | grep -e '^uid' | sed -e 's/uid[^]]*. //g'" fingerprint))))
        ;; (gb/gpg-key-mail-for-fingerprint "52E23AA97F38A97B10A18DD3C01A97CB875878BD")
 
        (defun gb/gpg-key-unlock-and-cache ()
@@ -3056,12 +3068,12 @@
            (defun gb/in-git-dir-p ()
              (or
               (and (buffer-file-name) (file-exists-up-the-tree (file-name-directory (buffer-file-name)) ".git"))
-              (not (string-match "^fatal" (shell-command-to-string "git rev-parse --git-dir")))))
+              (not (string-match "^fatal" (safe-shell-command-to-string "git rev-parse --git-dir")))))
 
            (defun gb/vc-status ()
              (if vc-mode
                  vc-mode
-               (concat "\ue0a0 " (car (split-string (shell-command-to-string "git rev-parse --abbrev-ref HEAD"))))))
+               (concat "\ue0a0 " (car (split-string (safe-shell-command-to-string "git rev-parse --abbrev-ref HEAD"))))))
 
            (setq gb/vc-status-cache-delay "10 sec")
            (setq gb/vc-status-cache-buffer-id nil)
@@ -3085,7 +3097,7 @@
 
            (defun gb/git-state ()
              "query git status for the currently active buffer, refresh on buffer switches"
-             (let* ((git-output (shell-command-to-string "git status -s")))
+             (let* ((git-output (safe-shell-command-to-string "git status -s")))
                ;; (message (concat  "git querried " (current-time-string))) ;; just for debugging, please remove when done
                (if (string-empty-p git-output)
                    'up-to-date
@@ -4983,13 +4995,13 @@
                  'langtool-autoshow-detail-popup))
          :config
          (when (is-_nix-p)
-           (let ((jar-file (concat (s-trim (shell-command-to-string "cat `which languagetool` | sed -n 's/^CP=\\(.*\\)/\\1/p'")) "/languagetool-commandline.jar")))
+           (let ((jar-file (concat (s-trim (safe-shell-command-to-string "cat `which languagetool` | sed -n 's/^CP=\\(.*\\)/\\1/p'")) "/languagetool-commandline.jar")))
              (cond ((file-exists-p jar-file) (setq langtool-language-tool-jar jar-file))
                    ((file-exists-p "/usr/share/languagetool") (setq langtool-java-classpath "/usr/share/languagetool:/usr/share/java/languagetool/*"))
                    ((file-exists-p "~/bin/LanguageTool-4.3/languagetool-commandline.jar") (setq langtool-language-tool-jar "~/bin/LanguageTool-4.3/languagetool-commandline.jar"))
                    (t (message (format "ERROR: langtool jar not found at '%s' nor in any known location" jar-file))))))
          (when (is-macos-p)
-           (let ((jar-file (s-trim (shell-command-to-string "cat `which languagetool` | sed -n 's/.*-jar.\\(.*\\) \".*/\\1/p'"))))
+           (let ((jar-file (s-trim (safe-shell-command-to-string "cat `which languagetool` | sed -n 's/.*-jar.\\(.*\\) \".*/\\1/p'"))))
              (if (file-exists-p jar-file)
                  (progn
                    (message "OK: langtool jar file found")
@@ -5602,7 +5614,7 @@
          (setq recentf-save-file (concat user-emacs-directory ".recentf"))
          ;; since recentf file may grow large, delete it if too large
          (shell-command (s-concat "touch " recentf-save-file))
-         (let ((rsf-size-str (s-trim (shell-command-to-string (s-concat "ls -la " recentf-save-file " | awk '{ print $5; }'")))))
+         (let ((rsf-size-str (s-trim (safe-shell-command-to-string (s-concat "ls -la " recentf-save-file " | awk '{ print $5; }'")))))
            (if (<= 10000 (string-to-number rsf-size-str))
                (progn
                  (message (s-concat "deleting too large recentf file '" recentf-save-file "' ( size: " rsf-size-str ")"))
@@ -6827,7 +6839,7 @@
            (if buf
                (switch-to-buffer buf)
              (progn
-               (ansi-term (s-trim (shell-command-to-string "command -v bash")) "Typescript")
+               (ansi-term (s-trim (safe-shell-command-to-string "command -v bash")) "Typescript")
                (comint-send-string "*Typescript*" "tsun\n")))))
        (add-hook 'typescript-mode-hook
                  (lambda ()
@@ -7297,7 +7309,7 @@
         :commands magit-status magit-list-repositories
         :custom ((magit-fetch-arguments (quote ("--prune")))
                  (magit-item-highlight-face nil)
-                 (with-editor-emacsclient-executable (s-trim (shell-command-to-string "command -v emacsclient")))
+                 (with-editor-emacsclient-executable (s-trim (safe-shell-command-to-string "command -v emacsclient")))
                  (magit-last-seen-setup-instructions "1.4.0")
                  (magit-log-arguments (quote ("--graph" "--color" "--decorate" "-n200")))
                  (magit-pull-arguments (quote ("--rebase")))
@@ -7346,7 +7358,7 @@
           (defun gb/magit--get-assumed-unchanged ()
             "list of files currently assumed unchanged in git index"
             (--filter (not (string-empty-p it))
-                      (s-split "\n" (shell-command-to-string "git ls-files -v | grep '^h' | sed -e 's/^h //g'"))))
+                      (s-split "\n" (safe-shell-command-to-string "git ls-files -v | grep '^h' | sed -e 's/^h //g'"))))
 
           (defun gb/magit-show-assumed-unchanged ()
             ""
@@ -7361,7 +7373,7 @@
             "restore all assumed unchanged"
             (interactive)
             (--each (gb/magit--get-assumed-unchanged)
-              (shell-command-to-string (format "git update-index --no-assume-unchanged \"%s\"" it)))
+              (safe-shell-command-to-string (format "git update-index --no-assume-unchanged \"%s\"" it)))
             (magit-refresh))
 
           (defun gb/shell-command-to-exit-code-and-string (command)
@@ -7407,7 +7419,7 @@
           (let ((file-list (s-join " " (magit-staged-files))))
             (when (--some (s-contains-p it file-list)
                           (list "\.ts" "\.tsx" "\.js" "\.vue"))
-              (--> (shell-command-to-string "git diff --cached") ; TODO this could cause false positives because it takes all the staged files, even non JS
+              (--> (safe-shell-command-to-string "git diff --cached") ; TODO this could cause false positives because it takes all the staged files, even non JS
                  s-lines
                  (--keep (when (and (s-starts-with-p "+" it) (s-contains-p "console\." it))
                            (substring it 1 (length it)))
@@ -7765,7 +7777,7 @@
          ;; (defun pcmpl-git-get-refs (type)
          ;;   "Return a list of `git' refs filtered by TYPE."
          ;;   (with-temp-buffer
-         ;;     (insert (shell-command-to-string pcmpl-git-ref-list-cmd))
+         ;;     (insert (safe-shell-command-to-string pcmpl-git-ref-list-cmd))
          ;;     (goto-char (point-min))
          ;;     (let (refs)
          ;;       (while (re-search-forward (concat "^refs/" type "/\\(.+\\)$") nil t)
@@ -7774,7 +7786,7 @@
 
          ;; (defun pcmpl-git-remotes ()
          ;;   "Return a list of remote repositories."
-         ;;   (split-string (shell-command-to-string "git remote")))
+         ;;   (split-string (safe-shell-command-to-string "git remote")))
 
          ;; (defun pcomplete/git ()
          ;;   "Completion for `git'."
@@ -7994,7 +8006,7 @@
      (use-package bash-completion
        :ensure t
        :config
-       (setq bash-completion-prog (s-trim (shell-command-to-string "command -v bash")))
+       (setq bash-completion-prog (s-trim (safe-shell-command-to-string "command -v bash")))
        (bash-completion-setup))
    #+END_SRC
 ** shell (bash) checking
@@ -8011,7 +8023,7 @@
    (defun start-zsh ()
      "start a  z shell within ansi-term"
      (interactive)
-     (ansi-term (s-trim (shell-command-to-string "command -v zsh"))))
+     (ansi-term (s-trim (safe-shell-command-to-string "command -v zsh"))))
    #+END_SRC
 * play startup sound (check again 3.5)
   #+begin_src emacs-lisp
@@ -8139,7 +8151,7 @@
                                               (format "1-%d %d%s %d-end"
                                                       (1- page) page rotate (1+ page))))))
                           ;; empty string if it worked
-                          (if (string= "" (shell-command-to-string
+                          (if (string= "" (safe-shell-command-to-string
                                            (format (concat "pdftk %s cat %s "
                                                            "output %s.NEW "
                                                            "&& mv %s.NEW %s")
@@ -8163,7 +8175,7 @@
           :config
           (progn
             ;; (setq pdf-info-epdfinfo-program "~/.emacs.d/elpa/pdf-tools-20180428.1527/build/server/epdfinfo")
-            (setq pdf-misc-print-programm (s-trim (shell-command-to-string "command -v lp")))
+            (setq pdf-misc-print-programm (s-trim (safe-shell-command-to-string "command -v lp")))
             (setq pdf-view-display-size (quote fit-page))
             (setq pdf-misc-print-programm-args '("-o" "media=A4" "-o" "sides=two-sided-long-edge"))
 
@@ -8229,7 +8241,7 @@
    '(iedit-toggle-key-default nil) ;; disable C-; binding of iedit that is loaded via lispy
    '(ido-mode nil) ;; disable ido mode
    '(jde-jdk-doc-url "https://docs.oracle.com/javase/8/docs/api/")
-   '(malabar-repl-grooysh (s-trim (shell-command-to-string "command -v groovysh")))
+   '(malabar-repl-grooysh (s-trim (safe-shell-command-to-string "command -v groovysh")))
    '(recentf-max-saved-items 80)
    '(region ((t (:background "gray45" :inverse-video nil))))
    '(send-mail-function (quote smtpmail-multi-send-it))
@@ -8434,7 +8446,7 @@
        (defun gb/sync-update-agenda-with-google-calendar ()
          "synchronous update diary with google calendar"
          (--each calendars
-           (shell-command-to-string (format "wget -q -O %s-temp %s" (cdr it) (car it))))
+           (safe-shell-command-to-string (format "wget -q -O %s-temp %s" (cdr it) (car it))))
          (gb/import-diary-from-google-calendar-files))
 
        (defun gb/import-diary-from-google-calendar-files ()
@@ -8462,11 +8474,11 @@
                (insert-file it)
                (icalendar-import-buffer (format "%s-temp" gb/diary-calendar-file) t t))))
          (if (executable-find "python3")
-             (shell-command-to-string (format "cat %s | python3 -c \"import sys; from urllib.parse import unquote; print(unquote(sys.stdin.read()));\" > %s" (format "%s-temp" gb/diary-calendar-file) gb/diary-calendar-file))
+             (safe-shell-command-to-string (format "cat %s | python3 -c \"import sys; from urllib.parse import unquote; print(unquote(sys.stdin.read()));\" > %s" (format "%s-temp" gb/diary-calendar-file) gb/diary-calendar-file))
            (warn "cannot urldecode agenda file (python3 missing)")
            (rename-file (format "%s-temp" gb/diary-calendar-file) gb/diary-calendar-file))
-         (shell-command-to-string (format "sed -e \"s/<br\\s*\\/\\?>/\\n /g\" -i %s" gb/diary-calendar-file))
-         (shell-command-to-string (format "sed -e \"s/\\&nbsp\\;/ /g\" -i %s" gb/diary-calendar-file))
+         (safe-shell-command-to-string (format "sed -e \"s/<br\\s*\\/\\?>/\\n /g\" -i %s" gb/diary-calendar-file))
+         (safe-shell-command-to-string (format "sed -e \"s/\\&nbsp\\;/ /g\" -i %s" gb/diary-calendar-file))
          (when (file-exists-p (format "%s-temp" gb/diary-calendar-file))
            (delete-file (format "%s-temp" gb/diary-calendar-file)))
          (setq diary-file gb/diary-calendar-file)
@@ -10241,7 +10253,7 @@
                 (progn (add-to-list 'gb/list-of-faces-to-set it)(custom-set-faces it))))))
 
         ;; ;; set up the call to terminal-notifier (only working when appt-display-format is set to 'window)
-        ;; (defvar gb/appt-notifier-path (s-trim (shell-command-to-string "command -v notify-send")))
+        ;; (defvar gb/appt-notifier-path (s-trim (safe-shell-command-to-string "command -v notify-send")))
 
         ;; (defun gb/appt-send-notification (title msg)
         ;;   (shell-command (concat gb/appt-notifier-path " " msg " -a " title)))
@@ -10309,7 +10321,7 @@
                                                :height 0.8 :foreground "#606060")))))
               (progn (add-to-list 'gb/list-of-faces-to-set it)(custom-set-faces it))))))
       ;; set sed command for org babel
-      (setq org-babel-sed-command (s-trim (shell-command-to-string "command -v sed")))
+      (setq org-babel-sed-command (s-trim (safe-shell-command-to-string "command -v sed")))
 
       (setq org-src-fontify-natively t)
       (setq org-edit-src-content-indentation 2)
@@ -10412,8 +10424,8 @@
           (progn
             (let ((has-source-regions (gb/buffer-contains-string "^ *#\\+BEGIN_SRC"))
                   (should-tangle (gb/buffer-contains-string "^#\\+PROPERTY: +header-args +:tangle"))
-                  (branch-name (or (ignore-errors (string-trim (shell-command-to-string "git branch --show-current"))) "any"))
-                  (tangle-branch (or (ignore-errors (string-trim (shell-command-to-string "cat ~/.tangle-branch-name.txt"))) ""))
+                  (branch-name (or (ignore-errors (string-trim (safe-shell-command-to-string "git branch --show-current"))) "any"))
+                  (tangle-branch (or (ignore-errors (string-trim (safe-shell-command-to-string "cat ~/.tangle-branch-name.txt"))) ""))
                   (target-is-initel (gb/buffer-contains-string (concat "^#\\+PROPERTY: +header-args +:tangle +" (regexp-quote "~/.emacs.d/init.el")))))
               (when (and has-source-regions should-tangle (or (not target-is-initel) (string-equal branch-name tangle-branch)))
                   (progn
@@ -13311,33 +13323,33 @@
        #+begin_src emacs-lisp
          (defun gb/audio-outputs-available ()
            "read available audio outputs"
-           (split-string (s-trim (shell-command-to-string "pactl list short sinks | grep 'alsa_output' | awk '{ print $2 }'")) "\n"))
+           (split-string (s-trim (safe-shell-command-to-string "pactl list short sinks | grep 'alsa_output' | awk '{ print $2 }'")) "\n"))
 
          (defun gb/audio-inputs-available ()
            "read available audio inputs"
-           (split-string (s-trim (shell-command-to-string "pactl list short sources | grep 'alsa_input' | awk '{ print $2 }'")) "\n"))
+           (split-string (s-trim (safe-shell-command-to-string "pactl list short sources | grep 'alsa_input' | awk '{ print $2 }'")) "\n"))
 
          (defun gb/audio-output-selected ()
            "get the current audio output selected"
-           (s-trim (shell-command-to-string  "pactl info | grep -e \"^Default Sink:\" | awk '{ print $3 }'")))
+           (s-trim (safe-shell-command-to-string  "pactl info | grep -e \"^Default Sink:\" | awk '{ print $3 }'")))
 
          (defun gb/audio-input-selected ()
            "get the current audio input selected"
-           (s-trim (shell-command-to-string  "pactl info | grep -e \"^Default Source:\" | awk '{ print $3 }'")))
+           (s-trim (safe-shell-command-to-string  "pactl info | grep -e \"^Default Source:\" | awk '{ print $3 }'")))
 
          (defun gb/audio-auto-select-sink ()
            "automatically select usb device, else pci device"
            (interactive)
-           (let* ((usb-device (s-trim (shell-command-to-string "pactl list short sinks | grep -i usb- | cut -f2")))
-                  (built-in (s-trim (shell-command-to-string "pactl list short sinks | grep -i pci- | cut -f2"))))
-             (shell-command-to-string (format "pactl set-default-sink %s"
+           (let* ((usb-device (s-trim (safe-shell-command-to-string "pactl list short sinks | grep -i usb- | cut -f2")))
+                  (built-in (s-trim (safe-shell-command-to-string "pactl list short sinks | grep -i pci- | cut -f2"))))
+             (safe-shell-command-to-string (format "pactl set-default-sink %s"
                                               (if (seq-empty-p usb-device)
                                                   built-in
                                                 usb-device)))))
 
          (defun gb/program-sound-select ()
            "select a program that is currently producing output"
-           (when-let ((programs-w-sound (cl-remove-duplicates (split-string (string-trim (shell-command-to-string (format "pacmd list-sink-inputs | grep -e 'application.process.binary' | sed -e 's/.* = \\\"\\(.*\\)\\\"/\\1/g'"))) "\n"))))
+           (when-let ((programs-w-sound (cl-remove-duplicates (split-string (string-trim (safe-shell-command-to-string (format "pacmd list-sink-inputs | grep -e 'application.process.binary' | sed -e 's/.* = \\\"\\(.*\\)\\\"/\\1/g'"))) "\n"))))
              (if (= 1 (length programs-w-sound))
                  (car programs-w-sound)
                (completing-read "program: " programs-w-sound nil t))))
@@ -13346,16 +13358,16 @@
            "get the indices necessary to remap output of an application to another sound device"
            (split-string
             (string-trim
-             (shell-command-to-string
+             (safe-shell-command-to-string
               (format "pacmd list-sink-inputs | awk '/index/ { print;pnt=1 } pnt==1 && /application.process.binary = \"%s\"/ { print;pnt=0 }' | grep \"%s\" -B 1 | grep -e 'index:' | sed -e 's/ *index: *//g'"
                       executable executable)))
             "\n"))
 
          (defun gb/sound-output-remap-to (sink-index output-index)
-           (shell-command-to-string (format "pactl move-sink-input %s %s" sink-index output-index)))
+           (safe-shell-command-to-string (format "pactl move-sink-input %s %s" sink-index output-index)))
 
          (defun gb/sound-output-index-of (grep-string)
-           (s-trim (shell-command-to-string (format "pactl list sinks short | grep -i %s | cut -f1" grep-string))))
+           (s-trim (safe-shell-command-to-string (format "pactl list sinks short | grep -i %s | cut -f1" grep-string))))
 
          (defun gb/sound-output-index-of-headset ()
            (gb/sound-output-index-of "headset"))
@@ -13416,11 +13428,11 @@
          (defun gb/get-volume (element)
            "get current volume as number"
            (string-to-number
-            (s-replace "%" "" (s-trim (shell-command-to-string (format "pactl list sinks | grep -A 9 \"Name: %s\" | grep -e \"^[[:space:]]*Volume:\" | awk '{ print $5 \" / \" $12 }'" element))))))
+            (s-replace "%" "" (s-trim (safe-shell-command-to-string (format "pactl list sinks | grep -A 9 \"Name: %s\" | grep -e \"^[[:space:]]*Volume:\" | awk '{ print $5 \" / \" $12 }'" element))))))
 
          (defun gb/get-volume-state (element)
            "return 'on' (regular) or 'off' (muted)"
-           (s-trim (shell-command-to-string "amixer get Master | tail -1 | awk '{print $6}' | sed 's/[^a-z]*//g'")))
+           (s-trim (safe-shell-command-to-string "amixer get Master | tail -1 | awk '{print $6}' | sed 's/[^a-z]*//g'")))
 
          (defun gb/audio-raise-volume ()
            "raise volume by 5%"
@@ -13458,7 +13470,7 @@
            (shell-command "amixer sset Capture toggle"))
 
          (defun gb/audio-output-set (sink-name)
-           (shell-command-to-string (format "pactl set-default-sink %s" sink-name)))
+           (safe-shell-command-to-string (format "pactl set-default-sink %s" sink-name)))
 
          (defun gb/audio-output-set-builtin ()
            (gb/audio-output-set (car (--filter (s-matches? "pci.*analog-stereo" it) (gb/audio-outputs-available)))))
@@ -13473,7 +13485,7 @@
          (defun gb/audio-input-set (audio-device)
            "set the current audio input to AUDIO-DEVICE.
          Make sure that AUDIO-DEVICE is an element of (gb/audio-inputs-available)"
-           (shell-command-to-string (format "pactl set-default-source %s" audio-device)))
+           (safe-shell-command-to-string (format "pactl set-default-source %s" audio-device)))
 
          (defun gb/audio-input-select ()
            "select audio input"
@@ -13485,7 +13497,7 @@
          (defun gb/audio-restart-server ()
            "restart audio server"
            (interactive)
-           (shell-command-to-string "pulseaudio --check && pulseaudio -k")
+           (safe-shell-command-to-string "pulseaudio --check && pulseaudio -k")
            (async-shell-command "pulseaudio" nil nil)
            (message "audio server (re)started ..."))
        #+end_src
@@ -13497,13 +13509,13 @@
            (with-ignored-messages
             (shell-command "xbacklight -inc 10")
             (while-no-input
-              (let ((brightness (s-trim (shell-command-to-string "xbacklight -get"))))
+              (let ((brightness (s-trim (safe-shell-command-to-string "xbacklight -get"))))
                 (shell-command (format "dunstify -a \"changeBrightness\" -u low -i brightness-high -r \"991048\" \"Brightness: %s%%\" \"$(getProcessingString 20 '●' '◯' %s)\"" brightness brightness))))))
 
          (defun gb/brightness-set (percent)
            "set brightness of monior 0 to PERCENT"
            (shell-command (format "xbacklight -set %i" percent))
-           (let ((brightness (s-trim (shell-command-to-string "xbacklight -get"))))
+           (let ((brightness (s-trim (safe-shell-command-to-string "xbacklight -get"))))
              (message (s-concat "brightness set, now: " brightness " %%"))))
 
          (defun gb/brightness-down ()
@@ -13512,7 +13524,7 @@
            (with-ignored-messages
             (shell-command "xbacklight -dec 10")
             (while-no-input
-              (let ((brightness (s-trim (shell-command-to-string "xbacklight -get"))))
+              (let ((brightness (s-trim (safe-shell-command-to-string "xbacklight -get"))))
                 (shell-command (format "dunstify -a \"changeBrightness\" -u low -i brightness-high -r \"991048\" \"Brightness: %s%%\" \"$(getProcessingString 20 '●' '◯' %s)\"" brightness brightness))))))
        #+end_src
     - lock, screen saver, compositor, dunst (notifications)
@@ -13535,7 +13547,7 @@
          (defun gb/compositor-disable ()
            "kill compton compositor if already running"
            (interactive)
-           (shell-command-to-string "pkill compton"))
+           (safe-shell-command-to-string "pkill compton"))
 
          (defun gb/dunst-notify-disable ()
            "disable dunst desktop notification (temporarily)"
@@ -13558,7 +13570,7 @@
          (defun gb/dunst-close-or-mark-block (arg)
            "either mark the block or remove any open dunst notifications"
            (interactive "P")
-           (let ((notifications (string-to-number (string-trim (shell-command-to-string "dunstctl count displayed")))))
+           (let ((notifications (string-to-number (string-trim (safe-shell-command-to-string "dunstctl count displayed")))))
              (if (> notifications 0)
                  (gb/dunst-close-all)
                (set-mark-command arg))))
@@ -13592,19 +13604,19 @@
          (defun gb/hibernate-laptop ()
            "put laptop into hibernation (complete off, store memory onto disc)"
            (interactive)
-           (shell-command-to-string "sudo systemctl stop bluetooth.service") ;; just to make sure
-           (if (not (string-empty-p (shell-command-to-string "pgrep duplicity")))
+           (safe-shell-command-to-string "sudo systemctl stop bluetooth.service") ;; just to make sure
+           (if (not (string-empty-p (safe-shell-command-to-string "pgrep duplicity")))
                (message "Running duplicity (backup), hibernate aborted.")
-             (shell-command-to-string "xfce4-power-manager") ;; make sure the power manager is running
-             (shell-command-to-string "systemctl hibernate")))
+             (safe-shell-command-to-string "xfce4-power-manager") ;; make sure the power manager is running
+             (safe-shell-command-to-string "systemctl hibernate")))
 
          (defun gb/upower--on-battery ()
-           (string= "yes" (s-trim (shell-command-to-string "upower -d | grep \"on-battery\" | tr -s \" \" | cut -f3 -d' '"))))
+           (string= "yes" (s-trim (safe-shell-command-to-string "upower -d | grep \"on-battery\" | tr -s \" \" | cut -f3 -d' '"))))
 
          (defun gb/suspend-laptop ()
            "put laptop into suspension (soft off, still uses power to keep memory up to date)"
            (interactive)
-           (shell-command-to-string "sudo systemctl stop bluetooth.service") ;; just to make sure
+           (safe-shell-command-to-string "sudo systemctl stop bluetooth.service") ;; just to make sure
            (if (gb/backup-is-running)
                (message "Running duplicity (backup), suspend aborted.")
              (when (gnus-buffers)
@@ -13613,9 +13625,9 @@
                  (setq gnus-interactive-exit nil)
                  (gnus-group-exit)
                  (setq gnus-interactive-exit old-gie)))
-             (shell-command-to-string "xfce4-power-manager") ;; make sure the power manager is running
+             (safe-shell-command-to-string "xfce4-power-manager") ;; make sure the power manager is running
              ;; if suspend does not work try switching off bluetooth service
-             (shell-command-to-string "systemctl suspend")))
+             (safe-shell-command-to-string "systemctl suspend")))
 
          (defun gb/reboot--immediately ()
            "immediately execute reboot, without running hooks nor asking questions"
@@ -13625,7 +13637,7 @@
            "reboot pc"
            (interactive)
            (when (yes-or-no-p "Reboot PC?")
-             (if (not (string-empty-p (shell-command-to-string "pgrep duplicity")))
+             (if (not (string-empty-p (safe-shell-command-to-string "pgrep duplicity")))
                  (message "Running duplicity (backup), reboot aborted.")
                (progn
                  (add-hook 'kill-emacs-hook #'gb/reboot--immediately t)
@@ -13649,7 +13661,7 @@
            (interactive)
            (when (yes-or-no-p "Shutdown PC?")
              (progn
-               (if (not (string-empty-p (shell-command-to-string "pgrep duplicity")))
+               (if (not (string-empty-p (safe-shell-command-to-string "pgrep duplicity")))
                    (message "Running duplicity (backup), shutdown aborted.")
                  (add-hook 'kill-emacs-hook #'gb/shutdown--immediately t)
                  (run-at-time 2 nil #'keyfreq-file-release-lock)
@@ -13659,7 +13671,7 @@
            "start this program if not already running"
            (let* ((program (file-name-base filename))
                   (is-executable (file-executable-p filename))
-                  (is-running (not (string-empty-p (shell-command-to-string (concat "ps -A | grep " program))))))
+                  (is-running (not (string-empty-p (safe-shell-command-to-string (concat "ps -A | grep " program))))))
              (cond ((and is-executable is-running) (message (format "OK: %s already running." program)))
                    (is-executable (progn (message (format "OK: starting %s." program))
                                          (start-process-shell-command program nil filename)))
@@ -13671,14 +13683,14 @@
        #+begin_src emacs-lisp
          (defun gb/get-second-monitor ()
            "get the second monitor if connected"
-           (s-trim (shell-command-to-string "xrandr | grep -v disconnected | grep connected | grep -v primary | awk '{ print $1 }'")))
+           (s-trim (safe-shell-command-to-string "xrandr | grep -v disconnected | grep connected | grep -v primary | awk '{ print $1 }'")))
 
          (when (fboundp 'memoize)
            (memoize #'gb/get-second-monitor 10))
 
          (defun gb/get-primary-monitor ()
            "get the primary monitor if connected"
-           (s-trim (shell-command-to-string "xrandr | grep -v disconnected | grep connected | grep primary | awk '{ print $1 }'")))
+           (s-trim (safe-shell-command-to-string "xrandr | grep -v disconnected | grep connected | grep primary | awk '{ print $1 }'")))
 
          (when (fboundp 'memoize)
            (memoize #'gb/get-primary-monitor 10))
@@ -13686,7 +13698,7 @@
          (defun gb/reset-primary-monitor ()
            "get the primary monitor if connected"
            (interactive)
-           (s-trim (shell-command-to-string (format "xrandr --output %s --auto" (gb/exwm--get-primary-monitor)))))
+           (s-trim (safe-shell-command-to-string (format "xrandr --output %s --auto" (gb/exwm--get-primary-monitor)))))
        #+end_src
     - additional window functions
        #+begin_src emacs-lisp
@@ -13723,11 +13735,11 @@
       #+begin_src emacs-lisp
         (defun gb/cpu-freq-max-get ()
           "get the maximal cpu frequency possible"
-          (string-to-number (s-trim (shell-command-to-string "cat /sys/devices/system/cpu/cpufreq/policy0/cpuinfo_max_freq"))))
+          (string-to-number (s-trim (safe-shell-command-to-string "cat /sys/devices/system/cpu/cpufreq/policy0/cpuinfo_max_freq"))))
 
         (defun gb/cpu-freq-min-get ()
           "get the minimal cpu frequency possible"
-          (string-to-number (s-trim (shell-command-to-string "cat /sys/devices/system/cpu/cpufreq/policy0/cpuinfo_min_freq"))))
+          (string-to-number (s-trim (safe-shell-command-to-string "cat /sys/devices/system/cpu/cpufreq/policy0/cpuinfo_min_freq"))))
 
         (defun gb/cpu-freq-lowest ()
           "set cpu frequency to the lowest possible value (800MHz)"
@@ -13746,7 +13758,7 @@
           (if (or (> cpu-freq (gb/cpu-freq-max-get))
                  (< cpu-freq (gb/cpu-freq-min-get)))
               (message (format "ERROR: requested freq (%i) is not within cpu limits" cpu-freq))
-            (s-trim (shell-command-to-string (format "cpu-freq-set.sh %i" cpu-freq)))
+            (s-trim (safe-shell-command-to-string (format "cpu-freq-set.sh %i" cpu-freq)))
             (message (format "cpu freq set to %i" cpu-freq))))
 
         (defun gb/cpu-freq-unlimit ()
@@ -13756,19 +13768,19 @@
 
         (defun gb/cpu-base-frequency ()
           "in Hz"
-          (string-to-number (shell-command-to-string "cat /sys/devices/system/cpu/cpu0/cpufreq/base_frequency")))
+          (string-to-number (safe-shell-command-to-string "cat /sys/devices/system/cpu/cpu0/cpufreq/base_frequency")))
 
         (defun gb/cpu-min-frequency ()
           "in Hz"
-          (string-to-number (shell-command-to-string "cat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_min_freq")))
+          (string-to-number (safe-shell-command-to-string "cat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_min_freq")))
 
         (defun gb/cpu-max-frequency ()
           "in Hz"
-          (string-to-number (shell-command-to-string "cat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq")))
+          (string-to-number (safe-shell-command-to-string "cat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq")))
 
         (defun gb/cpu-core-count ()
           "get the number of cpus in the system"
-          (string-to-number (shell-command-to-string "ls /sys/devices/system/cpu/cpu* -d1 | grep -e \"/cpu[0-9]\" | wc -l")))
+          (string-to-number (safe-shell-command-to-string "ls /sys/devices/system/cpu/cpu* -d1 | grep -e \"/cpu[0-9]\" | wc -l")))
 
         (defun gb/cpupower-cpu-parameter ()
           "generate cpu parameter for cpupower tool"
@@ -13779,7 +13791,7 @@
         (defun gb/cpu-powersave ()
           "experimental"
           (interactive)
-          (message (shell-command-to-string
+          (message (safe-shell-command-to-string
                     (format "sudo cpupower -c \"%s\" frequency-set -g powersave -d %i -u %s"
                             (gb/cpupower-cpu-parameter)
                             (gb/cpu-min-frequency)
@@ -13788,7 +13800,7 @@
         (defun gb/cpu-performance ()
           "experimental"
           (interactive)
-          (message (shell-command-to-string
+          (message (safe-shell-command-to-string
                     (format "sudo cpupower -c \"%s\" frequency-set -g performance -d %i -u %i"
                             (gb/cpupower-cpu-parameter)
                             (gb/cpu-min-frequency)
@@ -14042,7 +14054,7 @@
           (exwm-config-default) ;; enables ido mode !
           (ido-mode -1)
 
-          ;; (if (shell-command-to-string "ps -A | grep VBoxClient")
+          ;; (if (safe-shell-command-to-string "ps -A | grep VBoxClient")
           ;;     (message "OK: VBoxClient seems to be running, thus clipboard sharing is probably active")
           ;;   (message "ERROR: VBoxClient is not running! Clipboard sharing is not available"))
 
@@ -14066,23 +14078,23 @@
 
           (defun gb/xrandr-monitor-resolution (monitor)
             "get the maximal resolution of the given monitor"
-            (s-trim (shell-command-to-string (s-concat "xrandr -q | grep " monitor " -A 1 | tail -n 1 | awk '{ print $1; }'"))))
+            (s-trim (safe-shell-command-to-string (s-concat "xrandr -q | grep " monitor " -A 1 | tail -n 1 | awk '{ print $1; }'"))))
 
           (defun gb/reset-exwm-monitor-setup ()
             "reset the (multi) monitor setup for exwm"
             (interactive)
-            (shell-command-to-string "xrandr --auto")
+            (safe-shell-command-to-string "xrandr --auto")
             (gb/refresh-exwm-monitor-setup)
             (when (executable-find "polybar-launch")
-              (shell-command-to-string "polybar-launch")))
+              (safe-shell-command-to-string "polybar-launch")))
 
           (defun gb/exwm--get-connected-monitors ()
             ""
-            (s-split "\n" (s-trim (shell-command-to-string "xrandr | grep ' connected' | cut -f1 -d' '"))))
+            (s-split "\n" (s-trim (safe-shell-command-to-string "xrandr | grep ' connected' | cut -f1 -d' '"))))
 
           (defun gb/exwm--get-primary-monitor ()
             ""
-            (s-trim (shell-command-to-string "xrandr | grep ' connected' | grep 'primary' | cut -f1 -d' '")))
+            (s-trim (safe-shell-command-to-string "xrandr | grep ' connected' | grep 'primary' | cut -f1 -d' '")))
 
           (defun gb/exwm--get-secondary-monitor ()
             ""
@@ -14091,7 +14103,7 @@
 
           (defun gb/exwm--get-geometry-str (monitor)
             ""
-            (car (s-split "+" (s-trim (shell-command-to-string (format "xrandr | grep -e '%s connected' | sed \"s/%s connected \\\(primary \\\)*//g\" | cut -f1 -d' '" monitor monitor))))))
+            (car (s-split "+" (s-trim (safe-shell-command-to-string (format "xrandr | grep -e '%s connected' | sed \"s/%s connected \\\(primary \\\)*//g\" | cut -f1 -d' '" monitor monitor))))))
 
           (setq gb/running-exwm-monitor-setup nil)
           (defun gb/refresh-exwm-monitor-setup ()
@@ -14123,7 +14135,7 @@
                     (progn
                       (message "single monitor")
                       (setq exwm-randr-workspace-monitor-plist (-interleave (number-sequence 0 (-  (exwm-workspace--count) 1)) (-repeat (exwm-workspace--count) primary-monitor)))
-                      (shell-command-to-string "xrandr --auto")))
+                      (safe-shell-command-to-string "xrandr --auto")))
                   (gb/reset-main-fonts)
                   (exwm-randr-refresh))
               (setq gb/running-exwm-monitor-setup nil)))
@@ -14531,7 +14543,7 @@
           (add-hook 'exwm-init-hook
                     (lambda ()
                       (ignore-errors
-                        ;; (gb/start-if-not-running (s-trim (shell-command-to-string "command -v pasystray")))
+                        ;; (gb/start-if-not-running (s-trim (safe-shell-command-to-string "command -v pasystray")))
                         ;; (start-process "yabar" nil  "/usr/bin/yabar") ;; see here: https://github.com/geommer/yabar
                         (ido-mode -1)
                         (set-fringe-mode 10)
@@ -14582,7 +14594,7 @@
       "unmount the fritz nas"
       (interactive)
       (if (file-directory-p (s-concat gb/fritz-mount-point "/" gb/fritz-mount-point-check-folder))
-          (message (s-trim (shell-command-to-string (s-concat "sudo umount -v " gb/fritz-mount-point "/"))))
+          (message (s-trim (safe-shell-command-to-string (s-concat "sudo umount -v " gb/fritz-mount-point "/"))))
         (message "not mounted or mount empty")))
 
     (defun gb/mount-fritz-nas ()
@@ -14591,7 +14603,7 @@
       (if (file-directory-p (s-concat gb/fritz-mount-point "/" gb/fritz-mount-point-check-folder))
           (message "already mounted or mountpoint not empty.")
         (let* ((pass (read-passwd "password for fritz nas: ")))
-          (message (s-trim (shell-command-to-string (format "sudo mount.cifs --verbose \\\\\\\\%s\\\\FRITZ.NAS %s/ -o user=gunther.bachmann,pass=%s,dom=WORKGROUP,vers=1.0" gb/fritz-nas-ip gb/fritz-mount-point pass))))
+          (message (s-trim (safe-shell-command-to-string (format "sudo mount.cifs --verbose \\\\\\\\%s\\\\FRITZ.NAS %s/ -o user=gunther.bachmann,pass=%s,dom=WORKGROUP,vers=1.0" gb/fritz-nas-ip gb/fritz-mount-point pass))))
           (dired gb/fritz-mount-point))))
   #+end_src
 * TODO networking (integration, en/disable etc.) - make package of this
@@ -14610,41 +14622,41 @@
     (defun gb/net-lan-switch-on ()
       "switch wired lan on"
       (interactive)
-      (message (s-trim (shell-command-to-string (format "sudo ifconfig --up %s" gb/net-lan-adapter)))))
+      (message (s-trim (safe-shell-command-to-string (format "sudo ifconfig --up %s" gb/net-lan-adapter)))))
 
     (defun gb/net-lan-switch-off ()
       "switch wired lan off"
       (interactive)
-      (message (s-trim (shell-command-to-string (format "sudo ifconfig --down %s" gb/net-lan-adapter)))))
+      (message (s-trim (safe-shell-command-to-string (format "sudo ifconfig --down %s" gb/net-lan-adapter)))))
 
     (defun gb/net-wlan-switch-on ()
       "switch wireless lan on, needs tlp to be installed"
       (interactive)
-      (shell-command-to-string "sudo systemctl start wpa_supplicant.service ") ;; just to make sure
-      (message (s-trim (shell-command-to-string "sudo wifi on"))))
+      (safe-shell-command-to-string "sudo systemctl start wpa_supplicant.service ") ;; just to make sure
+      (message (s-trim (safe-shell-command-to-string "sudo wifi on"))))
 
     (defun gb/net-wlan-switch-off ()
       "switch wireless lan off, needs tlp to be installed"
       (interactive)
-      (message (s-trim (shell-command-to-string "sudo wifi off")))) ;; systemctl stop wpa_supplicant.service
+      (message (s-trim (safe-shell-command-to-string "sudo wifi off")))) ;; systemctl stop wpa_supplicant.service
 
     (defun gb/net-bluetooth-switch-on ()
       "switch bluetooth on, needs tlp to be installed"
       (interactive)
-      (message (s-trim (shell-command-to-string "sudo bluetooth on"))))
+      (message (s-trim (safe-shell-command-to-string "sudo bluetooth on"))))
 
     (defun gb/net-bluetooth-switch-off ()
       "switch bluetooth off, needs tlp to be installed"
       (interactive)
-      (message (s-trim (shell-command-to-string "sudo bluetooth off"))))
+      (message (s-trim (safe-shell-command-to-string "sudo bluetooth off"))))
 
     (defun gb/get-vpns-available ()
       "get a list of available vpns"
-      (split-string (s-trim (shell-command-to-string " systemctl --all list-unit-files openvpn*  | grep openvpn | cut -f1 -d' '"))))
+      (split-string (s-trim (safe-shell-command-to-string " systemctl --all list-unit-files openvpn*  | grep openvpn | cut -f1 -d' '"))))
 
     (defun gb/net-vpn-switch-on--direct (vpn-id)
       "switch vpn on"
-      (s-trim (shell-command-to-string (format "sudo systemctl start %s" vpn-id))))
+      (s-trim (safe-shell-command-to-string (format "sudo systemctl start %s" vpn-id))))
 
     (defun gb/net-vpn-switch-on ()
       "switch vpn on"
@@ -14662,7 +14674,7 @@
              (vpn-id (if (= 1 (list-length available-vpns))
                          (car available-vpns)
                        (completing-read "vpn:" available-vpns nil t))))
-        (message (s-trim (shell-command-to-string (format "sudo systemctl stop %s" vpn-id))))))
+        (message (s-trim (safe-shell-command-to-string (format "sudo systemctl stop %s" vpn-id))))))
 
     (defun gb/net-vpn-log-show ()
       "show the log of vpns (this day)"
@@ -14680,7 +14692,7 @@
 
     (defun gb/net-operstate-get (adapter)
       "get the operstate of the given adapter"
-      (string-trim (shell-command-to-string (format "cat /sys/class/net/%s/operstate" adapter))))
+      (string-trim (safe-shell-command-to-string (format "cat /sys/class/net/%s/operstate" adapter))))
 
     (defun gb/net-adapter-up-p (adapter)
       "check whether operstate of the given adapter indicates an active network link"
@@ -15329,7 +15341,7 @@
       (add-to-list 'lsp-language-id-configuration '(terraform-mode . "terraform"))
 
       (lsp-register-client
-       (make-lsp-client :new-connection (lsp-stdio-connection `(,(s-trim (shell-command-to-string "command -v terraform-lsp")) "-enable-log-file"))
+       (make-lsp-client :new-connection (lsp-stdio-connection `(,(s-trim (safe-shell-command-to-string "command -v terraform-lsp")) "-enable-log-file"))
                         :major-modes '(terraform-mode)
                         :server-id 'terraform-ls))
 
@@ -15373,7 +15385,7 @@
       (defalias 'weather 'wttrin)
       (defun wttrin-fetch-raw-string (query)
         "Get the weather information based on your QUERY."
-        (shell-command-to-string (format "curl -s wttr.in/%s" query))))
+        (safe-shell-command-to-string (format "curl -s wttr.in/%s" query))))
   #+end_src
 * EVAL helm-rg
   #+begin_src emacs-lisp
@@ -15757,7 +15769,7 @@
               "get a unique list of tags that are available in annotated files"
               (--filter (not (string-empty-p it))
                         (split-string 
-                         (shell-command-to-string
+                         (safe-shell-command-to-string
                           (format  (string-join '("find %s -name \"*.org\""
                                                   "xargs grep -e \"^\\*[^:][^:]*:[a-zA-Z0-9][a-zA-Z0-9]*:\""
                                                   "sed \"s/[^:][^:]*:\\*\\**[^:][^:]*:\\([a-zA-Z0-9].*\\):/\\1/g\""
@@ -15981,7 +15993,7 @@
       (defun gb/maxima-elisp-loadpath ()
         (when-let ((maxima-executable (executable-find "maxima")))
           (cond ((or running-nixos (string-match-p "guix-profile" maxima-executable))
-                 (s-concat (s-trim (shell-command-to-string "dirname $(readlink -f $(command -v maxima))")) "/../share/emacs/site-lisp"))
+                 (s-concat (s-trim (safe-shell-command-to-string "dirname $(readlink -f $(command -v maxima))")) "/../share/emacs/site-lisp"))
                 (t "~/.emacs.d/additionals/maxima")))))
 
     (when (gb/maxima-elisp-loadpath)
@@ -16064,8 +16076,8 @@
       (setq scanner-resolution '(:image 300 :doc 300) )
       (setq scanner-scan-mode '(:image "Color" :doc "Gray"))
       (setq scanner-tesseract-languages '("eng" "deu"))
-      (setq scanner-tesseract-program (s-trim (shell-command-to-string (s-concat "readlink -f " (s-trim  (shell-command-to-string "command -v tesseract"))))))
-      (setq scanner-tesseract-configdir (s-concat (s-trim (shell-command-to-string (s-concat "dirname " scanner-tesseract-program))) "/../share/tessdata/configs")))
+      (setq scanner-tesseract-program (s-trim (safe-shell-command-to-string (s-concat "readlink -f " (s-trim  (safe-shell-command-to-string "command -v tesseract"))))))
+      (setq scanner-tesseract-configdir (s-concat (s-trim (safe-shell-command-to-string (s-concat "dirname " scanner-tesseract-program))) "/../share/tessdata/configs")))
   #+end_src
 * EVAL cpu-sos - send invisible buffers SIGSTOP (to prevent background processing)
   - activate this minor mode on e.g. web browsers that do lots of background processing
@@ -16275,7 +16287,7 @@
   #+begin_src emacs-lisp
     (if (executable-find "agda-mode")
         (load-file (let ((coding-system-for-read 'utf-8))
-                     (shell-command-to-string "agda-mode locate")))
+                     (safe-shell-command-to-string "agda-mode locate")))
       (message "WARNING: agda-mode not found"))
     (setq agda2-backend "GHC")
 
@@ -16657,15 +16669,15 @@
 
       (defun gb/battery-discharging-p ()
         "is the battery currently in discharging mode?"
-        (not (string-empty-p (s-trim (shell-command-to-string (format  "upower -i %s | grep \"state:[ \t]*discharging\"" gb/battery-id))))))
+        (not (string-empty-p (s-trim (safe-shell-command-to-string (format  "upower -i %s | grep \"state:[ \t]*discharging\"" gb/battery-id))))))
 
       (defun gb/battery-charging-p ()
         "is the battery currently in charging mode?"
-        (not (string-empty-p (s-trim (shell-command-to-string (format "upower -i %s | grep \"state:[ \t]*charging\"" gb/battery-id))))))
+        (not (string-empty-p (s-trim (safe-shell-command-to-string (format "upower -i %s | grep \"state:[ \t]*charging\"" gb/battery-id))))))
 
       (defun gb/battery-level-get ()
         "get the current level or charge in percent"
-        (let ((bat-info (s-trim (shell-command-to-string (format "upower -i %s | grep 'percentage:'" gb/battery-id)))))
+        (let ((bat-info (s-trim (safe-shell-command-to-string (format "upower -i %s | grep 'percentage:'" gb/battery-id)))))
           (when (string-match "[^0-9]*\\([0-9]*\\)%" bat-info)
             (string-to-number (match-string 1 bat-info)))))
 
@@ -16823,7 +16835,7 @@
 
     (defun gb/backup-is-running ()
       "is a backup currently running?"
-      (not (string-empty-p (shell-command-to-string "pgrep duplicity"))))
+      (not (string-empty-p (safe-shell-command-to-string "pgrep duplicity"))))
   #+end_src
 #+BEGIN_SRC emacs-lisp
 (report-elapsed "check-point - backup duplicity support")
@@ -16843,12 +16855,12 @@
       ;; move backup running to other place
 
       (defun gb/udisksctl--info (blk-device)
-        (string-trim (shell-command-to-string (format "udisksctl info -b %s" blk-device))))
+        (string-trim (safe-shell-command-to-string (format "udisksctl info -b %s" blk-device))))
 
       (defun gb/udisksctl--get-devices ()
         (-filter (lambda (device-desc) (when-let ((device (--last (not (string-empty-p it)) (s-split " " device-desc))))
                                     (not (-contains? gb/udisksctl--ignore-devices device))))
-                 (split-string (string-trim (shell-command-to-string (format "udisksctl  status | tail -n +3")))  "\n")))
+                 (split-string (string-trim (safe-shell-command-to-string (format "udisksctl  status | tail -n +3")))  "\n")))
 
       (defun gb/udisksctl--completing-read-blk-device ()
         (if-let ((devices (gb/udisksctl--get-devices)))
@@ -16858,7 +16870,7 @@
 
       (defun gb/udisksctl--unpower-device (device)
         ""
-        (message (string-trim (shell-command-to-string (format "udisksctl power-off -b %s" device)))))
+        (message (string-trim (safe-shell-command-to-string (format "udisksctl power-off -b %s" device)))))
 
       (defun gb/udisksctl--unpower ()
         (interactive)
@@ -16868,17 +16880,17 @@
       (defun gb/udisksctl--get-mounts (device)
         (--filter
          (and (< 0 (length it)) (not (gb/unmount-check--backup-relevant-mount? (nth 2 (split-string it " ")))))
-         (split-string (string-trim (shell-command-to-string (format  "mount | grep -e '^%s'" device))) "\n")))
+         (split-string (string-trim (safe-shell-command-to-string (format  "mount | grep -e '^%s'" device))) "\n")))
 
       (defun gb/udisksctl--get-luks-mounts (device)
         "get (encrypted) mount for the given device"
         (-map 
          #'cdr
          (--filter
-          (< 0 (length (string-trim (shell-command-to-string (format "sudo cryptsetup status %s | grep -e 'device:.*%s'" (car it) device)))))
+          (< 0 (length (string-trim (safe-shell-command-to-string (format "sudo cryptsetup status %s | grep -e 'device:.*%s'" (car it) device)))))
           (--map
            (cons (nth 0 (split-string it " ")) (nth 2 (split-string it " ")))
-           (split-string (string-trim (shell-command-to-string "mount | grep -e '/dev/mapper.*/run/media'")) "\n")))))
+           (split-string (string-trim (safe-shell-command-to-string "mount | grep -e '/dev/mapper.*/run/media'")) "\n")))))
 
       (defun gb/udisksctl--completing-read-mount (device)
         (when-let ((mounts (--filter it (append (gb/udisksctl--get-mounts device) (gb/udisksctl--get-luks-mounts device)))))
@@ -16886,7 +16898,7 @@
 
       (defun gb/udisksctl--unmount-mount (mount)
          "other command that could be used: udisksctl unmount -b %s"
-        (message (string-trim (shell-command-to-string (format "sudo umount %s" mount)))))
+        (message (string-trim (safe-shell-command-to-string (format "sudo umount %s" mount)))))
 
       (defun gb/udisksctl--unmount ()
         (interactive)
@@ -17298,17 +17310,17 @@
       (interactive)
       (when (boundp 'gb/main-key)
         (gb/gpg-key-query-if-locked gb/main-key))
-      (setq gb/github-polling-token (string-trim (shell-command-to-string "gpg --batch -d ~/.github-token.polybar.read.txt.gpg 2>/dev/null")))
+      (setq gb/github-polling-token (string-trim (safe-shell-command-to-string "gpg --batch -d ~/.github-token.polybar.read.txt.gpg 2>/dev/null")))
       (setq gb/github-polling-active t)
       (setq gb/github-polling-timer (run-at-time nil 60 #'gb/refresh-polybar-github)))
 
     (defun gb/refresh-polybar-github ()
-      (shell-command-to-string "polybar-msg action github hook 0"))
+      (safe-shell-command-to-string "polybar-msg action github hook 0"))
 
     (defun gb/github-polling-execute ()
       "execute actual polling"
       (if gb/github-polling-active
-          (string-trim (shell-command-to-string (format "curl --silent -q -X GET -u %s:x-oauth-basic 'https://api.github.com/notifications?unread=1' | jq length" gb/github-polling-token)))
+          (string-trim (safe-shell-command-to-string (format "curl --silent -q -X GET -u %s:x-oauth-basic 'https://api.github.com/notifications?unread=1' | jq length" gb/github-polling-token)))
         ""))
 
     (defun gb/github-polling-off ()
@@ -17332,7 +17344,7 @@
     (defun gb/url-reachable-p (url &optional timeout)
       "is the given url reachable?"
       (let ((local-timeout (or timeout 1)))
-        (string-match-p "HTTP.*[0-9][0-9][0-9].*" (string-trim (shell-command-to-string (format "timeout %s curl -Isk %s | head -n 1" (number-to-string local-timeout) url))))))
+        (string-match-p "HTTP.*[0-9][0-9][0-9].*" (string-trim (safe-shell-command-to-string (format "timeout %s curl -Isk %s | head -n 1" (number-to-string local-timeout) url))))))
 
     (defun gb/slack-work-start (&optional channel-reg-ex msg)
       "startup slack and post MSG into a channel identified by CHANNEL-REG-EX"
@@ -17431,7 +17443,7 @@
     ;;          (not (file-directory-p "~/repo/emacs/org-roam-ui")))
     ;;   (let ((old-dir default-directory))
     ;;     (cd "~/repo")
-    ;;     (shell-command-to-string "git clone https://github.com/org-roam/org-roam-ui.git")
+    ;;     (safe-shell-command-to-string "git clone https://github.com/org-roam/org-roam-ui.git")
     ;;     (cd old-dir)))
     
     ;; when (file-directory-p "~/repo/emacs/org-roam-ui")
@@ -17992,7 +18004,7 @@
         (interactive)
         (let ((uname (user-login-name)))
           (when (file-exists-p (format "/run/media/%s" uname))
-            (shell-command-to-string (format "sudo chown %s:users /run/media/%s/" uname uname)))
+            (safe-shell-command-to-string (format "sudo chown %s:users /run/media/%s/" uname uname)))
           (let ((default-directory (format "/run/media/%s" uname)))
             (call-interactively #'dired))))
     #+end_src
@@ -18007,14 +18019,14 @@
       (defun gb/resize-image (file-name)
         "resize the given image, select max height/width interactively, keep aspect ratio"
         (when (and file-name (--all? (executable-find it) '("identify" "convert")))      
-          (when-let* ((orig-size (shell-command-to-string (concat "identify -format '%wx%h' " file-name)))
+          (when-let* ((orig-size (safe-shell-command-to-string (concat "identify -format '%wx%h' " file-name)))
                       (new-size (completing-read (format "original size %s -> target size (max width height, keeping aspect ratio): " orig-size) '("200" "300" "400") nil nil))
                       (fbn (file-name-base file-name))
                       (folder (file-name-directory file-name))
                       (new-name (format "%s%s.%s.png" folder fbn new-size)))
             (message (format "transformation complete to %s, result '%s'"
                              new-name
-                             (shell-command-to-string (format "convert %s -resize %sx%s %s" file-name new-size new-size new-name))))
+                             (safe-shell-command-to-string (format "convert %s -resize %sx%s %s" file-name new-size new-size new-name))))
             new-name)))
 
       (defun gb/resize-image-in-org ()
@@ -18048,7 +18060,7 @@
           (message "[off] enable touchpad en/disable depending on buffer type")
         (message "[on] enable touchpad en/disable depending on buffer type")
 
-        (setq touchpad-active (string-equal "on" (string-trim (shell-command-to-string "get-touchpad"))))
+        (setq touchpad-active (string-equal "on" (string-trim (safe-shell-command-to-string "get-touchpad"))))
 
         (defun gb/reset-touchpad-processing ()
           (ignore-errors
@@ -18074,19 +18086,19 @@
         (defun gb/touchpad-on ()
           "switch the touchpad on"
           (interactive)
-          (shell-command-to-string (format "set-touchpad on"))
+          (safe-shell-command-to-string (format "set-touchpad on"))
           (setq touchpad-active t))
 
         (defun gb/touchpad-off ()
           "switch the touchpad off"
           (interactive)
-          (shell-command-to-string (format "set-touchpad off"))
+          (safe-shell-command-to-string (format "set-touchpad off"))
           (setq touchpad-active nil))
 
         (defun gb/touchpad-toggle ()
           "toggle the touchpad status"
           (interactive)
-          (shell-command-to-string (format "set-touchpad"))
+          (safe-shell-command-to-string (format "set-touchpad"))
           (setq touchpad-active (not touchpad-active)))
 
         (bind-key "C-x t t" #'gb/touchpad-toggle)
@@ -18101,7 +18113,7 @@
                      (xor should-activate-touchpad touchpad-active))
               (ignore-errors
                 (with-ignored-messages
-                 (shell-command-to-string (format "set-touchpad %s" (if should-activate-touchpad "on" "off")))
+                 (safe-shell-command-to-string (format "set-touchpad %s" (if should-activate-touchpad "on" "off")))
                  (setq touchpad-active should-activate-touchpad)))))
           t)
 
