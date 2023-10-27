@@ -7,5 +7,5 @@
     #
     INFILE=$(realpath "$1")
     OUTFILE=$(realpath "$2")
-    direnv exec ~/bin/ebook-utils-guix// python2 ~/bin/ebook-utils-guix//ineptpdf.7.11.py ~/bin/ebook-utils-guix/adeptkey.der "$INFILE" "$OUTFILE"
+    direnv exec ~/bin/ebook-utils-guix// python3 ~/bin/ebook-utils-guix//ineptpdf.9.py ~/bin/ebook-utils-guix/adeptkey.der "$INFILE" "$OUTFILE"
   #+end_src
