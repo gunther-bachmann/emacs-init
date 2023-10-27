@@ -5499,6 +5499,12 @@
      (isearch-exit)
      (goto-char isearch-other-end))
    #+END_SRC
+** isearch config
+- make sure that scroll commands during isearch are executed and do not end the search session
+  (e.g. C-l for recenter, or C-v for page down)
+#+begin_src emacs-lisp
+  (custom-set-variables '(isearch-allow-scroll t))
+#+end_src
 ** visible mark
    - make the last (2) marks visible (orange, yellow)
    - C-x C-x exchanges point and mark, spanning a region between the two
@@ -10317,6 +10323,7 @@
         (org-ref-bibliography-notes "~/bibliography/notes.org")
         (org-ref-default-bibliography '("~/bibliography/references.bib"))
         (org-ref-pdf-directory "~/bibliography/bibtex-pdfs/")
+        (org-ref-completion-library 'org-ref-ivy)
       ;; see org-ref for use of these variables
       )
     #+END_SRC
@@ -16767,6 +16774,8 @@
   #+end_src
 * tramp
   #+begin_src emacs-lisp
+    (setq tramp-use-scp-direct-remote-copying t)
+
     (use-package tramp-term
       :ensure t
       :commands (tramp-term))
@@ -19580,7 +19589,7 @@
      (cond
       ((eq gb/theme-mode 'light) nil) ;; TODO complete
       (t (progn
-           (--each '((hl-line ((t (:background "gray18"))))
+           (--each '((hl-line ((t (:background "#202035"))))
                      (highlight ((t (:background "gray18"))))
                      (region ((t (:background "gray24"))))
                      (font-lock-doc-face ((t (:foreground "gray52"))))
