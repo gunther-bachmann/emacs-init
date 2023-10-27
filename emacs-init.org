@@ -18115,6 +18115,30 @@
     :ensure t
     :commands (vterm))
 #+end_src
+* EVAL binky - jump between buffer locations
+#+begin_src emacs-lisp
+  (use-package binky
+    :ensure t
+    :hook (after-init-hook . (lambda () (binky-mode) (binky-margin-mode))))
+#+end_src
+* EVAL eff - open elf binary and show symbpls
+- use eff-mode to show symbols of binary
+#+begin_src emacs-lisp
+  (use-package eff
+    :ensure t)
+#+end_src
+* EVAL yasnippet-capf - add yasnippets to completion
+#+begin_src emacs-lisp
+  (use-package yasnippet-capf
+    :ensure t
+    :config (add-to-list 'completion-at-point-functions #'yasnippet-capf))
+#+end_src
+* EVAL org-timeblock
+#+begin_src emacs-lisp
+  (use-package org-timeblock
+    :custom (org-timeblock-inbox-file "/home/pe/documents/inbox.org")
+    :ensure t)
+#+end_src
 * utility functions
   - open dired to mounted folders
     #+begin_src emacs-lisp
