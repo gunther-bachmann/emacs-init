@@ -10,8 +10,14 @@
   #
   SCANDIR=${1:-"."}
   SCANDATE=$(date +"%Y-%m-%d %T")
-  echo "scan ${SCANDIR} (only recent files)"
-  find ${SCANDIR} -type f -ctime -7  > ~/scan.list.txt
+  echo "scan ${SCANDIR}"
+  if [ "$SCANALL" == "" ]; then
+      echo "scan only recent files ..."
+    find ${SCANDIR} -type f -ctime -7  > ~/scan.list.txt
+else
+    echo "scan all files ..."
+    find ${SCANDIR} -type f > ~/scan.list.txt
+  fi
   echo "scanning $(wc -l ~/scan.list.txt) files (starting $SCANDATE)"
   echo "############################" >> ~/scan.report.txt
   echo "scan run on dir: ${SCANDIR} on: ${SCANDATE}" >> ~/scan.report.txt
