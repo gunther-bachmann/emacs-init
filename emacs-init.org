@@ -17762,10 +17762,9 @@
         :custom
         (undo-hl-undo-commands '(undo undo-only undo-redo undo-fu-only-undo undo-fu-only-redo undo-tree-redo undo-tree-undo))))
   #+end_src
-* EVAL subed
+* subed (unused)
   #+begin_src emacs-lisp
-    (use-package subed
-      :ensure t)
+    (use-package subed)
   #+end_src
 * EVAL ca65-mode
   #+begin_src emacs-lisp
@@ -18281,6 +18280,8 @@
               (message "repo 'emacs-init' not found or script name invalid.")))))
     #+end_src
 * INTERESTING
+** ai
+- starhugger - Hugging Face/AI-powered text & code completion client 
 ** blog/presentation
   - org-present using a cell phone to switch pages
    #+BEGIN_SRC emacs-lisp :tangle no
@@ -18515,7 +18516,8 @@
   - leo - Interface for dict.leo.org
   - diredc - Extensions for dired (acting similar to midnight commander)
   - cloak-mode - hide information by regex, mode specific
-  - opensub - Search and download from open-subtitles 
+  - opensub - Search and download from open-subtitles
+  - async-status - A package for indicator support 
 ** windowmanager/x-integration
   - edwin (dynamic window manager)
   - zoom
@@ -18565,9 +18567,10 @@
    - impostman - Import Postman collections (https://github.com/flashcode/impostman)
    - eglot-java - Java extension for the eglot LSP client
    - plz - HTTP library (easily get work with web resources into elisp)
-** graphics
+** graphics / video
 - vega-view - allow preview of vega graphics (graphics described by json), see https://vega.github.io/vega/ and https://github.com/applied-science/emacs-vega-view
-- ffmpeg-utils - FFmpeg command utilities wrappers 
+- ffmpeg-utils - FFmpeg command utilities wrappers
+- yeetube - YouTube/Invidious Front End 
 ** system
    - arduino-cli-mode - Arduino-CLI command wrapper
    - etc-sudoers-mode - Edit Sudo security policies
