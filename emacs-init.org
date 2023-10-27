@@ -10875,7 +10875,7 @@
          (defun slack-team-modeline-enabledp (team)
            (if (boundp 'pomodoro-timer)
                (not (gb/timer-active-p pomodoro-timer))
-             (s-equals? (oref team name) gb/slack--default-team)))
+             (--some (s-equals? (oref team name) it) gb/slack--default-teams)))
 
          (defun gb/slack-update-modeline-advice ()
            (slack-update-modeline))
@@ -10896,14 +10896,16 @@
          (defun gb/slack-init-mode-config ()
            "do some settings for slack"
            ;; show pictures in one piece (since they are chunked in lines)
+           (emojify-mode 1)
+           (gb/serif-on)
            (setq-local line-spacing 0))
 
-         (add-hook 'slack-mode-hook #'emojify-mode)
          (add-hook 'slack-mode-hook #'gb/slack-init-mode-config)
-         (add-hook 'slack-thread-message-buffer-mode-hook #'emojify-mode)
          (add-hook 'slack-thread-message-buffer-mode-hook #'gb/slack-init-mode-config)
-         (add-hook 'slack-file-info-buffer-mode-hook #'emojify-mode)
          (add-hook 'slack-file-info-buffer-mode-hook #'gb/slack-init-mode-config)
+         (add-hook 'slack-info-mode-hook #'gb/slack-init-mode-config)
+         (add-hook 'slack-file-info-buffer-mode-hook #'gb/slack-init-mode-config)
+         (add-hook 'slack-user-profile-buffer-mode-hook #'gb/slack-init-mode-config)
 
 
          (when (eq gb/completion-framework 'ivy)
@@ -10915,7 +10917,7 @@
            (defun gb/slack--message-reaction-input (_team)
              (when-let ((emoji (slack-select-emoji (slack-team-select))))
                (if (and (string-prefix-p ":" emoji)
-                        (string-suffix-p ":" emoji))
+                      (string-suffix-p ":" emoji))
                    (substring emoji 1 -1)
                  emoji)))
 
@@ -10979,16 +10981,17 @@
            "read slack api tokens and set configuration accordingly"
            (unless gb/slack-team-registered
              (let* ((auth-map (jde-read-properties-file "~/.slack.api.token.gpg")))
-               (slack-register-team
-                :name gb/slack--default-team
-                :default t
-                :token (gethash "slack-token" auth-map)
-                :subscribed-channels '()
-                :full-and-display-names t
-                :mark-as-read-immediately nil
-                :modeline-name "i"
-                :visible-threads t
-                :animate-image nil)
+               (--each gb/slack--default-teams 
+                 (slack-register-team
+                  :name it
+                  :default t
+                  :token (gethash it auth-map)
+                  :subscribed-channels '()
+                  :full-and-display-names t
+                  :mark-as-read-immediately nil
+                  :modeline-name "i"
+                  :visible-threads t
+                  :animate-image nil))
                (setq gb/slack-team-registered t))))
 
          (defvar gb/slack-update-list-timer nil)
