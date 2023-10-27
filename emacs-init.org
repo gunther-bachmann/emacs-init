@@ -11750,6 +11750,12 @@
               ,(s-concat (regexp-quote (format "%s/documents/roam/" udir) ) ".*")
               ,(s-concat (regexp-quote (format "%s/repo/" udir)) ".*")))))
 #+END_SRC
+** duplicity-backup-restore
+#+begin_src emacs-lisp
+  (use-package duplicity-restore-check
+    :load-path "~/repo/+1/duplicity-utils/"
+    :commands (duplicity--check-latest-backup))
+#+end_src
 * latex (auctex)
 ** auctex
    #+BEGIN_SRC emacs-lisp
