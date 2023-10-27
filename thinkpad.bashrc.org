@@ -106,9 +106,9 @@
     alias ls="TERM=ansi ls --color=always \$@"
     alias y-dl="yt-dlp -x --audio-format mp3 \$@"
     alias wlan="iwconfig $WLAN_INTERFACE"
-    alias wlan-restart="TERM=dumb sudo systemctl restart wpa_supplicant.service"
-    alias wlan-status="TERM=dumb sudo systemctl status wpa_supplicant.service -l"
-    alias wlan-term="TERM=dumb sudo systemctl stop wpa_supplicant.service"
+    alias wlan-restart="TERM=dumb sudo systemctl restart wpa_supplicant-wlp4s0.service"
+    alias wlan-status="TERM=dumb sudo systemctl status wpa_supplicant-wlp4s0.service -l"
+    alias wlan-term="TERM=dumb sudo systemctl stop wpa_supplicant-wlp4s0.service"
 
     # not working yet
     # complete -C aws_completer aws
