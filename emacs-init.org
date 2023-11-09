@@ -5249,6 +5249,14 @@
                ("<tab>" . company-complete-selection))
        :config
        (progn
+         ;; fix implementation running in "unknown arg" problem
+         (defun gb/company-bbdb--candidates (arg)
+           (cl-mapcan (lambda (record)
+                        (mapcar (lambda (mail) (bbdb-dwim-mail record mail))
+                                (bbdb-record-get-field record 'mail)))
+                      (eval `(bbdb-search (bbdb-records) ,arg nil ,arg))))
+         (advice-add 'company-bbdb--candidates :override #'gb/company-bbdb--candidates)
+
          (setq company-idle-delay nil)
          (setq company-show-numbers nil)
          ;; use numbers 0-9 to select company completion candidates
