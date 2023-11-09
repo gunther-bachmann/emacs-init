@@ -3621,7 +3621,10 @@
                                             'mode-line-inactive))))))
 
                   ;; 'mode-line-position
-                  "%5l:" (propertize "%4c" 'face '(:foreground "#606060"))
+                  '(:eval
+                    (if (eq major-mode 'pdf-view-mode)
+                        mode-line-position
+                      (concat "%5l:" (propertize "%4c" 'face '(:foreground "#606060")))))
 
                   " "
                   '(:eval 
