@@ -18269,7 +18269,8 @@
 
       enable touchpad for exwm buffers
       disable touchpad for all other buffers"
-          (let* ((should-activate-touchpad (exwm--buffer->id (current-buffer))))
+          (let* ((should-activate-touchpad (or (exwm--buffer->id (current-buffer))
+                                              (eq major-mode 'pdf-view-mode))))
             (when (and (not (bound-and-true-p gb/running-exwm-monitor-setup))
                      (xor should-activate-touchpad touchpad-active))
               (ignore-errors
