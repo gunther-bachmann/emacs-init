@@ -8123,8 +8123,7 @@
 
 
                   ;; copied from http://babbagefiles.blogspot.de/2017/11/more-pdf-tools-tricks.html
-                  ;; automatically turns on midnight-mode for pdfs
-                  (add-hook 'pdf-view-mode-hook (lambda () (pdf-view-midnight-minor-mode) (pdf-isearch-minor-mode)))
+                  (add-hook 'pdf-view-mode-hook (lambda () (pdf-isearch-minor-mode) (pdf-view-fit-page-to-window)))
 
                   (setq pdf-view-midnight-colors '("#839496" . "#002b36" )) ; set default profile
 
