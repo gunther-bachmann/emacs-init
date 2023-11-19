@@ -14627,6 +14627,28 @@
         (require 'exwm-xim)
         (exwm-xim-enable))
     #+end_src
+  - patches
+    - make sure to switch to original workspace when switching to a exwm application
+      this prevents errorneous switching to the workspace the exwm window was originally on
+    #+begin_src emacs-lisp
+      (when (and gb/profile--exwm gb/use-exwm)
+        (defun exwm-ivy-switch-buffer-prepatch (&rest args)  
+          (setq exwm-ivy-switch-buffer-prepatch--workspace (exwm-workspace--position (selected-frame)))
+          (message "saved workspace pos %d" exwm-ivy-switch-buffer-prepatch--workspace))
+
+        (defun exwm-ivy-switch-buffer-postpatch (&rest args)
+          (when exwm-ivy-switch-buffer-prepatch--workspace
+            (run-at-time 
+             0.05
+             nil 
+             (lambda ()
+               (exwm-workspace-switch exwm-ivy-switch-buffer-prepatch--workspace)
+               (message "switched to workspace pos %d" exwm-ivy-switch-buffer-prepatch--workspace)
+               (setq exwm-ivy-switch-buffer-prepatch--workspace nil)))))
+
+        (advice-add 'ivy-switch-buffer :before #'exwm-ivy-switch-buffer-prepatch)
+        (advice-add 'ivy-switch-buffer :after #'exwm-ivy-switch-buffer-postpatch))
+    #+end_src
 * fritz nas
   - tested with cifs-utils-6.9
   #+begin_src emacs-lisp
