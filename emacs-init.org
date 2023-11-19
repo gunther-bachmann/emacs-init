@@ -18149,6 +18149,11 @@
     :custom (org-timeblock-inbox-file "/home/pe/documents/inbox.org")
     :ensure t)
 #+end_src
+* image-dimensions
+#+begin_src emacs-lisp
+  (use-package image-dimensions-minor-mode
+    :load-path "~/.emacs.d/additionals/")
+#+end_src
 * utility functions
   - open dired to mounted folders
     #+begin_src emacs-lisp
