@@ -70,7 +70,7 @@
   #+begin_src sh :eval no :tangle ~/.direnvrc
     # allow for guix environment execution (e.g. 'use_guix guile', or 'use_guix racket@8.7')
     use_guix() {
-      eval "$(guix time-machine --commit=0dc83ce53b8bad8473c80689ba212d9f9bb712b3 -- shell "$@" --search-paths)"
+      eval "$(guix time-machine --commit=0083a2265960f8228112c36e0d10eb974ff9d1f1 -- shell "$@" --search-paths)"
     }
   #+end_src
 * nix
