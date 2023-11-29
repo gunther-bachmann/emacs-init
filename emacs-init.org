@@ -18212,6 +18212,11 @@
   (use-package image-dimensions-minor-mode
     :load-path "~/.emacs.d/additionals/")
 #+end_src
+* EVAL chip8
+#+begin_src emacs-lisp
+  (use-package chip8
+    :commands (chip8-original chip8-modern chip8-superchip chip8-xo-chip))
+#+end_src
 * utility functions
   - open dired to mounted folders
     #+begin_src emacs-lisp
