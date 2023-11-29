@@ -32,7 +32,8 @@
       else
         description="# no description available"
       fi
-      local PROJECT_DIR=$(expand_path .)
+      local PROJECT_ENVRC=$(find_up .envrc)
+      local PROJECT_DIR=$(dirname $PROJECT_ENVRC)
       local alias_dir=$PROJECT_DIR/.direnv/aliases
       local target="$alias_dir/$name"
       mkdir -p "$alias_dir"
