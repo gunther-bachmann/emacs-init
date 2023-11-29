@@ -571,6 +571,17 @@
        :init
        (progn
          (report-elapsed ":init-enter paradox")
+
+         (defun gb/wrap-paradox-execute (orig-fun &rest args)
+           (let ((saved-pw-regexp tramp-password-prompt-regexp))
+             (setq tramp-password-prompt-regexp nil)
+             (prog1
+                 (with-demoted-errors "Error: %S"
+                   (apply orig-fun args))
+               (setq tramp-password-prompt-regexp saved-pw-regexp))))
+
+         (advice-add 'paradox-menu-execute :around #'gb/wrap-paradox-execute)
+
          (defun gb/paradox-list-packages ()
              ""
              (interactive)
@@ -11379,7 +11390,8 @@
 ** helm
    #+BEGIN_SRC emacs-lisp
      (use-package async
-       :ensure t) ;; TODO: add all async requirements, otherwise this will not work
+       :ensure t
+       :custom (async-prompt-for-password . nil)) ;; TODO: add all async requirements, otherwise this will not work
      (use-package popup
        :ensure t)
      ;;  (use-package helm-core
