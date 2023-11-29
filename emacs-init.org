@@ -14133,6 +14133,8 @@
           (exwm-config-default) ;; enables ido mode !
           (ido-mode -1)
 
+          (setq exwm-manage-force-tiling t) ;; force all windows to use tiling!
+
           ;; (if (safe-shell-command-to-string "ps -A | grep VBoxClient")
           ;;     (message "OK: VBoxClient seems to be running, thus clipboard sharing is probably active")
           ;;   (message "ERROR: VBoxClient is not running! Clipboard sharing is not available"))
@@ -14667,11 +14669,15 @@
         (defun exwm-ivy-switch-buffer-postpatch (&rest args)
           (when exwm-ivy-switch-buffer-prepatch--workspace
             (run-at-time 
-             0.05
+             0.1
              nil 
              (lambda ()
-               (exwm-workspace-switch exwm-ivy-switch-buffer-prepatch--workspace)
-               (message "switched to workspace pos %d" exwm-ivy-switch-buffer-prepatch--workspace)
+               (when (and (boundp 'exwm-ivy-switch-buffer-prepatch--workspace)
+                        (>= exwm-ivy-switch-buffer-prepatch--workspace 0)
+                        (not (equalp exwm-ivy-switch-buffer-prepatch--workspace
+                                   (exwm-workspace--position (selected-frame)))))
+                 (exwm-workspace-switch exwm-ivy-switch-buffer-prepatch--workspace)
+                 (message "switched to workspace pos %d" exwm-ivy-switch-buffer-prepatch--workspace))
                (setq exwm-ivy-switch-buffer-prepatch--workspace nil)))))
 
         (advice-add 'ivy-switch-buffer :before #'exwm-ivy-switch-buffer-prepatch)
