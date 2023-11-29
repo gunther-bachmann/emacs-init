@@ -13217,6 +13217,7 @@
     (use-package racket-mode
       :ensure t
       :diminish
+      :hook (racket-mode . flycheck-mode)
       :custom (racket-show-functions '(racket-show-echo-area))
       (racket-xp-mode-lighter '(:eval (gb/racket--xp-mode-lighter)))
       :bind (:map racket-mode-map
@@ -13316,6 +13317,18 @@
         :config
         (add-to-list 'org-babel-load-languages '(racket . t))
         (org-babel-do-load-languages 'org-babel-load-languages org-babel-load-languages)))
+
+    (when (fboundp #'flycheck-mode)
+      (flycheck-define-checker racket-review
+        "check racket source code using racket-review"
+        :command ("raco" "review" source)
+        :error-patterns
+        ((error line-start (file-name) ":" line ":" column ":error:" (message) line-end)
+         (warning line-start (file-name) ":" line ":" column ":warning:" (message) line-end))
+        ;;:predicate (lambda () t)
+        :modes racket-mode)
+
+      (add-to-list 'flycheck-checkers 'racket-review))
   #+end_src
 * shell-pop
   #+begin_src emacs-lisp
