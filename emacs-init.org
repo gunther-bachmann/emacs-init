@@ -114,13 +114,14 @@
     (setq gb/time (float-time))
 
     (setq gc-cons-threshold 800000000)
+    (setq max-specpdl-size 5000)
 
     (defun report-elapsed (msg-prefix)
       "record an message time since last call of this function"
       (when gb/log-startup-timing
-          (setq gb/elapsed-time (- (float-time) gb/time))
-          (setq gb/time (float-time))
-          (message (format "%s: %f seconds" msg-prefix gb/elapsed-time))))
+        (setq gb/elapsed-time (- (float-time) gb/time))
+        (setq gb/time (float-time))
+        (message (format "%s: %f seconds" msg-prefix gb/elapsed-time))))
 
     (defun dont-delay-compile-warnings (fun type &rest args)
       "ensure that compile warnings during startup are not delayed and thus reported with correct file location in case of warnings"
@@ -581,11 +582,13 @@
              (paradox-list-packages nil)
              (when current-prefix-arg
                (message "don't forget to execute M-x gb/update-myelpa-packages")))
+
          (defun gb/update-myelpa-packages ()
            ""
            (interactive)
            (elpamr-create-mirror-for-installed)
            (magit-status "~/repo/myelpa"))
+
          ;; (defun gb/ensure-github-token ()
          ;;   "make sure to load github token if it is empty"
          ;;   (if (not paradox-github-token)
@@ -2759,10 +2762,10 @@
          (bind-key "s-<up>" 'windmove-up)
          (bind-key "s-<down>" 'windmove-down)
 
-         (bind-key "C-M-s-<left>" 'windmove-swap-states-left)
-         (bind-key "C-M-s-<right>" 'windmove-swap-states-right)
-         (bind-key "C-M-s-<up>" 'windmove-swap-states-up)
-         (bind-key "C-M-s-<down>" 'windmove-swap-states-down)
+         (bind-key "M-s-<left>" 'windmove-swap-states-left)
+         (bind-key "M-s-<right>" 'windmove-swap-states-right)
+         (bind-key "M-s-<up>" 'windmove-swap-states-up)
+         (bind-key "M-s-<down>" 'windmove-swap-states-down)
 
          ;; shrink selected window horizontally
          (bind-key "C-s-<left>" 'shrink-window-horizontally-effect)
@@ -6783,7 +6786,7 @@
        :after (kotlin-mode org))
 
      (use-package gb-kotlin
-       :load-path "~/repo/gb-kotlin"
+       :load-path "~/repo/emacs/gb-kotlin"
        :after (kotlin-mode magit yafolding)
        :hook (kotlin-mode . gb/kotlin-run-hooks)
        :bind (:map kotlin-mode-map
@@ -12232,7 +12235,7 @@
      (use-package dired-annotator
        :after (posframe all-the-icons)
        :load-path "~/repo/emacs/emacs-dired-annotator"
-       :custom ((dired-annotator-note-icon (propertize (all-the-icons-faicon "sticky-note") 'face '(:height 0.9 ) 'display '(:v-adjust: -0.2 )))
+       :custom ((dired-annotator-note-icon (propertize "📄" 'face '(:height 0.9 ) 'display '(:v-adjust: -0.3 )))
                 (dired-annotator-annotations-folder (expand-file-name "~/documents/annotations"))
                 (dired-annotator-note-popup-hook #'dired-annotator--posframe-note-popup)
                 (dired-annotator-note-fill-column 54) ;; a bit smaller than the popup window
@@ -14466,10 +14469,10 @@
           (gb/register-global-key (kbd "s-<up>") #'windmove-up)
           (gb/register-global-key (kbd "s-<down>") #'windmove-down)
 
-          (gb/register-global-key (kbd "C-M-s-<left>") #'windmove-swap-states-left)
-          (gb/register-global-key (kbd "C-M-s-<right>") #'windmove-swap-states-right)
-          (gb/register-global-key (kbd "C-M-s-<up>") #'windmove-swap-states-up)
-          (gb/register-global-key (kbd "C-M-s-<down>") #'windmove-swap-states-down)
+          (gb/register-global-key (kbd "M-s-<left>") #'windmove-swap-states-left)
+          (gb/register-global-key (kbd "M-s-<right>") #'windmove-swap-states-right)
+          (gb/register-global-key (kbd "M-s-<up>") #'windmove-swap-states-up)
+          (gb/register-global-key (kbd "M-s-<down>") #'windmove-swap-states-down)
 
           (gb/register-global-key (kbd "H-l") #'gb/lock-screen)
           (gb/register-global-key (kbd "H-c") #'gb/mouse-pointer-to-cursor)
@@ -16101,26 +16104,28 @@
 
         (setq mini-frame-ignore-commands
               '(
-                helm-for-files
-                helm-M-x
-                helm-find-files
-                helm-mini
-                helm-imenu-anywhere
                 byte-compile-file
-                gb/helm-bufler-switch
-                helm-org-in-buffer-headings
-                helm-imenu-anywhere
-                gb/exwm-program-select
-                embark-keymap-help
-                embark--completing-read-map
-                ignore
                 calcDigit-start
-                helm-swoop
-                helm-switch-shell
+                embark--completing-read-map
+                embark-keymap-help
+                gb/exwm-program-select
+                gb/helm-bufler-switch
+                helm-M-x
+                helm-cmd-t
+                helm-cmd-t-repos
+                helm-find-files
+                helm-for-files
+                helm-imenu-anywhere
+                helm-imenu-anywhere
+                helm-mini
                 helm-multi-swoop
                 helm-multi-swoop-all
-                helm-cmd-t
-                helm-cmd-t-repos))
+                helm-org-in-buffer-headings
+                helm-switch-shell
+                helm-swoop
+                ignore
+                minibuffer-keyboard-quit
+                paradox-menu-execute))
         (when (eq gb/completion-framework 'ivy)
           (mini-frame-mode 1)
           (add-to-list 'gb/execute-on-soft-reset #'(lambda () (mini-frame-mode -1))))))
@@ -17807,8 +17812,8 @@
         :custom
         (undo-hl-undo-commands '(undo undo-only undo-redo undo-fu-only-undo undo-fu-only-redo undo-tree-redo undo-tree-undo))))
   #+end_src
-* subed (unused)
-  #+begin_src emacs-lisp
+* subed (disabled)
+  #+begin_src emacs-lisp :tangle no
     (use-package subed)
   #+end_src
 * EVAL ca65-mode
