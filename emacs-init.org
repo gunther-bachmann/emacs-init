@@ -38,7 +38,9 @@
     (setq gb/frame-creation-speedup nil) ;; font caching for frame creation, provides speed up on 28.0.50, posing problems on 28.0.91
     (setq gb/exwm-use-custom-workspaces t) ;; customized workspace switching in exwm
 
-    (setq gb/use-frame-completion 'mini-frame) ;; 'ivy-posframe, 'mini-frame, nil
+    ;; ivy-posframe - does not show on second monitor
+    ;; mini-frame - fails in emacs 29.1
+    (setq gb/use-frame-completion nil) ;; 'ivy-posframe, 'mini-frame, nil
   #+end_src
 * startup
 #+begin_src emacs-lisp
@@ -5792,8 +5794,8 @@
          (memoize #'ivy-rich-switch-buffer-path 5))
        (use-package all-the-icons-ivy
          :ensure t)
-       (defun gb/ivy-candidates-offset (cand) (make-string (if mini-frame-mode 0 (max 0 (- (frame-width) (ivy-rich-minibuffer-width 0.77)))) ? ))
-       (defun gb/ivy-candidates-offset-20 (cand) (make-string (if mini-frame-mode 0 20) ? ))
+       (defun gb/ivy-candidates-offset (cand) (make-string (if (or (and (boundp 'mini-frame-mode) mini-frame-mode) (and (boundp 'ivy-posframe-mode) ivy-posframe-mode)) 0 (max 0 (- (frame-width) (ivy-rich-minibuffer-width 0.77)))) ? ))
+       (defun gb/ivy-candidates-offset-20 (cand) (make-string (if (or (and (boundp 'mini-frame-mode) mini-frame-mode) (and (boundp 'ivy-posframe-mode) ivy-posframe-mode)) 0 20) ? ))
        (defun gb/prefixed-20-all-the-icons-ivy-rich-buffer-icon (cand)
          (concat (gb/ivy-candidates-offset-20 cand) (all-the-icons-ivy-rich-buffer-icon cand)))
        (defun gb/prefixed-20-all-the-icons-ivy-rich-file-icon (cand)
@@ -6124,7 +6126,17 @@
                  (:columns
                   ((all-the-icons-ivy-rich-file-icon)
                    (ivy-rich-candidate))
-                  :delimiter "	")))
+                  :delimiter "	")
+                 gb/ivy--program-select-and-run
+                 (:columns
+                  ((gb/ivy-candidates-offset)
+                   (all-the-icons-ivy-rich-file-icon)
+                   (ivy-rich-candidate (:width 30))))
+                 magit-status
+                 (:columns
+                  ((gb/ivy-candidates-offset)
+                   (all-the-icons-ivy-rich-file-icon)
+                   (ivy-rich-candidate (:width 30))))))
          (when (not (boundp 'ivy--display-transformers-list))
            ;; initialize unknown but used variable (used by ivy-rich)
            (setq ivy--display-transformers-list 'nil))
@@ -16066,15 +16078,16 @@
         (setq ivy-posframe-parameters
               '((left-fringe . 8)
                 (right-fringe . 8)
-                (border-width . 3)))
+                (border-width . 1)))
         (setq ivy-height 28)
         (setq ivy-posframe-height nil)
         (setq ivy-posframe-min-height 10)
-        (setq ivy-posframe-min-width 30)
+        (setq ivy-posframe-min-width 50)
         (setq ivy-posframe-style 'frame-bottom-center)
         (setq ivy-truncate-lines t)
 
         (setq ivy-posframe-border-width 3)
+        (custom-set-faces '(ivy-posframe-border ((t (:inherit default :background "#7a388d")))))
 
         (setq ivy-posframe-command-width-alist
               '((counsel-M-x . 120)
@@ -16158,7 +16171,7 @@
                 minibuffer-keyboard-quit
                 paradox-menu-execute))
         (when (eq gb/completion-framework 'ivy)
-          (mini-frame-mode 1)
+          ;; (mini-frame-mode 1)
           (add-to-list 'gb/execute-on-soft-reset #'(lambda () (mini-frame-mode -1))))))
   #+end_src
 * share2computer
