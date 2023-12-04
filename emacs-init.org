@@ -18277,6 +18277,18 @@
   (use-package chip8
     :commands (chip8-original chip8-modern chip8-superchip chip8-xo-chip))
 #+end_src
+* EVAL goto-line-preview, goto-char-preview
+#+begin_src emacs-lisp
+  (use-package goto-char-preview
+    :bind (("M-g c" . goto-char-preview)
+           ("M-g M-c" . goto-char-preview))
+    :ensure t)
+
+  (use-package goto-line-preview
+    :bind (("M-g M-g" . goto-line-preview)
+           ("M-g G" . goto-line-preview))
+    :ensure t)
+#+end_src
 * utility functions
   - open dired to mounted folders
     #+begin_src emacs-lisp
