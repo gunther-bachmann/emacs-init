@@ -11811,6 +11811,14 @@
     :load-path "~/repo/+1/duplicity-utils/"
     :commands (duplicity--check-latest-backup))
 #+end_src
+** duplicity-dired-backup-status
+#+begin_src emacs-lisp
+  (use-package duplicity-dired-backup-status
+    :load-path "~/repo/+1/duplicity-utils/"
+    :commands (duplicity--show-current-file-backup-info
+               duplicity--mark-all-backuped-files
+               duplicity--check-current-file-backup-status))
+#+end_src
 * latex (auctex)
 ** auctex
    #+BEGIN_SRC emacs-lisp
