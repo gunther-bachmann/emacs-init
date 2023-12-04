@@ -17929,8 +17929,21 @@
         :config (flycheck-vale-setup)))
   #+end_src
 * EVAL difftastic magit integration
-  - thanks to https://tsdh.org/posts/2022-08-01-difftastic-diffing-with-magit.html
+- difftastic
   #+begin_src emacs-lisp
+    (use-package difftastic
+      :ensure t
+      :bind (:map magit-blame-read-only-mode-map
+                  ("D" . difftastic-magit-show)
+                  ("S" . difftastic-magit-show))
+      :config
+      (eval-after-load 'magit-diff
+        '(transient-append-suffix 'magit-diff '(-1 -1)
+           [("D" "Difftastic diff (dwim)" difftastic-magit-diff)
+            ("S" "Difftastic show" difftastic-magit-show)])))
+  #+end_src
+- thanks to https://tsdh.org/posts/2022-08-01-difftastic-diffing-with-magit.html
+  #+begin_src emacs-lisp :tangle no
     (when (and (executable-find "difft")
              (package-installed-p 'magit))
       (defun gb/magit--with-difftastic (buffer command)
