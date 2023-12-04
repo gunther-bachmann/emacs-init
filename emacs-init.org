@@ -9778,6 +9778,15 @@
         ;; Change task state to IMPLEMENT when clocking in (only if in STATE TODO)
         (setq org-clock-in-switch-to-state (function  gb/org-clock-in-switch-to-state-fn))
 
+        ;; copied from https://baty.net/2023/11/display-list-of-org-attached-files-in-buffer-property/
+        ;; add file attachments automatically to properties drawer of org file
+        (defun org-attach-save-file-list-to-property (dir)
+          "Save list of attachments to ORG_ATTACH_FILES property."
+          (when-let* ((files (org-attach-file-list dir)))
+            (org-set-property "ORG_ATTACH_FILES" (mapconcat #'identity files ", "))))
+
+        (add-hook 'org-attach-after-change-hook #'org-attach-save-file-list-to-property)
+
         ;; mark checked lists a bit differently (changed 27)
         ;; (font-lock-add-keywords
         ;;  'org-mode
