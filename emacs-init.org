@@ -14676,29 +14676,37 @@
   - patches
     - make sure to switch to original workspace when switching to a exwm application
       this prevents errorneous switching to the workspace the exwm window was originally on
-    #+begin_src emacs-lisp
-      (when (and gb/profile--exwm gb/use-exwm)
-        (defun exwm-ivy-switch-buffer-prepatch (&rest args)  
-          (setq exwm-ivy-switch-buffer-prepatch--workspace (exwm-workspace--position (selected-frame)))
-          (message "saved workspace pos %d" exwm-ivy-switch-buffer-prepatch--workspace))
-
-        (defun exwm-ivy-switch-buffer-postpatch (&rest args)
-          (when exwm-ivy-switch-buffer-prepatch--workspace
-            (run-at-time 
-             0.1
-             nil 
-             (lambda ()
-               (when (and (boundp 'exwm-ivy-switch-buffer-prepatch--workspace)
-                        (>= exwm-ivy-switch-buffer-prepatch--workspace 0)
-                        (not (equalp exwm-ivy-switch-buffer-prepatch--workspace
-                                   (exwm-workspace--position (selected-frame)))))
-                 (exwm-workspace-switch exwm-ivy-switch-buffer-prepatch--workspace)
-                 (message "switched to workspace pos %d" exwm-ivy-switch-buffer-prepatch--workspace))
-               (setq exwm-ivy-switch-buffer-prepatch--workspace nil)))))
-
-        (advice-add 'ivy-switch-buffer :before #'exwm-ivy-switch-buffer-prepatch)
-        (advice-add 'ivy-switch-buffer :after #'exwm-ivy-switch-buffer-postpatch))
-    #+end_src
+      #+begin_src emacs-lisp
+        (when (and gb/profile--exwm gb/use-exwm)
+          (defun exwm-ivy-switch-buffer-prepatch (&rest args)  
+            (setq exwm-ivy-switch-buffer-prepatch--workspace (exwm-workspace--position (selected-frame)))
+            (message "saved workspace pos %d" exwm-ivy-switch-buffer-prepatch--workspace))
+  
+          (defun exwm-ivy-switch-buffer-postpatch (&rest args)
+            (when exwm-ivy-switch-buffer-prepatch--workspace
+              (run-at-time 
+               0.1
+               nil 
+               (lambda ()
+                 (when (and (boundp 'exwm-ivy-switch-buffer-prepatch--workspace)
+                          (>= exwm-ivy-switch-buffer-prepatch--workspace 0)
+                          (not (equalp exwm-ivy-switch-buffer-prepatch--workspace
+                                     (exwm-workspace--position (selected-frame)))))
+                   (exwm-workspace-switch exwm-ivy-switch-buffer-prepatch--workspace)
+                   (message "switched to workspace pos %d" exwm-ivy-switch-buffer-prepatch--workspace))
+                 (setq exwm-ivy-switch-buffer-prepatch--workspace nil)))))
+  
+          (advice-add 'ivy-switch-buffer :before #'exwm-ivy-switch-buffer-prepatch)
+          (advice-add 'ivy-switch-buffer :after #'exwm-ivy-switch-buffer-postpatch))
+      #+end_src
+    - make sure cursor does not disappear when switching from x-window to regular emacs frame
+      (see https://github.com/ch11ng/exwm/issues/924)
+      #+begin_src emacs-lisp
+        (when (and gb/profile--exwm
+                 gb/use-exwm
+                 (version<= "29" emacs-version))
+          (setq x-no-window-manager t))
+      #+end_src
 * fritz nas
   - tested with cifs-utils-6.9
   #+begin_src emacs-lisp
@@ -14961,7 +14969,7 @@
               (progn
                 (setq cursor-type nil)
                 (hl-line-mode -1))
-            (setq cursor-type 'box)
+            (setq cursor-type 'bar)
             (hl-line-mode 1)))
 
         (bind-key "C-?" #'gb/presentation-toggle-show-cursor org-tree-slide-mode-map)
@@ -15868,54 +15876,54 @@
                       (let* ((len   (length s))
                              (end-m (string-match "#\\\+end_src" l-s start))
                              (end   (or (and end-m (+ 9 end-m))
-                                       len))
+                                        len))
                              (new-s (string-join (list (substring s 0 start) (substring s end len)) "")))
                         (gb/org-roam-strip-src-sections new-s)))
                   s)))
 
             ;; used in modification
-    ;;         (cl-defun org-roam-node-insert-section (&key source-node point properties)
-    ;;           "Insert section for a link from SOURCE-NODE to some other node.
-    ;; The other node is normally `org-roam-buffer-current-node'.
+            ;;         (cl-defun org-roam-node-insert-section (&key source-node point properties)
+            ;;           "Insert section for a link from SOURCE-NODE to some other node.
+            ;; The other node is normally `org-roam-buffer-current-node'.
 
-    ;; SOURCE-NODE is an `org-roam-node' that links or references with
-    ;; the other node.
+            ;; SOURCE-NODE is an `org-roam-node' that links or references with
+            ;; the other node.
 
-    ;; POINT is a character position where the link is located in
-    ;; SOURCE-NODE's file.
+            ;; POINT is a character position where the link is located in
+            ;; SOURCE-NODE's file.
 
-    ;; PROPERTIES (a plist) contains additional information about the
-    ;; link.
+            ;; PROPERTIES (a plist) contains additional information about the
+            ;; link.
 
-    ;; Despite the name, this function actually inserts 2 sections at
-    ;; the same time:
+            ;; Despite the name, this function actually inserts 2 sections at
+            ;; the same time:
 
-    ;; 1. `org-roam-node-section' for a heading that describes
-    ;;    SOURCE-NODE. Acts as a parent section of the following one.
+            ;; 1. `org-roam-node-section' for a heading that describes
+            ;;    SOURCE-NODE. Acts as a parent section of the following one.
 
-    ;; 2. `org-roam-preview-section' for a preview content that comes
-    ;;    from SOURCE-NODE's file for the link (that references the
-    ;;    other node) at POINT. Acts a child section of the previous
-    ;;    one."
-    ;;           (magit-insert-section section (org-roam-node-section)
-    ;;             (let ((outline (if-let ((outline (plist-get properties :outline)))
-    ;;                                (mapconcat #'org-link-display-format outline " > ")
-    ;;                              "Top")))
-    ;;               (insert (concat (propertize (org-roam-node-title source-node)
-    ;;                                           'font-lock-face 'org-roam-title)
-    ;;                               (format " (%s)"
-    ;;                                       (propertize outline 'font-lock-face 'org-roam-olp)))))
-    ;;             (magit-insert-heading)
-    ;;             (oset section node source-node)
-    ;;             (magit-insert-section section (org-roam-preview-section)
-    ;;               (insert ;; (org-roam-preview-get-contents (org-roam-node-file source-node) point)       
-    ;;                (org-roam-fontify-like-in-org-mode
-    ;;                 (gb/org-roam-strip-src-sections
-    ;;                  (org-roam-preview-get-contents (org-roam-node-file source-node) point)))
-    ;;                "\n")
-    ;;               (oset section file (org-roam-node-file source-node))
-    ;;               (oset section point point)
-    ;;               (insert ?\n))))
+            ;; 2. `org-roam-preview-section' for a preview content that comes
+            ;;    from SOURCE-NODE's file for the link (that references the
+            ;;    other node) at POINT. Acts a child section of the previous
+            ;;    one."
+            ;;           (magit-insert-section section (org-roam-node-section)
+            ;;             (let ((outline (if-let ((outline (plist-get properties :outline)))
+            ;;                                (mapconcat #'org-link-display-format outline " > ")
+            ;;                              "Top")))
+            ;;               (insert (concat (propertize (org-roam-node-title source-node)
+            ;;                                           'font-lock-face 'org-roam-title)
+            ;;                               (format " (%s)"
+            ;;                                       (propertize outline 'font-lock-face 'org-roam-olp)))))
+            ;;             (magit-insert-heading)
+            ;;             (oset section node source-node)
+            ;;             (magit-insert-section section (org-roam-preview-section)
+            ;;               (insert ;; (org-roam-preview-get-contents (org-roam-node-file source-node) point)       
+            ;;                (org-roam-fontify-like-in-org-mode
+            ;;                 (gb/org-roam-strip-src-sections
+            ;;                  (org-roam-preview-get-contents (org-roam-node-file source-node) point)))
+            ;;                "\n")
+            ;;               (oset section file (org-roam-node-file source-node))
+            ;;               (oset section point point)
+            ;;               (insert ?\n))))
             :config
             (require 'org-roam-protocol)
 
@@ -17406,7 +17414,7 @@
       :config
       (custom-set-faces '(ts-fold-fringe-face ((t (:foreground "gray20")))))
       (require 'ts-fold-indicators)
-  
+
       (defun gb/ts-fold-mode ()
         "make sure yafolding is turned off and fringe indicator mode is on"
         (when (fboundp 'yafolding-mode)
@@ -17414,7 +17422,7 @@
         (ts-fold-mode)
         (ts-fold-indicators-mode)
         (bind-key "C-<return>" #'gb/ts-fold-toggle))
-  
+
       (defun gb/ts-fold-toggle ()
         "toggle fold if on foldable node, else try beginning and end of line"
         (interactive)
@@ -18112,8 +18120,9 @@
 * jinx
 - async, deferred spell checking
 - jinx module had to be compiled with (in folder ~~/.emacs.d/elpa/jinx-0.6~)
-  ~# guix shell enchant pkg-config~
+  ~# guix shell enchant pkg-config~ or ~nix-shell -p enchant pkg-config~
   ~# cc -I. -O2 -Wall -Wextra -fPIC -shared -o jinx-mod.so jinx-mod.c $(pkg-config --cflags --libs enchant-2)~
+- list available dictionaries by ~enchant-lsmod-2 -list-dicts~ (if list is empty, probably version too old)
 #+begin_src emacs-lisp
   (use-package jinx
     :custom (jinx-languages "en_US de_DE")
