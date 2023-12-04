@@ -116,6 +116,7 @@
     (setq gb/time (float-time))
 
     (setq gc-cons-threshold 800000000)
+    (setq gc-cons-percentage 1.0)
     (setq max-specpdl-size 5000)
 
     (defun report-elapsed (msg-prefix)
@@ -12375,10 +12376,10 @@
   #+BEGIN_SRC emacs-lisp
     (when running-nixos
       (use-package nixos-options
-        :defer 30)
+        :defer t)
       (use-package company-nixos-options
         :after (company nixos-options cl-lib)
-        :ensure t
+        :defer t
         :config
         ;; overwrite function with patched version (to work with org-babel)
         (defun company-nixos--in-nix-context-p ()
@@ -12386,7 +12387,8 @@
              (equal "nix" (file-name-extension
                            (or (buffer-file-name (current-buffer)) "")))))
         :init (add-to-list 'company-backends 'company-nixos-options))
-      (use-package nix-mode))
+      (use-package nix-mode
+        :ensure t))
   #+END_SRC
 * envrc
   - does caching compared to direnv.el which always executes direnv on changing buffers, which may take some time
@@ -16801,10 +16803,10 @@
       :commands (key-assist))
   #+end_src
 * DISABLED gcmh - gc magic hack, defer gc to idle times
+  - disabled: vanilla emacs 28.1 seems not to have additional gc problems anymore
   - works alright, seems to interfer with some other package though, which then uses up to 30s blocking emacs
     one method needed adjust to make idle gc not go over 10s idle time
   - seems to be fixed by setting the max idle time to 10s, never longer even in auto mode!
-  - disabled: vanilla emacs 28.1 seems not to have additional gc problems anymore
   #+begin_src emacs-lisp :tangle no
     (when (file-exists-p "~/repo/emacs/gcmh/gcmh.el")
       (use-package gcmh
@@ -19746,7 +19748,8 @@
     (unless (gb/net-adapter-up-p gb/net-lan-adapter)
       (gb/brightness-set 50))
 
-    (setq gc-cons-threshold 80000000)
+    (setq gc-cons-threshold 80000)
+    (setq gc-cons-percentage 0.1)
 
     ;; ;; set color of echo/mini buffer area (in some cases)
     ;; (add-hook 'minibuffer-setup-hook
@@ -19825,6 +19828,7 @@
 
     (report-elapsed "exit finish - up")
     (lisp-interaction-mode)
+    (message "gc stat (# %s, elapsed %s)" gcs-done gc-elapsed)
 
     ;; (when (fboundp 'doom-modeline-mode)
     ;;   (doom-modeline-mode 1))
