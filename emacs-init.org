@@ -5234,17 +5234,18 @@
        (progn
          (when (fboundp #'gb/modeline-line-set-selected-window)
            (add-hook 'company-box-hide-hook 'gb/modeline-line-set-selected-window))
-         (defun gb/company-box-doc--init-frame-parameter (orig-func &rest args)
-           "initialize frame parameter to ensure that the frame is always recreated"
-           (company-box-doc--hide (selected-frame))
-           (frame-local-setq company-box-doc-frame nil)
-           ;; (set-frame-parameter nil 'company-box-doc-frame nil) ;; necessary for old company-box version < company-box-20200909.714
-           )
+         (unless (version<= "29" emacs-version)
+           (defun gb/company-box-doc--init-frame-parameter (orig-func &rest args)
+             "initialize frame parameter to ensure that the frame is always recreated"
+             (company-box-doc--hide (selected-frame))
+             (frame-local-setq company-box-doc-frame nil)
+             ;; (set-frame-parameter nil 'company-box-doc-frame nil) ;; necessary for old company-box version < company-box-20200909.714
+             )
+           (advice-add 'company-box-doc--show :before #'gb/company-box-doc--init-frame-parameter))
          (defun gb/company-box--set-parameter (&rest args)
            "make sure to use the right linespacing, box will be too small otherwise!"
            (with-current-buffer (company-box--get-buffer)
              (setq line-spacing 0)))
-         (advice-add 'company-box-doc--show :before #'gb/company-box-doc--init-frame-parameter)
          (advice-add 'company-box--display :after #'gb/company-box--set-parameter)
          ;; (advice-remove 'company-box-doc--show #'gb/company-box-doc--init-frame-parameter)
          (cond
@@ -12231,7 +12232,8 @@
          :load-path "~/.emacs.d/additionals/"
          :custom (diredp-wrap-around-flag nil)
          :config (bind-key "s-!" 'diredp-async-shell-command-this-file dired-mode-map)
-         (bind-key "C-p" 'diredp-previous-line dired-mode-map)))
+         (bind-key "C-p" 'diredp-previous-line dired-mode-map)
+         (setq dired-shrink-to-fit t)))
    #+END_SRC
 ** dired rainbow
    #+BEGIN_SRC emacs-lisp
@@ -15141,16 +15143,22 @@
       ;; starting with emacs 28, jsonrpc is internal and does not need to be loaded here
       (use-package jsonrpc
         :ensure t))
-    (use-package eglot
-      :ensure t
-      :custom
-      (eglot-connect-timeout 240 "eglot takes some time to start if the project is complex") 
-      (eglot-send-changes-idle-time 3 "wait 3s idle before contacting language server") 
-      :config
-      (custom-set-faces '(eglot-highlight-symbol-face ((t (:inherit highlight :underline t)))))
-      ;; (flymake-mode-off)
-      ;; (flycheck-mode 1)
-      )
+    (if (version< emacs-version "29")
+      (use-package eglot
+        :ensure t
+        :custom
+        (eglot-connect-timeout 240 "eglot takes some time to start if the project is complex") 
+        (eglot-send-changes-idle-time 3 "wait 3s idle before contacting language server") 
+        :config
+        (custom-set-faces '(eglot-highlight-symbol-face ((t (:inherit highlight :underline t)))))
+        (push '(kotlin-mode . ("kotlin-language-server")) eglot-server-programs)
+        (add-hook 'kotlin-mode-hook #'eglot-ensure)
+        ;; (flymake-mode-off)
+        ;; (flycheck-mode 1)
+        )
+      (progn
+        (setq eglot-connect-timeout 240) 
+        (setq eglot-send-changes-idle-time 3)))
   #+end_src
 * vue (via lsp - eglot, thus this must be defined after eglot)
   - see https://genehack.blog/2020/08/web-mode-eglot-vetur-vuejs-=-happy/
@@ -15778,13 +15786,18 @@
       (if (not (executable-find "sqlite3"))
           (message "ERROR: could not find executable sqlite3")
         (progn
-          (use-package emacsql-sqlite)
-          (use-package emacsql-sqlite3
-            :ensure t)
+          (if (version<= "29" emacs-version)
+              (progn
+                (use-package emacsql-sqlite-builtin
+                  :ensure t)
+                (setq org-roam-database-connector 'sqlite-builtin)) 
+            (use-package emacsql-sqlite)
+            (use-package emacsql-sqlite3
+              :ensure t)
+            (setq org-roam-database-connector 'sqlite3))
           (setq org-notes (format "/home/%s/documents/roam" (user-login-name)))
           (use-package org-roam
-            :custom
-            (org-roam-database-connector 'sqlite3)
+            :custom        
             (org-roam-completion-everywhere t)
             (org-roam-capture-templates 
              `(("d" "default" plain
@@ -17355,21 +17368,22 @@
 * tree-sitter
   - see https://ubolonton.github.io/emacs-tree-sitter/getting-started/
   #+begin_src emacs-lisp
-    (use-package tree-sitter
-      :ensure t)
+    (when (version< emacs-version "29")
+      (use-package tree-sitter
+        :ensure t)
 
-    (use-package tree-sitter-langs
-      :ensure t
-      :config
-      ;; supported languages that support tree sitter highlighting
-      (require 'dash)
-      (--each '(typescript-mode-hook
-                java-mode-hook
-                javascript-mode-hook
-                html-mode-hook
-                scala-mode-hook
-                json-mode-hook)
-        (add-hook it #'tree-sitter-hl-mode)))
+      (use-package tree-sitter-langs
+        :ensure t
+        :config
+        ;; supported languages that support tree sitter highlighting
+        (require 'dash)
+        (--each '(typescript-mode-hook
+                  java-mode-hook
+                  javascript-mode-hook
+                  html-mode-hook
+                  scala-mode-hook
+                  json-mode-hook)
+          (add-hook it #'tree-sitter-hl-mode))))
 
     (use-package ts-fold
       :load-path "~/repo/emacs/ts-fold"
