@@ -3548,26 +3548,27 @@
               (t (shorten-buffer-filename fn active))))
 
       (defun shorten-buffer-filename (fn active)
-        (if (and gb/disable-modeline-updates gb/mode-line--last-shortened-filename-cache)
-            gb/mode-line--last-shortened-filename-cache
-          (let* ((sfn 
-                  (when-let* ((prop-fn fn))
-                    (->>
-                     (if-let* ((project (project-current nil default-directory))
-                               (project-root (string-remove-suffix "/" (expand-file-name (cdr project)))))
-                         (gb/string-replace-prefix project-root (ml-project-prefix active) prop-fn)
-                       (gb/string-replace-prefix (expand-file-name "~") (ml-home-prefix active) prop-fn))
-                     (gb/string-replace-prefix "/sudo:root@pe-nixos:" (ml-sudo-prefix active))
-                     ;; (replace-if-starting-with "/nix/store/" "/nix/store/[a-z0-9]+-" (ml-n-store-prefix active))
-                     ;; (replace-if-starting-with "/gnu/store/" "/gnu/store/[a-z0-9]+-" (ml-gnu-store-prefix active))
-                     (replace-regexp-in-string "/nix/store/[a-z0-9]+-" (ml-n-store-prefix active))
-                     (replace-regexp-in-string "/gnu/store/[a-z0-9]+-" (ml-gnu-store-prefix active))
-                     (replace-regexp-in-string "/src/\\(main/\\(java/\\|scala/\\|kotlin/\\)\\)?" (ml-src-prefix active))
-                     (replace-regexp-in-string "/src/test/\\(java/\\|scala/\\|kotlin/\\)?" (ml-test-prefix active))
-                     (replace-regexp-in-string "[12][019][0-9][0-9][01][0-9][0-3][0-9][0-2][0-9][0-5][0-9][0-5][0-9]-" (ml-timestamp-prefix active)))))
-                 (psfn (gb/reorder-filename sfn active)))
-            (setq gb/mode-line--last-shortened-filename-cache psfn)
-            psfn)))
+        (if t (buffer-file-name)
+          (if (and gb/disable-modeline-updates gb/mode-line--last-shortened-filename-cache)
+              gb/mode-line--last-shortened-filename-cache
+            (let* ((sfn 
+                    (when-let* ((prop-fn fn))
+                      (->>
+                       (if-let* ((project (project-current nil default-directory))
+                                 (project-root (string-remove-suffix "/" (expand-file-name (cdr project)))))
+                           (gb/string-replace-prefix project-root (ml-project-prefix active) prop-fn)
+                         (gb/string-replace-prefix (expand-file-name "~") (ml-home-prefix active) prop-fn))
+                       (gb/string-replace-prefix "/sudo:root@pe-nixos:" (ml-sudo-prefix active))
+                       ;; (replace-if-starting-with "/nix/store/" "/nix/store/[a-z0-9]+-" (ml-n-store-prefix active))
+                       ;; (replace-if-starting-with "/gnu/store/" "/gnu/store/[a-z0-9]+-" (ml-gnu-store-prefix active))
+                       (replace-regexp-in-string "/nix/store/[a-z0-9]+-" (ml-n-store-prefix active))
+                       (replace-regexp-in-string "/gnu/store/[a-z0-9]+-" (ml-gnu-store-prefix active))
+                       (replace-regexp-in-string "/src/\\(main/\\(java/\\|scala/\\|kotlin/\\)\\)?" (ml-src-prefix active))
+                       (replace-regexp-in-string "/src/test/\\(java/\\|scala/\\|kotlin/\\)?" (ml-test-prefix active))
+                       (replace-regexp-in-string "[12][019][0-9][0-9][01][0-9][0-3][0-9][0-2][0-9][0-5][0-9][0-5][0-9]-" (ml-timestamp-prefix active)))))
+                   (psfn (gb/reorder-filename sfn active)))
+              (setq gb/mode-line--last-shortened-filename-cache psfn)
+              psfn))))
 
       (defun get-project-relative-buffer-filename (active)
         (when-let* ((fn (buffer-file-name)))
@@ -9297,97 +9298,98 @@
                (remove-text-properties begin (- end 1) '(read-only t))))
            "read_only"))
 
-        (add-hook 'org-mode-hook 'org-mark-readonly))
+        ;; (add-hook 'org-mode-hook 'org-mark-readonly)
+        )
 
       ;; thanks to https://pank.eu/blog/pretty-babel-src-blocks.html
-      (with-eval-after-load 'org
+      ;; (with-eval-after-load 'org
 
-        (require 'org-crypt)
-        (org-crypt-use-before-save-magic)
-        (setq org-tags-exclude-from-inheritance '("crypt")) ;; tag to use
-        (setq org-crypt-key nil)                              ;; for symmetric en/decryption
-        (bind-key "C-c s d" #'org-decrypt-entry)
-        (bind-key "C-c s e" #'org-encrypt-entry)
+      ;;   (require 'org-crypt)
+      ;;   (org-crypt-use-before-save-magic)
+      ;;   (setq org-tags-exclude-from-inheritance '("crypt")) ;; tag to use
+      ;;   (setq org-crypt-key nil)                              ;; for symmetric en/decryption
+      ;;   (bind-key "C-c s d" #'org-decrypt-entry)
+      ;;   (bind-key "C-c s e" #'org-encrypt-entry)
 
-        (defvar-local rasmus/org-at-src-begin -1
-          "Variable that holds whether last position was a ")
+      ;;   (defvar-local rasmus/org-at-src-begin -1
+      ;;     "Variable that holds whether last position was a ")
 
-        (defvar rasmus/ob-header-symbol ?☰
-          "Symbol used for babel headers")
+      ;;   (defvar rasmus/ob-header-symbol ?☰
+      ;;     "Symbol used for babel headers")
 
-        (defun rasmus/org-prettify-src--update ()
-          (let ((case-fold-search t)
-                (re "^[ \t]*#\\+begin_src[ \t]+[^ \f\t\n\r\v]+[ \t]*")
-                found)
-            (save-excursion
-              (goto-char (point-min))
-              (while (re-search-forward re nil t)
-                (goto-char (match-end 0))
-                (let ((args (org-trim
-                             (buffer-substring-no-properties (point)
-                                                             (line-end-position)))))
-                  (when (org-string-nw-p args)
-                    (let ((new-cell (cons args rasmus/ob-header-symbol)))
-                      (cl-pushnew new-cell prettify-symbols-alist :test #'equal)
-                      (cl-pushnew new-cell found :test #'equal)))))
-              (setq prettify-symbols-alist
-                    (cl-set-difference prettify-symbols-alist
-                                       (cl-set-difference
-                                        (cl-remove-if-not
-                                         (lambda (elm)
-                                           (eq (cdr elm) rasmus/ob-header-symbol))
-                                         prettify-symbols-alist)
-                                        found :test #'equal)))
-              ;; Clean up old font-lock-keywords.
-              (font-lock-remove-keywords nil prettify-symbols--keywords)
-              (setq prettify-symbols--keywords (prettify-symbols--make-keywords))
-              (font-lock-add-keywords nil prettify-symbols--keywords)
-              (while (re-search-forward re nil t)
-                (font-lock-flush (line-beginning-position) (line-end-position))))))
+      ;;   (defun rasmus/org-prettify-src--update ()
+      ;;     (let ((case-fold-search t)
+      ;;           (re "^[ \t]*#\\+begin_src[ \t]+[^ \f\t\n\r\v]+[ \t]*")
+      ;;           found)
+      ;;       (save-excursion
+      ;;         (goto-char (point-min))
+      ;;         (while (re-search-forward re nil t)
+      ;;           (goto-char (match-end 0))
+      ;;           (let ((args (org-trim
+      ;;                        (buffer-substring-no-properties (point)
+      ;;                                                        (line-end-position)))))
+      ;;             (when (org-string-nw-p args)
+      ;;               (let ((new-cell (cons args rasmus/ob-header-symbol)))
+      ;;                 (cl-pushnew new-cell prettify-symbols-alist :test #'equal)
+      ;;                 (cl-pushnew new-cell found :test #'equal)))))
+      ;;         (setq prettify-symbols-alist
+      ;;               (cl-set-difference prettify-symbols-alist
+      ;;                                  (cl-set-difference
+      ;;                                   (cl-remove-if-not
+      ;;                                    (lambda (elm)
+      ;;                                      (eq (cdr elm) rasmus/ob-header-symbol))
+      ;;                                    prettify-symbols-alist)
+      ;;                                   found :test #'equal)))
+      ;;         ;; Clean up old font-lock-keywords.
+      ;;         (font-lock-remove-keywords nil prettify-symbols--keywords)
+      ;;         (setq prettify-symbols--keywords (prettify-symbols--make-keywords))
+      ;;         (font-lock-add-keywords nil prettify-symbols--keywords)
+      ;;         (while (re-search-forward re nil t)
+      ;;           (font-lock-flush (line-beginning-position) (line-end-position))))))
 
-        (defun rasmus/org-prettify-src ()
-          "Hide src options via `prettify-symbols-mode'.
+      ;;   (defun rasmus/org-prettify-src ()
+      ;;     "Hide src options via `prettify-symbols-mode'.
 
-          `prettify-symbols-mode' is used because it has uncollpasing. It's
-          may not be efficient."
-          (ignore-errors
-            (let* ((case-fold-search t)
-                   (at-src-block (save-excursion
-                                   (beginning-of-line)
-                                   (looking-at "^[ \t]*#\\+begin_src[ \t]+[^ \f\t\n\r\v]+[ \t]*"))))
-              ;; Test if we moved out of a block.
-              (when (or (and rasmus/org-at-src-begin
-                          (not at-src-block))
-                       ;; File was just opened.
-                       (eq rasmus/org-at-src-begin -1))
-                (rasmus/org-prettify-src--update))
-              ;; Remove composition if at line; doesn't work properly.
-              ;; (when at-src-block
-              ;;   (with-silent-modifications
-              ;;     (remove-text-properties (match-end 0)
-              ;;                             (1+ (line-end-position))
-              ;;                             '(composition))))
-              (setq rasmus/org-at-src-begin at-src-block))))
+      ;;     `prettify-symbols-mode' is used because it has uncollpasing. It's
+      ;;     may not be efficient."
+      ;;     (ignore-errors
+      ;;       (let* ((case-fold-search t)
+      ;;              (at-src-block (save-excursion
+      ;;                              (beginning-of-line)
+      ;;                              (looking-at "^[ \t]*#\\+begin_src[ \t]+[^ \f\t\n\r\v]+[ \t]*"))))
+      ;;         ;; Test if we moved out of a block.
+      ;;         (when (or (and rasmus/org-at-src-begin
+      ;;                     (not at-src-block))
+      ;;                  ;; File was just opened.
+      ;;                  (eq rasmus/org-at-src-begin -1))
+      ;;           (rasmus/org-prettify-src--update))
+      ;;         ;; Remove composition if at line; doesn't work properly.
+      ;;         ;; (when at-src-block
+      ;;         ;;   (with-silent-modifications
+      ;;         ;;     (remove-text-properties (match-end 0)
+      ;;         ;;                             (1+ (line-end-position))
+      ;;         ;;                             '(composition))))
+      ;;         (setq rasmus/org-at-src-begin at-src-block))))
 
-        (defun rasmus/org-prettify-symbols ()
-          (ignore-errors
-            (mapc (apply-partially 'add-to-list 'prettify-symbols-alist)
-                  (cl-reduce 'append
-                             (mapcar (lambda (x) (list x (cons (upcase (car x)) (cdr x))))
-                                     `(("#+begin_src" . ?λ)
-                                       ("#+end_src"   . ?□)
-                                       ("#+results:" . ?⟾)
-                                       ("#+header:" . ,rasmus/ob-header-symbol)
-                                       ("#+begin_quote" . ?»)
-                                       ("#+end_quote" . ?«)))))
-            (turn-on-prettify-symbols-mode)
-            (add-hook 'post-command-hook 'rasmus/org-prettify-src t t)))
-        (add-hook 'org-mode-hook #'rasmus/org-prettify-symbols))
+      ;;   (defun rasmus/org-prettify-symbols ()
+      ;;     (ignore-errors
+      ;;       (mapc (apply-partially 'add-to-list 'prettify-symbols-alist)
+      ;;             (cl-reduce 'append
+      ;;                        (mapcar (lambda (x) (list x (cons (upcase (car x)) (cdr x))))
+      ;;                                `(("#+begin_src" . ?λ)
+      ;;                                  ("#+end_src"   . ?□)
+      ;;                                  ("#+results:" . ?⟾)
+      ;;                                  ("#+header:" . ,rasmus/ob-header-symbol)
+      ;;                                  ("#+begin_quote" . ?»)
+      ;;                                  ("#+end_quote" . ?«)))))
+      ;;       (turn-on-prettify-symbols-mode)
+      ;;       (add-hook 'post-command-hook 'rasmus/org-prettify-src t t)))
+      ;;   (add-hook 'org-mode-hook #'rasmus/org-prettify-symbols))
 
 
       (progn
         ;; (add-hook 'after-change-major-mode-hook #'gb/activate-properties-in-org-mode)
-        (add-hook 'org-mode-hook #'gb/enable-auto-fill-mode)
+        ;; (add-hook 'org-mode-hook #'gb/enable-auto-fill-mode)
         ;; (add-hook 'org-mode-hook
         ;;           (lambda ()
         ;;             "beautify checkbox symbols"
@@ -9429,9 +9431,10 @@
         ;; (add-hook 'org-mode-hook #'gb/org-toggle-block-visibility)
         (define-key gb/toggle-map "b" #'gb/org-toggle-block-visibility)
                                             ; ensure that adjusted save hook is not executed when org edit src save is executed
-        (advice-add 'org-edit-src-save :around #'gb/wrap-org-edit-src-save)
+        ;; (advice-add 'org-edit-src-save :around #'gb/wrap-org-edit-src-save)
         ;; ensure that read only mode is removed when org src edit is started
-        (advice-add 'org-edit-special :before #'(lambda (orig-func &rest args) (read-only-mode -1))))
+        ;; (advice-add 'org-edit-special :before #'(lambda (orig-func &rest args) (read-only-mode -1)))
+        )
 
 
       (progn
@@ -9724,36 +9727,6 @@
                 (progn (add-to-list 'gb/list-of-faces-to-set it)(custom-set-faces it))))))
         (setq flycheck-keymap-prefix (kbd "C-c k"))
 
-        ;;--------------------------------------------------------------------------------
-        (defhydra hydra-org-mode ()
-          "
-                  org mode
-                  ^-^------------------------------------------------
-                  _ci_: clock in             _cti_: toggle item     _cr_: org reveal    Movement:
-                  _co_: clock out                                                   C-c p previous bulletin
-                  _cq_: clock cancel/quit                                           C-c u up bulletin level
-                  _cj_: jump to clock                                               M-<ret>
-                  _cd_: display clock times                                         C-<ret>
-
-                  %s(hydra-combine-functions-w-key-bindings
-                    '((\"  [ci]  clock in            \" . org-clock-in)
-                      (\"  [co]  clock out           \" . org-clock-out)
-                      (\"  [cq]  clock cancel/quit   \" . org-clock-cancel)
-                      (\"  [cj]  jump to clock       \" . org-clock-goto)
-                      (\"  [cd]  display clock times \" . org-clock-display)
-                      (\"  [cti] toggle item         \" . org-toggle-item)
-                      (\"  [cr]  org reveal          \" . org-reveal)
-                      ))
-                "
-          ("ci" org-clock-in :exit t)
-          ("co" org-clock-out :exit t)
-          ("cq" org-clock-cancel :exit t)
-          ("cj" org-clock-goto :exit t)
-          ("cd" org-clock-display :exit t)
-          ("cti" org-toggle-item :exit t)
-          ("cr" org-reveal :exit t))
-
-
         ;; Resume clocking tasks when emacs is restarted
         (org-clock-persistence-insinuate)
 
@@ -9876,9 +9849,9 @@
         (setq org-mobile-use-encryption t)
         ))
     #+END_SRC
-*** org download - allow to insert downloaded image
+*** org download (disabled) - allow to insert downloaded image
     - [[https://github.com/abo-abo/org-download][homepage]]
-    #+begin_src emacs-lisp
+    #+begin_src emacs-lisp :tangle no
       (use-package org-download
         :ensure t
         :custom (org-download-screenshot-method "scrot -s %s")
@@ -9932,9 +9905,9 @@
         ;; (setq with-editor-file-name-history-exclude nil)
         ))
   #+END_SRC
-*** org agenda
+*** org agenda (disabled)
     - speed up ideas see https://orgmode.org/worg/agenda-optimization.html
-  #+BEGIN_SRC emacs-lisp
+  #+BEGIN_SRC emacs-lisp :tangle no
     (use-package org-agenda
       :after ( org) ;; agenda-accounts are option
       :custom ((org-agenda-inhibit-startup
@@ -10031,7 +10004,7 @@
                     (setq org-agenda-diary-file fullname)))
               (org-agenda-diary-entry)))))
     #+END_SRC
-*** ical accept invitations into calendar
+*** ical (disabled) accept invitations into calendar
     allow to accept invitations and record these into the org-capture-file
     #+BEGIN_SRC emacs-lisp
       ;; (add-to-list 'load-path "~/.emacs.d/ical-event-master/")
@@ -10052,7 +10025,7 @@
       ;;   ;; do the setup with the given values
       ;;   (gnus-calendar-org-setup))
     #+END_SRC
-*** gcal (see [[https://github.com/myuhe/org-gcal.el][link]]) currently not in use (may be useful if authentification used by org-caldav is no longer accessible)
+*** gcal (disabled) (see [[https://github.com/myuhe/org-gcal.el][link]]) currently not in use (may be useful if authentification used by org-caldav is no longer accessible)
     - BEFORE EXECUTING "org-gcal-sync", execute "org-gcal-fetch"
     - org-gcal-sync: sync org files with calendars
     - org-gcal-fetch: initially fetch all calendar events into org files (before fetch, the org files should be completely empty!)
@@ -10068,7 +10041,7 @@
             (require 'calendar-accounts)
             (gb/load-calendar-credentials))))
     #+END_SRC
-*** caldav sync
+*** caldav sync (disabled)
     #+BEGIN_SRC emacs-lisp :tangle no
     (when calendar-accounts-exists
       (use-package org-caldav
@@ -10258,7 +10231,7 @@
         (progn
           (setq hidepw-patterns '(":.*PASS.*: \\(.*\\)"))))
     #+END_SRC
-*** export modules (e.g. ox-confluence)
+*** export modules (disabled) (e.g. ox-confluence)
  #+BEGIN_SRC emacs-lisp :tangle no
    ;;      (add-to-list 'load-path "~/.emacs.d/org-mode-exports/")
    ;;      (use-package ox-confluence
@@ -10267,7 +10240,7 @@
    ;; ;;       :load-path "~/.emacs.d/org-mode-exports/"
    ;;        :loader :path)
  #+END_SRC
-*** personal blogs
+*** personal blogs (disabled)
     - expects ~/Document/blog/org-jekyll.el to exist
     - download from [[http://github.com/juanre/org-jekyll][here]]
     - documentation [[http://juanreyero.com/open/org-jekyll/index.html][here]]
@@ -10278,12 +10251,12 @@
          ;; :defer 3
          :load-path "~/documents/blog"))
  #+END_SRC
-*** make org export use better highlighting with htmlize
- #+BEGIN_SRC emacs-lisp
+*** make org export use better highlighting with htmlize (disabled)
+ #+BEGIN_SRC emacs-lisp :tangle no
     (use-package htmlize
       :ensure t)
  #+END_SRC
-*** helm org rifle
+*** helm org rifle (disabled)
 **** find keybindings
   #+BEGIN_SRC emacs-lisp :tangle no
     (when (eq gb/completion-framework 'helm)
@@ -10300,8 +10273,8 @@
       Shows results from selected directories; with prefix, recursively.
 ***** helm-org-rifle-files
       Shows results from selected files.
-*** org appt (notification of agenda items)
-    #+BEGIN_SRC emacs-lisp
+*** org appt (disabled) (notification of agenda items)
+    #+BEGIN_SRC emacs-lisp :tangle no
       (use-package appt
         ;; :after ( org)
         ;; :defer 20
@@ -10346,15 +10319,15 @@
         )
 
     #+END_SRC
-*** org review
+*** org review (disabled)
     #+BEGIN_SRC emacs-lisp :tangle no
       (use-package org-review
         :commands org-review-insert-next-review org-review-insert-last-review
         :after ( org))
     #+END_SRC
-*** org ref
+*** org ref (disabled)
     - see https://github.com/jkitchin/org-ref
-    #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp :tangle no
       (use-package org-ref
         :commands org-ref-insert-link
                   org-ref-list-of-tables
@@ -10374,9 +10347,9 @@
       ;; see org-ref for use of these variables
       )
     #+END_SRC
-*** org clip
+*** org clip (disabled)
     - ox-clip-formatted-copy copies selected region of org mode file as rtf into clipboard for insertion into e.g. open office
-    #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp :tangle no
     (use-package ox-clip
       :commands ox-clip-formatted-copy
       :after ( org htmlize))
@@ -10704,13 +10677,13 @@
       :ensure t
        :after ( org async))
     #+END_SRC
-*** adaptive wrap 
-    #+BEGIN_SRC emacs-lisp 
+*** adaptive wrap (disabled)
+    #+BEGIN_SRC emacs-lisp :tangle no
       (use-package adaptive-wrap
         :custom (adaptive-wrap-extra-indent 2)
         :config (adaptive-wrap-prefix-mode))
     #+END_SRC
-*** insertion of web images
+*** insertion of web images (disabled)
     - allow insertion of images via url, which automatically downloads
       into a local folder and creates a link within the org file
       [[https://github.com/tashrifsanil/org-easy-img-insert]]
@@ -10720,7 +10693,7 @@
         :bind ("C-c i i" . org-easy-img-insert)
         :config (progn))
     #+END_SRC
-*** *DISABLED* org reveal (presentation)
+*** org reveal (disabled) (presentation)
     #+BEGIN_SRC emacs-lisp :tangle no
     (use-package ox-reveal
       :ensure t
@@ -10732,7 +10705,7 @@
             (setq org-structure-template-alist (cdr org-structure-template-alist)))
         (setq org-reveal-root "./reveal.js"))) ;; look into local folder
     #+END_SRC
-*** org table sticky headers
+*** org table sticky headers (disabled)
     - see [[https://github.com/cute-jumper/org-table-sticky-header][home page]]
     - headers of org tables stay in the header line while scrolling them out of view
     #+BEGIN_SRC emacs-lisp :tangle no
@@ -10742,11 +10715,11 @@
         :init
         (progn (add-hook 'org-mode-hook 'org-table-sticky-header-mode)))
     #+END_SRC
-*** org pdftools (must be loaded before org mode)
+*** org pdftools (disabled) (must be loaded before org mode)
     - see [[https://github.com/fuxialexander/org-pdftools][homepage]]
     - executing M-x org-store-link within pdf-view-mode, will store a link that can be inserted into org mode via C-c C-l
     - when opening this link, pdf-view-mode is opened instead of system default pdf viewer!
-    #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp :tangle no
       (setq org-pdftools-link-prefix "pdfview")
       (use-package org-pdftools
         :ensure t
@@ -10795,17 +10768,17 @@
       ;;   (with-eval-after-load 'pdf-annot
       ;;     (add-hook 'pdf-annot-activate-handler-functions #'org-noter-pdftools-jump-to-note)))
     #+END_SRC
-*** org magit
+*** org magit (disabled)
     #+BEGIN_SRC emacs-lisp :tangle no
     (use-package orgit
       :after ( org magit)
       ;; :defer 40
       )
     #+END_SRC
-*** org sidebar
+*** org sidebar (disabled)
     - see https://github.com/alphapapa/org-sidebar
       (related to https://github.com/alphapapa/org-super-agenda)
-    #+begin_src emacs-lisp
+    #+begin_src emacs-lisp :tangle no
       (use-package org-sidebar
         :ensure t
         :commands (org-sidebar-toggle org-sidebar)
@@ -10821,20 +10794,20 @@
                 (:todo "TODO" :order 3)
                 (:todo "PLANNED" :order 8))))
     #+end_src
-*** org appear
+*** org appear (disabled)
     - shows emphasis markers (like /, *, _ etc) when entering the region with the cursor making it easier to edit emphasised text
     - *bold*, /slant/, _underlined_, =verbatim=, ~code~, +strike-through+
-    #+begin_src emacs-lisp
+    #+begin_src emacs-lisp :tangle no
       (use-package org-appear
         :after org
         :ensure t
         :hook (org-mode . org-appear-mode)
         :custom (org-appear-autosubmarkers t))
     #+end_src
-*** org hide tags
+*** org hide tags (disabled)
     - copied from https://github.com/amno1/org-hide-tags/blob/main/org-hide-tags.el
     - all credits go to the original author
-    #+begin_src emacs-lisp
+    #+begin_src emacs-lisp :tangle no
       (defgroup org-hide-tags nil
         "Hide tags in org-headings."
         :prefix "org-hide-tags-"
@@ -10866,16 +10839,16 @@
                (org-hide-tags--update-headings t))
               (t (org-hide-tags--update-headings nil))))
     #+end_src
-*** org tidy (hides properties drawers in overlay)
-#+begin_src emacs-lisp
+*** org tidy (disabled) (hides properties drawers in overlay)
+#+begin_src emacs-lisp :tangle no
   (use-package org-tidy
     :ensure t
     :config
     ;; (add-hook 'org-mode-hook #'org-tidy-mode)
     )
 #+end_src
-*** org indent
-#+begin_src emacs-lisp
+*** org indent (disabled)
+#+begin_src emacs-lisp :tangle no
   (use-package org-indent
     :after org
     :diminish)
@@ -12920,9 +12893,9 @@
 #+END_SRC
 ** bug hunter
    #+BEGIN_SRC emacs-lisp
-   (use-package bug-hunter ;; allows via commands to hunt bugs in emacs lisp files see https://github.com/Malabarba/elisp-bug-hunter
-
-     :commands bug-hunter-file bug-hunter-init-file)
+     (use-package bug-hunter ;; allows via commands to hunt bugs in emacs lisp files see https://github.com/Malabarba/elisp-bug-hunter
+       :ensure t
+       :commands bug-hunter-file bug-hunter-init-file)
 
    #+END_SRC
 #+BEGIN_SRC emacs-lisp
@@ -15774,14 +15747,14 @@
                      ("C-c t" . gb/notdeft--filter-by-tag)
                      ("C-c r" . gb/notdeft--select-random)))
         :load-path "~/repo/emacs/notdeft"
-        :hook (notdeft-mode . org-roam-stack-mode)
+        ;; :hook (notdeft-mode . org-roam-stack-mode)
         :custom
         (notdeft-directories '("~/documents/roam"))
         (notdeft-xapian-program (format "/home/%s/repo/emacs/notdeft/xapian/notdeft-xapian" (user-login-name)))
         (notdeft-xapian-max-results 1000 "show up to 1000 entries in the notdef query buffer")
         :config
         (require 'notdeft-autoloads)
-        (require 'org-roam-stack)
+        ;; (require 'org-roam-stack)
 
         (defun gb/notdeft--select-random ()
           "select a random roam file and open it"
@@ -15822,7 +15795,7 @@
     #+end_src
   #+begin_src emacs-lisp
     (when gb/profile--org-roam
-      (if (not (executable-find "sqlite3"))
+      (if (and (version< emacs-version "29") (not (executable-find "sqlite3")))
           (message "ERROR: could not find executable sqlite3")
         (progn
           (if (version<= "29" emacs-version)
@@ -15856,14 +15829,13 @@
             ;; (org-roam-graph-viewer "emacsclient")
             (org-directory org-notes)
             ;; (deft-directory org-notes)
-            (notdeft-directories `(,org-notes))
             (org-roam-directory org-notes)
             (org-id-extra-files (find-lisp-find-files org-roam-directory "\.org$")) ;; prevents org export errors on id: type links
             ;; (org-roam-db-update-method 'immediate)
             (org-ref-bibtex-completion-add-keywords-field nil) ;; make sure that some org helm ref package loads correctly when executing (org-roam-db-build-cache t)
             ;; (org-roam-v2-ack t)                              ;; migration is through
             :commands (org-roam-buffer-toggle-display
-                       org-roam-find-file
+                       org-roam-node-find
                        org-roam-graph
                        org-roam-insert
                        org-roam-switch-to-buffer
@@ -15871,12 +15843,10 @@
                        org-roam-dailies-today
                        org-roam-dailies-tomorrow
                        org-roam-dailies-yesterday)
-            :after (org emacsql-sqlite notdeft)
+            ;; :after (org emacsql-sqlite notdeft)
             :hook (after-init . org-roam-setup)
             :ensure t
-            :bind (:map notdeft-mode-map
-                        (("C-c n f" . org-roam-node-find)
-                         ("C-c n n" . org-roam-node-find))
+            :bind (
                         :map org-roam-mode-map
                         (("C-c n f" . org-roam-node-find)
                          ("C-c n n" . org-roam-node-find)
@@ -15898,6 +15868,28 @@
                         (gb/org-roam-strip-src-sections new-s)))
                   s)))
 
+            (defun gb/org-roam-open-entry-visibility ()
+              "setup initial org visibility in org-roam entries. used within local variables w/i org roam file."
+              (interactive)
+              ;; (when (not (bound-and-true-p gb-roam-visibility-set))
+              ;;   (progn
+              ;;     (make-local-variable 'gb-roam-visibility-set)
+              ;;     (setq gb-roam-visibility-set t)
+              ;;     (add-fira-code-symbol-keywords)
+              ;;     (ignore-errors (org-hide-block-all))
+              ;;     (ignore-errors (org-babel-result-hide-all))
+              ;;     (ignore-errors (org-display-inline-images))
+              ;;     ;; (org-content)
+              ;;     (ignore-errors (progn (setq current-prefix-arg '(16))(call-interactively 'org-latex-preview)))
+              ;;     (ignore-errors (save-excursion
+              ;;                      (goto-char (point-min))
+              ;;                      (org-next-visible-heading 1)
+              ;;                      (org-fold-show-entry)
+              ;;                      (org-fold-show-children 3)))
+              ;;     (ignore-errors (gb/serif-on))
+              ;;     (ignore-errors (org-cycle-hide-drawers 'all))
+              ;;     (run-at-time 0.5 nil #'(lambda () (progn (ignore-errors (setq current-prefix-arg '(4)) (call-interactively 'org-reveal)))))))
+              )
             ;; used in modification
             ;;         (cl-defun org-roam-node-insert-section (&key source-node point properties)
             ;;           "Insert section for a link from SOURCE-NODE to some other node.
@@ -15944,6 +15936,12 @@
             :config
             (require 'org-roam-protocol)
 
+            (when (fboundp 'notdeft)
+              (bind-key "C-c n f" 'org-roam-node-find 'notdeft-mode-map)
+              (bind-key "C-c n n" 'org-roam-node-find 'notdeft-mode-map)
+
+              (setq notdeft-directories `(,org-notes)))
+
             (defun gb/org-roam-buffer-fold-level-2 ()
               (magit-section-show-level-2-all))
             ;; make sure when opening org roam buffer, the links are folded on level 2
@@ -15979,28 +15977,6 @@
                   (org-next-visible-heading 1)
                   (org-set-tags tag-string-list))))
 
-            (defun gb/org-roam-open-entry-visibility ()
-              "setup initial org visibility in org-roam entries. used within local variables w/i org roam file."
-              (interactive)
-              (when (not (bound-and-true-p gb-roam-visibility-set))
-                (progn
-                  (make-local-variable 'gb-roam-visibility-set)
-                  (setq gb-roam-visibility-set t)
-                  (add-fira-code-symbol-keywords)
-                  (ignore-errors (org-hide-block-all))
-                  (ignore-errors (org-babel-result-hide-all))
-                  (ignore-errors (org-display-inline-images))
-                  ;; (org-content)
-                  (ignore-errors (progn (setq current-prefix-arg '(16))(call-interactively 'org-latex-preview)))
-                  (ignore-errors (save-excursion
-                                   (goto-char (point-min))
-                                   (org-next-visible-heading 1)
-                                   (org-fold-show-entry)
-                                   (org-fold-show-children 3)))
-                  (ignore-errors (gb/serif-on))
-                  (ignore-errors (org-cycle-hide-drawers 'all))
-                  (run-at-time 0.5 nil #'(lambda () (progn (ignore-errors (setq current-prefix-arg '(4)) (call-interactively 'org-reveal))))))))
-
             (defun gb/org-roam--get-all-tags ()
               "get a unique list of tags that are available in annotated files"
               (--filter (not (string-empty-p it))
@@ -16019,25 +15995,25 @@
             (org-roam-db-autosync-mode) ;; make sure db is immediately synced
             )
 
-          (use-package org-roam-server
-            :commands (org-roam-server-mode)
-            :custom (org-roam-server-port "8092")
-            :ensure t
-            :bind (("C-c n b b" . gb/org-roam-server)
-                   ("C-c n b k" . gb/org-roam-server-kill))
-            :config
-            (defun gb/org-roam-server ()
-              "start org roam server mode and open browser"
-              (interactive)
-              (unless org-roam-server-mode
-                (org-roam-server-mode 1))
-              (browse-url "http://localhost:8092"))
+          ;; (use-package org-roam-server
+          ;;   :commands (org-roam-server-mode)
+          ;;   :custom (org-roam-server-port "8092")
+          ;;   :ensure t
+          ;;   :bind (("C-c n b b" . gb/org-roam-server)
+          ;;          ("C-c n b k" . gb/org-roam-server-kill))
+          ;;   :config
+          ;;   (defun gb/org-roam-server ()
+          ;;     "start org roam server mode and open browser"
+          ;;     (interactive)
+          ;;     (unless org-roam-server-mode
+          ;;       (org-roam-server-mode 1))
+          ;;     (browse-url "http://localhost:8092"))
 
-            (defun gb/org-roam-server-kill ()
-              "start org roam server mode and open browser"
-              (interactive)
-              (when org-roam-server-mode
-                (org-roam-server-mode -1))))
+          ;;   (defun gb/org-roam-server-kill ()
+          ;;     "start org roam server mode and open browser"
+          ;;     (interactive)
+          ;;     (when org-roam-server-mode
+          ;;       (org-roam-server-mode -1))))
 
           (use-package company-org-roam
             :after (org-roam company)
@@ -16754,7 +16730,7 @@
   - activate via ~fill-page-mode~
   - automatically scroll so that no empty space is left at the bottom
   - interfers with beacon
-  #+begin_src emacs-lisp
+  #+begin_src emacs-lisp :tangle no
     (use-package fill-page
       :ensure t
       :config (fill-page-mode 1))
@@ -16873,7 +16849,7 @@
       :commands (diredc))
   #+end_src
 * org-roam-stack
-  #+begin_src emacs-lisp
+  #+begin_src emacs-lisp :tangle no
     (when (file-exists-p "~/repo/emacs/org-roam-stack/org-roam-stack.el")
       (use-package org-roam-stack
         :load-path "~/repo/emacs/org-roam-stack/"
