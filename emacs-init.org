@@ -15747,6 +15747,11 @@
 
   #+end_src
 * Zettelkasten
+** simple-httpd
+#+begin_src emacs-lisp
+  (use-package simple-httpd
+    :ensure t)
+#+end_src
 ** org roam
   - see https://rgoswami.me/posts/org-note-workflow/
   - for org-roam-server browser to http://localhost:8080
