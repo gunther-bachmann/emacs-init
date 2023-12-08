@@ -9977,14 +9977,14 @@
                           )))
         (setq org-todo-keyword-faces
               '(("PLANNED" . "lightblue")
-                ("TODO" . "red")
-                ("IMPLEMENT" . (:foreground "orange" :weight bold))
-                ("TEST" . "yellow")
+                ("TODO" . "brown3")
+                ("IMPLEMENT" . (:foreground "orange3" :weight bold))
+                ("TEST" . "khaki3")
                 ("ACCEPT" . (:foreground "gray" :weight bold))
                 ("OBSOLETE" . "darkgreen")
                 ("CARRY OVER" . "brown")
-                ("BRAIN". (:foreground "green" :weight bold))
-                ("DONE" . "green")))))
+                ("BRAIN". (:foreground "green3" :weight bold))
+                ("DONE" . "green3")))))
 
   #+END_SRC
 *** org agenda user specific stuff
@@ -10253,8 +10253,8 @@
          ;; :defer 3
          :load-path "~/documents/blog"))
  #+END_SRC
-*** make org export use better highlighting with htmlize (disabled)
- #+BEGIN_SRC emacs-lisp :tangle no
+*** make org export use better highlighting with htmlize 
+ #+BEGIN_SRC emacs-lisp 
     (use-package htmlize
       :ensure t)
  #+END_SRC
@@ -10275,8 +10275,8 @@
       Shows results from selected directories; with prefix, recursively.
 ***** helm-org-rifle-files
       Shows results from selected files.
-*** org appt (disabled) (notification of agenda items)
-    #+BEGIN_SRC emacs-lisp :tangle no
+*** org appt (notification of agenda items)
+    #+BEGIN_SRC emacs-lisp 
       (use-package appt
         ;; :after ( org)
         ;; :defer 20
@@ -10685,11 +10685,11 @@
         :custom (adaptive-wrap-extra-indent 2)
         :config (adaptive-wrap-prefix-mode))
     #+END_SRC
-*** insertion of web images (disabled)
+*** insertion of web images
     - allow insertion of images via url, which automatically downloads
       into a local folder and creates a link within the org file
       [[https://github.com/tashrifsanil/org-easy-img-insert]]
-    #+BEGIN_SRC emacs-lisp :tangle no
+    #+BEGIN_SRC emacs-lisp
       (use-package org-easy-img-insert
         :after ( org)
         :bind ("C-c i i" . org-easy-img-insert)
@@ -10717,11 +10717,11 @@
         :init
         (progn (add-hook 'org-mode-hook 'org-table-sticky-header-mode)))
     #+END_SRC
-*** org pdftools (disabled) (must be loaded before org mode)
+*** org pdftools (must be loaded before org mode)
     - see [[https://github.com/fuxialexander/org-pdftools][homepage]]
     - executing M-x org-store-link within pdf-view-mode, will store a link that can be inserted into org mode via C-c C-l
     - when opening this link, pdf-view-mode is opened instead of system default pdf viewer!
-    #+BEGIN_SRC emacs-lisp :tangle no
+    #+BEGIN_SRC emacs-lisp
       (setq org-pdftools-link-prefix "pdfview")
       (use-package org-pdftools
         :ensure t
@@ -10796,10 +10796,10 @@
                 (:todo "TODO" :order 3)
                 (:todo "PLANNED" :order 8))))
     #+end_src
-*** org appear (disabled)
+*** org appear
     - shows emphasis markers (like /, *, _ etc) when entering the region with the cursor making it easier to edit emphasised text
     - *bold*, /slant/, _underlined_, =verbatim=, ~code~, +strike-through+
-    #+begin_src emacs-lisp :tangle no
+    #+begin_src emacs-lisp
       (use-package org-appear
         :after org
         :ensure t
@@ -10849,8 +10849,8 @@
     ;; (add-hook 'org-mode-hook #'org-tidy-mode)
     )
 #+end_src
-*** org indent (disabled)
-#+begin_src emacs-lisp :tangle no
+*** org indent (built-in)
+#+begin_src emacs-lisp 
   (use-package org-indent
     :after org
     :diminish)
