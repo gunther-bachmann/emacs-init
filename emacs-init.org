@@ -2866,7 +2866,7 @@
      (cond
       ((eq gb/theme-mode 'light) nil) ;; TODO complete
       (t (progn
-           (--each '((mode-line ((t (:background "#251422" :foreground "#A5A5A5" :overline "#504050" :underline "#504050" :weight normal))))
+           (--each '((mode-line ((t (:background "#251422" :foreground "#A5A5A5" :overline "#504050" :weight normal))))
                      (mode-line-inactive ((t (:inherit mode-line :background "#161616" :foreground "#505050" :overline nil :weight normal)))))
              (progn (add-to-list 'gb/list-of-faces-to-set it)(custom-set-faces it))))))
    #+end_src
@@ -7663,7 +7663,7 @@
 *** magit-delta
     - use delta to do some formatting (syntax highlighting) of diffs in magit diff views
     - may degrade performance of diff view within emacs. if so disable magit delta mode!
-    #+begin_src emacs-lisp
+    #+begin_src emacs-lisp 
       (use-package magit-delta
         :ensure t
         :custom
@@ -7686,7 +7686,9 @@
                     (when (and (not magit-delta-mode)
                              (<= (point-max) gb/magit-delta-point-max))
                       (magit-delta-mode 1))))
-        (magit-delta-mode 1))
+        (magit-delta-mode 1)
+        (setq face-remapping-alist nil) ;; make sure the remapping of magit-delta are removed, causes make-indirect-buffer to fail (during org-roam-capture)
+        )
     #+end_src
 ** gitignore (creation with helm)
    simply call helm-gitignore and select language for which to create this gitignore
@@ -12238,6 +12240,15 @@
          (bind-key "C-p" 'diredp-previous-line dired-mode-map)
          (setq dired-shrink-to-fit t)))
    #+END_SRC
+** diredfl
+- add some more colors to dired (inspired by / based on dired+)
+  #+begin_src emacs-lisp
+    (use-package diredfl
+      :ensure t
+      :after (dired+)
+      :config
+      (diredfl-global-mode))
+  #+end_src
 ** dired rainbow
    #+BEGIN_SRC emacs-lisp
      (use-package dired-rainbow
@@ -15732,57 +15743,8 @@
         (kill-buffer "*Deft temp*")))
 
   #+end_src
-* notdeft
-  - alternative to deft, using xapian to do the heavy lifting of full text searching
-  - see https://github.com/hasu/notdeft
-  - make sure to run ~emacs --batch  -L . -l notdeft-install -f notdeft-install-autoloads -f notdeft-install-bytecode~ when installing
-    this will write the ~notdeft-autoloads.el~ file required
-  #+begin_src emacs-lisp
-    (when gb/profile--org-roam
-      (use-package notdeft
-        :commands (notdeft)
-        :diminish 'notdeft-note-mode
-        :bind (("s-d" . notdeft)
-               (:map notdeft-mode-map
-                     ("C-c t" . gb/notdeft--filter-by-tag)
-                     ("C-c r" . gb/notdeft--select-random)))
-        :load-path "~/repo/emacs/notdeft"
-        ;; :hook (notdeft-mode . org-roam-stack-mode)
-        :custom
-        (notdeft-directories '("~/documents/roam"))
-        (notdeft-xapian-program (format "/home/%s/repo/emacs/notdeft/xapian/notdeft-xapian" (user-login-name)))
-        (notdeft-xapian-max-results 1000 "show up to 1000 entries in the notdef query buffer")
-        :config
-        (require 'notdeft-autoloads)
-        ;; (require 'org-roam-stack)
-
-        (defun gb/notdeft--select-random ()
-          "select a random roam file and open it"
-          (interactive)
-          (let* ((roam-files (directory-files org-roam-directory t ".*\\.org$"))
-                 (which-num (random (length roam-files)))
-                 (which (nth which-num roam-files)))
-            (find-file which)))
-
-        (defun gb/notdeft--filter-by-tag ()
-          "select a tag and filter notdeft accordingly"
-          (interactive)
-          (when-let* ((tag (completing-read "filter by tag: " (gb/org-roam--get-all-tags) nil t)))
-            (notdeft-filter
-             (string-join (list notdeft-filter-string (format ":%s:" tag)) " "))))
-        ;; (require 'notdeft-org)
-
-        ;; redefinition of reading deft link, using completing-read instead of ivy
-        ;;   (defun notdeft-org-read-deft-link-name ()
-        ;;     "Query for a \"deft:\" link name.
-        ;; Do so interactively. Return the name component of a link, without
-        ;; the \"deft:\" prefix."
-        ;;     (let ((name-lst (notdeft-make-basename-list)))
-        ;;       (when name-lst
-        ;;         (completing-read "NotDeft note: " name-lst))))
-        ))
-  #+end_src
-* org roam
+* Zettelkasten
+** org roam
   - see https://rgoswami.me/posts/org-note-workflow/
   - for org-roam-server browser to http://localhost:8080
   - company-org-roam allows completion (company) of references other org-roam documents
@@ -15843,7 +15805,7 @@
                        org-roam-dailies-today
                        org-roam-dailies-tomorrow
                        org-roam-dailies-yesterday)
-            ;; :after (org emacsql-sqlite notdeft)
+            :after (org)
             :hook (after-init . org-roam-setup)
             :ensure t
             :bind (
@@ -16069,6 +16031,69 @@
   #+end_src
 #+BEGIN_SRC emacs-lisp
 (report-elapsed "check-point - org roam")
+#+END_SRC
+** notdeft
+  - alternative to deft, using xapian to do the heavy lifting of full text searching
+  - see https://github.com/hasu/notdeft
+  - make sure to run ~emacs --batch  -L . -l notdeft-install -f notdeft-install-autoloads -f notdeft-install-bytecode~ when installing
+    this will write the ~notdeft-autoloads.el~ file required
+  #+begin_src emacs-lisp
+    (when gb/profile--org-roam
+      (use-package notdeft
+        :commands (notdeft)
+        :diminish 'notdeft-note-mode
+        :bind (("s-d" . notdeft)
+               (:map notdeft-mode-map
+                     ("C-c t" . gb/notdeft--filter-by-tag)
+                     ("C-c r" . gb/notdeft--select-random)))
+        :load-path "~/repo/emacs/notdeft"
+        :after (org-roam)
+        :custom
+        (notdeft-directories '("~/documents/roam"))
+        (notdeft-xapian-program (format "/home/%s/repo/emacs/notdeft/xapian/notdeft-xapian" (user-login-name)))
+        (notdeft-xapian-max-results 1000 "show up to 1000 entries in the notdef query buffer")
+        :config
+        (require 'notdeft-autoloads)
+        ;; (require 'org-roam-stack)
+
+        (defun gb/notdeft--select-random ()
+          "select a random roam file and open it"
+          (interactive)
+          (let* ((roam-files (directory-files org-roam-directory t ".*\\.org$"))
+                 (which-num (random (length roam-files)))
+                 (which (nth which-num roam-files)))
+            (find-file which)))
+
+        (defun gb/notdeft--filter-by-tag ()
+          "select a tag and filter notdeft accordingly"
+          (interactive)
+          (when-let* ((tag (completing-read "filter by tag: " (gb/org-roam--get-all-tags) nil t)))
+            (notdeft-filter
+             (string-join (list notdeft-filter-string (format ":%s:" tag)) " "))))
+        ;; (require 'notdeft-org)
+
+        ;; redefinition of reading deft link, using completing-read instead of ivy
+        ;;   (defun notdeft-org-read-deft-link-name ()
+        ;;     "Query for a \"deft:\" link name.
+        ;; Do so interactively. Return the name component of a link, without
+        ;; the \"deft:\" prefix."
+        ;;     (let ((name-lst (notdeft-make-basename-list)))
+        ;;       (when name-lst
+        ;;         (completing-read "NotDeft note: " name-lst))))
+        ))
+  #+end_src
+** org-roam-stack
+  #+begin_src emacs-lisp
+    (when (file-exists-p "~/repo/emacs/org-roam-stack/org-roam-stack.el")
+      (use-package org-roam-stack
+        :load-path "~/repo/emacs/org-roam-stack/"
+        :hook (notdeft-mode . org-roam-stack-mode)
+        :after (org-roam bind-key notdeft)
+        :custom (org-roam-stack--link-adjustments t)
+        (org-roam-stack--open-ro t)))
+  #+end_src
+#+BEGIN_SRC emacs-lisp
+  (report-elapsed "check-point - org-roam-stack")
 #+END_SRC
 * ivy-posframe
   #+begin_src emacs-lisp
@@ -16848,18 +16873,6 @@
       :load-path "~/repo/emacs/emacs-diredc"
       :commands (diredc))
   #+end_src
-* org-roam-stack
-  #+begin_src emacs-lisp :tangle no
-    (when (file-exists-p "~/repo/emacs/org-roam-stack/org-roam-stack.el")
-      (use-package org-roam-stack
-        :load-path "~/repo/emacs/org-roam-stack/"
-        :after (org org-roam bind-key)
-        :custom (org-roam-stack--link-adjustments t)
-        (org-roam-stack--open-ro t)))
-  #+end_src
-#+BEGIN_SRC emacs-lisp
-  (report-elapsed "check-point - org-roam-stack")
-#+END_SRC
 * proced
   #+begin_src emacs-lisp
     (use-package proced
