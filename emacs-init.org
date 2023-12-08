@@ -9799,6 +9799,7 @@
                                 ;;                          `(org-level-5 ((t (,@headline ,@variable-tuple))))
                                 ;;                          `(org-level-4 ((t (:foreground "#a97167"))))
                                 ;;                          `(org-level-3 ((t (:foreground "#4fa8a8" ,@headline))))
+                                `(org-headline-done ((t (:slant italic :strike-through nil))))
                                 `(org-level-8 ((t (:foreground "#8abeb7"))))
                                 `(outline-8 ((t (:foreground "#8abeb7"))))                                
                                 `(org-level-7 ((t (:foreground "#b294bb"))))
