@@ -9432,10 +9432,10 @@
           (setq-local gb/org-block-visible (not gb/org-block-visible)))
         ;; (add-hook 'org-mode-hook #'gb/org-toggle-block-visibility)
         (define-key gb/toggle-map "b" #'gb/org-toggle-block-visibility)
-                                            ; ensure that adjusted save hook is not executed when org edit src save is executed
-        ;; (advice-add 'org-edit-src-save :around #'gb/wrap-org-edit-src-save)
+        ;; ensure that adjusted save hook is not executed when org edit src save is executed
+        (advice-add 'org-edit-src-save :around #'gb/wrap-org-edit-src-save)
         ;; ensure that read only mode is removed when org src edit is started
-        ;; (advice-add 'org-edit-special :before #'(lambda (orig-func &rest args) (read-only-mode -1)))
+        (advice-add 'org-edit-special :before #'(lambda (orig-func &rest args) (read-only-mode -1)))
         )
 
 
