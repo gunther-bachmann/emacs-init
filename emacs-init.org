@@ -15833,25 +15833,25 @@
             (defun gb/org-roam-open-entry-visibility ()
               "setup initial org visibility in org-roam entries. used within local variables w/i org roam file."
               (interactive)
-              ;; (when (not (bound-and-true-p gb-roam-visibility-set))
-              ;;   (progn
-              ;;     (make-local-variable 'gb-roam-visibility-set)
-              ;;     (setq gb-roam-visibility-set t)
-              ;;     (add-fira-code-symbol-keywords)
-              ;;     (ignore-errors (org-hide-block-all))
-              ;;     (ignore-errors (org-babel-result-hide-all))
-              ;;     (ignore-errors (org-display-inline-images))
-              ;;     ;; (org-content)
-              ;;     (ignore-errors (progn (setq current-prefix-arg '(16))(call-interactively 'org-latex-preview)))
-              ;;     (ignore-errors (save-excursion
-              ;;                      (goto-char (point-min))
-              ;;                      (org-next-visible-heading 1)
-              ;;                      (org-fold-show-entry)
-              ;;                      (org-fold-show-children 3)))
-              ;;     (ignore-errors (gb/serif-on))
-              ;;     (ignore-errors (org-cycle-hide-drawers 'all))
-              ;;     (run-at-time 0.5 nil #'(lambda () (progn (ignore-errors (setq current-prefix-arg '(4)) (call-interactively 'org-reveal)))))))
-              )
+              (when (not (bound-and-true-p gb-roam-visibility-set))
+                (progn
+                  (make-local-variable 'gb-roam-visibility-set)
+                  (setq gb-roam-visibility-set t)
+                  (add-fira-code-symbol-keywords)
+                  (ignore-errors (org-hide-block-all))
+                  (ignore-errors (org-babel-result-hide-all))
+                  (ignore-errors (org-display-inline-images))
+                  ;; (org-content)
+                  (ignore-errors (progn (setq current-prefix-arg '(16))(call-interactively 'org-latex-preview)))
+                  (ignore-errors (save-excursion
+                                   (goto-char (point-min))
+                                   (org-next-visible-heading 1)
+                                   (org-fold-show-entry)
+                                   (org-fold-show-children 3)))
+                  (ignore-errors (gb/serif-on))
+                  (ignore-errors (org-cycle-hide-drawers 'all))
+                  (run-at-time 0.5 nil #'(lambda () (progn (ignore-errors (setq current-prefix-arg '(4)) (call-interactively 'org-reveal))))))))
+
             ;; used in modification
             ;;         (cl-defun org-roam-node-insert-section (&key source-node point properties)
             ;;           "Insert section for a link from SOURCE-NODE to some other node.
@@ -15898,11 +15898,8 @@
             :config
             (require 'org-roam-protocol)
 
-            (when (fboundp 'notdeft)
-              (bind-key "C-c n f" 'org-roam-node-find 'notdeft-mode-map)
-              (bind-key "C-c n n" 'org-roam-node-find 'notdeft-mode-map)
 
-              (setq notdeft-directories `(,org-notes)))
+
 
             (defun gb/org-roam-buffer-fold-level-2 ()
               (magit-section-show-level-2-all))
@@ -16045,16 +16042,18 @@
         :bind (("s-d" . notdeft)
                (:map notdeft-mode-map
                      ("C-c t" . gb/notdeft--filter-by-tag)
+                     ("C-c n f" . org-roam-node-find)
+                     ("C-c n n" . org-roam-node-find)
                      ("C-c r" . gb/notdeft--select-random)))
         :load-path "~/repo/emacs/notdeft"
         :after (org-roam)
         :custom
-        (notdeft-directories '("~/documents/roam"))
+        (notdeft-directories `(,org-notes))
+        ;; (notdeft-directories '("~/documents/roam"))
         (notdeft-xapian-program (format "/home/%s/repo/emacs/notdeft/xapian/notdeft-xapian" (user-login-name)))
         (notdeft-xapian-max-results 1000 "show up to 1000 entries in the notdef query buffer")
         :config
         (require 'notdeft-autoloads)
-        ;; (require 'org-roam-stack)
 
         (defun gb/notdeft--select-random ()
           "select a random roam file and open it"
@@ -16095,6 +16094,27 @@
 #+BEGIN_SRC emacs-lisp
   (report-elapsed "check-point - org-roam-stack")
 #+END_SRC
+** org-roam-ui
+  - https://github.com/org-roam/org-roam-ui
+  - browse to http://127.0.0.1:35901/
+  #+begin_src emacs-lisp
+    ;; (when (and (file-directory-p "~/repo")
+    ;;          (not (file-directory-p "~/repo/emacs/org-roam-ui")))
+    ;;   (let ((old-dir default-directory))
+    ;;     (cd "~/repo")
+    ;;     (safe-shell-command-to-string "git clone https://github.com/org-roam/org-roam-ui.git")
+    ;;     (cd old-dir)))
+    
+    ;; when (file-directory-p "~/repo/emacs/org-roam-ui")
+    
+    (use-package org-roam-ui
+      ;; :load-path "~/repo/emacs/org-roam-ui"
+      :ensure t
+      :commands (org-roam-ui-mode)
+      :after (org-roam)
+      :init (require 'websocket)
+      (custom-set-variables '(warning-suppress-types '((websocket)))))
+  #+end_src
 * ivy-posframe
   #+begin_src emacs-lisp
     (when (eq gb/use-frame-completion 'ivy-posframe)
@@ -17665,27 +17685,6 @@
              (message "done")))
          (gb/org-agenda))
        (lambda () (message "vpn seems to be NON functional!"))))
-  #+end_src
-* org-roam-ui
-  - https://github.com/org-roam/org-roam-ui
-  - browse to http://127.0.0.1:35901/
-  #+begin_src emacs-lisp
-    ;; (when (and (file-directory-p "~/repo")
-    ;;          (not (file-directory-p "~/repo/emacs/org-roam-ui")))
-    ;;   (let ((old-dir default-directory))
-    ;;     (cd "~/repo")
-    ;;     (safe-shell-command-to-string "git clone https://github.com/org-roam/org-roam-ui.git")
-    ;;     (cd old-dir)))
-    
-    ;; when (file-directory-p "~/repo/emacs/org-roam-ui")
-    
-    (use-package org-roam-ui
-      ;; :load-path "~/repo/emacs/org-roam-ui"
-      :ensure t
-      :commands (org-roam-ui-mode)
-      :after (org-roam)
-      :init (require 'websocket)
-      (custom-set-variables '(warning-suppress-types '((websocket)))))
   #+end_src
 * EVAL elpher - gopher and gemini client
   #+begin_src emacs-lisp
