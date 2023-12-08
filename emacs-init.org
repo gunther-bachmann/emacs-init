@@ -9907,9 +9907,9 @@
         ;; (setq with-editor-file-name-history-exclude nil)
         ))
   #+END_SRC
-*** org agenda (disabled)
+*** org agenda
     - speed up ideas see https://orgmode.org/worg/agenda-optimization.html
-  #+BEGIN_SRC emacs-lisp :tangle no
+  #+BEGIN_SRC emacs-lisp
     (use-package org-agenda
       :after ( org) ;; agenda-accounts are option
       :custom ((org-agenda-inhibit-startup
