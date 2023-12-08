@@ -15800,7 +15800,7 @@
             (org-directory org-notes)
             ;; (deft-directory org-notes)
             (org-roam-directory org-notes)
-            (org-id-extra-files (find-lisp-find-files org-roam-directory "\.org$")) ;; prevents org export errors on id: type links
+            (org-id-extra-files (find-lisp-find-files org-notes "\.org$")) ;; prevents org export errors on id: type links
             ;; (org-roam-db-update-method 'immediate)
             (org-ref-bibtex-completion-add-keywords-field nil) ;; make sure that some org helm ref package loads correctly when executing (org-roam-db-build-cache t)
             ;; (org-roam-v2-ack t)                              ;; migration is through
