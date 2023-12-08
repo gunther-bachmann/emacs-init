@@ -5534,6 +5534,8 @@
   (e.g. C-l for recenter, or C-v for page down)
 #+begin_src emacs-lisp
   (custom-set-variables '(isearch-allow-scroll t))
+  (setq isearch-lazy-count t)
+  (setq isearch-lazy-highlight t)
 #+end_src
 ** visible mark
    - make the last (2) marks visible (orange, yellow)
