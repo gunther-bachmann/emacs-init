@@ -231,7 +231,7 @@
 *** java
 *** java script
 *** docker
-** TEST amplify org-mode
+** TEST amplify org-mode (disabled)
    #+BEGIN_SRC emacs-lisp :tangle no
    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
    ;; org-mode agenda options                                                ;;
@@ -1676,7 +1676,7 @@
           (eval add-fira-code-symbol-keywords)
           (eval save-excursion (goto-char (point-min)) (org-next-visible-heading 1) (org-cycle))
           (eval add-hook 'after-save-hook
-                '(lambda nil
+                #'(lambda nil
                    (org-babel-tangle)
                    (yas-reload-all))
                 nil 'make-it-local)
@@ -2783,16 +2783,16 @@
 
          ;; shrink selected window horizontally
          (bind-key "C-s-<left>" 'shrink-window-horizontally-effect)
-         (bind-key "C-S-s-<left>" '(lambda () (interactive) (shrink-window-horizontally-effect 50)))
+         (bind-key "C-S-s-<left>" #'(lambda () (interactive) (shrink-window-horizontally-effect 50)))
          ;; enlarge selected window horizontally
          (bind-key "C-s-<right>" 'enlarge-window-horizontally-effect)
-         (bind-key "C-S-s-<right>" '(lambda () (interactive) (enlarge-window-horizontally-effect 50)))
+         (bind-key "C-S-s-<right>" #'(lambda () (interactive) (enlarge-window-horizontally-effect 50)))
          ;; shrink selected window vertically
          (bind-key "C-s-<down>" 'shrink-window-effect)
-         (bind-key "C-S-s-<down>" '(lambda () (interactive) (shrink-window-effect 50)))
+         (bind-key "C-S-s-<down>" #'(lambda () (interactive) (shrink-window-effect 50)))
          ;; enlarge slected window vertically
          (bind-key "C-s-<up>" 'enlarge-window-effect)
-         (bind-key "C-S-s-<up>" '(lambda () (interactive) (enlarge-window-effect 50)))
+         (bind-key "C-S-s-<up>" #'(lambda () (interactive) (enlarge-window-effect 50)))
 
          ;; ;; maximize selected window
          (bind-key "C-s-<return>" 'maximize-window)
@@ -3713,7 +3713,7 @@
      :init
      (add-hook 'prog-mode-hook 'rainbow-identifiers-mode))
    #+END_SRC
-** cursor blinking / beacon
+** cursor blinking / beacon (disabled, using pulse)
    - see https://github.com/Malabarba/beacon
    #+BEGIN_SRC emacs-lisp :tangle no
      ;; mark cursor when switching buffers/windows/frames
@@ -3770,7 +3770,7 @@
              col-highlight-face
              hl-line-face)
 
-       (global-set-key (kbd "C-+") '(lambda (&optional u) (interactive) (cursor-ping 1)))
+       (global-set-key (kbd "C-+") #'(lambda (&optional u) (interactive) (cursor-ping 1)))
 
        (defadvice switch-to-buffer (after switch-to-buffer-flash-crosshairs activate)
          "Call `flash-crosshairs' after `switch-to-buffer'"
@@ -6574,7 +6574,7 @@
                 (when (package-installed-p 'rainbow-delimiters)  (add-hook 'cider-repl-mode-hook #'rainbow-delimiters-mode))
 
                 ;; Replace return key with newline-and-indent when in cider mode.
-                (add-hook 'cider-mode-hook '(lambda () (local-set-key (kbd "RET") 'newline-and-indent)))
+                (add-hook 'cider-mode-hook #'(lambda () (local-set-key (kbd "RET") 'newline-and-indent)))
 
                 ;; Use clojure mode for other extensions
                 (add-to-list 'auto-mode-alist '("\\.edn$" . clojure-mode))
@@ -8562,13 +8562,13 @@
          (message (format "running agenda refresh (at %s)" (current-time-string)))
          (gb/async-execute-costly-shell-command
           (format "wget -q -O %s-temp %s" gb/itemis-nord-calendar-file gb/itemis-nord-google-calendar-url)
-          '(lambda ()
+          #'(lambda ()
              (gb/async-execute-costly-shell-command
               (format "wget -q -O %s-temp %s" gb/itemis-calendar-file gb/itemis-google-calendar-url)
-              '(lambda ()
+              #'(lambda ()
                  (gb/async-execute-costly-shell-command
                   (format "wget -q -O %s-temp %s" gb/private-calendar-file gb/private-google-calendar-url)
-                  '(lambda () (gb/import-diary-from-google-calendar-files))))))))
+                  #'(lambda () (gb/import-diary-from-google-calendar-files))))))))
 
        (defun gb/async-execute-costly-shell-command (acommand &optional lambda-on-success lambda-on-failure timeout-s)
          "execute a costly shell function asynchronously.
@@ -8578,8 +8578,8 @@
      Example usage:
        (gb/async-execute-costly-shell-command
          \"sleep 4\"
-         '(lambda () (message \"success\"))
-         '(lambda () (message \"failure\"))
+         #'(lambda () (message \"success\"))
+         #'(lambda () (message \"failure\"))
          3)
 
        Execute \"sleep 4\" asynchronously on the shell, printing \"success\" when finishing
@@ -8589,7 +8589,7 @@
 
        (gb/async-execute-costly-shell-command
          \"sleep 4\"
-         '(lambda () (message \"success\")))
+         #'(lambda () (message \"success\")))
 
        This will succeed, printing \"success\" after 4 s.
      "
@@ -9039,7 +9039,7 @@
 
      ;; after gnus is started run timer to retrieve new mails!
      (setq gnus-startup-hook
-           '(lambda ()
+           #'(lambda ()
               (gnus-demon-add-handler 'gnus-demon-scan-news 15 nil) ; this does a call to gnus-group-get-new-news
               ))
 
@@ -13225,7 +13225,7 @@
   #+begin_src emacs-lisp :tangle no
   (use-package kubernetes-tramp)
   #+end_src
-* vue (disabled)
+* vue (disabled, using eglot instead)
   #+begin_src emacs-lisp :tangle no
   (use-package vue-html-mode
     :ensure t)
@@ -14463,17 +14463,17 @@
           (gb/register-global-key (kbd "C-M-s-/") #'gb/exwm-swap-workspace-through-to-bottom)
 
           ;; shrink selected window horizontally
-          (gb/register-global-key (kbd "C-s-<left>") 'shrink-window-horizontally-effect)
-          (gb/register-global-key (kbd "C-S-s-<left>") '(lambda () (interactive) (shrink-window-horizontally-effect 50)))
+          (gb/register-global-key (kbd "C-s-<left>") #'shrink-window-horizontally-effect)
+          (gb/register-global-key (kbd "C-S-s-<left>") #'(lambda () (interactive) (shrink-window-horizontally-effect 50)))
           ;; enlarge selected window horizontally
-          (gb/register-global-key (kbd "C-s-<right>") 'enlarge-window-horizontally-effect)
-          (gb/register-global-key (kbd "C-S-s-<right>") '(lambda () (interactive) (enlarge-window-horizontally-effect 50)))
+          (gb/register-global-key (kbd "C-s-<right>") #'enlarge-window-horizontally-effect)
+          (gb/register-global-key (kbd "C-S-s-<right>") #'(lambda () (interactive) (enlarge-window-horizontally-effect 50)))
           ;; shrink selected window vertically
-          (gb/register-global-key (kbd "C-s-<down>") 'shrink-window-effect)
-          (gb/register-global-key (kbd "C-S-s-<down>") '(lambda () (interactive) (shrink-window-effect 50)))
+          (gb/register-global-key (kbd "C-s-<down>") #'shrink-window-effect)
+          (gb/register-global-key (kbd "C-S-s-<down>") #'(lambda () (interactive) (shrink-window-effect 50)))
           ;; enlarge slected window vertically
-          (gb/register-global-key (kbd "C-s-<up>") 'enlarge-window-effect)
-          (gb/register-global-key (kbd "C-S-s-<up>") '(lambda () (interactive) (enlarge-window-effect 50)))
+          (gb/register-global-key (kbd "C-s-<up>") #'enlarge-window-effect)
+          (gb/register-global-key (kbd "C-S-s-<up>") #'(lambda () (interactive) (enlarge-window-effect 50)))
 
 
           (when (eq gb/completion-framework 'ivy)
@@ -16104,9 +16104,9 @@
     ;;     (cd "~/repo")
     ;;     (safe-shell-command-to-string "git clone https://github.com/org-roam/org-roam-ui.git")
     ;;     (cd old-dir)))
-    
+
     ;; when (file-directory-p "~/repo/emacs/org-roam-ui")
-    
+
     (use-package org-roam-ui
       ;; :load-path "~/repo/emacs/org-roam-ui"
       :ensure t
@@ -17372,7 +17372,7 @@
       ;; Shut up compile saves
       (setq compilation-ask-about-save nil)
       ;; Don't save *anything*
-      (setq compilation-save-buffers-predicate '(lambda () nil))
+      (setq compilation-save-buffers-predicate #'(lambda () nil))
       :hook (comint-mode . compilation-shell-minor-mode)
       :config
       ;; Add NodeJS error format
