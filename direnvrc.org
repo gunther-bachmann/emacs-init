@@ -52,6 +52,7 @@
     alias a="?"
   #+end_src
 * guix
+  - use ~guix describe~ to get current commit
   - allows for guix integration in ~.envrc~ to define a guix environment
     see [[https://direnv.net/man/direnv-stdlib.1.html#codeuse-guix-code][here]]
   - DEPRECATED example usage (for ebook decryption environment)
@@ -67,11 +68,11 @@
         python2-pycrypto
     #+end_src
   - direnv now provides a command 'use guix' (supposed to use caching)
-    it doesn't make use of guix time machine => use_guix is still useful (makes use of caching)
+    it doesn't make use of guix time machine => use_​guix is still useful (makes use of caching)
   #+begin_src sh :eval no :tangle ~/.direnvrc
-    # allow for guix environment execution (e.g. 'use_guix guile', or 'use_guix racket@8.7')
+    # allow for guix environment execution (e.g. 'use_guix guile', or 'use_guix racket@8.11')
     use_guix() {
-      eval "$(guix time-machine --commit=0083a2265960f8228112c36e0d10eb974ff9d1f1 -- shell "$@" --search-paths)"
+      eval "$(guix time-machine --commit=a512bbd23a2e129cf3d8e71255d504ce8bac77d3 -- shell "$@" --search-paths)"
     }
   #+end_src
 * nix
