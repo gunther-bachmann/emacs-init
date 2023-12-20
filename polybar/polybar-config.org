@@ -79,7 +79,7 @@
     type = internal/fs
     mount-0 = /
     mount-1 = /home
-    interval = 10
+    interval = 20
     fixed-values = true
     spacing = 1
     format-mounted = <label-mounted>
@@ -109,7 +109,7 @@
 
     ; Seconds to sleep between updates
     ; Default: 1
-    interval = 3
+    interval = 15
 
     format = <label> <bar-used>
 
@@ -154,7 +154,7 @@
 
     ; Seconds to sleep between updates
     ; Default: 1
-    interval = 3
+    interval = 5
 
     ; Available tags:
     ;   <label> (default)
@@ -269,7 +269,7 @@
     [module/wireless-network]
     type = internal/network
     interface = wlp4s0
-    interval = 3
+    interval = 5
 
     ; Available tags:
     ;   <label-connected> (default)
@@ -364,7 +364,7 @@
     ; Disable polling by setting the interval to 0.
     ;
     ; Default: 5
-    poll-interval = 5
+    poll-interval = 60
 
     ; see "man date" for details on how to format the time string
     ; NOTE: if you want to use syntax tags here you need to use %%{...}
@@ -432,7 +432,7 @@
     type = internal/date
 
     ; Seconds to sleep between updates
-    interval = 10
+    interval = 15
 
     ; See "http://en.cppreference.com/w/cpp/io/manip/put_time" for details on how to format the date string
     ; NOTE: if you want to use syntax tags here you need to use %%{...}
@@ -458,8 +458,8 @@
     ;label-font = 3
 
   #+end_src
-* pulseaudio
-  #+begin_src conf :eval no :tangle ~/.config/polybar/config
+* (disabled) pulseaudio
+  #+begin_src conf :eval no :tangle no
     [module/pulseaudio]
     type = internal/pulseaudio
 
@@ -512,7 +512,7 @@
     [module/system-cpu-temppercore]
     type = custom/script
     exec = ~/.config/polybar/system-cpu-temppercore.sh
-    interval = 5
+    interval = 30
     format-prefix = ""
 
   #+end_src
@@ -521,7 +521,7 @@
     [module/system-fan-speed]
     type = custom/script
     exec = ~/.config/polybar/system-fan-speed.sh
-    interval = 10
+    interval = 15
     format-prefix = ""
 
   #+end_src
@@ -530,7 +530,7 @@
     [module/mounts]
     type = custom/script
     exec = ~/.config/polybar/mounts.sh
-    interval = 10
+    interval = 15
 
   #+end_src
 * backup
@@ -559,7 +559,7 @@
     [module/power-consumption]
     type = custom/script
     exec = ~/.config/polybar/power-consumption.sh
-    interval = 10
+    interval = 15
     ; format-font = 5
 
   #+end_src
