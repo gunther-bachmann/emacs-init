@@ -10865,6 +10865,37 @@
     :after org
     :diminish)
 #+end_src
+*** org - custom function
+- hide/show all drawers (with properties) from (point-min) to (point-max)
+  partially copied from https://stackoverflow.com/a/17492723
+  #+begin_src emacs-lisp
+    (defun gb/org-drawers-visibility-set (visible)
+      "hide/show drawers completely"
+      (when (and (derived-mode-p 'org-mode))
+        (save-excursion
+          (goto-char (point-min))
+          (while (re-search-forward org-drawer-regexp (point-max) t)
+            (save-excursion
+              (beginning-of-line 1)
+              (when (looking-at org-drawer-regexp)
+                (let* ((start (1- (match-beginning 0)))
+                       (limit
+                        (save-excursion
+                          (outline-next-heading)
+                          (point)))
+                       (msg (format
+                             (concat
+                              "org-cycle-hide-drawers:  "
+                              "`:END:`"
+                              " line missing at position %s")
+                             (1+ start))))
+                  (if (re-search-forward "^[ \t]*:END:" limit t)
+                      (if visible
+                          (remove-overlays start (point-at-eol))
+                        (let ((ov (make-overlay start (point-at-eol))))
+                          (overlay-put ov 'display "")))                    
+                    (user-error msg)))))))))
+  #+end_src
 ** slack
  #+BEGIN_SRC emacs-lisp
    (when gb/profile--slack
@@ -15049,6 +15080,7 @@
           (gb/set-org-pretty-entities t)
           (org-show-all)
           (org-show-block-all)
+          (gb/org-drawers-visibility-set nil)
           (save-excursion
             (goto-char (point-max))
             (when (re-search-backward (format "^[ \\t]*%s" (regexp-quote "#+begin_src")) nil t)
@@ -15161,6 +15193,7 @@
           (set-background-color "#141618")
           (when (fboundp 'org-hide-tags-mode)
             (org-hide-tags-mode -1))
+          (gb/org-drawers-visibility-set t)
           (toggle-truncate-lines 1)
           (mlscroll-mode 1)))
     #+end_src
