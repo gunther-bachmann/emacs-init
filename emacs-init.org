@@ -40,7 +40,9 @@
 
     ;; ivy-posframe - does not show on second monitor
     ;; mini-frame - fails in emacs 29.1
-    (setq gb/use-frame-completion nil) ;; 'ivy-posframe, 'mini-frame, nil
+    ;; mini-popup - is a minimal implementation of subframes, to be tested
+    ;; nil - always works
+    (setq gb/use-frame-completion nil) ;; 'ivy-posframe, 'mini-frame, 'mini-popup, nil
   #+end_src
 * startup
 #+begin_src emacs-lisp
@@ -5798,8 +5800,8 @@
          (memoize #'ivy-rich-switch-buffer-path 5))
        (use-package all-the-icons-ivy
          :ensure t)
-       (defun gb/ivy-candidates-offset (cand) (make-string (if (or (and (boundp 'mini-frame-mode) mini-frame-mode) (and (boundp 'ivy-posframe-mode) ivy-posframe-mode)) 0 (max 0 (- (frame-width) (ivy-rich-minibuffer-width 0.77)))) ? ))
-       (defun gb/ivy-candidates-offset-20 (cand) (make-string (if (or (and (boundp 'mini-frame-mode) mini-frame-mode) (and (boundp 'ivy-posframe-mode) ivy-posframe-mode)) 0 20) ? ))
+       (defun gb/ivy-candidates-offset (cand) (make-string (if (or (and (boundp 'mini-frame-mode) mini-frame-mode) (and (boundp 'mini-popup-mode) mini-popup-mode) (and (boundp 'ivy-posframe-mode) ivy-posframe-mode)) 0 (max 0 (- (frame-width) (ivy-rich-minibuffer-width 0.77)))) ? ))
+       (defun gb/ivy-candidates-offset-20 (cand) (make-string (if (or (and (boundp 'mini-frame-mode) mini-frame-mode) (and (boundp 'mini-popup-mode) mini-popup-mode)(and (boundp 'ivy-posframe-mode) ivy-posframe-mode)) 0 20) ? ))
        (defun gb/prefixed-20-all-the-icons-ivy-rich-buffer-icon (cand)
          (concat (gb/ivy-candidates-offset-20 cand) (all-the-icons-ivy-rich-buffer-icon cand)))
        (defun gb/prefixed-20-all-the-icons-ivy-rich-file-icon (cand)
@@ -18292,6 +18294,178 @@
     :bind (("M-g M-g" . goto-line-preview)
            ("M-g G" . goto-line-preview))
     :ensure t)
+#+end_src
+* EVAL mini-popup
+#+begin_src emacs-lisp 
+  (when (eq gb/use-frame-completion 'mini-popup)
+    (use-package mini-popup
+      :load-path "~/.emacs.d/additionals"
+      :config
+      ;; (mini-popup-mode 1) ;; don't start by default
+
+      (setq mini-popup--frame-height nil)
+      (setq mini-popup--frame-width nil)
+
+      (defun mini-popup--disable-wrapper (orig-fun &rest args)
+        "wrapper for disabling mini-popup"        
+        (let ((mp mini-popup-mode))        
+          (mini-popup-mode -1)
+          ;; (remove-hook 'minibuffer-setup-hook #'mini-popup--setup)
+          ;; (remove-hook 'minibuffer-exit-hook #'mini-popup--exit)
+          ;; (when mini-popup--frame
+          ;;   (make-frame-invisible mini-popup--frame))               
+          (prog1
+              (apply orig-fun args)
+            (when mp 
+              (mini-popup-mode 1)
+              ;; (add-hook 'minibuffer-setup-hook #'mini-popup--setup)
+              ;; (add-hook 'minibuffer-exit-hook #'mini-popup--exit)
+              ))))
+
+      (advice-add 'paradox-list-packages :around #'mini-popup--disable-wrapper)
+
+      ;; (string-match-p "\n" "hellp\nme")
+
+      (defun read-minibuffer-wrapper (orig-fun &rest args)
+        (let ((mp mini-popup-mode))
+          (if (and (stringp (car args)) (string-match-p "\n" (car args)) )
+              (mini-popup-mode -1)
+            (unless mp (mini-popup-mode 1)))
+          (prog1
+              (apply orig-fun args)
+            (if mp 
+                (mini-popup-mode 1)
+              (mini-popup-mode -1)))))
+
+      (when mini-popup-mode
+        (advice-add 'read-minibuffer :around #'read-minibuffer-wrapper))
+
+      (defun mini-popup-is-no-excluded-command ()
+        "is this command to be excluded from mini-popup?"
+        t)
+
+      (defun max-frame-width ()
+        "in characters" ;; todo check for multimonitor problems
+        (apply #'max (-map (lambda (frame) (frame-width frame))(frame-list))))
+
+      (defun max-frame-height ()
+        "in characters"
+        (apply #'max (-map (lambda (frame) (frame-height frame))(frame-list))))
+
+      (defun mini-popup-width-fixed ()
+        "in characters"
+        (if (and mini-popup--frame-width mini-popup--frame (frame-visible-p mini-popup--frame))        
+            mini-popup--frame-width
+          (setq mini-popup--frame-width
+                (cond ((memq this-command
+                             '(eval-expression         ;; should open just a couple of lines on eval
+                               org-decrypt-entry       ;; called when decrypting section in org file
+                               dired-find-file         ;; opening encrypted files opens password entry dlg
+                               counsel-org-goto
+                               )) 
+                       (floor (* 0.5 (mini-popup--max-frame-width))))
+                      ((memq this-command
+                             '(gb/ivy--program-select-and-run      ;; should open just a couple of lines on eval
+                               dired
+                               magit-status
+                               )) 
+                       (floor (* 0.25 (mini-popup--max-frame-width))))
+                      (t
+                       (floor (* 0.75 (mini-popup--max-frame-width))))))))
+
+      (defun mini-popup--max-frame-width ()
+        (or (when gb/use-exwm
+             (when-let* ((workspaceIdx (exwm-workspace--position exwm-workspace--current))
+                         (monitor (nth (+ 1 (* 2 workspaceIdx)) exwm-randr-workspace-monitor-plist))
+                         (monitors (exwm-randr--get-monitors)))
+               (/ (slot-value (map-elt (cadr monitors) monitor ) 'width) (frame-char-width))))
+           (max-frame-width)))
+
+      (defun mini-popup--max-frame-height ()
+        (or (when gb/use-exwm
+             (when-let* ((workspaceIdx (exwm-workspace--position exwm-workspace--current))
+                         (monitor (nth (+ 1 (* 2 workspaceIdx)) exwm-randr-workspace-monitor-plist))
+                         (monitors (exwm-randr--get-monitors)))
+               (floor (/ (slot-value (map-elt (cadr monitors) monitor ) 'height) (frame-char-height)))))
+           (max-frame-height)))
+
+      (defun mini-popup-xoffset ()
+        (or
+         (when gb/use-exwm
+           (when-let* ((second-mon (gb/get-second-monitor))
+                       (workspaceIdx (exwm-workspace--position exwm-workspace--current))
+                       (monitor (nth (+ 1 (* 2 workspaceIdx)) exwm-randr-workspace-monitor-plist)))
+             (when (s-equals? second-mon monitor)
+               (string-to-number (car (string-split (gb/exwm--get-geometry-str (gb/exwm--get-primary-monitor))  "x"))))))
+         0))
+
+      (defun mini-popup-yoffset ()
+        (or
+         (when gb/use-exwm
+           (when-let* ((prim-mon (gb/exwm--get-primary-monitor))
+                       (sec-mon (gb/exwm--get-secondary-monitor))
+                       (workspaceIdx (exwm-workspace--position exwm-workspace--current))
+                       (monitor (nth (+ 1 (* 2 workspaceIdx)) exwm-randr-workspace-monitor-plist)))
+             (when (and (s-equals? prim-mon monitor) sec-mon)
+               (/  (-
+                    (string-to-number (cadr (string-split (gb/exwm--get-geometry-str prim-mon)  "x")))
+                    (string-to-number (cadr (string-split (gb/exwm--get-geometry-str sec-mon)  "x"))))
+                   4))))
+         0))
+
+      (defun mini-popup-position-fixed ()
+        "pixel pair ( x . y )"
+        `(,(+ (mini-popup-xoffset) (* (frame-char-width) (/ (- (mini-popup--max-frame-width) (mini-popup-width-fixed)) 2))) 
+          . ,(+ (mini-popup-yoffset) (* (1- (/  (mini-popup--max-frame-height) 2))
+                                        (+ (frame-char-height))))))
+
+      (setq preset-mini-popup--frame-height nil)
+
+      (defun mini-popup-command-advice-half-frame (orig-fun &rest args)
+        ""     
+        (setq preset-mini-popup--frame-height (/ (max-frame-height) 2)) 
+        (apply orig-fun args))
+
+      ;; the following functions cannot be identified by this-command or last-command
+      (advice-add 'counsel-M-x :around #'mini-popup-command-advice-half-frame)
+      (advice-add 'counsel-buffer-or-recentf :around #'mini-popup-command-advice-half-frame)
+      (advice-add 'ivy-switch-buffer :around #'mini-popup-command-advice-half-frame)
+
+      (defun mini-popup-height-fixed ()
+        "in characters"
+        ;; (message "visible %S" (frame-visible-p mini-popup--frame))
+        (if (and mini-popup--frame-height mini-popup--frame (frame-visible-p mini-popup--frame))        
+            mini-popup--frame-height
+          (if preset-mini-popup--frame-height
+              (prog1
+                  (setq mini-popup--frame-height preset-mini-popup--frame-height)
+                (setq preset-mini-popup--frame-height nil))
+            ;; (message "this command %S" this-command)
+            (setq mini-popup--frame-height
+                  (cond ((memq this-command
+                               '(eval-expression   ;; should open just a couple of lines on eval
+                                 org-decrypt-entry ;; called when decrypting section in org file
+                                 dired-find-file   ;; opening encrypted files opens password entry dlg
+                                 )) 
+                         5)
+                        ((memq this-command
+                               '(                               
+                                 dired
+                                 gb/ivy--program-select-and-run
+                                 bufler-switch-buffer
+                                 magit-status
+                                 counsel-org-goto
+                                 )) 
+                         (/  (max-frame-height) 2))
+                        (t (/  (max-frame-height) 3)))))))
+
+      (setq mini-popup--height-function #'mini-popup-height-fixed)
+      (setq mini-popup--width-function #'mini-popup-width-fixed)
+      (setq mini-popup--position-function #'mini-popup-position-fixed))
+    (setq mini-popup--use #'mini-popup-is-no-excluded-command)
+      ;; (setq mini-popup--height-function nil)
+
+      )
 #+end_src
 * utility functions
   - open dired to mounted folders
