@@ -18479,6 +18479,11 @@
 
       )
 #+end_src
+* EVAL web-server
+#+begin_src emacs-lisp
+  (use-package web-server
+    :ensure t)
+#+end_src
 * utility functions
   - open dired to mounted folders
     #+begin_src emacs-lisp
