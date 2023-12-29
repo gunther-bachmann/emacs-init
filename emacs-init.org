@@ -5258,12 +5258,20 @@
              ;; (set-frame-parameter nil 'company-box-doc-frame nil) ;; necessary for old company-box version < company-box-20200909.714
              )
            (advice-add 'company-box-doc--show :before #'gb/company-box-doc--init-frame-parameter))
+
          (defun gb/company-box--set-parameter (&rest args)
            "make sure to use the right linespacing, box will be too small otherwise!"
            (with-current-buffer (company-box--get-buffer)
              (setq line-spacing 0)))
          (advice-add 'company-box--display :after #'gb/company-box--set-parameter)
-         ;; (advice-remove 'company-box-doc--show #'gb/company-box-doc--init-frame-parameter)
+
+         (defun company-box-doc--show-after-advice--serif-on (&rest args)
+           "switch serif on, if showing company box documentation window"
+           (when (frame-visible-p (frame-local-getq company-box-doc-frame))
+             (with-current-buffer (company-box--get-buffer "doc")
+               (gb/serif-on))))
+         (advice-add 'company-box-doc--show :after #'company-box-doc--show-after-advice--serif-on)
+
          (cond
           ((eq gb/theme-mode 'light) nil) ;; TODO complete
           (t (progn
@@ -5328,10 +5336,11 @@
                (message "customize faces - company")
                (--each '((company-echo-common ((t (:inherit company-echo :foreground "gray15"))))
                          (company-preview ((t (:foreground "gray15"))))
-                         (company-preview-common ((t (:foreground "tomato2"))))
+                         (company-preview-common ((t (:foreground "orange"))))
                          (company-tooltip ((t (:background "gray12" :foreground "gray85"))))
-                         (company-tooltip-selection ((t (:background "gray23" :foreground "white"))))
-                         (company-tooltip-common ((t (:foreground "firebrick4"))))
+                         (company-tooltip-selection ((t (:background "gray23" :foreground "gray60"))))
+                         (company-tooltip-common-selection ((t (:inherit company-tooltip-selection :foreground "orange3"))))
+                         (company-tooltip-common ((t (:foreground "orange"))))
                          (company-tooltip-annotation ((t (:foreground "gray15")))))
                  (progn (add-to-list 'gb/list-of-faces-to-set it)(custom-set-faces it))))))
          (global-company-mode t)
@@ -5348,11 +5357,35 @@
    #+END_SRC
 ** company flx
    #+BEGIN_SRC emacs-lisp
-   (use-package company-flx
-     :ensure t
-     :after (company)
-     :config
-     (with-eval-after-load 'company (add-hook 'company-mode-hook (lambda () (add-to-list 'company-backends 'company-capf))) (company-flx-mode +1)))
+     (use-package company-flx
+       :ensure t
+       :after (company)
+       :config
+       (setq company-flx--toggle-mode-active nil) ;; flag indicating that the toggle was activated
+
+       (defun company-flx--restore-default (result)
+         (unless company-flx--toggle-mode-active
+           (company-flx-mode 0))
+         (setq company-flx--toggle-mode-active nil))
+
+       (defun company-flx--toggle-flex-during-completion (&rest args)
+         (interactive)
+         (if company-flx-mode
+             (company-flx-mode 0)
+           (company-flx-mode 1))
+         (setq company-flx--toggle-mode-active t)
+         (company-abort)
+         (run-at-time 0.1 nil
+                      #'(lambda ()
+                          (company-complete)
+                          ;; make sure that calling w/i this function does not require to C-g to abort completion
+                          (call-interactively #'keyboard-quit)))
+         (setq company-flx--toggle-mode-active nil))
+
+       (add-hook 'company-completion-finished-hook #'company-flx--restore-default)
+       (add-hook 'company-completion-cancelled-hook #'company-flx--restore-default)
+
+       (bind-key "C-f" #'company-flx--toggle-flex-during-completion 'company-active-map))
    #+END_SRC
 ** company-shell
    - provide company help for fish (or other shell) completions within modes like (fish-mode, shell-mode)
