@@ -371,6 +371,7 @@
     (put 'list-threads 'disabled nil)
     (add-to-list 'debug-ignored-errors 'minibuffer-quit)
     (defvar gb/execute-on-soft-reset '() "list of functions to be executed when running gb/execute-soft-reset (s-H-x)")
+    (setq message-log-max 10000) ;; ensure the message buffer logs more than 1000 messages
     ;; (setq server-use-tcp t)
   #+END_SRC
 * initial function setup
@@ -553,12 +554,13 @@
         (message (concat "Preinstall/require " (symbol-name package)))
         (require-package package)))
 
-    (use-package benchmark-init
-      :ensure t
-      :demand t
-      :config
-      ;; To disable collection of benchmark data after init is done.
-      (add-hook 'after-init-hook 'benchmark-init/deactivate))
+    ;; ;; report is not usable!
+    ;; (use-package benchmark-init
+    ;;   :ensure t
+    ;;   :demand t
+    ;;   :config
+    ;;   ;; To disable collection of benchmark data after init is done.
+    ;;   (add-hook 'after-init-hook 'benchmark-init/deactivate))
 
     ;; TODO: recheck now and then. error is present in req-package version 1.2
     ;; initialize unbound req-package variable (otherwise an error happens during startup)
@@ -3285,7 +3287,7 @@
         ))
     #+END_SRC
 *** rich minority mode (disabled, hide minor modes from mode line) 
-    #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp :tangle no
       (use-package rich-minority
         :disabled t
         :config
@@ -4640,8 +4642,9 @@
       :after ( expand-region)
       )
     #+END_SRC
-*** change-inner
-    #+BEGIN_SRC emacs-lisp
+*** change-inner (disabled)
+- not working with emacs 29
+    #+BEGIN_SRC emacs-lisp :tangle no
     (use-package change-inner
       :after ( expand-region)
       :init
@@ -4791,11 +4794,9 @@
      - available functions are: ace-mc-add-multiple-cursors
    #+BEGIN_SRC emacs-lisp
    (use-package ace-mc
-     ;; :commands ace-mc-add-multiple-cursors ace-mc-add-single-cursor
+     :commands ace-mc-add-multiple-cursors ace-mc-add-single-cursor
      :bind (("C-|" . ace-mc-add-multiple-cursors))
-     :after (avy multiple-cursors ace-jump-mode)
-     :init (bind-key "C-|" #'ace-mc-add-multiple-cursors)
-     )
+     :after (avy multiple-cursors ace-jump-mode))
    #+END_SRC
 ** key-chord (disabled)
    #+BEGIN_SRC emacs-lisp :tangle no
@@ -5182,6 +5183,8 @@
          (setq which-key-max-description-length 45)
          (setq which-key-popup-type 'side-window)
          ))
+   #+END_SRC
+   #+BEGIN_SRC emacs-lisp :tangle no
      (use-package which-key-posframe
        :ensure t
        :config
@@ -5240,6 +5243,7 @@
        (progn
          (when (fboundp #'gb/modeline-line-set-selected-window)
            (add-hook 'company-box-hide-hook 'gb/modeline-line-set-selected-window))
+
          (unless (version<= "29" emacs-version)
            (defun gb/company-box-doc--init-frame-parameter (orig-func &rest args)
              "initialize frame parameter to ensure that the frame is always recreated"
@@ -5448,9 +5452,10 @@
          ;;   (key-chord-define-global "o0"   'ace-window))
          ))
 
-     (use-package ace-flyspell
-       :ensure t
-       :after ( flyspell avy))
+     ;; no longer in use, since jinx is used for corrections
+     ;; (use-package ace-flyspell
+     ;;   :ensure t
+     ;;   :after ( flyspell avy))
      ;; available commands 'M-x ace-flyspell-jump-word', jump to incorrect spelling via ace
      ;; 'M-x ace-flyspell-dwim', autocorrect word
      ;; 'M-x ace-flyspell-correct-word', no jump but autocorrect
@@ -5512,7 +5517,8 @@
    #+END_SRC
 ** ace popup menu
    - display regular popup windows (like the one upon C-c $ to correct mispelled words) as a text window (in separate emacs window)
-   #+BEGIN_SRC emacs-lisp
+   - popup windows no longer used here
+   #+BEGIN_SRC emacs-lisp :tangle no
    (use-package avy-menu)
    (use-package ace-popup-menu
      :after ( avy avy-menu)
@@ -9206,7 +9212,7 @@
      :ensure t
      :after ( bbdb))
  #+END_SRC
-*** DONE popup window for email selection in mail client (seems to be alternative to bbdb-) (deactivated)
+*** popup window for email selection in mail client (seems to be alternative to bbdb-) (deactivated)
     - seems no longer available
  #+BEGIN_SRC emacs-lisp :tangle no
    (use-package bbdb-handy
@@ -10811,10 +10817,10 @@
         :hook (org-mode . org-appear-mode)
         :custom (org-appear-autosubmarkers t))
     #+end_src
-*** org hide tags (disabled)
+*** org hide tags 
     - copied from https://github.com/amno1/org-hide-tags/blob/main/org-hide-tags.el
     - all credits go to the original author
-    #+begin_src emacs-lisp :tangle no
+    #+begin_src emacs-lisp
       (defgroup org-hide-tags nil
         "Hide tags in org-headings."
         :prefix "org-hide-tags-"
@@ -10836,7 +10842,6 @@
                     (match-beginning 1) (match-end 1) 'invisible visibility))
                (forward-line))))))
 
-      ;;;###autoload
       (define-minor-mode org-hide-tags-mode
         "Hide/show babel source code blocks on demand."
         :global nil :lighter " Org-hls"
@@ -11848,9 +11853,9 @@
 
        )
    #+END_SRC
-** bibtex
+** bibtex (disabled)
    - check https://nickhigham.wordpress.com/2016/01/06/managing-bibtex-files-with-emacs/
-   #+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp :tangle no
      (when (locate-library "parsebib")
        (use-package parsebib))
      (use-package let-alist)
@@ -11917,7 +11922,7 @@
 ** configuration
    #+BEGIN_SRC emacs-lisp
      (use-package dired
-       :bind (("C-x d" . dired)
+       :bind (;; ("C-x d" . dired) ;; counsel used instead
               :map dired-mode-map
               ("C-c m" . gb/dired-open-media)
               ("C-p" . diredp-previous-line)
@@ -11940,7 +11945,7 @@
            (setq insert-directory-program gnu-ls-bin-path))
        (setq dired-omit-files "^\\.?#\\|^\\.$\\|^\\.\\.$\\|^\\..*\\|^build$\\|^out$")
        (setq dired-guess-shell-alist-user '(
-                                            ("\\.webm\\'\\|\\.mkv\\'\\|\\.mpe?g\\'\\|\\.avi\\'\\|\\.mp4\\'\\|\\.flv\\'" "mpv")
+                                            ("\\.webm\\'\\|\\.mkv\\'\\|\\.mpe?g\\'\\|\\.avi\\'\\|\\.mov\\'\\|\\.mp4\\'\\|\\.flv\\'" "mpv")
                                             ("\\.d64\\'\\|\\.prg\\'" "x64sc")
                                             ("\\.sid\\'" "sidplayfp")
                                             ("\\.html?\\'" "firefox")
@@ -12907,8 +12912,10 @@
 #+BEGIN_SRC emacs-lisp
 (report-elapsed "check point - window / frame")
 #+END_SRC
-** bug hunter
-   #+BEGIN_SRC emacs-lisp
+** bug hunter (disabled)
+- did not really help. bisecting init file resulted too often in unusable config
+  had to be done manually
+   #+BEGIN_SRC emacs-lisp :tangle no
      (use-package bug-hunter ;; allows via commands to hunt bugs in emacs lisp files see https://github.com/Malabarba/elisp-bug-hunter
        :ensure t
        :commands bug-hunter-file bug-hunter-init-file)
@@ -13262,7 +13269,8 @@
                   ("C-c C-." . #'racket-repl-describe)
                   ("M-." . #'racket-repl-visit-definition)
                   ("C-c C-f" . #'gb/racket-fold-all-tests)
-                  ("C-c C-u" . #'gb/racket-unfold-all-tests))
+                  ("C-c C-u" . #'gb/racket-unfold-all-tests)
+                  ("TAB" . #'company-indent-or-complete-common))
       :config
 
       ;; grab the name of the function defined right before cursor position
@@ -13302,6 +13310,9 @@
           (coterm-mode gb-racket-coterm-status))
         (add-hook 'racket-before-run-hook #'gb-mark-coterm-status)
         (add-hook 'racket-after-run-hook #'gb-restore-coterm-status))
+
+      (add-hook 'racket-describe-mode-hook #'(lambda (&rest args) (let ((inhibit-message t)) (gb/serif-on))))
+
       (cond
        ((eq gb/theme-mode 'light) nil) ;; TODO complete
        (t (progn
@@ -13642,7 +13653,7 @@
            "run compton compositor if not already running"
            (interactive)
            (unless (= 0 (shell-command "pgrep -x compton"))
-             (shell-command "nvidia-settings -a 'AllowFlipping=0'") ;; prevent emacs keyboard delay
+             (safe-shell-command-to-string "nvidia-settings -a 'AllowFlipping=0'") ;; prevent emacs keyboard delay
              (async-start-process "compton" "compton" nil)))
 
          (defun gb/compositor-disable ()
@@ -16029,7 +16040,8 @@
                 (prefix
                  (and
                   ;; no longer in org-roam-mode
-                  (org-roam-stack--is-roam-file-p (buffer-file-name (buffer-base-buffer))) ;; adjust to org-roam-stack
+                  (and (fboundp 'org-roam-stack--is-roam-file-p)
+                     (org-roam-stack--is-roam-file-p (buffer-file-name (buffer-base-buffer)))) ;; adjust to org-roam-stack
                   (or (company-grab-symbol) 'stop)))
                 (candidates
                  (company-org-roam--get-candidates arg))
@@ -16514,7 +16526,7 @@
       :commands (format-all-buffer)
       :ensure t)
   #+end_src
-* EVAL compy - adjust programs via patterns (unused)
+* EVAL comby - adjust programs via patterns (unused)
   - use the current selection as input template for pattern matching and transformation
   - see https://comby.dev/
   #+begin_src emacs-lisp :tangle no
@@ -16580,9 +16592,9 @@
 #+BEGIN_SRC emacs-lisp
 (report-elapsed "check-point - agda")
 #+END_SRC
-* EVAL grugru - rotate thing at point dependent on mode through list of items defined
+* EVAL grugru (disabled) - rotate thing at point dependent on mode through list of items defined
   - see https://github.com/ROCKTAKEY/grugru
-  #+begin_src emacs-lisp
+  #+begin_src emacs-lisp :tangle no
     (use-package grugru
       :ensure t
       :commands (grugru grugru-edit)
@@ -17266,8 +17278,8 @@
 #+BEGIN_SRC emacs-lisp
 (report-elapsed "check-point - show-font-mode")
 #+END_SRC
-* transient-posframe -  posframe to show transient (e.g. magit transient menus)
-  #+begin_src emacs-lisp
+* transient-posframe (disabled) -  posframe to show transient (e.g. magit transient menus)
+  #+begin_src emacs-lisp :tangle no
     (use-package transient-posframe
       :ensure t
       :config
@@ -17350,12 +17362,12 @@
     ;;=> (RCS CVS SVN SCCS SRC Bzr Git Hg)
      '(Git)))
   #+end_src
-* EVAL docstr - adding documentation strings automatically for several languages
+* EVAL docstr (disabled) - adding documentation strings automatically for several languages
 - takes up a lot of time when globally enabled, thus only enabled for just a couple of programming modes
 - since not all programming languages are supported, just typescript and scala are enabled
 - the actual inserted doc strings can be customized
 - see https://emacs-vs.github.io/docstr/page/
-  #+begin_src emacs-lisp
+  #+begin_src emacs-lisp :tangle no
     (use-package docstr
       :ensure t
       :hook ((typescript-mode . gb/docstr-mode-hook)
@@ -17595,8 +17607,8 @@
 
     (gb/refresh-polybar-github)
   #+end_src
-* EVAL lf - language features (elisp additions through macros)
-  #+begin_src emacs-lisp
+* EVAL lf (disabled) - language features (elisp additions through macros)
+  #+begin_src emacs-lisp :tangle no
     (use-package lf
       :ensure t)
   #+end_src
@@ -17696,8 +17708,8 @@
          (gb/org-agenda))
        (lambda () (message "vpn seems to be NON functional!"))))
   #+end_src
-* EVAL elpher - gopher and gemini client
-  #+begin_src emacs-lisp
+* EVAL elpher (disabled) - gopher and gemini client
+  #+begin_src emacs-lisp :tangle no
     (use-package elpher
       :ensure t)
   #+end_src
@@ -17768,7 +17780,7 @@
   #+end_src
 * EVAL org-inline-anim
   - Now you can play animated GIF or PNG images in Org.
-
+  - Image needs to be under cursor for shortcuts to work
   - M-x org-inline-anim-animate (C-c C-x m) plays the animation once.
   - With a single prefix (C-u), it plays the animation in loop mode.
   - With a double prefix (C-u C-u), it shows the last frame and stops playback.
@@ -17784,9 +17796,9 @@
       :ensure t
       :custom ((alarm-clock-play-sound nil)))
   #+end_src
-* EVAL annotate - annotate text documents, storing annotions in separate file
+* EVAL annotate (disabled) - annotate text documents, storing annotions in separate file
   - check this package for inspiration to dired-annotator
-  #+begin_src emacs-lisp
+  #+begin_src emacs-lisp :tangle no
     (use-package annotate)
   #+end_src
 * EVAL color-theme-buffer-local (disabled)
@@ -18056,8 +18068,8 @@
 
       (define-key magit-status-mode-map (kbd "#") #'gb/magit-aux-commands))
   #+end_src
-* PREVAL empv - interface to mpv
-  #+begin_src emacs-lisp
+* PREVAL empv (disabled) - interface to mpv
+  #+begin_src emacs-lisp :tangle no
     (use-package empv)
   #+end_src
 * PREVAL flycheck-eglot
@@ -18065,8 +18077,8 @@
     (use-package flycheck-eglot
       :ensure t)
   #+end_src
-* PREVAL langtool-popup
-  #+begin_src emacs-lisp
+* PREVAL langtool-popup (disabled)
+  #+begin_src emacs-lisp :tangle no
     (use-package langtool-popup)
   #+end_src
 * PREVAL link-hint
@@ -18278,8 +18290,8 @@
   (use-package image-dimensions-minor-mode
     :load-path "~/.emacs.d/additionals/")
 #+end_src
-* EVAL chip8
-#+begin_src emacs-lisp
+* EVAL chip8 (disabled)
+#+begin_src emacs-lisp :tangle no
   (use-package chip8
     :commands (chip8-original chip8-modern chip8-superchip chip8-xo-chip))
 #+end_src
@@ -18805,9 +18817,9 @@
     - lets you group agenda entries based on tags, regex on title, todo status etc.
   - org-projectile-helm
     - This package aims to provide an easy interface to creating per project org-mode TODO headings.
-  - org-category-capture
+  - org-category-capture (disabled)
     - This package aims to provide an easy interface to creating per project org-mode TODO headings.
-      #+BEGIN_SRC emacs-lisp
+      #+BEGIN_SRC emacs-lisp :tangle no
       (use-package org-category-capture
         :after ( org))
       #+END_SRC
@@ -18878,7 +18890,8 @@
   - diredc - Extensions for dired (acting similar to midnight commander)
   - cloak-mode - hide information by regex, mode specific
   - opensub - Search and download from open-subtitles
-  - async-status - A package for indicator support 
+  - async-status - A package for indicator support
+  - syncthing - Client for Syncthing 
 ** windowmanager/x-integration
   - edwin (dynamic window manager)
   - zoom
@@ -20045,7 +20058,7 @@
       (gb/cpu-powersave))
 
     ;; (gb/compositor-enable)
-    (async-shell-command "nitrogen --restore &" nil nil)
+    ;; (async-shell-command "nitrogen --restore &" nil nil)
 
     (report-elapsed "exit finish - up")
     (lisp-interaction-mode)
