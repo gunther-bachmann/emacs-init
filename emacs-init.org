@@ -2109,8 +2109,10 @@
    #+END_SRC
 ** minibuffer
    #+BEGIN_SRC emacs-lisp
-   (setq enable-recursive-minibuffers nil) ;; recursive minibuffers may interfere with mini-frame, so it is switched off for now
-   (minibuffer-depth-indicate-mode 1)
+     (setq enable-recursive-minibuffers nil) ;; recursive minibuffers may interfere with mini-frame, so it is switched off for now
+     (minibuffer-depth-indicate-mode 1)
+     (custom-set-faces  '(minibuffer-prompt ((t (:foreground "#c062c0" :inverse-video t)))))
+     (setq enable-recursive-minibuffers t)
    #+END_SRC
 ** jumpy scrolling
    - some settings that makes scrolling a bit more what is actually wanted
