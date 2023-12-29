@@ -6215,11 +6215,13 @@
                 ( "C-x d"   . counsel-dired)
                 ( "C-x 8 <RET>" . counsel-unicode-char)
                 ( "s-i"     . counsel-imenu)
+                ( "H-q"     . counsel-search)
                 :map comint-mode-map
                 ( "<M-up>"  . counsel-shell-history )
                 :map org-mode-map
                 ( "s-i"     . counsel-org-goto))
          :config
+         (setq counsel-outline-face-style 'org)
          (progn
            (bind-key "M-y" #'counsel-yank-pop ) ;; no :bind, since counsel needs to be loaded for magit
            (when-let ((initial-ivy-input (assoc 'counsel-M-x ivy-initial-inputs-alist)))
@@ -7571,6 +7573,9 @@
         )
       ;; show git relevant change info in the fringe of the frame
       ;; git-gutter-fringe works with nlinum-mode !
+
+      (defvar global-linum-mode nil) ;; git gutter needs this var to be bound (patch)
+
       (use-package git-gutter
         :ensure t
         :config
@@ -11822,7 +11827,19 @@
   (use-package graphviz-dot-mode
     :ensure t
     :custom ((graphviz-dot-indent-width 4)
-             (graphviz-dot-view-command "xdot %s")))
+             (graphviz-dot-view-command "xdot %s"))
+    :config
+    (when (version<= "29" emacs-version)
+      ;; patch for this package, since emacs version 29 removed this variable (face)
+      (defvar font-lock-reference-face 'font-lock-reference-face
+        "Face for references in an Rd file.")
+      (defface font-lock-reference-face
+        '((default :inherit font-lock-keyword-face)
+          (((class color) (background dark))
+           (:foreground "lime green"))
+          (((class color)) (background light) (:foreground "dark green")))
+        "Face for references in an Rd file."
+        :version "0.0")))
 #+END_SRC
 * backup
 ** backup edited files
