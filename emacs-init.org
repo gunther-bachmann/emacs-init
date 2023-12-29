@@ -1837,6 +1837,10 @@
        (setq epa-file-cache-passphrase-for-symmetric-encryption t)
        (setq epa-file-inhibit-auto-save t)
 
+       ;; workaround for epg waiting for status while encrypting org files
+       (unless (version<= emacs-version "29")
+         (fset 'epg-wait-for-status 'ignore))
+
        (defun gb/gpg-keys-private-fingerprint ()
          (s-split "\n" (string-trim (safe-shell-command-to-string "gpg -K | grep -e '^uid' -B 1 | grep -ve '^uid' | grep -v -e '--' | sed -e 's/ *//g'"))))
 
@@ -9316,12 +9320,13 @@
       ;; thanks to https://pank.eu/blog/pretty-babel-src-blocks.html
       (with-eval-after-load 'org
 
-        (require 'org-crypt)
-        (org-crypt-use-before-save-magic)
-        (setq org-tags-exclude-from-inheritance '("crypt")) ;; tag to use
-        (setq org-crypt-key nil)                              ;; for symmetric en/decryption
-        (bind-key "C-c s d" #'org-decrypt-entry)
-        (bind-key "C-c s e" #'org-encrypt-entry)
+        ;; org-crypt magic (disabled, since it has trouble with gpg 2.4.1 (should be fixed with 2.4.4)    
+        ;; (require 'org-crypt)
+        ;; (org-crypt-use-before-save-magic)
+        ;; (setq org-tags-exclude-from-inheritance '("crypt")) ;; tag to use
+        ;; (setq org-crypt-key nil)                              ;; for symmetric en/decryption
+        ;; (bind-key "C-c s d" #'org-decrypt-entry)
+        ;; (bind-key "C-c s e" #'org-encrypt-entry)
 
         (defvar-local rasmus/org-at-src-begin -1
           "Variable that holds whether last position was a ")
