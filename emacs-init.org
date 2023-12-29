@@ -2304,12 +2304,12 @@
            (apply 'custom-set-faces gb/list-of-faces-to-set)
            ;; (set-frame-font gb/default-font t nil)
            ;; (set-face-font 'default gb/default-font nil)
-           (set-face-attribute 'default nil
+           (set-face-attribute 'default (when (eq gb/dual-screen-mode 'presentation) (selected-frame))
                                ;; :family gb/default-font
                                :font gb/default-font
                                :height (ht-get attr-map 'default-height)
                                :weight (ht-get attr-map 'default-weight))
-           (set-face-attribute 'variable-pitch nil
+           (set-face-attribute 'variable-pitch (when (eq gb/dual-screen-mode 'presentation) (selected-frame))
                                ;; :family "Fira Sans"
                                :height (ht-get attr-map 'variable-pitch-height)
                                :weight (ht-get attr-map 'variable-pitch-weight))
