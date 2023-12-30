@@ -6064,6 +6064,13 @@
                    (counsel-projectile-find-file-transformer
                     (:width 0.6)))
                   :delimiter "	")
+                 find-file-dwim
+                 (:columns
+                  ((gb/ivy-candidates-offset)
+                   (all-the-icons-ivy-rich-file-icon)
+                   (counsel-projectile-find-file-transformer
+                    (:width 0.6)))
+                  :delimiter "	")
                  counsel-projectile-find-file
                  (:columns
                   ((gb/prefixed-20-all-the-icons-ivy-rich-file-icon)
@@ -6232,7 +6239,7 @@
          :ensure t
          :bind (( "M-x"     . counsel-M-x)
                 ( "C-x C-f" . counsel-find-file)
-                ( "s-f"     . counsel-buffer-or-recentf)
+                ;; ( "s-f"     . counsel-buffer-or-recentf) ;; redefined in find-file-rg
                 ( "C-c g h" . counsel-git-grep)
                 ( "C-c g i" . counsel-rg)
                 ( "C-x d"   . counsel-dired)
@@ -16788,11 +16795,17 @@
               '((4.0 . 1.5) (3.0 . 0.5) (3.0 . 0.5) (3.0 . 0.5) (2.5 . 0.5) (2.0 . 0.5) (1.5 . 0.5) (0.5 . 0.5)))
         ))
   #+end_src
-* EVAL find-file-rg - use ripgrep for find file in projects (can be configured e.g. in ~.ignore~ or ~.gitignore~ files)
+* find-file-rg - use ripgrep for find file in projects (can be configured e.g. in ~.ignore~ or ~.gitignore~ files)
   #+begin_src emacs-lisp
     (use-package find-file-rg
       :ensure t
-      :bind (("C-s-f" . find-file-rg)))
+      :config
+      (defun find-file-dwim (arg)
+        (interactive "P")
+        (if (and (not arg) (vc-root-dir))
+            (find-file-rg)
+          (counsel-buffer-or-recentf)))
+      (bind-key "s-f" #'find-file-dwim))
   #+end_src
 * EVAL eshell-syntax-highlighting
   - provide syntax hightlighting in the eshell
