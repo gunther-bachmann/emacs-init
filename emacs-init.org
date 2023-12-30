@@ -6057,10 +6057,18 @@
                   ((all-the-icons-ivy-rich-file-icon)
                    (ivy-rich-candidate))
                   :delimiter "	")
+                 find-file-rg
+                 (:columns
+                  ((gb/ivy-candidates-offset)
+                   (all-the-icons-ivy-rich-file-icon)
+                   (counsel-projectile-find-file-transformer
+                    (:width 0.6)))
+                  :delimiter "	")
                  counsel-projectile-find-file
                  (:columns
-                  ((all-the-icons-ivy-rich-file-icon)
-                   (counsel-projectile-find-file-transformer))
+                  ((gb/prefixed-20-all-the-icons-ivy-rich-file-icon)
+                   (counsel-projectile-find-file-transformer
+                    (:width 0.6)))
                   :delimiter "	")
                  counsel-projectile-find-dir
                  (:columns
@@ -6072,9 +6080,22 @@
                   ((all-the-icons-ivy-rich-mode-icon)
                    (ivy-rich-candidate))
                   :delimiter "	")
+                 imenu-anywhere
+                 (:columns
+                  ((gb/ivy-candidates-offset-20)
+                   (all-the-icons-ivy-rich-imenu-icon)
+                   (ivy-rich-candidate))
+                  :delimiter "	")
+                 counsel-org-goto
+                 (:columns
+                  ((gb/ivy-candidates-offset-20)
+                   (all-the-icons-ivy-rich-imenu-icon)
+                   (ivy-rich-candidate))
+                  :delimiter "	")
                  counsel-imenu
                  (:columns
-                  ((all-the-icons-ivy-rich-imenu-icon)
+                  ((gb/ivy-candidates-offset-20)
+                   (all-the-icons-ivy-rich-imenu-icon)
                    (ivy-rich-candidate))
                   :delimiter "	")
                  counsel-cd
@@ -6191,6 +6212,8 @@
          (when (not (boundp 'ivy--display-transformers-list))
            ;; initialize unknown but used variable (used by ivy-rich)
            (setq ivy--display-transformers-list 'nil))
+         (when ivy-rich-mode
+           (ivy-rich-mode 0))
          (ivy-rich-mode 1)
          :ensure t))
 
@@ -7452,7 +7475,7 @@
         :bind (("C-c v s" . magit-status)
                ("C-c v l" . magit-list-repositories)
                :map magit-mode-map
-               ("s-f" . projectile-find-file)
+               ("s-f" . find-file-rg)
                ("C-x f" . counsel-git))
         :init
         (progn
