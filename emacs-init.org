@@ -5746,21 +5746,7 @@
                 ("M-y" . #'counsel-yank-pop)
                 :map ivy-minibuffer-map
                 ("M-y" . #'ivy-next-line ))
-         :custom ((ivy-sort-functions-alist ;; sort candidates for the given functions accordingly
-                   '((counsel-minor . ivy-string<)
-                     (counsel-colors-web . ivy-string<)
-                     (counsel-unicode-char . ivy-string<)
-                     (counsel-register . ivy-string<)
-                     (counsel-mark-ring . ivy-string<)
-                     (counsel-file-register . ivy-string<)
-                     (counsel-describe-face . ivy-string<)
-                     (counsel-info-lookup-symbol . ivy-string<)
-                     (counsel-apropos . ivy-string<)
-                     (counsel-describe-symbol . ivy-string<)
-                     (read-file-name-internal . ivy-prescient-sort-function)
-                     (counsel-shell-history) ;; no sorting of shell history
-                     (counsel-yank-pop) ;; no sorting of clipboard
-                     (t . ivy-prescient-sort-function)))
+         :custom ( ;; ivy-sort-functions-alist :: sorting candidates list is set in ivy-prescient
                   (ivy--display-transformers-alist '())
                   (ivy-display-style 'fancy)
                   (ivy-height 30 "default height of ivy completion")
@@ -5873,6 +5859,7 @@
                  :predicate
                  (lambda (cand) (get-buffer cand))
                  :delimiter "	"))
+         ;; after setting this list, ivy-rich-mode needs to be dis- and enabled again to have an effect
          (setq ivy-rich-display-transformers-list
                `(ivy-switch-buffer
                  ,ivy-rich-display-transformer--buffer
@@ -6320,7 +6307,23 @@
                   (prescient-filter-method '(literal regexp initialism fuzzy)))
          :config
          (require 'counsel)
-         (ivy-prescient-mode 1)))
+         (ivy-prescient-mode 1)
+         (setq ivy-sort-functions-alist ;; sort candidates for the given functions accordingly
+               '((counsel-minor . ivy-string<)
+                 (counsel-colors-web . ivy-string<)
+                 (counsel-unicode-char . ivy-string<)
+                 (counsel-register . ivy-string<)
+                 (counsel-mark-ring . ivy-string<)
+                 (counsel-file-register . ivy-string<)
+                 (counsel-describe-face . ivy-string<)
+                 (counsel-info-lookup-symbol . ivy-string<)
+                 (counsel-apropos . ivy-string<)
+                 (counsel-describe-symbol . ivy-string<)
+                 (justl-exec-recipe-in-dir . ivy-string<)
+                 (read-file-name-internal . ivy-prescient-sort-function)
+                 (counsel-shell-history) ;; no sorting of shell history
+                 (counsel-yank-pop) ;; no sorting of clipboard
+                 (t . ivy-prescient-sort-function)))))
    #+end_src
 ** highlight-thing
    #+BEGIN_SRC emacs-lisp
