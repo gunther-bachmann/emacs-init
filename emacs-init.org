@@ -18604,6 +18604,16 @@
   (use-package web-server
     :ensure t)
 #+end_src
+* EVAL just
+#+begin_src emacs-lisp
+  (use-package just-mode
+    :ensure t)
+
+  (use-package justl
+    :ensure t
+    :commands (justl justl-exec-recipe-in-dir)
+    :bind ("C-c C-x C-j" . justl-exec-recipe-in-dir))
+#+end_src
 * utility functions
   - open dired to mounted folders
     #+begin_src emacs-lisp
