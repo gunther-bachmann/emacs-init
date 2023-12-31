@@ -16776,15 +16776,6 @@
         (goto-char (point-max))
         (insert "\n")))
   #+end_src
-* EVAL esup - emacs startup profiling (not used)
-  #+begin_src emacs-lisp :tangle no
-    (use-package esup
-      :ensure t
-      :commands (esup))
-  #+end_src
-#+BEGIN_SRC emacs-lisp
-(report-elapsed "check-point - esup")
-#+END_SRC
 * EVAL org-padding - define padding for each org mode heading level
   #+begin_src emacs-lisp
     (when (file-exists-p "~/.emacs.d/additionals/org-padding.el")
@@ -20032,6 +20023,12 @@
      :init
      (add-hook 'pdf-view-mode-hook 'pdf-view-restore-mode))
    #+end_src
+** esup - emacs startup profiling (not used)
+  #+begin_src emacs-lisp :tangle no
+    (use-package esup
+      :ensure t
+      :commands (esup))
+  #+end_src
 * useful but discarded because of drawback that might be fixed
 ** magit-delta (disabled - speed degradation on large change sets)
    #+begin_src emacs-lisp :tangle no
