@@ -7485,7 +7485,7 @@
         :bind (("C-c v s" . magit-status)
                ("C-c v l" . magit-list-repositories)
                :map magit-mode-map
-               ("s-f" . find-file-rg)
+               ("s-f" . find-file-dwim)
                ("C-x f" . counsel-git))
         :init
         (progn
@@ -14616,7 +14616,7 @@
           (when (eq gb/completion-framework 'ivy)
             (gb/register-global-key (kbd "s-1") #'gb/ivy--program-select-and-run)
             (gb/register-global-key (kbd "s-b") #'ivy-switch-buffer)
-            (gb/register-global-key (kbd "s-f") #'counsel-buffer-or-recentf)
+            (gb/register-global-key (kbd "s-f") #'find-file-dwim)
             (gb/register-global-key (kbd "s-SPC") #'counsel-M-x))
 
           (when (eq gb/completion-framework 'helm)
@@ -16793,13 +16793,13 @@
   #+begin_src emacs-lisp
     (use-package find-file-rg
       :ensure t
-      :config
+      :init
       (defun find-file-dwim (arg)
         (interactive "P")
-        (if (and (not arg) (vc-root-dir))
+        (if (and (not arg) (or (derived-mode-p 'magit-mode) (vc-root-dir)))
             (find-file-rg)
           (counsel-buffer-or-recentf)))
-      (bind-key "s-f" #'find-file-dwim))
+      :bind (("s-f" . find-file-dwim)))
   #+end_src
 * EVAL eshell-syntax-highlighting
   - provide syntax hightlighting in the eshell
