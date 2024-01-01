@@ -7312,7 +7312,11 @@
        :custom (yafolding-ellipsis-content "…")
        :config
        (advice-add 'yafolding-hide-region :after #'(lambda (&rest args) (when (and (fboundp 'minimap-mode) minimap-mode) (minimap-sync-overlays))))
-       (advice-add 'yafolding-show-region :after #'(lambda (&rest args) (when (and (fboundp 'minimap-mode) minimap-mode) (minimap-sync-overlays)))))
+       (advice-add 'yafolding-show-region :after #'(lambda (&rest args) (when (and (fboundp 'minimap-mode) minimap-mode) (minimap-sync-overlays))))
+       ;; mak sure that fold is open if ending within a fold after isearch!
+       (defun isearch-done-yafolding-advice--toggle-if-in-fold (&rest params)
+         (yafolding-show-element))
+       (advice-add 'isearch-done :after #'isearch-done-yafolding-advice--toggle-if-in-fold))
    #+end_src
 ** flymake
    #+BEGIN_SRC emacs-lisp
