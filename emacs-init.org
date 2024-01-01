@@ -11128,6 +11128,9 @@
          (bind-key "C-c C-r" #'slack-thread-show-or-create slack-mode-map)
          (bind-key "C-c C-r" #'slack-thread-show-or-create slack-thread-message-buffer-mode-map)
 
+         ;; search in message compose buffer
+         (bind-key "C-s" #'isearch-forward-regexp slack-message-compose-buffer-mode-map)
+
          (setq gb/slack-team-registered nil)
          (defun gb/slack-register-teams ()
            "read slack api tokens and set configuration accordingly"
