@@ -13467,13 +13467,23 @@
                   (lambda () (gb/enable-ligatures))))
 
       (when (fboundp #'yafolding-mode)
+        (defun racket--for-each-test-module (func)
+          (save-excursion
+            (goto-char (point-min))
+            (let ((n 0))
+              (while (re-search-forward "^(module[+*]? test" (point-max) t)
+                (funcall func)
+                (cl-incf n)
+                (goto-char (match-end 0)))
+              (message "Processed %d test submodules"  n))))
+
         (defun gb/racket-fold-all-tests ()
           (interactive)
-          (racket--for-all-tests "Folded" 'yafolding-hide-element))
+          (racket--for-each-test-module #'yafolding-hide-element))
 
         (defun gb/racket-unfold-all-tests ()
           (interactive)
-          (racket--for-all-tests "Unfolded" 'yafolding-show-element))))
+          (racket--for-each-test-module #'yafolding-show-element))))
 
     (use-package flymake-racket
       :after racket-mode
