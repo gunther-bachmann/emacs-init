@@ -485,6 +485,7 @@
       (progn
         (if secure-package-access
             (setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
+                                     ("gnu-devel" . "https://elpa.gnu.org/devel/")
                                      ("myelpa" . "https://raw.githubusercontent.com/gunther-bachmann/myelpa/master/")
                                      ("melpa-stable" . "https://stable.melpa.org/packages/")
                                      ;; ("org" . "https://orgmode.org/elpa/") ;; deprecated
@@ -493,6 +494,7 @@
                                      ("nongnu-devel" . "https://elpa.nongnu.org/nongnu-devel/")))
           (message "INSECURE PACKAGE ACCESS, BEWARE!")
           (setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
+                                   ("gnu-devel" . "http://elpa.gnu.org/devel/")
                                    ("myelpa" . "https://raw.githubusercontent.com/gunther-bachmann/myelpa/master/")
                                    ("melpa-stable" . "http://stable.melpa.org/packages/")
                                    ;; ("org" . "http://orgmode.org/elpa/") ;; deprecated
