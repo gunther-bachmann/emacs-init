@@ -3531,7 +3531,7 @@
 
       (require 'color)
       (defconst mode-line-file-name-highlight-color "orange")
-      (defconst mode-line-file-name-disabled-color (color-darken-name mode-line-file-name-highlight-color 25))
+      (defconst mode-line-file-name-disabled-color (color-darken-name mode-line-file-name-highlight-color 50))
       (defconst mode-line-buffer-name-highlight-color (face-foreground 'mode-line-highlight))
       (defconst mode-line-buffer-name-disabled-color (color-darken-name mode-line-buffer-name-highlight-color 25))
 
@@ -3682,7 +3682,9 @@
                                   mode-line-modes
                                 (substring-no-properties (format-mode-line mode-line-modes))))
                       ;; '(:eval (when text-scale-mode (concat " (𝞿" text-scale-mode-lighter ") ")))
-                      mode-line-misc-info
+                      '(:eval (if (gb/modeline-line-selected-window-active-p)
+                                  mode-line-misc-info
+                                (substring-no-properties (format-mode-line mode-line-misc-info))))
                       '(:eval (when (fboundp #'pomm-format-mode-line) (format-mode-line (pomm-format-mode-line)))))
                      ))
 
