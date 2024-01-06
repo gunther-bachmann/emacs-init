@@ -18465,7 +18465,48 @@
 #+begin_src emacs-lisp
   (use-package docsim
     :ensure t
-    :custom (docsim-search-paths (list org-notes)))
+    :bind (:map docsim-mode-map
+      ("RET" . #'docsim--visit-link-with-org-roam-stack )
+      ("q" . #'docsim--safe-quit-sidebuffer)
+      :map org-mode-map
+      ("H-s" . #'docsim-search-buffer))
+    :commands (docsim-search-buffer)
+    :custom (docsim-search-paths (list org-notes))
+    :config
+    (defun display-buffer-common-window (buffer alist)
+      (when-let* ((roam-window (--find (string-match-p "\\(\\*org-roam\\*\\|\\*docsim:.*\\)" (buffer-name (window-buffer it))) (window-list))))
+        (save-excursion
+          (with-selected-window roam-window
+            (display-buffer-same-window buffer alist)))))
+
+    (add-to-list 'display-buffer-alist
+                 `("^\\*docsim:.*"
+                   display-buffer-common-window
+                   (inhibit-same-window . nil)))
+
+
+    (add-to-list 'display-buffer-alist
+                 `("^\\*org-roam\\*$"
+                   display-buffer-common-window
+                   (inhibit-same-window . nil)))
+
+    (defun docsim--visit-link-with-org-roam-stack ()
+      "Visit the next availabile link (which is usually on the current line)."
+      (interactive)
+      (let ((beg (line-beginning-position))
+            (end (point-max))
+            link-pos)    
+        (goto-char beg)
+        (when (re-search-forward org-link-bracket-re end t)
+          (goto-char (match-beginning 0))
+          (let ((docsim-window (selected-window)))
+            (org-roam-stack--return-dwim)
+            (when docsim-window
+              (set-window-buffer docsim-window "*org-roam*"))))))
+
+    (defun docsim--safe-quit-sidebuffer ()
+      (interactive)
+      (ignore-errors (docsim--quit-sidebuffer))))
 #+end_src
 * EVAL vterm - better terminal emulation
 - installed ~cmake~, ~libvterm~ and ~libtool~ via nix-env
