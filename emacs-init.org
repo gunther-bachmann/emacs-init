@@ -3711,7 +3711,6 @@
                             '(:eval (gb/mode-line-padding))
                             right-global-mode-string)
                      mlscroll-model-line-const))
-
     #+end_src
 ** rainbow mode
    #+BEGIN_SRC emacs-lisp
@@ -8957,7 +8956,7 @@
  #+BEGIN_SRC emacs-lisp
    ;; eww background coloring (to prevent light gray background in htlm mails)
    (setq shr-color-visible-luminance-min 80)
-   (setq shr-use-fonts nil) ;; don't use proportional fonts
+   (setq shr-use-fonts t) ;; use proportional fonts for text
 
    ;; remove image from the list of inline displayed elements in mails
    (setq mm-inlined-types
@@ -9796,7 +9795,7 @@
           (advice-add 'org-src-font-lock-fontify-block :around #'gb/org-src-font-lock-fontify-block--only-if-non-folded))
 
         (setq org-file-apps (append '(("\\.sid\\'" . "sidplayfp '%s'" )
-                                      ("\\.webm\\'\\|\\.mkv\\'\\|\\.mpe?g\\'\\|\\.avi\\'\\|\\.mp4\\'\\|\\.flv\\'" . "mpv '%s'")
+                                      ("\\.webm\\'\\|\\.mkv\\'\\|\\.mpe?g\\'\\|\\.avi\\'\\|\\.mp4\\'\\|\\.flv\\'\\|\\.mov\\'" . "mpv '%s'")
                                       ("\\.d64\\'\\|\\.prg\\'" . "x64sc '%s'")
                                       ("\\.html?\\'" . "firefox '%s'")
                                       ("\\.docx?\\'\\|\\.xlsx?\\'\\|\\.pptx?\\'\\|\\.od[tps]\\'" . "soffice '%s'")
@@ -14665,7 +14664,6 @@
 
           (gb/register-global-key (kbd "H-l") #'gb/lock-screen)
           (gb/register-global-key (kbd "H-c") #'gb/mouse-pointer-to-cursor)
-          (gb/register-global-key (kbd "H-s") #'gb/slack-open-on-workspace-1)
           (gb/register-global-key (kbd "H-p") #'gb/pass-open-on-workspace-0)
           (gb/register-global-key (kbd "H-u") #'gb/firefox-open-on-workspace-1)
           (gb/register-global-key (kbd "H-m") #'gb/mail-open-on-workspace-7)
