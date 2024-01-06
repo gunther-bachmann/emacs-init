@@ -10981,6 +10981,80 @@
                           (overlay-put ov 'display "")))                    
                     (user-error msg)))))))))
   #+end_src
+- indent (source)blocks
+    #+begin_src emacs-lisp
+      (defun org-indent-region-with (start end prefix)
+        "indent the given region with the prefix string"
+        (let ((prefix-len (length prefix)))
+          (save-excursion
+            (goto-char start)
+            (beginning-of-line)
+            (while (< (point) end)
+              (insert prefix)
+              (setq end (+ end prefix-len))
+              (end-of-line)
+              (goto-char (1+ (point)))))))
+  
+      (setq org-indent-region-with (byte-compile 'org-indent-region-with))
+  
+      (defun org-unindent-region-with (start end prefix)
+        "indent the given region with the prefix string"
+        (let ((prefix-len (length prefix)))
+          (save-excursion
+            (goto-char start)
+            (beginning-of-line)
+            (while (< (point) end)
+              (when (equal (buffer-substring-no-properties (point) (+ prefix-len (point))) prefix)
+                (delete-char prefix-len)
+                (setq end (- end prefix-len)))
+              (end-of-line)
+              (goto-char (1+ (point)))))))
+  
+      (setq org-unindent-region-with (byte-compile 'org-unindent-region-with))
+  
+      (defun org-indent-block-with (&optional prefix indent-function)
+        "Indent the block at point with the given prefix string."
+        (interactive)
+        (unless (save-excursion
+                  (beginning-of-line)
+                  (let ((case-fold-search t))
+                    (looking-at-p "[ \t]*#\\+\\(begin\\|end\\)_")))
+          (user-error "Not at a block"))
+        (let ((element (org-element-at-point-no-context))
+              (actual-prefix (or prefix "  "))
+              (actual-indent-function (or indent-function #'org-indent-region-with)))
+          (unless (eq (org-element-type element) 'src-block)
+            (user-error "Not at a src-block"))
+          (org-with-wide-buffer
+           (funcall actual-indent-function
+            (org-element-property :begin element)
+            (org-element-property :end element)
+            actual-prefix))
+          (message "Block at point (un)indented with '%s'" actual-prefix)))
+  
+      (defun org-metaright-dwim (&optional arg)
+        "indent source blocks with '  '"
+        (interactive)
+        (if (org-at-block-p)
+            (let ((element (org-element-at-point-no-context)))
+              (if (eq 'src-block (org-element-type element))
+                  (org-indent-block-with "  " #'org-indent-region-with)
+                (org-metaright arg)))
+          (org-metaright arg)))
+  
+      (defun org-metaleft-dwim (&optional arg)
+        "unindent source blocks with '  '"
+        (interactive)
+        (if (org-at-block-p)
+            (let ((element (org-element-at-point-no-context)))
+              (if (eq 'src-block (org-element-type element))
+                  (org-indent-block-with "  " #'org-unindent-region-with)
+                (org-metaleft arg)))
+          (org-metaleft arg)))
+  
+      (bind-key "M-<right>" #'org-metaright-dwim 'org-mode-map)
+      (bind-key "M-<left>" #'org-metaleft-dwim 'org-mode-map)
+    #+end_src
 ** slack
  #+BEGIN_SRC emacs-lisp
    (when gb/profile--slack
