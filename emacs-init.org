@@ -17141,6 +17141,9 @@
   #+begin_src emacs-lisp
     (setq tramp-use-scp-direct-remote-copying t)
 
+    ;; patch since 2.6.2 does result in errors
+    (defun tramp-register-crypt-file-name-handle () nil)
+
     (use-package tramp-term
       :ensure t
       :commands (tramp-term))
