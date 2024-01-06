@@ -18748,6 +18748,17 @@
     :commands (justl justl-exec-recipe-in-dir)
     :bind ("C-c C-x C-j" . justl-exec-recipe-in-dir))
 #+end_src
+* EVAL transient-extras-lp
+- transient menu for printing (set page, orientation, printer etc.)
+- see https://github.com/haji-ali/transient-extras
+#+begin_src emacs-lisp
+  (use-package transient-extras-lp
+    :commands (transient-extras-lp-menu)
+    :bind (:map dired-mode-map
+                ("C-c C-p" . transient-extras-lp-menu)
+                :map pdf-misc-minor-mode-map
+                ("C-c C-p" . transient-extras-lp-menu)))
+#+end_src
 * utility functions
   - open dired to mounted folders
     #+begin_src emacs-lisp
