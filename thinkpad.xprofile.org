@@ -65,7 +65,16 @@
     export VISUAL=emacsclient
     export EDITOR="$VISUAL" #  -s $EMACS_SOCKET
     export TERM=dumb-emacs-ansi
-    export LC_COLLATE="C" # sort dot files by ls first
+
+    # reduces R startup errors
+    export LC_COLLATE="C"      # allows for sort of dot files by ls first
+    export LC_TIME="C"
+    export LC_MESSAGES="C"
+    export LC_MONETARY="C"
+    export LC_CTYPE="C"
+    export LC_PAPER="C"
+    export LC_MEASUREMENT="C"
+
     export WINEPREFIX="${HOME}/.wine32"
 
   #+end_src
