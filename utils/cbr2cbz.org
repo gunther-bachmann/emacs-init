@@ -1,0 +1,24 @@
+#+title: cbr2cbz
+* convert one cbr file into a cbz file
+#+begin_src sh :comments link :shebang "#!/usr/bin/env bash" :eval no :tangle ~/bin/cbr2cbz :tangle-mode (identity #o755)
+  #------------------------------------------------------------------
+  # THIS FILE IS GENERATED (To edit please open file from link above)
+  #------------------------------------------------------------------
+  #
+  set -euo pipefail
+  CBR="$1"
+
+  [ -f "$1" ] || { echo "'$1' not found"; exit 1; }
+  [[ "$1" = *.cbr ]] || { echo "'$1' is really a cbr file?"; exit 1; }
+
+  CBZ=`basename "$CBR" .cbr`.cbz
+  TEMPDIR=$(mktemp -d)
+
+  echo -n "converting '$CBR' to '$CBZ' ... "
+  unrar e -op${TEMPDIR} -inul "$CBR"
+  zip -j -q "$CBZ" $TEMPDIR/*
+  echo "done."
+
+  rm "${TEMPDIR}/*" &2> /dev/null
+  rmdir "${TEMPDIR}" &2> /dev/null
+#+end_src
