@@ -4,4 +4,6 @@ Files that are tangled to configure a system
   - early init
   - emacs init
   - yasnippets
-- polybar
+- polybar configuration and utility scripts
+- kmonad configuration
+- utils which is a collection of utility scripts

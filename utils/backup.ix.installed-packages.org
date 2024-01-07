@@ -1,0 +1,13 @@
+#+title: backup.ix.installed-packages
+* get all (user) installed packages from nix and guix
+  #+begin_src sh :comments link :shebang "#!/usr/bin/env bash" :eval no :tangle ~/bin/backup.ix.installed-packages.sh :tangle-mode (identity #o755)
+    #------------------------------------------------------------------
+    # THIS FILE IS GENERATED (To edit please open file from link above)
+    #------------------------------------------------------------------
+    #
+    pushd .
+    cd ~/backups
+    nix-env -q > "$(date +%Y-%m-%d)-nix-env-q.txt"
+    guix package -I > "$(date +%Y-%m-%d)-guix-package-i.txt"
+    popd
+  #+end_src

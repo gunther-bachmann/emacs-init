@@ -15,9 +15,11 @@
          -o -name '*.nix' \
          -o -name '.ssh*' \
          -o -name '.dir-locals.el' \
+         -o -name 'guix.scm' \
+         -o -name 'manifest.scm' \
          -o -name 'infinitest.*' \) \
       -and -not \( -path './nixpkgs/*' \) \
-     | tar -vczf nix_direnv.$(date +%Y-%m-%d).cfgs.tar.gz --files-from -
-    mv nix_direnv.*.cfgs.tar.gz ../backups/
+     | tar -vczf $(date +%Y-%m-%d).direnv.cfgs.tar.gz --files-from -
+    mv *.direnv.cfgs.tar.gz ../backups/
     popd
   #+end_src

@@ -7,5 +7,12 @@
     #------------------------------------------------------------------
     #
     [ -d ~/.dvdcss ] && rm -rf ~/.dvdcss
-    [ -d ~/.local/share/Trash ] rm -rf ~/.local/share/Trash
+    [ -d ~/.local/share/Trash ] && rm -rf ~/.local/share/Trash
+    [ -d ~/.cache/chromium/Default/Cache/Cache_Data ] && rm -rf ~/.cache/chromium/Default/Cache/Cache_Data
+    [ -d ~/.cache/google-chrome/Default/Cache/Cache_Data ] && rm -rf ~/.cache/google-chrome/Default/Cache/Cache_Data
+    [ -d ~/.cache/next-gtk-webkit/WebKitCache ] && rm -rf ~/.cache/next-gtk-webkit/WebKitCache
+    [ -d ~/.cache/thumbnails ] && rm -rf ~/.cache/thumbnails
+    [ -d ~/.config/mpv/watch_later ] && rm -rf ~/.config/mpv/watch_later
+    [ -d ~/.local/state/mpv/watch_later ] && rm -rf ~/.local/state/mpv/watch_later
+    echo "cleaned."
   #+end_src
