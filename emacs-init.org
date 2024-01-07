@@ -1083,6 +1083,7 @@
      (org-babel-execute-src-block))
    #+END_SRC
 ** ui
+- posframe util
    #+BEGIN_SRC emacs-lisp
      (setq gb/posframe-offset 0)
      (defun gb/posframe-poshandler-frame-center (info)
@@ -1108,7 +1109,9 @@
                                          (plist-get info :posframe-width))
                                       2))
              20))
-
+  #+end_src
+- kill buffer
+   #+BEGIN_SRC emacs-lisp
      (defun gb/kill-a-buffer-and-delete-window (askp)
        "kill the current buffer and remove the window"
        (interactive "P")
@@ -1129,7 +1132,9 @@
 
      (global-set-key (kbd "C-x k") 'gb/kill-a-buffer)
      (global-set-key (kbd "C-x C-k") 'gb/kill-a-buffer-and-delete-window)
-
+  #+end_src
+- finge color
+   #+BEGIN_SRC emacs-lisp
      (defun gb/set-fringe-bg-color (color-or-symbol)
        (cond
         ((stringp color-or-symbol)
