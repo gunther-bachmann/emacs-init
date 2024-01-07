@@ -15258,6 +15258,7 @@
 
         (defun gb/presentation--set-bg-color (col)
           (set-background-color col)
+          (set-face-background 'fringe col)
           (setq gb/presentation-face-remap-cookie (face-remap-add-relative 'org-hide `(:foreground ,col :background ,col))))
 
         (defun gb/set-fringe-mode-on (aframe value)
@@ -15279,6 +15280,9 @@
                     (message msg)))
           (mlscroll-mode 0)
           (global-git-gutter-mode 0)
+          (when (fboundp 'gb/selected-window-accent)
+            (remove-hook 'window-state-change-hook 'gb/selected-window-accent)
+            (gb/remove-window-accent))
           (when (boundp 'org-bullets-mode)
             (set (make-local-variable 'org-bullets-bullet-list-old) org-bullets-bullet-list)
             (set (make-local-variable 'org-bullets-bullet-list) '(" " " " " " " " " " " " " " " " " " " " " " " " " " " " " " " " " " " " " " " ")))
@@ -15329,7 +15333,7 @@
           (if gb/org-indent
               (org-indent-mode 1)
             (org-indent-mode -1))
-          (when (boundp 'gb/presentation-bg-color)
+          (if (boundp 'gb/presentation-bg-color)
             (let ((bg-color gb/presentation-bg-color))
               ;; (gb/set-fringe-bg-color gb/presentation-bg-color)
               (gb/presentation--set-bg-color bg-color)
@@ -15339,7 +15343,8 @@
               (setq gb/presentation-tree-slide-empty-line (face-remap-add-relative 'org-tree-slide-header-overlay-face `(:background ,bg-color :foreground ,bg-color)))
               (setq gb/presentation-tree-slide-default (face-remap-add-relative 'default `(:background ,bg-color :foreground "#FFFFFF")))
               (setq gb/presentation-mode-line-bg-remap-cookie (face-remap-add-relative 'mode-line `(:background ,bg-color)))
-              (setq gb/presentation-mode-line-in-bg-remap-cookie (face-remap-add-relative 'mode-line-inactive `(:background ,bg-color)))))
+              (setq gb/presentation-mode-line-in-bg-remap-cookie (face-remap-add-relative 'mode-line-inactive `(:background ,bg-color))))
+            (gb/presentation--set-bg-color "#141618"))
           (when (boundp 'gb/presentation-l1-color)
             (setq gb/presentation-l1-remap-cookie (face-remap-add-relative 'org-level-1 `(:foreground ,gb/presentation-l1-color))))
           ;; todo: react to locally defined variables in presentation itself
@@ -15411,6 +15416,9 @@
           (gb/org-drawers-visibility-set t)
           (toggle-truncate-lines 1)
           (gb/presentation-restore-unwanted)
+          (when (fboundp 'gb/selected-window-accent)
+            (add-hook 'window-state-change-hook 'gb/selected-window-accent)
+            (gb/add-window-accent))
           (mlscroll-mode 1)))
     #+end_src
   - disabled original package
@@ -18945,6 +18953,32 @@
         "de-urlencode the region between START and END in current buffer."
         (interactive "r")
         (func-region start end #'url-unhex-string))
+    #+end_src
+  - accenting windows
+    copied from  https://www.emacs.dyerdwelling.family/emacs/20231221210441-emacs--selected-window-accent/
+    #+begin_src emacs-lisp
+      (defun gb/remove-window-accent (&optional window)
+        (set-window-margins (or window (selected-window)) 2 1)
+        (set-window-fringes (or window (selected-window)) 0 0 t nil))
+
+      (defun gb/add-window-accent (&optional window)
+        (set-window-margins (or window (selected-window)) 1 1)
+        (set-window-fringes (or window (selected-window)) 8 0 t nil))
+
+      (defun gb/selected-window-accent ()
+        (interactive)
+        (set-face-background 'fringe "#402040")
+        (when (or exwm-class-name (and (windmove-find-other-window 'left)
+                                    (with-selected-window (windmove-find-other-window 'left) exwm-class-name)))
+          (set-face-background 'fringe "orange3"))
+        (walk-windows
+         (lambda (window)
+           (if (eq window (selected-window))
+               (gb/add-window-accent window)
+             (gb/remove-window-accent window)))
+         nil t))
+
+      (add-hook 'window-state-change-hook 'gb/selected-window-accent)
     #+end_src
   - create racket based cli script file (like org capture)
     #+begin_src emacs-lisp
