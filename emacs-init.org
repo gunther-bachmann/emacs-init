@@ -10982,10 +10982,26 @@
                              (1+ start))))
                   (if (re-search-forward "^[ \t]*:END:" limit t)
                       (if visible
-                          (remove-overlays start (point-at-eol))
-                        (let ((ov (make-overlay start (point-at-eol))))
+                          (remove-overlays start (line-end-position))
+                        (let ((ov (make-overlay start (line-end-position))))
                           (overlay-put ov 'display "")))                    
                     (user-error msg)))))))))
+  #+end_src
+- hide/show special proplines starging with ~#+~ PROP ~:~
+  #+begin_src emacs-lisp
+    (defconst org-block-prefix-regexp "^[ 	]*#\\+")
+    (defun gb/org-propline-visibility-set (visible prop)
+      "hide/show drawers completely"
+      (when (and (derived-mode-p 'org-mode))
+        (save-excursion
+          (let ((line-regexp (format "%s%s:" org-block-prefix-regexp (regexp-quote prop))))
+            (goto-char (point-min))
+            (while (re-search-forward line-regexp (point-max) t)
+              (save-excursion            
+                (if visible
+                    (remove-overlays (1- (line-beginning-position)) (line-end-position))
+                  (let ((ov (make-overlay (1- (line-beginning-position)) (line-end-position))))
+                    (overlay-put ov 'display "")))))))))
   #+end_src
 - indent (source)blocks
     #+begin_src emacs-lisp
@@ -15146,13 +15162,13 @@
 
           (bind-key "<f1>" #'hydra-tree-slide/body org-tree-slide-mode-map))
 
-        (advice-add 'org-tree-slide-move-next-tree :after #'gb/presentation-hide-tags)
+        (advice-add 'org-tree-slide-move-next-tree :after #'gb/presentation-hide-unwanted)
         (when (fboundp 'valign-mode)
           (add-hook 'org-tree-slide-after-narrow-hook #'gb/align-all-tables)
           (advice-add 'org-tree-slide-move-next-tree :after #'gb/align-all-tables))
-        (advice-add 'org-tree-slide-move-previous-tree :after #'gb/presentation-hide-tags)
-        (advice-add 'org-tree-slide-content :after #'gb/presentation-hide-tags)
-        (add-hook 'org-tree-slide-while-animation-sitting-hook #'gb/presentation-hide-tags)
+        (advice-add 'org-tree-slide-move-previous-tree :after #'gb/presentation-hide-unwanted)
+        (advice-add 'org-tree-slide-content :after #'gb/presentation-hide-unwanted)
+        (add-hook 'org-tree-slide-while-animation-sitting-hook #'gb/presentation-hide-unwanted)
 
         (defconst gb/presentation-speaker-notes-buffer-name "* speaker notes *" "name of the buffer for speaker notes")
 
@@ -15188,9 +15204,17 @@
         (advice-add 'org-tree-slide-move-next-tree :after #'gb/presentation-sync-speaker-notes)
         (advice-add 'org-tree-slide-move-previous-tree :after #'gb/presentation-sync-speaker-notes)
 
-        (defun gb/presentation-hide-tags (&rest args)
+        (defun gb/presentation-hide-unwanted (&rest args)
+          (when (fboundp 'gb/org-propline-visibility-set)
+            (gb/org-propline-visibility-set nil "LATEX_HEADER"))
           (when (fboundp 'org-hide-tags--update-headings)
             (org-hide-tags--update-headings t)))
+
+        (defun gb/presentation-restore-unwanted (&rest args)
+          (when (fboundp 'gb/org-propline-visibility-set)
+            (gb/org-propline-visibility-set t "LATEX_HEADER"))
+          (when (fboundp 'org-hide-tags--update-headings)
+            (org-hide-tags--update-headings nil)))
 
         (defun gb/presentation-reset-timer ()
           "reset the timer for the presentation"
@@ -15322,6 +15346,8 @@
           (setq org-tree-slide-pauses--distance-color-values '("white" "gray80" "gray70"))
           (setq org-tree-slide-pauses--disabled-color-value "gray50")
           (setq inhibit-message t)
+          (when (fboundp 'org-hide-tags-mode)
+            (org-hide-tags-mode t))
           (org-tree-slide-content))
 
         (defun gb/presentation-off ()
@@ -15384,6 +15410,7 @@
             (org-hide-tags-mode -1))
           (gb/org-drawers-visibility-set t)
           (toggle-truncate-lines 1)
+          (gb/presentation-restore-unwanted)
           (mlscroll-mode 1)))
     #+end_src
   - disabled original package
