@@ -18963,11 +18963,11 @@
     copied from  https://www.emacs.dyerdwelling.family/emacs/20231221210441-emacs--selected-window-accent/
     #+begin_src emacs-lisp
       (defun gb/remove-window-accent (&optional window)
-        (set-window-margins (or window (selected-window)) 2 1)
+        (set-window-margins (or window (selected-window)) 2 0)
         (set-window-fringes (or window (selected-window)) 0 0 t nil))
 
       (defun gb/add-window-accent (&optional window)
-        (set-window-margins (or window (selected-window)) 1 1)
+        (set-window-margins (or window (selected-window)) 1 0)
         (set-window-fringes (or window (selected-window)) 8 0 t nil))
 
       (defun gb/selected-window-accent ()
