@@ -18809,204 +18809,204 @@
                 ("C-c C-p" . transient-extras-lp-menu)))
 #+end_src
 * utility functions
-  - open dired to mounted folders
-    #+begin_src emacs-lisp
-      (defun gb/select-mounted-folder ()
-        "open dired folder selection on mount point for media"
+- open dired to mounted folders
+  #+begin_src emacs-lisp
+    (defun gb/select-mounted-folder ()
+      "open dired folder selection on mount point for media"
+      (interactive)
+      (let ((uname (user-login-name)))
+        (when (file-exists-p (format "/run/media/%s" uname))
+          (safe-shell-command-to-string (format "sudo chown %s:users /run/media/%s/" uname uname)))
+        (let ((default-directory (format "/run/media/%s" uname)))
+          (call-interactively #'dired))))
+  #+end_src
+- resize image and adjust org link automatically
+  #+begin_src emacs-lisp
+    (defun gb/resize-current-image ()
+      "resize image currently open and save the converted"
+      (interactive)
+      (unless (gb/resize-image (buffer-file-name))
+        (message "failed (file-name? image magick installed?)")))
+
+    (defun gb/resize-image (file-name)
+      "resize the given image, select max height/width interactively, keep aspect ratio"
+      (when (and file-name (--all? (executable-find it) '("identify" "convert")))      
+        (when-let* ((orig-size (safe-shell-command-to-string (concat "identify -format '%wx%h' " file-name)))
+                    (new-size (completing-read (format "original size %s -> target size (max width height, keeping aspect ratio): " orig-size) '("200" "300" "400") nil nil))
+                    (fbn (file-name-base file-name))
+                    (folder (file-name-directory file-name))
+                    (new-name (format "%s%s.%s.png" folder fbn new-size)))
+          (message (format "transformation complete to %s, result '%s'"
+                           new-name
+                           (safe-shell-command-to-string (format "convert %s -resize %sx%s %s" file-name new-size new-size new-name))))
+          new-name)))
+
+    (defun gb/resize-image-in-org ()
+      "resize image referenced by org link at point, replace link to resized image"
+      (interactive)
+      (when-let* ((context (org-element-context))
+                  (path (org-element-property :path context))
+                  (new-name (gb/resize-image path))
+                  (_ (message "copy context"))
+                  (new-context (org-element-copy context))
+                  (beg (org-element-property :begin (org-element-at-point)))
+                  (end (org-element-property :end (org-element-at-point))))
+        (org-element-put-property new-context :path new-name)
+        (org-element-set-element context new-context)
+        (goto-char beg)
+        (kill-region beg end)
+        (insert (org-element-interpret-data  new-context)))) 
+  #+end_src
+- dosbox
+  #+begin_src emacs-lisp
+    (defun gb/dosbox ()
+      (interactive)
+      (when (fboundp 'gb/reset-touchpad-processing)
+        (gb/reset-touchpad-processing))
+      (gb/compositor-disable)
+      (async-shell-command "dosbox"))
+  #+end_src
+- en/disable touchpad depending on currently visited buffer
+  #+begin_src emacs-lisp
+    (if (not (executable-find "set-touchpad"))
+        (message "[off] enable touchpad en/disable depending on buffer type")
+      (message "[on] enable touchpad en/disable depending on buffer type")
+
+      (setq touchpad-active (string-equal "on" (string-trim (safe-shell-command-to-string "get-touchpad"))))
+
+      (defun gb/touchpad-mouse-auto-disable-on ()
         (interactive)
-        (let ((uname (user-login-name)))
-          (when (file-exists-p (format "/run/media/%s" uname))
-            (safe-shell-command-to-string (format "sudo chown %s:users /run/media/%s/" uname uname)))
-          (let ((default-directory (format "/run/media/%s" uname)))
-            (call-interactively #'dired))))
-    #+end_src
-  - resize image and adjust org link automatically
-    #+begin_src emacs-lisp
-      (defun gb/resize-current-image ()
-        "resize image currently open and save the converted"
-        (interactive)
-        (unless (gb/resize-image (buffer-file-name))
-          (message "failed (file-name? image magick installed?)")))
-
-      (defun gb/resize-image (file-name)
-        "resize the given image, select max height/width interactively, keep aspect ratio"
-        (when (and file-name (--all? (executable-find it) '("identify" "convert")))      
-          (when-let* ((orig-size (safe-shell-command-to-string (concat "identify -format '%wx%h' " file-name)))
-                      (new-size (completing-read (format "original size %s -> target size (max width height, keeping aspect ratio): " orig-size) '("200" "300" "400") nil nil))
-                      (fbn (file-name-base file-name))
-                      (folder (file-name-directory file-name))
-                      (new-name (format "%s%s.%s.png" folder fbn new-size)))
-            (message (format "transformation complete to %s, result '%s'"
-                             new-name
-                             (safe-shell-command-to-string (format "convert %s -resize %sx%s %s" file-name new-size new-size new-name))))
-            new-name)))
-
-      (defun gb/resize-image-in-org ()
-        "resize image referenced by org link at point, replace link to resized image"
-        (interactive)
-        (when-let* ((context (org-element-context))
-                    (path (org-element-property :path context))
-                    (new-name (gb/resize-image path))
-                    (_ (message "copy context"))
-                    (new-context (org-element-copy context))
-                    (beg (org-element-property :begin (org-element-at-point)))
-                    (end (org-element-property :end (org-element-at-point))))
-          (org-element-put-property new-context :path new-name)
-          (org-element-set-element context new-context)
-          (goto-char beg)
-          (kill-region beg end)
-          (insert (org-element-interpret-data  new-context)))) 
-    #+end_src
-  - dosbox
-    #+begin_src emacs-lisp
-      (defun gb/dosbox ()
-        (interactive)
-        (when (fboundp 'gb/reset-touchpad-processing)
-          (gb/reset-touchpad-processing))
-        (gb/compositor-disable)
-        (async-shell-command "dosbox"))
-    #+end_src
-  - en/disable touchpad depending on currently visited buffer
-    #+begin_src emacs-lisp
-      (if (not (executable-find "set-touchpad"))
-          (message "[off] enable touchpad en/disable depending on buffer type")
-        (message "[on] enable touchpad en/disable depending on buffer type")
-
-        (setq touchpad-active (string-equal "on" (string-trim (safe-shell-command-to-string "get-touchpad"))))
-
-        (defun gb/touchpad-mouse-auto-disable-on ()
-          (interactive)
-          (gb/set-touchpad-processing))
-
-        (defun gb/touchpad-mouse-auto-disable-off ()
-          (interactive)
-          (gb/reset-touchpad-processing))
-
-        (defun gb/reset-touchpad-processing ()
-          (ignore-errors
-            (remove-hook 'kill-buffer-hook #'gb/delayed-touchpad-hook)
-            (remove-hook 'buffer-list-update-hook #'gb/update-touchpad)
-            (gb/touchpad-on)))
-
-        (add-hook 'kill-emacs-hook #'gb/reset-touchpad-processing)
-
-        (defun gb/set-touchpad-processing ()
-          (add-hook 'buffer-list-update-hook #'gb/update-touchpad)
-          (add-hook 'kill-buffer-hook #'gb/delayed-touchpad-hook))
-
-        (defun gb/delayed-touchpad-hook ()
-          "run the update touchpad hook, delayed
-
-      this ensures that closed floating windows will not result
-      in disabled touchpads (in exwm apps)"
-          (run-at-time 0.1 nil #'gb/update-touchpad))
-
-        (add-to-list 'gb/execute-on-soft-reset #'gb/reset-touchpad-processing)
-
-        (defun gb/touchpad-on ()
-          "switch the touchpad on"
-          (interactive)
-          (safe-shell-command-to-string (format "set-touchpad on"))
-          (setq touchpad-active t))
-
-        (defun gb/touchpad-off ()
-          "switch the touchpad off"
-          (interactive)
-          (safe-shell-command-to-string (format "set-touchpad off"))
-          (setq touchpad-active nil))
-
-        (defun gb/touchpad-toggle ()
-          "toggle the touchpad status"
-          (interactive)
-          (safe-shell-command-to-string (format "set-touchpad"))
-          (setq touchpad-active (not touchpad-active)))
-
-        (bind-key "C-x t t" #'gb/touchpad-toggle)
-
-        (defun gb/update-touchpad ()
-          "set the touchpad status depending on the buffer type
-
-      enable touchpad for exwm buffers
-      disable touchpad for all other buffers"
-          (let* ((should-activate-touchpad (or (exwm--buffer->id (current-buffer))
-                                              (eq major-mode 'pdf-view-mode))))
-            (when (and (not (bound-and-true-p gb/running-exwm-monitor-setup))
-                     (xor should-activate-touchpad touchpad-active))
-              (ignore-errors
-                (with-ignored-messages
-                 (safe-shell-command-to-string (format "set-touchpad %s" (if should-activate-touchpad "on" "off")))
-                 (setq touchpad-active should-activate-touchpad)))))
-          t)
-
         (gb/set-touchpad-processing))
-    #+end_src
-  - de/encode URL (parameter)
-    see https://stackoverflow.com/questions/611831/how-can-i-url-decode-a-string-in-emacs-lisp
-    #+begin_src emacs-lisp
-      (defun func-region (start end func)
-        "run a function over the region between START and END in current buffer."
-        (save-excursion
-          (let ((text (delete-and-extract-region start end)))
-            (insert (funcall func text)))))
 
-      (defun url-encode-region (start end)
-        "urlencode the region between START and END in current buffer."
-        (interactive "r")
-        (func-region start end #'url-hexify-string))
-
-      (defun url-decode-region (start end)
-        "de-urlencode the region between START and END in current buffer."
-        (interactive "r")
-        (func-region start end #'url-unhex-string))
-    #+end_src
-  - accenting windows
-    copied from  https://www.emacs.dyerdwelling.family/emacs/20231221210441-emacs--selected-window-accent/
-    #+begin_src emacs-lisp
-      (defun gb/remove-window-accent (&optional window)
-        (set-window-margins (or window (selected-window)) 2 0)
-        (set-window-fringes (or window (selected-window)) 0 0 t nil))
-
-      (defun gb/add-window-accent (&optional window)
-        (set-window-margins (or window (selected-window)) 1 0)
-        (set-window-fringes (or window (selected-window)) 8 0 t nil))
-
-      (defun gb/selected-window-accent ()
+      (defun gb/touchpad-mouse-auto-disable-off ()
         (interactive)
-        (set-face-background 'fringe "#402040")
-        (when (or exwm-class-name (and (windmove-find-other-window 'left)
-                                    (with-selected-window (windmove-find-other-window 'left) exwm-class-name)))
-          (set-face-background 'fringe "orange3"))
-        (walk-windows
-         (lambda (window)
-           (if (eq window (selected-window))
-               (gb/add-window-accent window)
-             (gb/remove-window-accent window)))
-         nil t))
+        (gb/reset-touchpad-processing))
 
-      (add-hook 'window-state-change-hook 'gb/selected-window-accent)
-    #+end_src
-  - create racket based cli script file (like org capture)
-    #+begin_src emacs-lisp
-      (require 'dash)
-      (when (--all-p #'package-installed-p '(magit org yasnippet))
-        (defun gb/capture-new-script-file ()
-          "create a new script file, based on templates"
-          (interactive)
-          (let ((originating-buffer-name (buffer-name)))
-            (if-let* ((repo-location (cdr (assoc "emacs-init" (magit-repos-alist))))
-                      (script-name (read-string "script-name (no extension, no spaces): "))
-                      (_ (string-match-p "^[a-zA-Z0-9-.]+$" script-name)))
-                (progn
-                  (find-file (expand-file-name (format "%s.org" script-name) (format "%s/utils/" repo-location)))
-                  (yas-expand-snippet (slurp (format "%s/utils/racket-cli-script.template.org" repo-location))
-                                      nil nil                              
-                                      `((script-name ,script-name)
-                                        (timestamp ,(format-time-string  "%FT%T%z"))
-                                        (date ,(format-time-string "%F"))
-                                        (time ,(format-time-string "%T"))
-                                        (originating-buffer-name ,originating-buffer-name))))
-              (message "repo 'emacs-init' not found or script name invalid.")))))
-    #+end_src
+      (defun gb/reset-touchpad-processing ()
+        (ignore-errors
+          (remove-hook 'kill-buffer-hook #'gb/delayed-touchpad-hook)
+          (remove-hook 'buffer-list-update-hook #'gb/update-touchpad)
+          (gb/touchpad-on)))
+
+      (add-hook 'kill-emacs-hook #'gb/reset-touchpad-processing)
+
+      (defun gb/set-touchpad-processing ()
+        (add-hook 'buffer-list-update-hook #'gb/update-touchpad)
+        (add-hook 'kill-buffer-hook #'gb/delayed-touchpad-hook))
+
+      (defun gb/delayed-touchpad-hook ()
+        "run the update touchpad hook, delayed
+
+    this ensures that closed floating windows will not result
+    in disabled touchpads (in exwm apps)"
+        (run-at-time 0.1 nil #'gb/update-touchpad))
+
+      (add-to-list 'gb/execute-on-soft-reset #'gb/reset-touchpad-processing)
+
+      (defun gb/touchpad-on ()
+        "switch the touchpad on"
+        (interactive)
+        (safe-shell-command-to-string (format "set-touchpad on"))
+        (setq touchpad-active t))
+
+      (defun gb/touchpad-off ()
+        "switch the touchpad off"
+        (interactive)
+        (safe-shell-command-to-string (format "set-touchpad off"))
+        (setq touchpad-active nil))
+
+      (defun gb/touchpad-toggle ()
+        "toggle the touchpad status"
+        (interactive)
+        (safe-shell-command-to-string (format "set-touchpad"))
+        (setq touchpad-active (not touchpad-active)))
+
+      (bind-key "C-x t t" #'gb/touchpad-toggle)
+
+      (defun gb/update-touchpad ()
+        "set the touchpad status depending on the buffer type
+
+    enable touchpad for exwm buffers
+    disable touchpad for all other buffers"
+        (let* ((should-activate-touchpad (or (exwm--buffer->id (current-buffer))
+                                            (eq major-mode 'pdf-view-mode))))
+          (when (and (not (bound-and-true-p gb/running-exwm-monitor-setup))
+                   (xor should-activate-touchpad touchpad-active))
+            (ignore-errors
+              (with-ignored-messages
+               (safe-shell-command-to-string (format "set-touchpad %s" (if should-activate-touchpad "on" "off")))
+               (setq touchpad-active should-activate-touchpad)))))
+        t)
+
+      (gb/set-touchpad-processing))
+  #+end_src
+- de/encode URL (parameter)
+  see https://stackoverflow.com/questions/611831/how-can-i-url-decode-a-string-in-emacs-lisp
+  #+begin_src emacs-lisp
+    (defun func-region (start end func)
+      "run a function over the region between START and END in current buffer."
+      (save-excursion
+        (let ((text (delete-and-extract-region start end)))
+          (insert (funcall func text)))))
+
+    (defun url-encode-region (start end)
+      "urlencode the region between START and END in current buffer."
+      (interactive "r")
+      (func-region start end #'url-hexify-string))
+
+    (defun url-decode-region (start end)
+      "de-urlencode the region between START and END in current buffer."
+      (interactive "r")
+      (func-region start end #'url-unhex-string))
+  #+end_src
+- accenting windows
+  copied from  https://www.emacs.dyerdwelling.family/emacs/20231221210441-emacs--selected-window-accent/
+  #+begin_src emacs-lisp
+    (defun gb/remove-window-accent (&optional window)
+      (set-window-margins (or window (selected-window)) 2 0)
+      (set-window-fringes (or window (selected-window)) 0 0 t nil))
+
+    (defun gb/add-window-accent (&optional window)
+      (set-window-margins (or window (selected-window)) 1 0)
+      (set-window-fringes (or window (selected-window)) (frame-char-width) 0 t nil))
+
+    (defun gb/selected-window-accent ()
+      (interactive)
+      (set-face-background 'fringe "#402040")
+      (when (or exwm-class-name (and (windmove-find-other-window 'left)
+                                  (with-selected-window (windmove-find-other-window 'left) exwm-class-name)))
+        (set-face-background 'fringe "orange3"))
+      (walk-windows
+       (lambda (window)
+         (if (eq window (selected-window))
+             (gb/add-window-accent window)
+           (gb/remove-window-accent window)))
+       nil t))
+
+    (add-hook 'window-state-change-hook 'gb/selected-window-accent)
+  #+end_src
+- create racket based cli script file (like org capture)
+  #+begin_src emacs-lisp
+    (require 'dash)
+    (when (--all-p #'package-installed-p '(magit org yasnippet))
+      (defun gb/capture-new-script-file ()
+        "create a new script file, based on templates"
+        (interactive)
+        (let ((originating-buffer-name (buffer-name)))
+          (if-let* ((repo-location (cdr (assoc "emacs-init" (magit-repos-alist))))
+                    (script-name (read-string "script-name (no extension, no spaces): "))
+                    (_ (string-match-p "^[a-zA-Z0-9-.]+$" script-name)))
+              (progn
+                (find-file (expand-file-name (format "%s.org" script-name) (format "%s/utils/" repo-location)))
+                (yas-expand-snippet (slurp (format "%s/utils/racket-cli-script.template.org" repo-location))
+                                    nil nil                              
+                                    `((script-name ,script-name)
+                                      (timestamp ,(format-time-string  "%FT%T%z"))
+                                      (date ,(format-time-string "%F"))
+                                      (time ,(format-time-string "%T"))
+                                      (originating-buffer-name ,originating-buffer-name))))
+            (message "repo 'emacs-init' not found or script name invalid.")))))
+  #+end_src
 * INTERESTING
 ** ai
 - starhugger - Hugging Face/AI-powered text & code completion client 
