@@ -18808,6 +18808,44 @@
                 :map pdf-misc-minor-mode-map
                 ("C-c C-p" . transient-extras-lp-menu)))
 #+end_src
+* EVAL ellama
+- see https://www.rahuljuliato.com/posts/ellama
+- install ollama ~nix-env -i ollama~
+- install langauge model ~ollama pull codellama~, or ~ollama pull llama2~
+- see here for more models https://ollama.ai/library
+- to use, startup server via ~ollama serve~ and then run one llm e.g. via ~ollama run codellama~
+#+begin_src emacs-lisp
+  (use-package llm
+    :ensure t
+    :config
+    (make-llm-chat-prompt)
+    (llm-chat))
+
+  (use-package ellama
+    :ensure t
+    :init
+    (setopt ellama-language "English")
+    (require 'llm-ollama)
+    (setopt ellama-provider
+            (make-llm-ollama
+             :chat-model "codellama" :embedding-model "codellama"))  
+
+    (defun ollama-server-on ()
+      (interactive)
+      (start-process "ollama server" "*ollama server*" "ollama" "serve")
+      (message "wait for 5 seconds for ollama server to settle")
+      (sit-for 5)
+      (message "starting language model codellama")
+      (start-process "codellama" "*codellama*" "ollama" "run" "codellama"))
+  
+    (defun ollama-server-off ()
+      (interactive)
+      (kill-process "*codellama*")
+      (kill-buffer "*codellama*")
+      (kill-process "*ollama server*")
+      (kill-buffer "*ollama server*")))
+
+#+end_src
 * utility functions
 - open dired to mounted folders
   #+begin_src emacs-lisp
