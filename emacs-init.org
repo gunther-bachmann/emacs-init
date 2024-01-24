@@ -12799,7 +12799,11 @@
        (require 'emms-setup)
        (setq emms-mode-line-icon-color "goldenrod4")
        (emms-all)
-       (emms-default-players)
+       ;; (emms-default-players) ;; don't install all player, user mpv only (see below)
+       (setq-default emms-player-list '(emms-player-mpv)
+                 emms-player-mpv-environment '("PULSE_PROP_media.role=music")
+                 emms-player-mpv-parameters '("--quiet" "--really-quiet" "--no-config"
+                                              "--no-audio-display" "--force-window=no" "--vo=null"))
        (setq emms-source-file-default-directory "~/music/")
        (setq emms-playlist-buffer-name "*Music*")
        (setq emms-info-asynchronously t)
@@ -18500,13 +18504,6 @@
 #+begin_src emacs-lisp
   (use-package git-related
     :load-path "~/.emacs.d/additionals/")
-#+end_src
-* EVAL mpvi - control mpv (seek, play, pause ...)
-- see https://github.com/lorniu/mpvi/blob/master/README-en.md for controls etc.
-#+begin_src emacs-lisp
-  (use-package mpvi
-    :ensure t
-    :defer t)
 #+end_src
 * EVAL media-progress-dired
 - see https://github.com/jumper047/media-progress
