@@ -11614,12 +11614,33 @@
     (setq ido-use-faces nil)
     (setq org-completion-use-ido t))   
    #+END_SRC
+* async
+#+begin_src emacs-lisp
+  (use-package async
+    :ensure t
+    :custom (async-prompt-for-password . nil) ;; TODO: add all async requirements, otherwise this will not work
+    :init
+    ;; copied from https://www.emacs.dyerdwelling.family/emacs/20240120084016-emacs--dired-async-mode/
+    ;; make end of async processing more prominently reported
+    (defun gb/dired-async-mode-line-message (text face &rest args)
+      "Notify end of async operation in `mode-line'."
+      (let* ((gb/message "Dired Async has finished!!")
+             (mode-line-format (concat
+                                " " (propertize
+                                     gb/message
+                                     'face
+                                     '(:background "#ff0000" :foreground "#ffffff" :inherit bold)
+                                     ))))
+        (message gb/message)
+        (force-mode-line-update)
+        (sit-for 8)
+        (force-mode-line-update)))
+    (setq dired-async-message-function 'gb/dired-async-mode-line-message)
+    (setq dired-async-large-file-warning-threshold 100000000))
+#+end_src
 * helm
 ** helm
    #+BEGIN_SRC emacs-lisp
-     (use-package async
-       :ensure t
-       :custom (async-prompt-for-password . nil)) ;; TODO: add all async requirements, otherwise this will not work
      (use-package popup
        :ensure t)
      ;;  (use-package helm-core
@@ -12164,11 +12185,13 @@
        :init
        (add-hook 'dired-mode-hook 'auto-revert-mode)
        (add-hook 'dired-mode-hook 'dired-omit-mode)
+       (add-hook 'dired-mode-hook 'dired-async-mode) ;; provided by package async
        (defun gb/dired-open-media ()
          "open mount point for media in separate dired window"
          (interactive)
          (dired (format "/run/media/%s" (user-login-name))))
        :config
+
        (setq dired-omit-size-limit 60000)
        (setq dired-dwim-target t) ;; try to guess the directory to use for dired
        (setq dired-listing-switches "-Alh --group-directories-first") ;; default switches for ls to be used for dired listing
@@ -12846,31 +12869,6 @@
 #+BEGIN_SRC emacs-lisp
 (report-elapsed "check point - screen cast")
 #+END_SRC
-** async dired (execute several copy/zip etc. tasks asynchronously)
-   - see [[https://vxlabs.com/2018/03/30/asynchronous-rsync-with-emacs-dired-and-tramp/][here]], [[https://truongtx.me/tmtxt-dired-async.html][here]] and [[https://truongtx.me/tmtxt-async-tasks.html][here]]
-   - install elisp files
-     git clone https://github.com/tmtxt/tmtxt-async-tasks.git
-     git clone https://github.com/tmtxt/tmtxt-dired-async.git
-   #+BEGIN_SRC emacs-lisp
-   (when (and (file-exists-p "~/.emacs.d/additionals/tmtxt-async-tasks/tmtxt-async-tasks.el")
-           (file-exists-p "~/.emacs.d/additionals/tmtxt-dired-async/tmtxt-dired-async.el"))
-     (progn
-       (use-package tmtxt-async-tasks
-         :load-path "~/.emacs.d/additionals/tmtxt-async-tasks/")
-       (use-package tmtxt-dired-async
-         :after ( tmtxt-async-tasks dired)
-         :load-path "~/.emacs.d/additionals/tmtxt-dired-async/"
-         :bind (:map dired-mode-map
-              ("C-c C-r" . tda/rsync)
-              ("C-c C-z" . tda/zip)
-              ("C-c C-u" . tda/unzip)
-              ("C-c C-a" . tda/rsync-multiple-mark-file)
-              ("C-c C-e" . tda/rysnc-multiple-empty-list)
-              ("C-c C-d" . tda/rsync-multiple-remove-item)
-              ("C-c C-v" . tda/rsync-multiple)
-              ("C-c C-s" . tda/get-files-size)
-              ("C-c C-q" . tda/download-to-current-dir)))))
-   #+END_SRC
 ** info colors
    #+BEGIN_SRC emacs-lisp
      (use-package info-colors
