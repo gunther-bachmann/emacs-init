@@ -18851,6 +18851,19 @@
       (kill-buffer "*ollama server*")))
 
 #+end_src
+* own 6510 tooling integration
+- integration stuff for the racket 6510 project
+#+begin_src emacs-lisp
+  (use-package 6510-emacs-integration
+    :load-path "~/repo/+1/6510/src/tools/"
+    :init
+    (setopt
+     display-buffer-alist
+     '(("^\\* 6510 processor \\*$"
+        (display-buffer-below-selected display-buffer-at-bottom)
+        (inhibit-same-window . t)
+        (window-height . 6)))))
+#+end_src
 * utility functions
 - open dired to mounted folders
   #+begin_src emacs-lisp
