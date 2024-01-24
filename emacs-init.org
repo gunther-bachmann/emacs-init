@@ -10910,7 +10910,7 @@
       (use-package org-appear
         :after org
         :ensure t
-        :hook (org-mode . org-appear-mode)
+        ;; :hook (org-mode . org-appear-mode)
         :custom (org-appear-autosubmarkers t))
     #+end_src
 *** org hide tags 
