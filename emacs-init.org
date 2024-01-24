@@ -20060,7 +20060,7 @@
    :disabled t
    :after ( guide-key))
  #+END_SRC
-** DISABLED treemacs (start with C-x t t)
+** treemacs (start with C-x t t)
    - see [[https://github.com/Alexander-Miller/treemacs][here]]
    #+begin_src emacs-lisp :tangle no
      (use-package treemacs
@@ -20300,7 +20300,7 @@
      ;;   :after treemacs lsp-mode
      ;;   :ensure t)
    #+end_src
-** DISABLED pdf-view-restore 
+** pdf-view-restore 
    - stores .pdf-view-restore in each folder where pdfs are opened!
    #+begin_src emacs-lisp :tangle no
    (use-package pdf-view-restore
@@ -20315,6 +20315,40 @@
       :ensure t
       :commands (esup))
   #+end_src
+** mpvi - control mpv (seek, play, pause ...)
+- see https://github.com/lorniu/mpvi/blob/master/README-en.md for controls etc.
+- uses deprecated features of emms! function emms-player-mpv-ipc-fifo-p was set deprecated long ago
+#+begin_src emacs-lisp :tangle no
+  (use-package mpvi
+    :ensure t
+    :defer t)
+#+end_src
+** async dired (execute several copy/zip etc. tasks asynchronously)
+   - see [[https://vxlabs.com/2018/03/30/asynchronous-rsync-with-emacs-dired-and-tramp/][here]], [[https://truongtx.me/tmtxt-dired-async.html][here]] and [[https://truongtx.me/tmtxt-async-tasks.html][here]]
+   - install elisp files
+     git clone https://github.com/tmtxt/tmtxt-async-tasks.git
+     git clone https://github.com/tmtxt/tmtxt-dired-async.git
+   - dired async mode does the job (part of the package async)
+   #+BEGIN_SRC emacs-lisp :tangle no
+   (when (and (file-exists-p "~/.emacs.d/additionals/tmtxt-async-tasks/tmtxt-async-tasks.el")
+           (file-exists-p "~/.emacs.d/additionals/tmtxt-dired-async/tmtxt-dired-async.el"))
+     (progn
+       (use-package tmtxt-async-tasks
+         :load-path "~/.emacs.d/additionals/tmtxt-async-tasks/")
+       (use-package tmtxt-dired-async
+         :after ( tmtxt-async-tasks dired)
+         :load-path "~/.emacs.d/additionals/tmtxt-dired-async/"
+         :bind (:map dired-mode-map
+              ("C-c C-r" . tda/rsync)
+              ("C-c C-z" . tda/zip)
+              ("C-c C-u" . tda/unzip)
+              ("C-c C-a" . tda/rsync-multiple-mark-file)
+              ("C-c C-e" . tda/rysnc-multiple-empty-list)
+              ("C-c C-d" . tda/rsync-multiple-remove-item)
+              ("C-c C-v" . tda/rsync-multiple)
+              ("C-c C-s" . tda/get-files-size)
+              ("C-c C-q" . tda/download-to-current-dir)))))
+   #+END_SRC
 * useful but discarded because of drawback that might be fixed
 ** magit-delta (disabled - speed degradation on large change sets)
    #+begin_src emacs-lisp :tangle no
