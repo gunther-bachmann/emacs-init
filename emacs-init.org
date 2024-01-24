@@ -12686,7 +12686,18 @@
        (use-package buffer-expose
          :load-path "~/.emacs.d/additionals/buffer-expose/"
          :bind (( "s-e" . #'buffer-expose))
-         :config (setq buffer-expose-show-current-buffer t)))
+         :config (setq buffer-expose-show-current-buffer t)
+         (setq buffer-expose-hide-regexes
+               '("\\`\\.ipa"
+                 "\\`\\*Shell Command Output\\*"
+                 "\\`\\*Async-native-compile-log\\*"
+                 "\\`cal-based-diary-temp"
+                 "\\`\\*Compile-log\\*"
+                 "\\`\\*Warnings\\*"
+                 "\\`\\*Messages\\*"
+                 "\\`\\*Paradox Report\\*"
+                 "\\`\\*envrc\\*"
+                 "\\.org_archive"))))
    #+end_src
 ** nswbuff - switch buffers
    #+begin_src emacs-lisp
