@@ -18821,11 +18821,11 @@
 - see here for more models https://ollama.ai/library
 - to use, startup server via ~ollama serve~ and then run one llm e.g. via ~ollama run codellama~
 #+begin_src emacs-lisp
+  (defconst llama-model-short "codeup")
+  (defconst llama-model-long "codeup:13b-llama2-chat-fp16")
+
   (use-package llm
-    :ensure t
-    :config
-    (make-llm-chat-prompt)
-    (llm-chat))
+    :ensure t)
 
   (use-package ellama
     :ensure t
@@ -18834,16 +18834,15 @@
     (require 'llm-ollama)
     (setopt ellama-provider
             (make-llm-ollama
-             :chat-model "codellama" :embedding-model "codellama"))  
+             :chat-model llama-model-long :embedding-model llama-model-long))  
 
     (defun ollama-server-on ()
       (interactive)
       (start-process "ollama server" "*ollama server*" "ollama" "serve")
-      (message "wait for 5 seconds for ollama server to settle")
-      (sit-for 5)
-      (message "starting language model codellama")
-      (start-process "codellama" "*codellama*" "ollama" "run" "codellama"))
-  
+      (sit-for 1)
+      (message "starting language model")
+      (start-process "codellama" "*codellama*" "ollama" "run" llama-model-long))
+
     (defun ollama-server-off ()
       (interactive)
       (kill-process "*codellama*")
