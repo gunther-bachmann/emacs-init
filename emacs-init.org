@@ -5221,8 +5221,8 @@
                  (display . ,(cdr (assoc 'display (frame-parameters (selected-frame))))) ;; (hopefully holds display of current monitor)
                  (font . ,(cdr (assoc 'font (frame-parameters (selected-frame)))))
                  (alpha 90 90)
-                 (left-fringe . 10)
-                 (right-fringe . 10))
+                 (left-fringe . 8)
+                 (right-fringe . 0))
                  ))
        (advice-add 'which-key-posframe--show-buffer :before #'(lambda (orig-func &rest args) (gb/which-key-set-posframe-parameters)))
        ;; (which-key-posframe-mode)
@@ -11787,9 +11787,7 @@
                    `((parent-frame)                                                          ;; (works only on single monitor)
                      (display . ,(cdr (assoc 'display (frame-parameters (selected-frame))))) ;; (hopefully holds display of current monitor)
                      (font . ,(cdr (assoc 'font (frame-parameters (selected-frame)))))
-                     (alpha 90 90)
-                     (left-fringe . 10)
-                     (right-fringe . 10)))))
+                     (alpha 90 90)))))
          (advice-add 'helm-posframe-display :before #'(lambda (orig-func &rest args) (gb/helm-set-posframe-parameters)))
          (helm-posframe-enable)
          ;; make sure minibuffer does not use helm completion!
@@ -14173,6 +14171,15 @@
                             (gb/cpu-min-frequency)
                             (gb/cpu-max-frequency)))))
       #+end_src
+    - margins
+      #+begin_src emacs-lisp
+        (defun gb/set-default-margin ()
+          (set-window-margins (selected-window) 2 0)
+          (set-window-fringes (selected-window) 0 0 t nil))
+
+        (defun gb/set-default-margin-in-all-frames ()
+          (--each (frame-list) (with-selected-frame it (--each (window-list) (with-selected-window  it (gb/set-default-margin))))))
+      #+end_src
   - exwm configuration
     #+BEGIN_SRC emacs-lisp
       (when (and gb/profile--exwm gb/use-exwm)
@@ -14915,7 +14922,7 @@
                         ;; (gb/start-if-not-running (s-trim (safe-shell-command-to-string "command -v pasystray")))
                         ;; (start-process "yabar" nil  "/usr/bin/yabar") ;; see here: https://github.com/geommer/yabar
                         (ido-mode -1)
-                        (set-fringe-mode 10)
+                        ;; (set-fringe-mode 10)
                         (toggle-truncate-lines 1)
                         ;; (gb/disable-ligatures)
                         (setq pomodoro-mode-line-string nil)
@@ -14927,7 +14934,8 @@
                                       global-mode-string))
                         (setq auto-hscroll-mode t)
                         (when (eq gb/completion-framework 'ivy)
-                          (ivy-mode 1)))))
+                          (ivy-mode 1))
+                        (gb/set-default-margin-in-all-frames))))
 
           ))
     #+END_SRC
@@ -15380,7 +15388,7 @@
           (when (boundp 'gb/presentation-modeline)
             (setq mode-line-format gb/presentation-modeline))
           (org-tree-slide-mode -1)
-          (gb/set-fringe-mode-on (selected-frame) 10)
+          ;; (gb/set-fringe-mode-on (selected-frame) 10)
           (global-git-gutter-mode +1)
           ;; (gb/set-fringe-bg-color "#141618")
           (when (fboundp 'remove-fira-code-symbol-keywords)
@@ -16422,7 +16430,7 @@
         :config
         (setq ivy-posframe-parameters
               '((left-fringe . 8)
-                (right-fringe . 8)
+                (right-fringe . 0)
                 (border-width . 1)))
         (setq ivy-height 28)
         (setq ivy-posframe-height nil)
@@ -19018,28 +19026,61 @@
 - accenting windows
   copied from  https://www.emacs.dyerdwelling.family/emacs/20231221210441-emacs--selected-window-accent/
   #+begin_src emacs-lisp
-    (defun gb/remove-window-accent (&optional window)
-      (set-window-margins (or window (selected-window)) 2 0)
-      (set-window-fringes (or window (selected-window)) 0 0 t nil))
+    (defvar gb/currently-accented-window nil)
+    (defvar gb/currently-accented-buffer nil)
+
+    (defun gb/remove-window-accent ()
+      (when (and gb/currently-accented-window (window-live-p gb/currently-accented-window))
+        (set-window-margins gb/currently-accented-window 2 0)
+        (set-window-fringes gb/currently-accented-window 0 0 t nil))
+      (setq gb/currently-accented-window nil)
+      (setq gb/currently-accented-buffer nil))
 
     (defun gb/add-window-accent (&optional window)
-      (set-window-margins (or window (selected-window)) 1 0)
-      (set-window-fringes (or window (selected-window)) (frame-char-width) 0 t nil))
+      (when gb/currently-accented-window
+        (gb/remove-window-accent))
+      (let ((win (or window (selected-window))))
+        (set-window-margins win 1 0)
+        (set-window-fringes win (frame-char-width) 0 t nil)
+        (setq gb/currently-accented-window win)
+        (setq gb/currently-accented-buffer (current-buffer))))
 
-    (defun gb/selected-window-accent ()
+    (defun gb/selected-window-accent (&rest args)
       (interactive)
-      (set-face-background 'fringe "#402040")
-      (when (or exwm-class-name (and (windmove-find-other-window 'left)
-                                  (with-selected-window (windmove-find-other-window 'left) exwm-class-name)))
-        (set-face-background 'fringe "orange3"))
-      (walk-windows
-       (lambda (window)
-         (if (eq window (selected-window))
-             (gb/add-window-accent window)
-           (gb/remove-window-accent window)))
-       nil t))
+      (when (equal '(nil) (window-margins))
+        (gb/set-default-margin))
+      ;; (message "selected-window-accent-called")
+      (if (or (one-window-p)
+             (minibufferp))
+          (progn
+            ;; (message "one-win or minibuff accent removed")
+            (gb/remove-window-accent)
+            (set-face-background 'fringe "#161414"))
+        (progn  
+          (set-face-background 'fringe "#402040")
+          ;; (message "regular accent %s" (buffer-name))
+          (when (or exwm-class-name
+                   (and (windmove-find-other-window 'left)
+                      (with-selected-window (windmove-find-other-window 'left) exwm-class-name))
+                   (and (windmove-find-other-window 'up)
+                      (with-selected-window (windmove-find-other-window 'up) exwm-class-name))
+                   (and (windmove-find-other-window 'down)
+                      (with-selected-window (windmove-find-other-window 'down) exwm-class-name)))
+            ;; (message "orange")
+            (set-face-background 'fringe "orange3"))
+          (unless (or (one-window-p)
+                     (minibufferp) (and (equal (selected-window) gb/currently-accented-window)
+                                      (equal (current-buffer) gb/currently-accented-buffer)))            
+            (gb/remove-window-accent)
+            (gb/add-window-accent)))))
 
-    (add-hook 'window-state-change-hook 'gb/selected-window-accent)
+    (add-hook 'buffer-list-update-hook #'gb/selected-window-accent)
+    ;; (add-hook 'window-configuration-change-hook #'gb/selected-window-accent)
+
+    ;; after-focus-change-function
+    ;; (add-hook 'window-state-change-hook  #'gb/selected-window-accent)
+    ;;(add-hook 'after-focus-change-function #'gb/selected-window-accent)
+    ;; window-state-change-hook
   #+end_src
 - create racket based cli script file (like org capture)
   #+begin_src emacs-lisp
@@ -20406,7 +20447,7 @@
      (when (eq gb/completion-framework 'ivy)
        (ivy-mode 1))
      (midnight-mode 1)
-     (set-fringe-mode 10)
+     ;; (set-fringe-mode 10)
      (display-time-mode -1)
      ;; (eldoc-overlay-mode t)
      ;; for kuchen checks:

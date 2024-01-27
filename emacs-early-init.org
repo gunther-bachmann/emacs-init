@@ -9,11 +9,14 @@
     (push '(menu-bar-mode 0) default-frame-alist)
     (push '(tool-bar-mode 0) default-frame-alist)
     (push '(vertical-scroll-bars) default-frame-alist)
-    
+
     (set-background-color "black") ;; since dark mode theme is not set yet, do something close
 
     (custom-set-variables
      '(initial-frame-alist (quote ((fullscreen . fullwidth)(height . 50)(top . 22)))))
+
+    (setq initial-frame-alist (quote ((fullscreen . fullwidth)(height . 50)(top . 22))))
+
     (menu-bar-mode -1) ;; remove menu bar
     (tool-bar-mode -1) ;; remove tool bar
     (scroll-bar-mode -1) ;; remove scroll bar
