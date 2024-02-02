@@ -3725,9 +3725,9 @@
     #+end_src
 ** rainbow mode
    #+BEGIN_SRC emacs-lisp
-   (use-package rainbow-mode
-     :ensure t
-     :init (add-hook 'help-mode-hook #'rainbow-mode))
+     (use-package rainbow-mode
+       :ensure t
+       :hook ((help-mode elisp-mode) . rainbow-mode))
    #+END_SRC
 ** rainbow identifiers
    #+BEGIN_SRC emacs-lisp
@@ -6551,90 +6551,91 @@
 ** clojure
 *** clojure
     #+BEGIN_SRC emacs-lisp
-    ;;;;
-    ;; Clojure
-    ;;;;
+      ;;;;
+      ;; Clojure
+      ;;;;
 
 
-    ;; A little more syntax highlighting
-    (use-package clojure-mode-extra-font-locking
-      :ensure t
-      :after ( clojure-mode))
+      ;; A little more syntax highlighting
+      (use-package clojure-mode-extra-font-locking
+        :ensure t
+        :after ( clojure-mode))
 
-    (use-package clojure-mode
-      :ensure t
-      :after ( subword ;; optional, when active, clojure switches to this minor mode too
-               flycheck ;; optional, when active, clojure switches to this minor mode too
-               paredit ;; optional, when active, clojure switches to this minor mode too
-               hideshow ;; for folding namespaces (see below)
-               ;; key-chord ;; for defining folding with hide show
-               hydra )
-      :interpreter "clojure"
-      :mode "\\.clj\\'"
-      :init (progn
-              ;; Enable paredit for Clojure
-              (when (package-installed-p 'paredit)
-                (add-hook 'clojure-mode-hook 'enable-paredit-mode))
+      (use-package clojure-mode
+        :ensure t
+        :after ( subword ;; optional, when active, clojure switches to this minor mode too
+                 flycheck ;; optional, when active, clojure switches to this minor mode too
+                 paredit ;; optional, when active, clojure switches to this minor mode too
+                 hideshow ;; for folding namespaces (see below)
+                 ;; key-chord ;; for defining folding with hide show
+                 hydra )
+        :interpreter "clojure"
+        :mode "\\.clj\\'"
+        :hook (clojure-mode . rainbow-mode)  
+        :init (progn
+                ;; Enable paredit for Clojure
+                (when (package-installed-p 'paredit)
+                  (add-hook 'clojure-mode-hook 'enable-paredit-mode))
 
-              (when (package-installed-p 'flycheck)
-                (add-hook 'clojure-mode-hook 'flycheck-mode))
+                (when (package-installed-p 'flycheck)
+                  (add-hook 'clojure-mode-hook 'flycheck-mode))
 
-              ;; This is useful for working with camel-case tokens, like names of
-              ;; Java classes (e.g. JavaClassName)
-              (when (package-installed-p 'subword)
-                (add-hook 'clojure-mode-hook 'subword-mode))
+                ;; This is useful for working with camel-case tokens, like names of
+                ;; Java classes (e.g. JavaClassName)
+                (when (package-installed-p 'subword)
+                  (add-hook 'clojure-mode-hook 'subword-mode))
 
-              ;; turn on eldoc for clojure mode
-              (add-hook 'clojure-mode-hook 'turn-on-eldoc-mode)
+                ;; turn on eldoc for clojure mode
+                (add-hook 'clojure-mode-hook 'turn-on-eldoc-mode)
 
-              ;; syntax hilighting for midje
-              (add-hook 'clojure-mode-hook
-                        (lambda ()
-                          (setq inferior-lisp-program "lein repl")
-                          (font-lock-add-keywords
-                           nil
-                           '(("(\\(facts?\\)"
-                              (1 font-lock-keyword-face))
-                             ("(\\(background?\\)"
-                              (1 font-lock-keyword-face))))
-                          (define-clojure-indent (fact 1))
-                          (define-clojure-indent (facts 1))))
+                ;; syntax hilighting for midje
+                (add-hook 'clojure-mode-hook
+                          (lambda ()
+                            (setq inferior-lisp-program "lein repl")
+                            (font-lock-add-keywords
+                             nil
+                             '(("(\\(facts?\\)"
+                                (1 font-lock-keyword-face))
+                               ("(\\(background?\\)"
+                                (1 font-lock-keyword-face))))
+                            (define-clojure-indent (fact 1))
+                            (define-clojure-indent (facts 1))))
 
-              (defun gb/hs-clojure-mode-hook ()
-                (interactive)
-                (hs-minor-mode 1)
-                ;; (key-chord-define clojure-mode-map "q1" #'hs-toggle-hiding)
-                (gb/hs-clojure-hide-namespace-and-folds))
+                (defun gb/hs-clojure-mode-hook ()
+                  (interactive)
+                  (hs-minor-mode 1)
+                  ;; (key-chord-define clojure-mode-map "q1" #'hs-toggle-hiding)
+                  (gb/hs-clojure-hide-namespace-and-folds))
 
-              (add-hook 'clojure-mode-hook #'gb/hs-clojure-mode-hook)
-              )
-      :config
-      (progn
-        ;; define hydras
+                (add-hook 'clojure-mode-hook #'gb/hs-clojure-mode-hook)
+                )
+        :config
+        (progn
+          ;; define hydras
 
-        ;;--------------------------------------------------------------------------------
-        (defhydra hydra-all-clojure-refactorings ()
-          "all clojure refactorings as hydra menu"
-          ("c" hydra-cljr-code-menu/body "code refactorings" :exit t)
-          ("n" hydra-cljr-ns-menu/body "namespace refactorings" :exit t)
-          ("p" hydra-cljr-project-menu/body "project refactorings" :exit t)
-          ("t" hydra-cljr-toplevel-form-menu/body "top level form refactorings" :exit t))
+          ;;--------------------------------------------------------------------------------
+          (defhydra hydra-all-clojure-refactorings ()
+            "all clojure refactorings as hydra menu"
+            ("c" hydra-cljr-code-menu/body "code refactorings" :exit t)
+            ("n" hydra-cljr-ns-menu/body "namespace refactorings" :exit t)
+            ("p" hydra-cljr-project-menu/body "project refactorings" :exit t)
+            ("t" hydra-cljr-toplevel-form-menu/body "top level form refactorings" :exit t))
 
-        (defun gb/hs-clojure-hide-namespace-and-folds ()
-          "Hide the first (ns ...) expression in the file, and also all
-    the (^:fold ...) expressions."
-          (interactive)
-          (hs-life-goes-on
-           (save-excursion
-             (goto-char (point-min))
-             (when (ignore-errors (re-search-forward "^(ns "))
-               (hs-hide-block))
+          (defun gb/hs-clojure-hide-namespace-and-folds ()
+            "Hide the first (ns ...) expression in the file, and also all
+      the (^:fold ...) expressions."
+            (interactive)
+            (hs-life-goes-on
+             (save-excursion
+               (goto-char (point-min))
+               (when (ignore-errors (re-search-forward "^(ns "))
+                 (hs-hide-block))
 
-             (while (ignore-errors (re-search-forward "\\^:fold"))
-               (hs-hide-block)
-               (next-line)))))
+               (while (ignore-errors (re-search-forward "\\^:fold"))
+                 (hs-hide-block)
+                 (next-line)))))
 
-        ))
+          ))
     #+END_SRC
 *** flycheck-clojure
     #+BEGIN_SRC emacs-lisp
@@ -6990,6 +6991,7 @@
               ("\\.mustache\\'" . web-mode)
               ("\\.dhtml\\'" . web-mode)
               ("\\.html?\\'" . web-mode))
+       :hook (web-mode . rainbow-mode)
        :custom ((web-mode-enable-auto-identation nil)
                 (web-mode-markup-indent-offset 2)
                 (web-mode-css-indent-offset 2)
@@ -13510,7 +13512,8 @@
     (use-package racket-mode
       :ensure t
       :diminish
-      :hook (racket-mode . flycheck-mode)
+      :hook ((racket-mode . flycheck-mode)
+             (racket-mode . rainbow-mode))
       :custom (racket-show-functions '(racket-show-echo-area))
       (racket-xp-mode-lighter '(:eval (gb/racket--xp-mode-lighter)))
       :bind (:map racket-mode-map
