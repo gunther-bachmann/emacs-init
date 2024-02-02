@@ -5764,8 +5764,9 @@
                   (ivy--display-transformers-alist '())
                   (ivy-display-style 'fancy)
                   (ivy-height 30 "default height of ivy completion")
+                  (ivy-use-virtual-buffers t "add recentfiles and bookmarks to buffer switch candidates")
                   (ivy-use-selectable-prompt t "make prompt a selectable option")
-                  ;; (ivy-ignore-buffers ("\\` " "\\`\\*tramp/" "\\`\\*Bookmark/"))
+                  (ivy-ignore-buffers '("\\` " "\\`\\*tramp/" "\\`\\*Bookmark/" "\\`\\*magit" "\\`\\*Slack Event Log" "\\`\\*Slack Log"))
                   )
          :config
          (defface ivy-current-match
@@ -5848,9 +5849,18 @@
        (defun gb/ivy-candidates-offset (cand) (make-string (if (or (and (boundp 'mini-frame-mode) mini-frame-mode) (and (boundp 'mini-popup-mode) mini-popup-mode) (and (boundp 'ivy-posframe-mode) ivy-posframe-mode)) 0 (max 0 (- (frame-width) (ivy-rich-minibuffer-width 0.77)))) ? ))
        (defun gb/ivy-candidates-offset-20 (cand) (make-string (if (or (and (boundp 'mini-frame-mode) mini-frame-mode) (and (boundp 'mini-popup-mode) mini-popup-mode)(and (boundp 'ivy-posframe-mode) ivy-posframe-mode)) 0 20) ? ))
        (defun gb/prefixed-20-all-the-icons-ivy-rich-buffer-icon (cand)
-         (concat (gb/ivy-candidates-offset-20 cand) (all-the-icons-ivy-rich-buffer-icon cand)))
+         (concat (gb/ivy-candidates-offset-20 cand)
+                 (cond ((get-buffer cand) (all-the-icons-ivy-rich-buffer-icon cand))
+                       (t (all-the-icons-ivy-rich-file-icon cand)))))
        (defun gb/prefixed-20-all-the-icons-ivy-rich-file-icon (cand)
          (concat (gb/ivy-candidates-offset-20 cand) (all-the-icons-ivy-rich-file-icon cand)))
+
+       (defun gb/ivy-rich-switch-buffer-size (cand) (if (get-buffer cand) (ivy-rich-switch-buffer-size cand) " "))
+       (defun gb/ivy-rich-switch-buffer-indicators (cand) (if (get-buffer cand) (ivy-rich-switch-buffer-indicators cand) " "))
+       (defun gb/ivy-rich-switch-buffer-major-mode (cand) (if (get-buffer cand) (ivy-rich-switch-buffer-major-mode cand) " "))
+       (defun gb/ivy-rich-switch-buffer-project (cand) (if (get-buffer cand) (ivy-rich-switch-buffer-project cand) " "))
+       (defun gb/ivy-rich-switch-buffer-path (cand) (if (get-buffer cand) (ivy-rich-switch-buffer-path cand) " "))
+
        (use-package all-the-icons-ivy-rich
          :after (ivy ivy-rich all-the-icons-ivy)
          :config
@@ -5858,21 +5868,17 @@
                '(:columns
                  ((gb/prefixed-20-all-the-icons-ivy-rich-buffer-icon)
                   (ivy-rich-candidate
-                   (:width 40))
-                  (ivy-rich-switch-buffer-size
-                   (:width 7))
-                  (ivy-rich-switch-buffer-indicators
-                   (:width 4 :face error :align right))
-                  (ivy-rich-switch-buffer-major-mode
+                   (:width 50))
+                  (gb/ivy-rich-switch-buffer-size
+                   (:width 12))
+                  (gb/ivy-rich-switch-buffer-major-mode
                    (:width 20 :face warning))
-                  (ivy-rich-switch-buffer-project
+                  (gb/ivy-rich-switch-buffer-project
                    (:width 25 :face success))
-                  (ivy-rich-switch-buffer-path
+                  (gb/ivy-rich-switch-buffer-path
                    (:width
                     (lambda (x) (ivy-rich-switch-buffer-shorten-path x (ivy-rich-minibuffer-width 0.5))))))
-                 :predicate
-                 (lambda (cand) (get-buffer cand))
-                 :delimiter "	"))
+                 :delimiter "   	"))
          ;; after setting this list, ivy-rich-mode needs to be dis- and enabled again to have an effect
          (setq ivy-rich-display-transformers-list
                `(ivy-switch-buffer
@@ -20458,7 +20464,7 @@
      (cond
       ((eq gb/theme-mode 'light) nil) ;; TODO complete
       (t (progn
-           (--each '((hl-line ((t (:background "#202035"))))
+           (--each '((hl-line ((t (:extend t :background "#222239" :distant-foreground "#b0b0b0"))))
                      (highlight ((t (:background "gray18"))))
                      (region ((t (:background "gray24"))))
                      (font-lock-doc-face ((t (:foreground "gray52"))))
