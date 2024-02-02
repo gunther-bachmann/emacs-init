@@ -18875,6 +18875,14 @@
       (kill-buffer "*ollama server*")))
 
 #+end_src
+* EVAL unfill
+- see https://github.com/purcell/unfill
+- undos/redos fill (M-q)
+#+begin_src emacs-lisp
+  (use-package unfill
+    :ensure t
+    :bind ( "M-q" . unfill-toggle))
+#+end_src
 * own 6510 tooling integration
 - integration stuff for the racket 6510 project
 #+begin_src emacs-lisp
