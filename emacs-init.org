@@ -6930,6 +6930,12 @@
               ( "C-c / i l" . gb/kotlin-import-search-and-insert)))
    #+END_SRC
 ** haskell
+*** haskell-mode
+- add patch for flymake error (see [[https://github.com/haskell/haskell-mode/issues/1825][this issue]])
+  #+begin_src emacs-lisp
+    (setq flymake-allowed-file-name-masks nil)
+  #+end_src
+- haskell mode itself  
    #+BEGIN_SRC emacs-lisp
    (use-package haskell-mode
      :ensure t
@@ -6955,13 +6961,14 @@
     #+END_SRC
 *** dante (intero fork, complete development environment for haskell)
     #+BEGIN_SRC emacs-lisp
-    (use-package dante
-      :ensure t
-      :after ( haskell-mode company flycheck s f dash)
-      :commands 'dante-mode
-      :init
-      (add-hook 'haskell-mode-hook 'dante-mode)
-      (add-hook 'haskell-mode-hook 'flycheck-mode))
+      (use-package dante
+        :ensure t
+        :after ( haskell-mode company flycheck s f dash)
+        :commands 'dante-mode
+        :init
+        (add-hook 'haskell-mode-hook 'dante-mode)
+        (add-hook 'haskell-mode-hook 'flycheck-mode)
+        )
     #+END_SRC
 *** intero (disabled) (complete development environment for haskell)
     - see [[https://commercialhaskell.github.io/intero/][here]]
