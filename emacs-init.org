@@ -38,6 +38,8 @@
     (setq gb/frame-creation-speedup nil) ;; font caching for frame creation, provides speed up on 28.0.50, posing problems on 28.0.91
     (setq gb/exwm-use-custom-workspaces t) ;; customized workspace switching in exwm
 
+    (setq mode-line--use-buffer-file-name nil) ;; nil or t, set t if running in performance issues (sudo tramp problems)
+
     ;; ivy-posframe - does not show on second monitor
     ;; mini-frame - fails in emacs 29.1
     ;; mini-popup - is a minimal implementation of subframes, to be tested
@@ -3583,7 +3585,7 @@
               (t (shorten-buffer-filename fn active))))
 
       (defun shorten-buffer-filename (fn active)
-        (if t (buffer-file-name)
+        (if mode-line--use-buffer-file-name (buffer-file-name)
           (if (and gb/disable-modeline-updates gb/mode-line--last-shortened-filename-cache)
               gb/mode-line--last-shortened-filename-cache
             (let* ((sfn 
@@ -3707,11 +3709,11 @@
                       ;; minor-mode-alist
                       '(:eval (if (gb/modeline-line-selected-window-active-p)
                                   mode-line-modes
-                                (substring-no-properties (format-mode-line mode-line-modes))))
+                                (propertize  (substring-no-properties (format-mode-line mode-line-modes))  ':face 'mode-line-inactive)))
                       ;; '(:eval (when text-scale-mode (concat " (𝞿" text-scale-mode-lighter ") ")))
                       '(:eval (if (gb/modeline-line-selected-window-active-p)
                                   mode-line-misc-info
-                                (substring-no-properties (format-mode-line mode-line-misc-info))))
+                                (propertize (substring-no-properties (format-mode-line mode-line-misc-info)) ':face 'mode-line-inactive)))
                       '(:eval (when (fboundp #'pomm-format-mode-line) (format-mode-line (pomm-format-mode-line)))))
                      ))
 
