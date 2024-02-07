@@ -19061,34 +19061,24 @@
     (defvar gb/currently-accented-buffer nil)
     (defvar gb/accented-window-font-remap-cookie nil)
     (defvar gb/open-fringe-correction-window nil)
+    (defvar animated-face-timer nil)
+    (defvar gb/animate-face-background-color-step 0)
+    (defvar gb/gradient nil)
 
-    (defun gb/remove-window-accent ()
-      ;; (when gb/accented-window-font-remap-cookie 
-      ;;   (face-remap-remove-relative gb/accented-window-font-remap-cookie)
-      ;;   (setq gb/accented-window-font-remap-cookie nil))
-      (when (and gb/currently-accented-window (window-live-p gb/currently-accented-window))        
-        (set-window-margins gb/currently-accented-window 2 1)
-        (set-window-fringes gb/currently-accented-window 0 0 t nil)
-        (gb/correct-fringe-for-deaccented-window)
-        (setq gb/open-fringe-correction-window gb/currently-accented-window))
-      (message "removed accent %S %S" gb/currently-accented-window gb/currently-accented-buffer)
-      (setq gb/currently-accented-window nil)
-      gb/currently-accented-buffer nil)
 
     (defun gb/add-window-accent (&optional window)
       (let ((win (or window (selected-window))))
         (unless (equal win gb/currently-accented-window)
-          (when gb/currently-accented-window
-            (gb/remove-window-accent))  
-          ;; (setq gb/accented-window-font-remap-cookie
-          ;;       (face-remap-add-relative 'fringe `((:background ,(gb/background-for-window-accent win)))))
           (set-window-margins win 1 0)
           (set-window-fringes win (frame-char-width) (frame-char-width) t nil)
-          (set-face-background 'fringe (gb/background-for-window-accent))
-          (message "accented %S %S" win (window-buffer win))
+          (gb/background-for-window-accent)
           (setq gb/currently-accented-window win)
           (setq gb/currently-accented-buffer (window-buffer win))
-          (run-at-time 1 nil #'gb/restore-default-fringe-color))))
+          (when animated-face-timer
+            (cancel-timer animated-face-timer))
+          (setq animated-face-timer nil)
+          (setq gb/animate-face-background-color-step 0)
+          (setq animated-face-timer (run-at-time 0.5 0.1 #'gb/animate-face-background-color)))))
 
     (defun gb/correct-fringe-for-deaccented-window ()
       (when gb/open-fringe-correction-window
@@ -19097,18 +19087,36 @@
           (set-window-fringes gb/open-fringe-correction-window (frame-char-width) (frame-char-width) t nil))
         (setq gb/open-fringe-correction-window nil)))      
 
+    (defconst gb/accented-background-gradient-orange
+      '("#cd8500" "#9c5c02"  "#824f04" "#684106" "#4c3d08"  "#34250a" "#1a170d" "#161414")
+      "list of values applied each after .1 second")
+
+    (defconst gb/accented-background-gradient-purple
+      '("#402040" "#341e34"  "#321b32" "#2b192b" "#261726"  "#201620" "#1b151b" "#161414")
+      "list of values applied each after .1 second")
+
+    (defun gb/animate-face-background-color ()
+      (when gb/gradient
+        (set-face-background 
+         'fringe 
+         (nth gb/animate-face-background-color-step gb/gradient))
+        (setq gb/animate-face-background-color-step (1+ gb/animate-face-background-color-step))
+        (when (> gb/animate-face-background-color-step 7)
+          (when animated-face-timer
+            (cancel-timer animated-face-timer))
+          (setq gb/animate-face-background-color-step 0)
+          (setq animated-face-timer nil))))
+
     (defun gb/restore-default-fringe-color ()
-      (set-face-background 'fringe "#161414")
-      (walk-window-tree #'gb/restore-window-fringe (selected-frame))
-      ;; (gb/correct-fringe-for-deaccented-window)
-      )
+      (set-face-background 'fringe "#161414")  
+      (walk-window-tree #'gb/restore-window-fringe (selected-frame)))
 
     (defun gb/background-for-window-accent (&optional window)
       (with-selected-window (or window (selected-window))
-        (cond ((or ;; (one-window-p)
-                  (minibufferp)
+        (cond ((or (minibufferp)
                   (equal " *my-posframe-buffer*" (buffer-name)))
-               "#161414")
+               (set-face-background 'fringe "#161414")
+               (setq gb/gradient nil))
               ((or exwm-class-name
                   (and (windmove-find-other-window 'left)
                      (with-selected-window (windmove-find-other-window 'left) exwm-class-name))
@@ -19116,8 +19124,11 @@
                      (with-selected-window (windmove-find-other-window 'up) exwm-class-name))
                   (and (windmove-find-other-window 'down)
                      (with-selected-window (windmove-find-other-window 'down) exwm-class-name)))
-               "orange3")
-              (t "#402040"))))
+               (set-face-background 'fringe "orange3")
+               (setq gb/gradient gb/accented-background-gradient-orange))
+              (t
+               (set-face-background 'fringe "#402040")
+               (setq gb/gradient gb/accented-background-gradient-purple)))))
 
     (defun gb/remove-window-accent-on-non-selected (win)
       (when (or (not (equal win (selected-window))) (string= " *my-posframe-buffer*" (buffer-name (window-buffer win))))
@@ -19129,45 +19140,22 @@
       (unless (equal win (selected-window))
         (when (and (equal 0 (car (window-fringes win))) (window-live-p win))
           (set-window-margins win 1 0)
-          (set-window-fringes win (frame-char-width) (frame-char-width) t nil))
-        )
-     )
+          (set-window-fringes win (frame-char-width) (frame-char-width) t nil))))
 
     (defun gb/selected-window-accent (&rest args)
       (interactive)
       (when (equal '(nil) (window-margins))
         (gb/set-default-margin))
-      ;; (message "selected-window-accent-called")
-      (if (or ;; (one-window-p)
-             (minibufferp))
+      (if (or (minibufferp))
           (progn
-            ;; (message "one-win or minibuff accent removed")
             (walk-window-tree #'gb/remove-window-accent-on-non-selected (selected-frame))
-            ;; (gb/remove-window-accent)
-            ;; (set-face-background 'fringe "#161414")
-            (set-face-background 'fringe (gb/background-for-window-accent))
-            )
+            (gb/background-for-window-accent))
         (progn  
-          ;; (set-face-background 'fringe (gb/background-for-window-accent))
-          ;; (set-face-background 'fringe "#402040")
-          ;; ;; (message "regular accent %s" (buffer-name))
-          ;; (when (or exwm-class-name
-          ;;          (and (windmove-find-other-window 'left)
-          ;;             (with-selected-window (windmove-find-other-window 'left) exwm-class-name))
-          ;;          (and (windmove-find-other-window 'up)
-          ;;             (with-selected-window (windmove-find-other-window 'up) exwm-class-name))
-          ;;          (and (windmove-find-other-window 'down)
-          ;;             (with-selected-window (windmove-find-other-window 'down) exwm-class-name)))
-          ;;   ;; (message "orange")
-          ;;   (set-face-background 'fringe "orange3"))
-          (unless (or (one-window-p)
-                     (equal " *my-posframe-buffer*" (buffer-name))
+          (unless (or (equal " *my-posframe-buffer*" (buffer-name))
                      (minibufferp)
                      (and (equal (selected-window) gb/currently-accented-window)
                         (equal (current-buffer) gb/currently-accented-buffer)))
-            (message "want to accented %S %S" (selected-window) (window-buffer (selected-window)))
-            (walk-window-tree #'gb/remove-window-accent-on-non-selected (selected-frame))        
-            (gb/remove-window-accent)        
+            (walk-window-tree #'gb/remove-window-accent-on-non-selected (selected-frame)) 
             (gb/add-window-accent)))))
 
     ;; (add-hook 'buffer-list-update-hook #'gb/selected-window-accent)
