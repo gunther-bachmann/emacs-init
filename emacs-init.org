@@ -20548,7 +20548,7 @@
      (cond
       ((eq gb/theme-mode 'light) nil) ;; TODO complete
       (t (progn
-           (--each '((hl-line ((t (:extend t :background "#222239" :distant-foreground "#b0b0b0"))))
+           (--each '((hl-line ((t (:extend t :underline "#383850" ))))
                      (highlight ((t (:background "gray18"))))
                      (region ((t (:background "gray24"))))
                      (font-lock-doc-face ((t (:foreground "gray52"))))
