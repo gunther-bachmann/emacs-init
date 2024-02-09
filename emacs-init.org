@@ -3591,7 +3591,8 @@
             (let* ((sfn 
                     (when-let* ((prop-fn fn))
                       (->>
-                       (if-let* ((project (project-current nil default-directory))
+                       (if-let* ((project (when (string-prefix-p (format "/home/%s/repo/" user-login-name) default-directory)
+                                            (project-projectile default-directory)))
                                  (project-root (string-remove-suffix "/" (expand-file-name (cdr project)))))
                            (gb/string-replace-prefix project-root (ml-project-prefix active) prop-fn)
                          (gb/string-replace-prefix (expand-file-name "~") (ml-home-prefix active) prop-fn))
