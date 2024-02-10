@@ -18202,9 +18202,10 @@
          ))
 
       (setq pulsar-pulse t)
-      (setq pulsar-delay 0.055)
-      (setq pulsar-iterations 5)
+      (setq pulsar-delay 0.07)
+      (setq pulsar-iterations 8)
       (setq pulsar-face 'pulsar-mode-line)
+      (bind-key "<next>" #'pulsar-pulse-line)
 
       ;; pulsar does not define any key bindings.  This is just a sample that
       ;; respects the key binding conventions.  Evaluate:
@@ -19103,13 +19104,18 @@
     (defun accented-window--add-window-accent (&optional window)
       (let ((win (or window (selected-window))))
         (unless (equal win accented-window--currently-accented-window)
-          (accented-window--set-standard-fringe win)
-          (accented-window--prepare-fringe-face-animation)
-          (setq accented-window--currently-accented-window win)
-          (setq accented-window--currently-accented-buffer (window-buffer win))
-          (accented-window--reset-animation)
-          (setq accented-window--animated-face-timer
-                (run-at-time 0.5 0.1 #'accented-window--set-fringe-face-backround)))))
+          (accented-window--pulse-window win))))
+
+    (defun accented-window--pulse-window (&optional window)
+      (interactive)
+      (let ((win (or window (selected-window))))
+        (accented-window--set-standard-fringe win)
+        (accented-window--prepare-fringe-face-animation)
+        (setq accented-window--currently-accented-window win)
+        (setq accented-window--currently-accented-buffer (window-buffer win))
+        (accented-window--reset-animation)
+        (setq accented-window--animated-face-timer
+              (run-at-time 0.5 0.1 #'accented-window--set-fringe-face-backround))))
 
     (defconst accented-window--orange-gradient
       '("#cd8500" "#9c5c02"  "#824f04" "#684106" "#4c3d08"  "#34250a" "#1a170d" "#161414")
@@ -19207,6 +19213,9 @@
 
     (add-hook 'window-configuration-change-hook #'accented-window--window-change-hook)
     (add-hook 'window-state-change-hook #'accented-window--window-change-hook)
+
+    (bind-key "<prior>" #'accented-window--pulse-window)
+
   #+end_src
 - create racket based cli script file (like org capture)
   #+begin_src emacs-lisp
