@@ -4475,7 +4475,7 @@
                    (progn (add-to-list 'gb/list-of-faces-to-set it)(custom-set-faces it))))))
 
      ;; Highlight current line
-     (global-hl-line-mode 1)
+     ;; (global-hl-line-mode 1)
 
      ;; make sure highlighting is extended to the eol even for emacs 27
      ;; within helm and magit (see https://github.com/emacs-helm/helm/issues/2213)
@@ -12446,7 +12446,8 @@
            (apply orig-fun args)
            (dired-omit-expunge)
            (goto-char old-point)
-           (global-hl-line-highlight)))
+           ;; (global-hl-line-highlight)
+           ))
 
        (advice-add 'dired-sidebar-revert :around #'gb/dired-keep-cursor-during-tui-update)
 
@@ -15362,7 +15363,7 @@
             (set (make-local-variable 'org-bullets-bullet-list-old) org-bullets-bullet-list)
             (set (make-local-variable 'org-bullets-bullet-list) '(" " " " " " " " " " " " " " " " " " " " " " " " " " " " " " " " " " " " " " " ")))
           (setq cursor-type nil)
-          (global-hl-line-mode -1)
+          ;; (global-hl-line-mode -1)
           (hl-line-mode -1)
           (when (fboundp 'add-fira-code-symbol-keywords)
             (add-fira-code-symbol-keywords))
@@ -15480,7 +15481,7 @@
           ;;         '((0 . 0) (0 . 0) (0 . 0) (0 . 0) (0 . 0) (0 . 0) (0 . 0) (0 . 0)))
           ;;   (org-padding-mode 1)
           ;;   (redisplay t))
-          (global-hl-line-mode 1)
+          ;; (global-hl-line-mode 1)
           (appt-activate 1)
           (setq cursor-type 'bar)
           (setq org-show-notification-handler original-org-show-notification-handler)
