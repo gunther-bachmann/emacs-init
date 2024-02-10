@@ -19093,9 +19093,7 @@
     (defun accented-window--add-window-accent (&optional window)
       (let ((win (or window (selected-window))))
         (unless (equal win accented-window--currently-accented-window)
-          (unless (eql 1 (car (window-margins win)))
-            (set-window-margins win 1 0)
-            (set-window-fringes win (frame-char-width) (frame-char-width) t nil))
+          (accented-window--set-standard-fringe win)
           (accented-window--prepare-fringe-face-animation)
           (setq accented-window--currently-accented-window win)
           (setq accented-window--currently-accented-buffer (window-buffer win))
@@ -19154,50 +19152,51 @@
             (set-window-fringes win 0 0 t nil)))))
 
     (defun accented-window--restore-fringe (win)
-      (unless (equal win (selected-window))
+      (unless (or (equal win (selected-window)) (string-prefix-p " " (buffer-name (window-buffer win))))
         (when (and (equal 0 (car (window-fringes win))) (window-live-p win))
           (accented-window--set-standard-fringe win))))
 
     (defun accented-window--set-standard-fringe (win)
-      (unless (eql 1 (car (window-margins win)))
+      (unless (or (eql 1 (car (window-margins win)))
+                 (string-prefix-p " " (buffer-name (window-buffer win))))
+        ;; (message "set fringe on %S" win)
         (set-window-margins win 1 0)
         (set-window-fringes win (frame-char-width) (frame-char-width) t nil)))
 
+    (defvar accented-window--active t)
+
     (defun accented-window--window-change-hook (&rest args)
       (interactive)
-      (let ((visible-frames (if (fboundp 'exwm-workspace--active-p) 
-                                (--filter (exwm-workspace--active-p it) (frame-list))
-                              (list (selected-frame)))))
-        (when (equal '(nil) (window-margins))
-          (accented-window--set-standard-fringe (selected-window)))
-        (if (or (minibufferp))
-            (progn
-              ;; (message "1-hide fringes")
-              (--each visible-frames (walk-window-tree #'accented-window--hide-fringe it))
-              (accented-window--prepare-fringe-face-animation))
-          (progn  
-            (unless (or (minibufferp)
-                       (string-prefix-p " " (buffer-name))
-                       (and (equal (selected-window) accented-window--currently-accented-window)
-                          (equal (current-buffer) accented-window--currently-accented-buffer))
-                       (member (buffer-name) accented-window--ignore-buffers))
-              ;; (message "2-hide fringes")
-              (--each visible-frames (walk-window-tree #'accented-window--hide-fringe it))
-              ;; (message "3-add accent %S %S" (selected-window) (current-buffer))
-              (accented-window--add-window-accent))))))
+      (if accented-window--active
+          (let ((visible-frames (if (fboundp 'exwm-workspace--active-p) 
+                                    (--filter (exwm-workspace--active-p it) (frame-list))
+                                  (list (selected-frame)))))
+            (when (equal '(nil) (window-margins))
+              (accented-window--set-standard-fringe (selected-window)))
+            (if (or (minibufferp))
+                (progn
+                  ;; (message "1-hide fringes")
+                  (--each visible-frames (walk-window-tree #'accented-window--hide-fringe it))
+                  (accented-window--prepare-fringe-face-animation))
+              (progn  
+                (unless (or (minibufferp)
+                           (string-prefix-p " " (buffer-name))
+                           (and (equal (selected-window) accented-window--currently-accented-window)
+                              (equal (current-buffer) accented-window--currently-accented-buffer))
+                           (member (buffer-name) accented-window--ignore-buffers))
+                  ;; (message "2-hide fringes")
+                  (--each visible-frames (walk-window-tree #'accented-window--hide-fringe it))
+                  ;; (message "3-add accent %S %S" (selected-window) (current-buffer))
+                  (accented-window--add-window-accent)))))
+        (accented-window--set-standard-fringe (selected-window))))
 
-    (define-minor-mode accented-window-mode
-      "minor mode to activate to accent windows on change"
-      :lighter " A"
-      (if accented-window-mode
-          (progn
-            (add-hook 'window-configuration-change-hook #'accented-window--window-change-hook)
-            (add-hook 'window-state-change-hook #'accented-window--window-change-hook))
-        (progn
-          (remove-hook 'window-configuration-change-hook #'accented-window--window-change-hook)
-          (remove-hook 'window-state-change-hook #'accented-window--window-change-hook))))
+    (defun accented-window-mode ()
+      "toggle color accent on windows on change"
+      (interactive)
+      (setq accented-window--active (not accented-window-mode)))
 
-    (accented-window-mode 1)
+    (add-hook 'window-configuration-change-hook #'accented-window--window-change-hook)
+    (add-hook 'window-state-change-hook #'accented-window--window-change-hook)
   #+end_src
 - create racket based cli script file (like org capture)
   #+begin_src emacs-lisp
