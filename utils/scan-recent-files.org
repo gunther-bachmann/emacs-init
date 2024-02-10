@@ -8,19 +8,35 @@
   # THIS FILE IS GENERATED (To edit please open file from link above)
   #------------------------------------------------------------------
   #
+  RUNIN=$(pwd)
   SCANDIR=${1:-"."}
+  SCANDAYS=${2:-"7"}
   SCANDATE=$(date +"%Y-%m-%d %T")
-  echo "scan ${SCANDIR}"
+
+  [ -d "$SCANDIR" ] || {
+    echo "ABOUT:"
+    echo "  use clamav to scan the given FOLDER for recent files (max DAYS old).";
+    echo "    collect the file list into ~/scan.list.txt";
+    echo "    write the report to ~/scan/report/txt";
+    echo "    copy suspicious files into ~/scan-positives";
+    echo;
+    echo "USAGE:"
+    echo "  scan-recent-files [folder [days]]";
+    echo "    default values for the folder is '.' for days '7'";
+    exit 1;
+  }
+
+  echo "scan ${SCANDIR} ${SCANDAYS} days old"
   if [ "$SCANALL" == "" ]; then
-      echo "scan only recent files ..."
-    find ${SCANDIR} -type f -ctime -7  > ~/scan.list.txt
-else
+    echo "scan only recent files ..."
+    find ${SCANDIR} -type f -ctime -${SCANDAYS}  > ~/scan.list.txt
+  else
     echo "scan all files ..."
     find ${SCANDIR} -type f > ~/scan.list.txt
   fi
   echo "scanning $(wc -l ~/scan.list.txt) files (starting $SCANDATE)"
   echo "############################" >> ~/scan.report.txt
-  echo "scan run on dir: ${SCANDIR} on: ${SCANDATE}" >> ~/scan.report.txt
+  echo "scan run in: '${RUNIN}' on dir: '${SCANDIR}' on: ${SCANDATE}" >> ~/scan.report.txt
   echo "############################" >> ~/scan.report.txt
   mkdir -p ~/scan-positives 2> /dev/null
   clamscan -l ~/scan.report.txt --file ~/scan.list.txt --copy ~/scan-positives
