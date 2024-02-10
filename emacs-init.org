@@ -3509,6 +3509,15 @@
       (defvar gb/mode-line--last-shortened-filename-cache nil "cached filename")
       (defvar gb/disable-modeline-updates nil)
 
+      (defvar gb/mode-line-file-path-project-hash (make-hash-table :test #'equal)) 
+
+      (defun gb/cached-project-dir-of (path)
+        (if-let ((cached-result (gethash path gb/mode-line-file-path-project-hash)))      
+          cached-result
+          (let ((result (project-projectile path)))
+            (puthash path result gb/mode-line-file-path-project-hash)
+            result)))
+
       (defun gb/mode-line-padding ()
         (let ((r-length (if gb/disable-modeline-updates
                             (progn
@@ -3592,7 +3601,7 @@
                     (when-let* ((prop-fn fn))
                       (->>
                        (if-let* ((project (when (string-prefix-p (format "/home/%s/repo/" user-login-name) default-directory)
-                                            (project-projectile default-directory)))
+                                            (gb/cached-project-dir-of default-directory)))
                                  (project-root (string-remove-suffix "/" (expand-file-name (cdr project)))))
                            (gb/string-replace-prefix project-root (ml-project-prefix active) prop-fn)
                          (gb/string-replace-prefix (expand-file-name "~") (ml-home-prefix active) prop-fn))
