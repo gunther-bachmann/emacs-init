@@ -15305,9 +15305,11 @@
           (if cursor-type
               (progn
                 (setq cursor-type nil)
-                (hl-line-mode -1))
+                ;; (hl-line-mode -1)
+                )
             (setq cursor-type 'bar)
-            (hl-line-mode 1)))
+            ;; (hl-line-mode 1)
+            ))
 
         (bind-key "C-?" #'gb/presentation-toggle-show-cursor org-tree-slide-mode-map)
 
@@ -15364,7 +15366,7 @@
             (set (make-local-variable 'org-bullets-bullet-list) '(" " " " " " " " " " " " " " " " " " " " " " " " " " " " " " " " " " " " " " " ")))
           (setq cursor-type nil)
           ;; (global-hl-line-mode -1)
-          (hl-line-mode -1)
+          ;; (hl-line-mode -1)
           (when (fboundp 'add-fira-code-symbol-keywords)
             (add-fira-code-symbol-keywords))
           (setq org-format-latex-options (plist-put org-format-latex-options :scale 2.6))
@@ -20593,7 +20595,7 @@
      (cond
       ((eq gb/theme-mode 'light) nil) ;; TODO complete
       (t (progn
-           (--each '((hl-line ((t (:extend t :underline "#383850" ))))
+           (--each '(;; (hl-line ((t (:extend t :underline "#383850" ))))
                      (highlight ((t (:background "gray18"))))
                      (region ((t (:background "gray24"))))
                      (font-lock-doc-face ((t (:foreground "gray52"))))
