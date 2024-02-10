@@ -19106,9 +19106,21 @@
     (defun accented-window--add-window-accent (&optional window)
       (let ((win (or window (selected-window))))
         (unless (equal win accented-window--currently-accented-window)
-          (accented-window--pulse-window win))))
+          (accented-window--pulse win))))
 
-    (defun accented-window--pulse-window (&optional window)
+    (defun accented-window--visible-frames ()
+      (if (fboundp 'exwm-workspace--active-p) 
+          (--filter (exwm-workspace--active-p it) (frame-list))
+        (list (selected-frame))))
+
+    (defun accented-window--pulse-only-window (&optional window)
+      (interactive)
+      (let ((win (or window (selected-window))))
+        (with-selected-window win
+          (--each (accented-window--visible-frames) (walk-window-tree #'accented-window--hide-fringe it))
+          (accented-window--pulse win))))
+
+    (defun accented-window--pulse (&optional window)
       (interactive)
       (let ((win (or window (selected-window))))
         (accented-window--set-standard-fringe win)
@@ -19140,7 +19152,8 @@
          (nth accented-window--animate-face-bg-color-step accented-window--current-color-gradient))
         (setq accented-window--animate-face-bg-color-step (1+ accented-window--animate-face-bg-color-step))
         (when (> accented-window--animate-face-bg-color-step 7)
-          (accented-window--reset-animation))))
+          (accented-window--reset-animation)      
+          (--each (accented-window--visible-frames) (walk-window-tree #'accented-window--set-standard-fringe it)))))
 
     (defun accented-window--prepare-fringe-face-animation (&optional window)
       (with-selected-window (or window (selected-window))
@@ -19149,6 +19162,7 @@
                (set-face-background 'fringe "#161414")
                (setq accented-window--current-color-gradient nil))
               ((or exwm-class-name
+                   (--find (with-selected-window it exwm-class-name) (window-list (window-frame)))
                   ;; (and (windmove-find-other-window 'left)
                   ;;    (with-selected-window (windmove-find-other-window 'left) exwm-class-name))
                   ;; (and (windmove-find-other-window 'up)
@@ -19161,6 +19175,13 @@
               (t
                (set-face-background 'fringe "#402040")
                (setq accented-window--current-color-gradient accented-window--purple-gradient)))))
+
+    (defun accented-window--remove-fringe (window)
+      (let ((win (or window (selected-window))))
+        (unless (eql 0 (car (window-margins win)))
+          (set-window-margins win 0 0))
+        (unless (eql 0 (car (window-fringes win)))
+          (set-window-fringes win 0 0 t nil))))
 
     (defun accented-window--hide-fringe (win)
       (when (or (not (equal win (selected-window))) (string= " *my-posframe-buffer*" (buffer-name (window-buffer win))))
@@ -19186,9 +19207,7 @@
     (defun accented-window--window-change-hook (&rest args)
       (interactive)
       (if accented-window--active
-          (let ((visible-frames (if (fboundp 'exwm-workspace--active-p) 
-                                    (--filter (exwm-workspace--active-p it) (frame-list))
-                                  (list (selected-frame)))))
+          (let ((visible-frames (accented-window--visible-frames)))
             (when (equal '(nil) (window-margins))
               (accented-window--set-standard-fringe (selected-window)))
             (if (or (minibufferp))
@@ -19216,7 +19235,7 @@
     (add-hook 'window-configuration-change-hook #'accented-window--window-change-hook)
     (add-hook 'window-state-change-hook #'accented-window--window-change-hook)
 
-    (bind-key "<prior>" #'accented-window--pulse-window)
+    (bind-key "<prior>" #'accented-window--pulse-only-window)
 
   #+end_src
 - create racket based cli script file (like org capture)
