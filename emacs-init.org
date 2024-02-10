@@ -14282,17 +14282,19 @@
                               ))
 
                       (posframe-hide my-posframe-buffer)
-                      (posframe-show my-posframe-buffer
-                                     :string display
-                                     ;; :override-parameters switch-posframe-parameters
-                                     :poshandler 'posframe-poshandler-frame-center
-                                     :foreground-color "gray30"
-                                     :left-fringe 0
-                                     :right-fringe 0
-                                     :timeout 2)
-                      (when (get-buffer-window my-posframe-buffer)
-                        (set-window-margins (get-buffer-window my-posframe-buffer) 2 1)
-                        (set-window-fringes (get-buffer-window my-posframe-buffer) 0 0 t nil))
+
+                      (--each
+                          (window-list
+                           (posframe-show my-posframe-buffer
+                                          :string display
+                                          ;; :override-parameters switch-posframe-parameters
+                                          :poshandler 'posframe-poshandler-frame-center
+                                          :foreground-color "gray30"
+                                          :left-fringe 0
+                                          :right-fringe 0
+                                          :timeout 2))
+                        (accented-window--remove-fringe it)
+                        )
                       ;; (posframe-show " *inpos-posframe-buffer"
                       ;;                :string (s-concat "monitor workspace [" (number-to-string newidx) "]")
                       ;;                :position (point)
