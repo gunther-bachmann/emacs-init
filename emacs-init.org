@@ -5578,13 +5578,16 @@
        (progn
          (setq avy-background t)
          (setq avy-keys (number-sequence ?a ?z))
+         (setq avy-orders-alist '((avy-goto-char . avy-order-closest)
+                                  (avy-goto-char-timer . avy-order-closest)))
          (cond
           ((eq gb/theme-mode 'light) nil) ;; TODO complete
           (t (progn
-               (--each '((avy-lead-face ((t (:foreground "red"))))
-                         (avy-lead-face-0 ((t (:foreground "orange"))))
-                         (avy-lead-face-1 ((t (:foreground "yellow"))))
-                         (avy-lead-face-2 ((t (:foreground "white")))))
+               (--each '((avy-lead-face ((t (:foreground "#60ff60" :background "#000000"))))
+                         (avy-lead-face-0 ((t (:foreground "orange" :background "#000000"))))
+                         (avy-lead-face-1 ((t (:foreground "yellow" :background "#000000"))))
+                         (avy-lead-face-2 ((t (:foreground "purple" :background "#000000"))))
+                         (avy-background-face ((t (:foreground "#707070")))))
                  (progn (add-to-list 'gb/list-of-faces-to-set it)(custom-set-faces it))))))))
 
      (use-package avy-zap
