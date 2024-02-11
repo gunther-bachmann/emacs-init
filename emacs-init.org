@@ -18449,7 +18449,7 @@
 #+begin_src emacs-lisp
   (use-package fontaine)
 #+end_src
-* PREVAL deadgrep
+* deadgrep
 #+begin_src emacs-lisp
   (use-package deadgrep
     :ensure t
@@ -18500,7 +18500,7 @@
     :load-path "~/repo/emacs/org-remoteimg/"
     :custom (org-display-remote-inline-images 'cache))
 #+end_src
-* EVAL org-imgtog
+* org-imgtog
 - [[https://github.com/gaoDean/org-imgtog][homepage]]
 - toggles reference/image similar to org-fragtog
 #+begin_src emacs-lisp
@@ -18643,7 +18643,7 @@
       (interactive)
       (ignore-errors (docsim--quit-sidebuffer))))
 #+end_src
-* EVAL vterm - better terminal emulation
+* vterm - better terminal emulation
 - installed ~cmake~, ~libvterm~ and ~libtool~ via nix-env
 #+begin_src emacs-lisp
   (use-package vterm
@@ -18684,7 +18684,7 @@
   (use-package chip8
     :commands (chip8-original chip8-modern chip8-superchip chip8-xo-chip))
 #+end_src
-* EVAL goto-line-preview, goto-char-preview
+* goto-line-preview, goto-char-preview
 #+begin_src emacs-lisp
   (use-package goto-char-preview
     :bind (("M-g c" . goto-char-preview)
@@ -18873,7 +18873,7 @@
   (use-package web-server
     :ensure t)
 #+end_src
-* EVAL just
+* just
 #+begin_src emacs-lisp
   (use-package just-mode
     :ensure t)
