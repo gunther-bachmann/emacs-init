@@ -1212,15 +1212,22 @@
    #+END_SRC
 ** shell
 #+begin_src emacs-lisp
+  (defun -shell-command-to-string (command)
+    (with-output-to-string
+      (with-current-buffer standard-output
+        (if (string-prefix-p "sudo " command)
+            (progn (cd "/sudo::/") (shell-command (substring command 5) t))
+          (shell-command command t)))))
+
   (defun safe-shell-command-to-string (command)
     (let ((loc
            (if (buffer-file-name)
                (file-name-directory (buffer-file-name))
              default-directory)))
       (if (file-directory-p loc)
-          (shell-command-to-string command)
+          (-shell-command-to-string command)
         (let ((default-directory "~"))
-          (shell-command-to-string command)))))
+          (-shell-command-to-string command)))))
 #+end_src
 ** other
    #+BEGIN_SRC emacs-lisp
@@ -17411,7 +17418,7 @@
       "execute COMMAND using systemd on SERIVCE-NAME"
       (let* ((user-param (if user-service? "--user" ""))
              (command (format "systemctl %s %s %s" user-param command service-name)))
-        (string-trim (shell-command-to-string command))))
+        (string-trim (safe-shell-command-to-string command))))
 
     (defun gb/backup-timer-off ()
       "stop the timer that starts backups"
