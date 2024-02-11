@@ -8871,7 +8871,8 @@
             )
      :init  (progn
               ;; Sign messages by default
-              (add-hook 'message-setup-hook 'mml-secure-sign-pgpmime)
+              (add-hook 'message-setup-hook #'mml-secure-sign-pgpmime)
+              (add-hook 'gnus-summary-mode-hook #'hl-line-mode)
 
               ;; (defun gb/cache-sender-key ()
               ;;   "cache the gpg key based on the from field of this message"
@@ -12240,7 +12241,7 @@
          (interactive)
          (dired (format "/run/media/%s" (user-login-name))))
        :config
-
+       (add-hook 'dired-mode-hook #'hl-line-mode)
        (setq dired-omit-size-limit 60000)
        (setq dired-dwim-target t) ;; try to guess the directory to use for dired
        (setq dired-listing-switches "-Alh --group-directories-first") ;; default switches for ls to be used for dired listing
@@ -16424,6 +16425,7 @@
         :config
         (require 'notdeft-autoloads)
 
+        (add-hook 'notdeft-mode-hook #'hl-line-mode)
         (defun gb/notdeft--select-random ()
           "select a random roam file and open it"
           (interactive)
@@ -16863,7 +16865,9 @@
   #+begin_src emacs-lisp
     (use-package journalctl-mode
       :ensure t
-      :commands (journalctl))
+      :commands (journalctl)
+      :config
+      (add-hook 'journalctl-mode-hook #'hl-line-mode))
   #+end_src
 * EVAL format-all
   - format a very large number of different programming language using external tools
@@ -17263,6 +17267,7 @@
   #+begin_src emacs-lisp
     (use-package proced
       :config
+      (add-hook 'proced-mode-hook #'hl-line-mode)
       (custom-set-variables
        '(proced-auto-update-flag t)
        '(proced-format (quote long))
