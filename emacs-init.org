@@ -8053,7 +8053,7 @@
      (require 'comint) ;; part of emacs
      (setq comint-password-prompt-regexp
            ;; (concat comint-password-prompt-regexp
-           "\\(passphrase\\|PIN: \\|password:\\|Password:\\).*\\'" ;; [:blank:]?:[:blank:]*
+           "\\(passphrase\\|PIN: \\|password for\\|password:\\|Password:\\).*\\'" ;; [:blank:]?:[:blank:]*
            ;; )
            )
 
@@ -15095,7 +15095,7 @@
     (defun gb/net-wlan-switch-on ()
       "switch wireless lan on, needs tlp to be installed"
       (interactive)
-      (safe-shell-command-to-string "sudo systemctl start wpa_supplicant.service ") ;; just to make sure
+      (safe-shell-command-to-string "sudo systemctl start wpa_supplicant-wlp4s0.service ") ;; just to make sure
       (message (s-trim (safe-shell-command-to-string "sudo wifi on"))))
 
     (defun gb/net-wlan-switch-off ()
