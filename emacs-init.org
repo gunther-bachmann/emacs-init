@@ -1212,22 +1212,26 @@
    #+END_SRC
 ** shell
 #+begin_src emacs-lisp
-  (defun -shell-command-to-string (command)
+  (defun -shell-command-to-string (command &optional native)
+    "execute shell command
+  execute commands prefixed with sudo with tramp, making use of the .authinfo"
     (with-output-to-string
       (with-current-buffer standard-output
-        (if (string-prefix-p "sudo " command)
-            (progn (cd "/sudo::/") (shell-command (substring command 5) t))
+        (if (and (string-prefix-p "sudo " command) (not native))
+            (progn (cd "/sudo::/") (message "using tramp sudo for command %s" command) (shell-command (substring command 5) t))
           (shell-command command t)))))
 
-  (defun safe-shell-command-to-string (command)
+  (defun safe-shell-command-to-string (command &optional native)
+    "make sure this is done in a directory that is present
+  use NATIVE call to sudo (not via /sudo::/ tramp) directly via shell"
     (let ((loc
            (if (buffer-file-name)
                (file-name-directory (buffer-file-name))
              default-directory)))
       (if (file-directory-p loc)
-          (-shell-command-to-string command)
+          (-shell-command-to-string command native)
         (let ((default-directory "~"))
-          (-shell-command-to-string command)))))
+          (-shell-command-to-string command native)))))
 #+end_src
 ** other
    #+BEGIN_SRC emacs-lisp
@@ -14214,7 +14218,8 @@
                     (format "sudo cpupower -c \"%s\" frequency-set -g powersave -d %i -u %s"
                             (gb/cpupower-cpu-parameter)
                             (gb/cpu-min-frequency)
-                            (gb/cpu-base-frequency)))))
+                            (gb/cpu-base-frequency))
+                    t)))
 
         (defun gb/cpu-performance ()
           "experimental"
@@ -14223,7 +14228,8 @@
                     (format "sudo cpupower -c \"%s\" frequency-set -g performance -d %i -u %i"
                             (gb/cpupower-cpu-parameter)
                             (gb/cpu-min-frequency)
-                            (gb/cpu-max-frequency)))))
+                            (gb/cpu-max-frequency))
+                    t)))
       #+end_src
     - margins
       #+begin_src emacs-lisp
@@ -15096,37 +15102,37 @@
     (defun gb/net-lan-switch-on ()
       "switch wired lan on"
       (interactive)
-      (message (s-trim (safe-shell-command-to-string (format "sudo ifconfig --up %s" gb/net-lan-adapter)))))
+      (message (s-trim (safe-shell-command-to-string (format "sudo ifconfig --up %s" gb/net-lan-adapter) t))))
 
     (defun gb/net-lan-switch-off ()
       "switch wired lan off"
       (interactive)
-      (message (s-trim (safe-shell-command-to-string (format "sudo ifconfig --down %s" gb/net-lan-adapter)))))
+      (message (s-trim (safe-shell-command-to-string (format "sudo ifconfig --down %s" gb/net-lan-adapter) t))))
 
     (defun gb/net-wlan-switch-on ()
       "switch wireless lan on, needs tlp to be installed"
       (interactive)
-      (safe-shell-command-to-string "sudo systemctl start wpa_supplicant-wlp4s0.service ") ;; just to make sure
-      (message (s-trim (safe-shell-command-to-string "sudo wifi on"))))
+      (safe-shell-command-to-string "sudo systemctl start wpa_supplicant-wlp4s0.service" t) ;; just to make sure
+      (message (s-trim (safe-shell-command-to-string "sudo wifi on" t))))
 
     (defun gb/net-wlan-switch-off ()
       "switch wireless lan off, needs tlp to be installed"
       (interactive)
-      (message (s-trim (safe-shell-command-to-string "sudo wifi off")))) ;; systemctl stop wpa_supplicant.service
+      (message (s-trim (safe-shell-command-to-string "sudo wifi off" t)))) ;; systemctl stop wpa_supplicant.service
 
     (defun gb/net-bluetooth-switch-on ()
       "switch bluetooth on, needs tlp to be installed"
       (interactive)
-      (message (s-trim (safe-shell-command-to-string "sudo bluetooth on"))))
+      (message (s-trim (safe-shell-command-to-string "sudo bluetooth on" t))))
 
     (defun gb/net-bluetooth-switch-off ()
       "switch bluetooth off, needs tlp to be installed"
       (interactive)
-      (message (s-trim (safe-shell-command-to-string "sudo bluetooth off"))))
+      (message (s-trim (safe-shell-command-to-string "sudo bluetooth off" t))))
 
     (defun gb/get-vpns-available ()
       "get a list of available vpns"
-      (split-string (s-trim (safe-shell-command-to-string " systemctl --all list-unit-files openvpn*  | grep openvpn | cut -f1 -d' '"))))
+       (split-string (s-trim (safe-shell-command-to-string "systemctl --all list-unit-files openvpn*  | grep openvpn | cut -f1 -d' '"))))
 
     (defun gb/net-vpn-switch-on--direct (vpn-id)
       "switch vpn on"
