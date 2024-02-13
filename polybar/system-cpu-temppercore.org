@@ -5,7 +5,7 @@
     # THIS FILE IS GENERATED (To edit please open file from link above)
     #------------------------------------------------------------------
 
-    sensors | grep Core | awk '{print substr($3, 2, length($3)-5)}' | tr "\\n" " " | sed 's/ / /g' | sed 's/ $/ °C/'
+    sensors | grep Core | awk '{print substr($3, 2, length($3)-3)}' | tr "\\n" " " | sed 's/ / /g' | sed 's/ $/ °C/'
   #+end_src
 
 # Local Variables:
