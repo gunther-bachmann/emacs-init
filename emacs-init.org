@@ -1222,16 +1222,17 @@
           (shell-command command t)))))
 
   (defun safe-shell-command-to-string (command &optional native)
-    "make sure this is done in a directory that is present
-  use NATIVE call to sudo (not via /sudo::/ tramp) directly via shell"
-    (let ((loc
-           (if (buffer-file-name)
-               (file-name-directory (buffer-file-name))
-             default-directory)))
-      (if (file-directory-p loc)
-          (-shell-command-to-string command native)
-        (let ((default-directory "~"))
-          (-shell-command-to-string command native)))))
+      "make sure this is done in a directory that is present
+    use NATIVE call to sudo (not via /sudo::/ tramp) directly via shell"
+      (let ((loc
+             (if (buffer-file-name)
+                 (file-name-directory (buffer-file-name))
+               default-directory)))
+        (if (or (string-prefix-p "/sudo:" loc) ;; file-directory-p hangs if tramp tries to resolve /sudo: ...
+               (not (file-directory-p loc)))
+            (let ((default-directory "~"))
+            (-shell-command-to-string command native))
+          (-shell-command-to-string command native))))
 #+end_src
 ** other
    #+BEGIN_SRC emacs-lisp
