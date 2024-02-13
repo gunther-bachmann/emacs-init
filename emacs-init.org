@@ -5810,13 +5810,12 @@
                   (ivy-ignore-buffers '("\\` " "\\`\\*tramp/" "\\`\\*Bookmark/" "\\`\\*magit" "\\`\\*Slack Event Log" "\\`\\*Slack Log"))
                   )
          :config
-         (defface ivy-current-match
-           '((((class color) (background light))
-              :background "#1a4b77" :foreground "white")
-             (((class color) (background dark))
-              :background "#65a7e2" :foreground "black"))
-           "Face used by Ivy for highlighting first match.")
 
+         (cond
+          ((eq gb/theme-mode 'light) nil) ;; TODO complete
+          (t (progn
+               (--each '((ivy-current-match ((t (:extend t :background "#303030" :box (:line-width (1 . 1) :color "grey40" :style flat))))))
+                 (progn (add-to-list 'gb/list-of-faces-to-set it)(custom-set-faces it))))))
 
          (defun gb/ivy-partial-or-done ()
            (interactive)
@@ -5887,8 +5886,12 @@
          (memoize #'ivy-rich-switch-buffer-path 5))
        (use-package all-the-icons-ivy
          :ensure t)
-       (defun gb/ivy-candidates-offset (cand) (make-string (if (or (and (boundp 'mini-frame-mode) mini-frame-mode) (and (boundp 'mini-popup-mode) mini-popup-mode) (and (boundp 'ivy-posframe-mode) ivy-posframe-mode)) 0 (max 0 (- (frame-width) (ivy-rich-minibuffer-width 0.77)))) ? ))
-       (defun gb/ivy-candidates-offset-20 (cand) (make-string (if (or (and (boundp 'mini-frame-mode) mini-frame-mode) (and (boundp 'mini-popup-mode) mini-popup-mode)(and (boundp 'ivy-posframe-mode) ivy-posframe-mode)) 0 20) ? ))
+       (defun gb/ivy-popup-predicate ()
+         (or (and (boundp 'mini-frame-mode) mini-frame-mode)
+            (and (boundp 'mini-popup-mode) mini-popup-mode)
+            (and (boundp 'ivy-posframe-mode) ivy-posframe-mode)))
+       (defun gb/ivy-candidates-offset (cand) (make-string (if (gb/ivy-popup-predicate) 0 (max 0 (- (frame-width) (ivy-rich-minibuffer-width 0.77)))) ? ))
+       (defun gb/ivy-candidates-offset-20 (cand) (make-string (if (gb/ivy-popup-predicate) 0 20) ? ))
        (defun gb/prefixed-20-all-the-icons-ivy-rich-buffer-icon (cand)
          (concat (gb/ivy-candidates-offset-20 cand)
                  (cond ((get-buffer cand) (all-the-icons-ivy-rich-buffer-icon cand))
@@ -6107,15 +6110,13 @@
                   :delimiter "	")
                  find-file-rg
                  (:columns
-                  ((gb/ivy-candidates-offset)
-                   (all-the-icons-ivy-rich-file-icon)
+                  ((gb/prefixed-20-all-the-icons-ivy-rich-file-icon)
                    (counsel-projectile-find-file-transformer
                     (:width 0.6)))
                   :delimiter "	")
                  find-file-dwim
                  (:columns
-                  ((gb/ivy-candidates-offset)
-                   (all-the-icons-ivy-rich-file-icon)
+                  ((gb/prefixed-20-all-the-icons-ivy-rich-file-icon)
                    (counsel-projectile-find-file-transformer
                     (:width 0.6)))
                   :delimiter "	")
