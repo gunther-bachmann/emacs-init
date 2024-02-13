@@ -14255,6 +14255,7 @@
     #+BEGIN_SRC emacs-lisp
       (when (and gb/profile--exwm gb/use-exwm)
         (use-package exwm
+          :pin gnu
           :after (xelb)
           :bind (("<XF86MonBrightnessUp>" . gb/brightness-up)
                  ("<XF86MonBrightnessDown>" . gb/brightness-down)
