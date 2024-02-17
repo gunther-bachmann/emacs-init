@@ -9321,10 +9321,8 @@
      (setq bbdb-phone-label-list (quote ("" "home" "work" "cell" "other")))
 
      )
-
-
  #+END_SRC
-*** incremental search within bbdb (and more) [[https://github.com/aki2o/bbdb-][link]]
+*** DISABLED (not maintained anymore) incremental search within bbdb (and more) [[https://github.com/aki2o/bbdb-][link]]
 **** to open (during writing mails): M-x bbdb-:start-completion
 **** keybinding in that mode is then
       j ... Go to next record
@@ -9347,7 +9345,7 @@
       R ... Reload the latest record of BBDB
       q ... Finish with doing nothing
       RET ... Finish with the update of To/Cc/Bcc header (if necessary, open the mail buffer)
-  #+BEGIN_SRC emacs-lisp
+  #+BEGIN_SRC emacs-lisp :tangle no
     (use-package bbdb-
       :ensure t
       :after ( bbdb)
