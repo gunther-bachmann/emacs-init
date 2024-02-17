@@ -16609,8 +16609,9 @@
       :commands (share2computer)
       :custom (share2computer-default-directory "~/Downloads/"))
   #+end_src
-* EVAL bufler see
-  #+begin_src emacs-lisp
+* DISABLED bufler (not really used)
+- https://github.com/alphapapa/bufler.el
+  #+begin_src emacs-lisp :tangle no
     (use-package bufler
       :bind (("H-b" . #'bufler-switch-buffer))
       :ensure t)
