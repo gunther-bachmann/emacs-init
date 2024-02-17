@@ -19178,8 +19178,19 @@
          (nth accented-window--animate-face-bg-color-step accented-window--current-color-gradient))
         (setq accented-window--animate-face-bg-color-step (1+ accented-window--animate-face-bg-color-step))
         (when (> accented-window--animate-face-bg-color-step 7)
-          (accented-window--reset-animation)      
-          (--each (accented-window--visible-frames) (walk-window-tree #'accented-window--set-standard-fringe it)))))
+          (accented-window--restore-default))))
+
+    (defun accented-window--restore-default (&rest args)
+      (ignore-errors
+        (accented-window--reset-animation)      
+        (--each (accented-window--visible-frames) (walk-window-tree #'accented-window--set-standard-fringe it))))
+
+
+    (when gb/exwm-use-custom-workspaces
+      (advice-add 'exwm-workspace-switch :before #'accented-window--restore-default)
+      (advice-add 'exwm-workspace-swap :before #'accented-window--restore-default)
+      (advice-add 'exwm-workspace-add :before #'accented-window--restore-default)
+      (advice-add 'exwm-workspace-move :before #'accented-window--restore-default))
 
     (defun accented-window--prepare-fringe-face-animation (&optional window)
       (with-selected-window (or window (selected-window))
@@ -19188,14 +19199,7 @@
                (set-face-background 'fringe "#161414")
                (setq accented-window--current-color-gradient nil))
               ((or exwm-class-name
-                   (--find (with-selected-window it exwm-class-name) (window-list (window-frame)))
-                  ;; (and (windmove-find-other-window 'left)
-                  ;;    (with-selected-window (windmove-find-other-window 'left) exwm-class-name))
-                  ;; (and (windmove-find-other-window 'up)
-                  ;;    (with-selected-window (windmove-find-other-window 'up) exwm-class-name))
-                  ;; (and (windmove-find-other-window 'down)
-                  ;;    (with-selected-window (windmove-find-other-window 'down) exwm-class-name))
-                  )
+                   (--find (with-selected-window it exwm-class-name) (window-list (window-frame))))
                (set-face-background 'fringe "orange3")
                (setq accented-window--current-color-gradient accented-window--orange-gradient))
               (t
@@ -19213,12 +19217,20 @@
       (when (or (not (equal win (selected-window))) (string= " *my-posframe-buffer*" (buffer-name (window-buffer win))))
         (when (window-live-p win)
           (unless (eql 2 (car (window-margins win)))
+            (with-current-buffer (window-buffer win)
+              (when buffer-display-table
+                (set-display-table-slot buffer-display-table 0 ? ) 
+                (set-display-table-slot buffer-display-table 1 ? )
+                (set-display-table-slot buffer-display-table 'wrap ? )
+                (set-display-table-slot buffer-display-table 'truncation ? )))
             (set-window-margins win 2 1)
             (set-window-fringes win 0 0 t nil)))))
 
     (defun accented-window--restore-fringe (win)
       (unless (or (equal win (selected-window)) (string-prefix-p " " (buffer-name (window-buffer win))))
         (when (and (equal 0 (car (window-fringes win))) (window-live-p win))
+          (set-display-table-slot buffer-display-table 0 ? ) 
+          (set-display-table-slot buffer-display-table 1 ? )
           (accented-window--set-standard-fringe win))))
 
     (defun accented-window--set-standard-fringe (win)
@@ -19263,6 +19275,11 @@
 
     (bind-key "<prior>" #'accented-window--pulse-only-window)
 
+      ;; set character for truncation indication displayed if no fringe is present to space
+      (set-display-table-slot standard-display-table 0 ? ) 
+      (set-display-table-slot standard-display-table 1 ? )
+      (set-display-table-slot standard-display-table 'truncation ? )
+      (set-display-table-slot standard-display-table 'wrap ? )
   #+end_src
 - create racket based cli script file (like org capture)
   #+begin_src emacs-lisp
