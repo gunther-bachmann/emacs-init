@@ -5774,6 +5774,8 @@
      ;; recently edited files when you first start emacs
      (use-package recentf
        ;; :ensure t ;; internal packages seem not load correctly if ensured
+       :custom ((recentf-max-menu-items 1000 "number of recentf elements to be saved")
+                (recentf-max-saved-items 1000 "number of recentf elements to be saved"))
        :config
        (progn
          (setq recentf-save-file (concat user-emacs-directory ".recentf"))
@@ -5786,7 +5788,6 @@
                  (shell-command (s-concat "rm " recentf-save-file)))))
          (setq recentf-exclude (list (expand-file-name "~/\\.emacs\\.d/")
                                      (expand-file-name "~/Downloads/")))
-         (setq recentf-max-menu-items 1000)
          (recentf-mode 1)))
    #+END_SRC
 ** swiper and ivy
