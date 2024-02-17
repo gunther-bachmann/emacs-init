@@ -6,6 +6,7 @@
     #------------------------------------------------------------------
   #+end_src
 * dunstrc
+- see https://dunst-project.org/documentation/
   #+begin_src sh :eval no :tangle ~/.config/dunst/dunstrc
     [global]
         ### Display ###
@@ -59,7 +60,7 @@
         # The height of the entire notification.  If the height is smaller
         # than the font height and padding combined, it will be raised
         # to the font height and padding.
-        notification_height = 0
+        notification_height = 30
 
         # Draw a line of "separator_height" pixel height between two
         # notifications.
@@ -188,7 +189,10 @@
         max_icon_size = 32
 
         # Paths to default icons.
-        icon_path = /usr/share/icons/gnome/16x16/status/:/usr/share/icons/gnome/16x16/devices/
+        # icon_path = /usr/share/icons/gnome/16x16/status/:/usr/share/icons/gnome/16x16/devices/
+        # icon_path = /run/current-system/sw/share/icons/Adwaita/16x16/devices:/run/current-system/sw/share/icons/gnome/16x16/places:/run/current-system/sw/share/icons/gnome/16x16/status:/run/current-system/sw/share/icons/hicolor:/home/pe/.nix-profile/share/icons/hicolor
+        enable_recursive_icon_lookup = true
+        icon_theme = Adwaita  # same name as the folder in /usr/share/icons/
 
         ### History ###
 

@@ -29,6 +29,10 @@
    #+begin_src sh :eval no :tangle ~/.xprofile
      export GUIX_LOCPATH=$HOME/.guix-profile/lib/locale
    #+end_src
+** dunst
+#+begin_src sh :eval no :tangle ~/.xprofile
+  dunst &
+#+end_src
 ** exwm - java / configuration
   #+begin_src sh :eval no :tangle ~/.xprofile
     # Make Java applications aware this is a non-reparenting window manager.
@@ -194,10 +198,6 @@
     # disable for gaming
     altr2hyper &
   #+end_src
-** dunst
-#+begin_src sh :eval no :tangle ~/.xprofile
-  dunst &
-#+end_src
 ** *DISABLED* experimentals (disabled)
   #+begin_src sh :eval no :tangle ~/.xprofile
 
