@@ -346,7 +346,8 @@
         (global-unset-key (kbd (concat "s-" letter)))
         (global-unset-key (kbd (concat "s-" (downcase letter))))))
     (global-unset-key (kbd "C-<down-mouse-1>"))
-    (global-unset-key  "\C-x\C-n")
+    (global-unset-key "\C-x\C-n")
+    (global-unset-key "\C-xd")
   #+END_SRC
 * check account configuration files
   #+BEGIN_SRC emacs-lisp
@@ -6292,7 +6293,8 @@
                 ;; ( "s-f"     . counsel-buffer-or-recentf) ;; redefined in find-file-rg
                 ( "C-c g h" . counsel-git-grep)
                 ( "C-c g i" . counsel-rg)
-                ( "C-x d"   . counsel-dired)
+                ( "C-x d d"   . counsel-dired)
+                ( "C-x d r"   . counsel-goto-recent-directory)
                 ( "C-x 8 <RET>" . counsel-unicode-char)
                 ( "s-i"     . counsel-imenu)
                 ( "H-q"     . counsel-search)
