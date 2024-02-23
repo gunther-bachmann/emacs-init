@@ -5789,7 +5789,24 @@
                  (shell-command (s-concat "rm " recentf-save-file)))))
          (setq recentf-exclude (list (expand-file-name "~/\\.emacs\\.d/")
                                      (expand-file-name "~/Downloads/")))
-         (recentf-mode 1)))
+
+         ;; copied from https://www.emacswiki.org/emacs/recentf-ext.el
+         (defun recentf-push-buffers-in-frame ()
+           (walk-windows
+            (lambda (win)
+              (let ((bfn (buffer-local-value 'buffer-file-name (window-buffer win))))
+                (and bfn (recentf-add-file bfn))))))
+         (add-to-list 'window-configuration-change-hook 'recentf-push-buffers-in-frame)
+
+         (defun recentf-add-dired-directory ()
+           (when (and (stringp dired-directory)
+                    (equal "" (file-name-nondirectory dired-directory)))
+             (recentf-add-file dired-directory)))
+         (add-hook 'dired-mode-hook 'recentf-add-dired-directory)
+
+         (recentf-mode 1)
+         (setq recentf-max-menu-items 1000)
+         (setq recentf-max-saved-items 1000)))
    #+END_SRC
 ** swiper and ivy
    #+BEGIN_SRC emacs-lisp
