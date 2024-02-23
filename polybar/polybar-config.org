@@ -577,7 +577,8 @@
     [module/github]
     type = custom/ipc
     hook-0 = ~/.config/polybar/github-notifications.sh
-    initial = 0
+    hook-1 = echo ""
+    initial = 1
     # interval = 60
   #+end_src
 
