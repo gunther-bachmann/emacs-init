@@ -5978,7 +5978,7 @@
                  (:columns
                   ((all-the-icons-ivy-rich-symbol-icon)
                    (ivy-rich-candidate))
-                  :delimiter "	")
+                  :delimiter "  ")
                  counsel-set-variable
                  (:columns
                   ((all-the-icons-ivy-rich-variable-icon)
@@ -5990,53 +5990,53 @@
                  (:columns
                   ((all-the-icons-ivy-rich-symbol-icon)
                    (ivy-rich-candidate))
-                  :delimiter "	")
+                  :delimiter "  ")
                  counsel-info-lookup-symbol
                  (:columns
                   ((all-the-icons-ivy-rich-symbol-icon)
                    (ivy-rich-candidate))
-                  :delimiter "	")
+                  :delimiter "  ")
                  counsel-descbinds
                  (:columns
                   ((all-the-icons-ivy-rich-keybinding-icon)
                    (ivy-rich-candidate))
-                  :delimiter "	")
+                  :delimiter "  ")
                  counsel-find-file
                  (:columns
                   ((gb/prefixed-20-all-the-icons-ivy-rich-file-icon)
                    (ivy-read-file-transformer))
-                  :delimiter "	")
+                  :delimiter "  ")
                  counsel-file-jump
                  (:columns
                   ((all-the-icons-ivy-rich-file-icon)
                    (ivy-rich-candidate))
-                  :delimiter "	")
+                  :delimiter "  ")
                  counsel-dired
                  (:columns
                   ((gb/ivy-candidates-offset)
                    (all-the-icons-ivy-rich-file-icon)
                    (ivy-read-file-transformer))
-                  :delimiter "	")
+                  :delimiter " ")
                  counsel-dired-jump
                  (:columns
                   ((all-the-icons-ivy-rich-file-icon)
                    (ivy-rich-candidate))
-                  :delimiter "	")
+                  :delimiter "  ")
                  counsel-el
                  (:columns
                   ((all-the-icons-ivy-rich-symbol-icon)
                    (ivy-rich-candidate))
-                  :delimiter "	")
+                  :delimiter "  ")
                  counsel-fzf
                  (:columns
                   ((all-the-icons-ivy-rich-file-icon)
                    (ivy-rich-candidate))
-                  :delimiter "	")
+                  :delimiter "  ")
                  counsel-git
                  (:columns
                   ((all-the-icons-ivy-rich-file-icon)
                    (ivy-rich-candidate))
-                  :delimiter "	")
+                  :delimiter "  ")
                  counsel-recentf
                  (:columns
                   ((all-the-icons-ivy-rich-file-icon)
@@ -6044,7 +6044,13 @@
                     (:width 0.8))
                    (ivy-rich-file-last-modified-time
                     (:face font-lock-comment-face)))
-                  :delimiter "	")
+                  :delimiter "  ")
+                 counsel-goto-recent-directory
+                 (:columns
+                  ((gb/ivy-candidates-offset)
+                   (all-the-icons-ivy-rich-file-icon)
+                   (ivy-read-file-transformer))
+                  :delimiter " ")                 
                  counsel-buffer-or-recentf
                  (:columns
                   ((gb/prefixed-20-all-the-icons-ivy-rich-file-icon)
@@ -6052,19 +6058,19 @@
                     (:width 0.6))
                    (ivy-rich-file-last-modified-time
                     (:face font-lock-comment-face)))
-                  :delimiter "	")
+                  :delimiter "  ")
                  counsel-bookmark
                  (:columns
                   ((all-the-icons-ivy-rich-bookmark-type)
                    (all-the-icons-ivy-rich-bookmark-name
                     (:width 40))
                    (all-the-icons-ivy-rich-bookmark-info))
-                  :delimiter "	")
+                  :delimiter "  ")
                  counsel-bookmarked-directory
                  (:columns
                   ((all-the-icons-ivy-rich-file-icon)
                    (ivy-rich-candidate))
-                  :delimiter "	")
+                  :delimiter "  ")
                  counsel-package
                  (:columns
                   ((all-the-icons-ivy-rich-package-icon)
@@ -6076,113 +6082,113 @@
                     (:width 7 :face font-lock-builtin-face))
                    (all-the-icons-ivy-rich-package-install-summary
                     (:face font-lock-doc-face)))
-                  :delimiter "	")
+                  :delimiter "  ")
                  counsel-fonts
                  (:columns
                   ((all-the-icons-ivy-rich-font-icon)
                    (ivy-rich-candidate))
-                  :delimiter "	")
+                  :delimiter "  ")
                  counsel-major
                  (:columns
                   ((all-the-icons-ivy-rich-function-icon)
                    (ivy-rich-candidate))
-                  :delimiter "	")
+                  :delimiter "  ")
                  counsel-find-library
                  (:columns
                   ((all-the-icons-ivy-rich-library-icon)
                    (ivy-rich-candidate))
-                  :delimiter "	")
+                  :delimiter "  ")
                  counsel-load-library
                  (:columns
                   ((all-the-icons-ivy-rich-library-icon)
                    (ivy-rich-candidate))
-                  :delimiter "	")
+                  :delimiter "  ")
                  counsel-load-theme
                  (:columns
                   ((all-the-icons-ivy-rich-theme-icon)
                    (ivy-rich-candidate))
-                  :delimiter "	")
+                  :delimiter "  ")
                  counsel-world-clock
                  (:columns
                   ((all-the-icons-ivy-rich-world-clock-icon)
                    (ivy-rich-candidate))
-                  :delimiter "	")
+                  :delimiter "  ")
                  counsel-tramp
                  (:columns
                   ((all-the-icons-ivy-rich-tramp-icon)
                    (ivy-rich-candidate))
-                  :delimiter "	")
+                  :delimiter "  ")
                  counsel-git-checkout
                  (:columns
                   ((all-the-icons-ivy-rich-git-branch-icon)
                    (ivy-rich-candidate))
-                  :delimiter "	")
+                  :delimiter "  ")
                  counsel-list-processes
                  (:columns
                   ((all-the-icons-ivy-rich-process-icon)
                    (ivy-rich-candidate))
-                  :delimiter "	")
+                  :delimiter "  ")
                  counsel-projectile-switch-project
                  (:columns
                   ((all-the-icons-ivy-rich-file-icon)
                    (ivy-rich-candidate))
-                  :delimiter "	")
+                  :delimiter "  ")
                  find-file-rg
                  (:columns
                   ((gb/prefixed-20-all-the-icons-ivy-rich-file-icon)
                    (counsel-projectile-find-file-transformer
                     (:width 0.6)))
-                  :delimiter "	")
+                  :delimiter "  ")
                  find-file-dwim
                  (:columns
                   ((gb/prefixed-20-all-the-icons-ivy-rich-file-icon)
                    (counsel-projectile-find-file-transformer
                     (:width 0.6)))
-                  :delimiter "	")
+                  :delimiter "  ")
                  counsel-projectile-find-file
                  (:columns
                   ((gb/prefixed-20-all-the-icons-ivy-rich-file-icon)
                    (counsel-projectile-find-file-transformer
                     (:width 0.6)))
-                  :delimiter "	")
+                  :delimiter "  ")
                  counsel-projectile-find-dir
                  (:columns
                   ((all-the-icons-ivy-rich-project-icon)
                    (counsel-projectile-find-dir-transformer))
-                  :delimiter "	")
+                  :delimiter "  ")
                  counsel-minor
                  (:columns
                   ((all-the-icons-ivy-rich-mode-icon)
                    (ivy-rich-candidate))
-                  :delimiter "	")
+                  :delimiter "  ")
                  imenu-anywhere
                  (:columns
                   ((gb/ivy-candidates-offset-20)
                    (all-the-icons-ivy-rich-imenu-icon)
                    (ivy-rich-candidate))
-                  :delimiter "	")
+                  :delimiter "  ")
                  counsel-org-goto
                  (:columns
                   ((gb/ivy-candidates-offset-20)
                    (all-the-icons-ivy-rich-imenu-icon)
                    (ivy-rich-candidate))
-                  :delimiter "	")
+                  :delimiter "  ")
                  counsel-imenu
                  (:columns
                   ((gb/ivy-candidates-offset-20)
                    (all-the-icons-ivy-rich-imenu-icon)
                    (ivy-rich-candidate))
-                  :delimiter "	")
+                  :delimiter "  ")
                  counsel-cd
                  (:columns
                   ((all-the-icons-ivy-rich-file-icon)
                    (ivy-rich-candidate))
-                  :delimiter "	")
+                  :delimiter "  ")
                  counsel-company
                  (:columns
                   ((all-the-icons-ivy-rich-company-icon)
                    (ivy-rich-candidate))
-                  :delimiter "	")
+                  :delimiter "  ")
                  package-install
                  (:columns
                   ((all-the-icons-ivy-rich-package-icon)
@@ -6194,7 +6200,7 @@
                     (:width 7 :face font-lock-builtin-face))
                    (ivy-rich-package-install-summary
                     (:face font-lock-doc-face)))
-                  :delimiter "	")
+                  :delimiter "  ")
                  package-reinstall
                  (:columns
                   ((all-the-icons-ivy-rich-package-icon)
@@ -6206,74 +6212,74 @@
                     (:width 7 :face font-lock-builtin-face))
                    (ivy-rich-package-install-summary
                     (:face font-lock-doc-face)))
-                  :delimiter "	")
+                  :delimiter "  ")
                  package-delete
                  (:columns
                   ((all-the-icons-ivy-rich-package-icon)
                    (ivy-rich-candidate))
-                  :delimiter "	")
+                  :delimiter "  ")
                  persp-switch-to-buffer
                  ,ivy-rich-display-transformer--buffer
                  persp-switch
                  (:columns
                   ((all-the-icons-ivy-rich-project-icon)
                    (ivy-rich-candidate))
-                  :delimiter "	")
+                  :delimiter "  ")
                  persp-frame-switch
                  (:columns
                   ((all-the-icons-ivy-rich-project-icon)
                    (ivy-rich-candidate))
-                  :delimiter "	")
+                  :delimiter "  ")
                  persp-window-switch
                  (:columns
                   ((all-the-icons-ivy-rich-project-icon)
                    (ivy-rich-candidate))
-                  :delimiter "	")
+                  :delimiter "  ")
                  persp-kill
                  (:columns
                   ((all-the-icons-ivy-rich-project-icon)
                    (ivy-rich-candidate))
-                  :delimiter "	")
+                  :delimiter "  ")
                  persp-save-and-kill
                  (:columns
                   ((all-the-icons-ivy-rich-project-icon)
                    (ivy-rich-candidate))
-                  :delimiter "	")
+                  :delimiter "  ")
                  persp-import-buffers
                  (:columns
                   ((all-the-icons-ivy-rich-project-icon)
                    (ivy-rich-candidate))
-                  :delimiter "	")
+                  :delimiter "  ")
                  persp-import-win-conf
                  (:columns
                   ((all-the-icons-ivy-rich-project-icon)
                    (ivy-rich-candidate))
-                  :delimiter "	")
+                  :delimiter "  ")
                  persp-kill-buffer
                  (:columns
                   ((all-the-icons-ivy-rich-buffer-icon)
                    (ivy-rich-candidate))
-                  :delimiter "	")
+                  :delimiter "  ")
                  persp-remove-buffer
                  (:columns
                   ((all-the-icons-ivy-rich-buffer-icon)
                    (ivy-rich-candidate))
-                  :delimiter "	")
+                  :delimiter "  ")
                  persp-add-buffer
                  (:columns
                   ((all-the-icons-ivy-rich-buffer-icon)
                    (ivy-rich-candidate))
-                  :delimiter "	")
+                  :delimiter "  ")
                  all-the-icons-ivy-rich-kill-buffer
                  (:columns
                   ((all-the-icons-ivy-rich-buffer-icon)
                    (ivy-rich-candidate))
-                  :delimiter "	")
+                  :delimiter "  ")
                  treemacs-projectile
                  (:columns
                   ((all-the-icons-ivy-rich-file-icon)
                    (ivy-rich-candidate))
-                  :delimiter "	")
+                  :delimiter "  ")
                  gb/ivy--program-select-and-run
                  (:columns
                   ((gb/ivy-candidates-offset)
