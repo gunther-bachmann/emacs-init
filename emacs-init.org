@@ -7708,8 +7708,6 @@
       ;; show git relevant change info in the fringe of the frame
       ;; git-gutter-fringe works with nlinum-mode !
 
-      (defvar global-linum-mode nil) ;; git gutter needs this var to be bound (patch)
-
       (use-package git-gutter
         :ensure t
         :config
@@ -7724,15 +7722,17 @@
       (use-package git-gutter-fringe
         :ensure t
         :after ( git-gutter)
+        :init
+        (defvar global-linum-mode nil) ;; git gutter needs this var to be bound (patch)
         :config
         (global-git-gutter-mode +1)
         (fringe-helper-define 'git-gutter-fr:added nil
           "........"
-          "........"
           "...X...."
-          "..XXX..."
           "...X...."
-          "........"
+          ".XXXXX.."
+          "...X...."
+          "...X...."
           "........"
           "........")
 
@@ -7748,11 +7748,11 @@
 
         (fringe-helper-define 'git-gutter-fr:modified nil
           "........"
-          "........"
+          "......X."
           "....X..."
           "...X...."
           "....X..."
-          "........"
+          "......X."
           "........"
           "........"))
 
