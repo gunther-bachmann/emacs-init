@@ -5777,13 +5777,16 @@
        ;; :ensure t ;; internal packages seem not load correctly if ensured
        :custom ((recentf-max-menu-items 1000 "number of recentf elements to be saved")
                 (recentf-max-saved-items 1000 "number of recentf elements to be saved"))
+       :init
+       (setq recentf-max-menu-items 1000)
+       (setq recentf-max-saved-items 1000)
        :config
        (progn
          (setq recentf-save-file (concat user-emacs-directory ".recentf"))
          ;; since recentf file may grow large, delete it if too large
          (shell-command (s-concat "touch " recentf-save-file))
          (let ((rsf-size-str (s-trim (safe-shell-command-to-string (s-concat "ls -la " recentf-save-file " | awk '{ print $5; }'")))))
-           (if (<= 10000 (string-to-number rsf-size-str))
+           (if (<= 50000 (string-to-number rsf-size-str))
                (progn
                  (message (s-concat "deleting too large recentf file '" recentf-save-file "' ( size: " rsf-size-str ")"))
                  (shell-command (s-concat "rm " recentf-save-file)))))
@@ -5804,9 +5807,7 @@
              (recentf-add-file dired-directory)))
          (add-hook 'dired-mode-hook 'recentf-add-dired-directory)
 
-         (recentf-mode 1)
-         (setq recentf-max-menu-items 1000)
-         (setq recentf-max-saved-items 1000)))
+         (recentf-mode 1)))
    #+END_SRC
 ** swiper and ivy
    #+BEGIN_SRC emacs-lisp
