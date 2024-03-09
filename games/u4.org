@@ -1,0 +1,10 @@
+#+title: Ultima IV
+* ultima 4 (see [[file:~/documents/roam/vice.org][vice]])
+#+begin_src sh :comments link :shebang "#!/usr/bin/env bash" :eval no :tangle ~/bin/u4 :tangle-mode (identity #o755)
+  #------------------------------------------------------------------
+  # THIS FILE IS GENERATED (To edit please open file from link above)
+  #------------------------------------------------------------------
+  #
+  cd ~/emu/c64/games/ultima4.remastered
+  x64sc -autostart u4remastered.crt
+#+end_src
