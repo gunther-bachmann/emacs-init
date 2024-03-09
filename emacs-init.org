@@ -12887,6 +12887,7 @@
    #+BEGIN_SRC emacs-lisp
      (use-package emms
        :ensure t
+       :pin myelpa
        :commands (emms emms-browser)
        :config
        (require 'emms-setup)
