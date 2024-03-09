@@ -1,0 +1,9 @@
+#+title: firefox
+* start firefox
+  #+begin_src sh :comments link :shebang "#!/usr/bin/env bash" :eval no :tangle ~/bin/firefox :tangle-mode (identity #o755)
+    #------------------------------------------------------------------
+    # THIS FILE IS GENERATED (To edit please open file from link above)
+    #------------------------------------------------------------------
+    #
+    $(firefox-executable) $@
+  #+end_src

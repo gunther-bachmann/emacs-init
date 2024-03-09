@@ -1,0 +1,10 @@
+#+title: firefox-executable
+* get executable to be used for starting firefox
+  #+begin_src sh :comments link :shebang "#!/usr/bin/env bash" :eval no :tangle ~/bin/firefox-executable :tangle-mode (identity #o755)
+    #------------------------------------------------------------------
+    # THIS FILE IS GENERATED (To edit please open file from link above)
+    #------------------------------------------------------------------
+    [ -f /home/pe/.nix-profile/bin/firefox ] && readlink -f $(command -v firefox) && exit 0
+    [ -f /home/pe/.nix-profile/bin/firefox-beta ] && readlink -f $(command -v firefox-beta) && exit 0
+    exit 1
+  #+end_src

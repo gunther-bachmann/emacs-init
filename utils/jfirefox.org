@@ -4,5 +4,5 @@
     #------------------------------------------------------------------
     # THIS FILE IS GENERATED (To edit please open file from link above)
     #------------------------------------------------------------------
-    firejail --ignore='noexec ${HOME}' --name=firefox --keep-config-pulse $(readlink -f $(command -v firefox)) $@
+    firejail --ignore='noexec ${HOME}' --name=firefox --keep-config-pulse $(firefox-executable) $@
   #+end_src
