@@ -5953,6 +5953,14 @@
                  ,ivy-rich-display-transformer--buffer
                  counsel-switch-buffer-other-window
                  ,ivy-rich-display-transformer--buffer
+                 execute-extended-command-for-buffer
+                 (:columns
+                  ((gb/ivy-candidates-offset)
+                   (all-the-icons-ivy-rich-function-icon)
+                   (counsel-M-x-transformer
+                    (:width 40))
+                   (ivy-rich-counsel-function-docstring
+                    (:face font-lock-doc-face))))
                  counsel-M-x
                  (:columns
                   ((gb/ivy-candidates-offset)
