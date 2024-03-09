@@ -11171,7 +11171,10 @@
      (use-package emojify
        :ensure t
        :hook (slack-mode . emojify-turn-on-emojify-mode)
-       (org-mode . emojify-turn-off-emojify-mode ))
+       (org-mode . emojify-turn-off-emojify-mode )
+       :config
+       (setq emojify-display-style 'image)
+       (setq emojify-emoji-styles '(ascii unicode github)))
 
      (when (file-exists-p "~/repo/emacs/emacs-slack/slack.el")
        (use-package slack
