@@ -15590,14 +15590,22 @@
         ;; (flycheck-mode 1)
         )
       (progn
-        (setq eglot-connect-timeout 240) 
+        (setq eglot-connect-timeout 240)
+        (setq eglot-sync-connect nil)
+        (fset #'jsonrpc--log-event #'ignore) 
+        (setq eglot-events-buffer-size 0)
         (setq eglot-send-changes-idle-time 3)))
   #+end_src
 * vue (via lsp - eglot, thus this must be defined after eglot)
   - see https://genehack.blog/2020/08/web-mode-eglot-vetur-vuejs-=-happy/
+  - alternatively look at https://github.com/joaotavora/eglot/discussions/1184
   - install vls via ~npm install -g vls~
   #+begin_src emacs-lisp
+    (setq gb/use-vue-volar t)
+    (setq gb/use-vue-vls (not gb/use-vue-volar))
+
     (when (and (package-installed-p 'eglot) (package-installed-p 'web-mode) (executable-find "vls"))
+      ;; does not resolve references to properties in template (which volar does)
       (require 'web-mode)
       (require 'eglot)
       (define-derived-mode gb/vue-mode web-mode "gbVue"
@@ -15605,6 +15613,42 @@
       (add-to-list 'auto-mode-alist '("\\.vue\\'" . gb/vue-mode))
       (add-hook 'gb/vue-mode-hook #'eglot-ensure)
       (add-to-list 'eglot-server-programs '(gb/vue-mode "vls")))
+
+    (when (and (package-installed-p 'eglot) (package-installed-p 'web-mode) (executable-find "vue-language-server"))
+      ;; nix-env -iA nixos.nodePackages.typescript-language-server
+      ;; nix-env -iA nixos.nodePackages.volar
+      ;; example project: npm create vite@latest my-vue-app -- --template vue
+      (require 'web-mode)
+      (require 'eglot)
+      (define-derived-mode gb/vue-mode web-mode "gbVue"
+        "A major mode derived from web-mode, for editing .vue files with LSP support.")
+      (add-to-list 'auto-mode-alist '("\\.vue\\'" . gb/vue-mode))
+      (defun vue-eglot-init-options ()
+        "Set SDK path and default options."
+        (let ((tsdk-path (expand-file-name
+                          "lib/node_modules/typescript/lib/"
+                          (shell-command-to-string
+                           (string-join '("nix-store  --query --references `which vue-language-server`"
+                                          "xargs -n1 nix-store -q --referrers"
+                                          "grep typescript-language-server"
+                                          "tr -d '\n'")
+                                        " | ")))))
+          `(:typescript (:tsdk ,tsdk-path
+                               :languageFeatures (:completion
+                                                  (:defaultTagNameCase "both"
+                                                                       :defaultAttrNameCase "kebabCase"
+                                                                       :getDocumentNameCasesRequest nil
+                                                                       :getDocumentSelectionRequest nil)
+                                                  :diagnostics
+                                                  (:getDocumentVersionRequest nil))
+                               :documentFeatures (:documentFormatting
+                                                  (:defaultPrintWidth 100
+                                                                      :getDocumentPrintWidthRequest nil)
+                                                  :documentSymbol t
+                                                  :documentColor t)))))
+      (add-hook 'gb/vue-mode-hook #'eglot-ensure)
+      (add-to-list 'eglot-server-programs 
+                   `(gb/vue-mode . ("vue-language-server" "--stdio" :initializationOptions ,(vue-eglot-init-options)))))
   #+end_src
 * filter annoying messages
   #+begin_src emacs-lisp
