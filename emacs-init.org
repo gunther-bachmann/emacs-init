@@ -4477,6 +4477,7 @@
      (setq hippie-expand-verbose t)
 
      ;; Highlights matching parenthesis
+     (setq show-paren-delay 0.3)
      (show-paren-mode 1)
 
      (cond
@@ -5275,6 +5276,7 @@
        :ensure t
        :config
        (progn
+         (setq keyfreq-autosave-timeout 2400)
          (keyfreq-mode 1)
          (keyfreq-autosave-mode 1)
          ;; use M-x keyfreq-show to show the frequency of key usages
@@ -20748,7 +20750,7 @@
     (unless (gb/net-adapter-up-p gb/net-lan-adapter)
       (gb/brightness-set 50))
 
-    (setq gc-cons-threshold 80000)
+    (setq gc-cons-threshold 80000000)
     (setq gc-cons-percentage 0.1)
 
     ;; ;; set color of echo/mini buffer area (in some cases)
