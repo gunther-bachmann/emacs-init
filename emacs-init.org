@@ -5324,7 +5324,8 @@
 
          (defun company-box-doc--show-after-advice--serif-on (&rest args)
            "switch serif on, if showing company box documentation window"
-           (when (frame-visible-p (frame-local-getq company-box-doc-frame))
+           (when (and (frame-local-getq company-box-doc-frame)
+                    (frame-visible-p (frame-local-getq company-box-doc-frame)))
              (with-current-buffer (company-box--get-buffer "doc")
                (gb/serif-on))))
          (advice-add 'company-box-doc--show :after #'company-box-doc--show-after-advice--serif-on)
