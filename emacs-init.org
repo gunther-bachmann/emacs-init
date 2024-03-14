@@ -12282,6 +12282,7 @@
          (interactive)
          (dired (format "/run/media/%s" (user-login-name))))
        :config
+       (setq large-file-warning-threshold 250000000)
        (add-hook 'dired-mode-hook #'hl-line-mode)
        (setq dired-omit-size-limit 60000)
        (setq dired-dwim-target t) ;; try to guess the directory to use for dired
