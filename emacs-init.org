@@ -539,14 +539,14 @@
              bind-key
              ;; key-chord
              validate
-             use-package
+             ;; use-package ;; already part of emacs now
              seq
              ;; see here https://github.com/jabranham/system-packages
              ;; allows for system manager actions (detecting the system manager)
              system-packages
              ;; see here  https://github.com/jwiegley/use-package
              ;; makes sure that a system program is installed
-             use-package-ensure-system-package
+             ;; use-package-ensure-system-package
              names-dev ;; enable emacs namespacing (see https://github.com/Malabarba/names)
              s))
 
@@ -659,7 +659,7 @@
        )
    #+END_SRC
 ** use package hydra (use-package extension)
-   #+begin_src emacs-lisp
+   #+begin_src emacs-lisp :tangle no
      (use-package use-package-hydra
        :ensure t)
    #+end_src
@@ -6870,9 +6870,9 @@
     ;; persists across sessions.
 
     #+END_SRC
-*** clojars
+*** clojars (disabled)
     - search clojars for libraries (M-x clojars)
-    #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp :tangle no
     (use-package clojars
       :after ( clojure-mode))
     #+END_SRC
@@ -6905,8 +6905,8 @@
 
       (add-hook 'clojure-mode-hook #'gb/clojure-mode-hook))
     #+END_SRC
-*** typed clojure
-    #+BEGIN_SRC emacs-lisp
+*** typed clojure (disabled)
+    #+BEGIN_SRC emacs-lisp :tangle no
     (use-package typed-clojure-mode
       :after ( clojure-mode subword)
       :ensure t
@@ -6940,8 +6940,8 @@
      :after ( eclim)
      :disabled t)
    #+END_SRC
-** elixir
-   #+BEGIN_SRC emacs-lisp
+** elixir (disabled)
+   #+BEGIN_SRC emacs-lisp :tangle no
    (use-package elixir-mode
      :ensure t)
    #+END_SRC
@@ -7353,9 +7353,9 @@
 
    ;; (use-package scalariform)
 
-   (use-package lsp-metals
-     :ensure t
-     :config (setq lsp-metals-treeview-show-when-views-received t))
+   ;; (use-package lsp-metals
+   ;;   :ensure t
+   ;;   :config (setq lsp-metals-treeview-show-when-views-received t))
 
    ;; (use-package ensime
    ;;   :ensure t
@@ -7378,14 +7378,10 @@
    ;;                       (ammonite-term-repl-minor-mode t))))
    ;; (use-package ob-ammonite)
  #+END_SRC
-** dap
+** dape
 #+begin_src emacs-lisp
-     (use-package dap-mode
-       :ensure t
-       :hook
-       (lsp-mode . dap-mode)
-       (lsp-mode . dap-ui-mode))
-
+  (use-package dape
+    :ensure t)
 #+end_src
 ** xml
    #+BEGIN_SRC emacs-lisp :tangle no
@@ -10792,16 +10788,16 @@
      (use-package ob-clojurescript
        :ensure t)
      #+END_SRC
-**** org babel lfe
+**** org babel lfe (disabled)
      - use e.g. '#+BEGIN_SRC lfe :session mysession'
      - see [[https://github.com/zweifisch/ob-lfe][homepage]]
-     #+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC emacs-lisp :tangle no
        (use-package ob-lfe
          ;; :defer 10
          :ensure t
          :after ( org))
      #+END_SRC
-**** org babel mongo
+**** org babel mongo (disabled)
      - use with following parameters for begin_src block
        :db        Database name
        :host      Host
@@ -10810,13 +10806,13 @@
        :password  Password
        :mongoexec Mongo executable
      - see [[https://github.com/krisajenkins/ob-mongo][homepage]]
-     #+BEGIN_SRC emacs-lisp
+     #+BEGIN_SRC emacs-lisp :tangle no
        (use-package ob-mongo
          :ensure t
          ;; :defer 10
          :after ( org))
      #+END_SRC
-**** org babel redis
+**** org babel redis (disabled)
      - use e.g. '#+BEGIN_SRC redis db: 127.0.0.1:6379'
      - see [[https://github.com/stardiviner/ob-redis][homepage]]
      - no more availble on elpa
@@ -10855,8 +10851,8 @@
        ;; :defer 10
        :after ( org))
      #+END_SRC
-**** org babel elixir
-     #+BEGIN_SRC emacs-lisp
+**** org babel elixir (disabled)
+     #+BEGIN_SRC emacs-lisp :tangle no
      (use-package ob-elixir
        :ensure t
        :after ( org))
@@ -11986,8 +11982,8 @@
            ;; additional command ace-jump-helm-line
            )))
    #+END_SRC
-* vagrant docker ansible
-** docker
+* vagrant docker ansible (disabled)
+** docker (disabled)
   - NO LONGER IN USE: use tramp-container instead
     #+BEGIN_SRC emacs-lisp :tangle no
       (use-package docker
@@ -12008,8 +12004,8 @@
       (use-package docker-tramp
         :after ( docker))
     #+end_src
-** vagrant
-#+BEGIN_SRC emacs-lisp
+** vagrant (disabled)
+#+BEGIN_SRC emacs-lisp :tangle no
   (use-package vagrant
     :commands vagrant-up vagrant-edit vagrant-status)
   (use-package vagrant-tramp
@@ -12017,7 +12013,7 @@
     :after ( vagrant)
     :commands vagrant-tramp-term)
 #+END_SRC
-** ansible
+** ansible (disabled)
 *** ansible (disabled)
     #+BEGIN_SRC emacs-lisp :tangle no
       (use-package ansible
@@ -18958,11 +18954,6 @@
       ;; (setq mini-popup--height-function nil)
 
       )
-#+end_src
-* EVAL web-server
-#+begin_src emacs-lisp
-  (use-package web-server
-    :ensure t)
 #+end_src
 * just
 #+begin_src emacs-lisp
