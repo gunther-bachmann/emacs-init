@@ -5782,9 +5782,6 @@
        ;; :ensure t ;; internal packages seem not load correctly if ensured
        :custom ((recentf-max-menu-items 1000 "number of recentf elements to be saved")
                 (recentf-max-saved-items 1000 "number of recentf elements to be saved"))
-       :init
-       (setq recentf-max-menu-items 1000)
-       (setq recentf-max-saved-items 1000)
        :config
        (progn
          (setq recentf-save-file (concat user-emacs-directory ".recentf"))
@@ -8512,7 +8509,8 @@
    '(ido-mode nil) ;; disable ido mode
    '(jde-jdk-doc-url "https://docs.oracle.com/javase/8/docs/api/")
    '(malabar-repl-grooysh (s-trim (safe-shell-command-to-string "command -v groovysh")))
-   '(recentf-max-saved-items 80)
+   '(recentf-max-menu-items 1000)
+   '(recentf-max-saved-items 1000)
    '(region ((t (:background "gray45" :inverse-video nil))))
    '(send-mail-function (quote smtpmail-multi-send-it))
    '(truncate-lines t)
