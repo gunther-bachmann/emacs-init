@@ -4521,8 +4521,13 @@
                                        :width ultraexpanded)))))
                    (progn (add-to-list 'gb/list-of-faces-to-set it)(custom-set-faces it))))))
 
-     ;; Highlight current line
-     ;; (global-hl-line-mode 1)
+     ;; don't Highlight current line by default
+     (global-hl-line-mode -1)
+     (defun gb/disable-hl-line-mode-locally ()
+       (setq-local global-hl-line-mode nil)
+       (setq-local hl-line-mode nil))
+
+     (add-hook 'term-mode-hook #'gb/disable-hl-line-mode-locally)
 
      ;; make sure highlighting is extended to the eol even for emacs 27
      ;; within helm and magit (see https://github.com/emacs-helm/helm/issues/2213)
