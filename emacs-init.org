@@ -4797,15 +4797,31 @@
     #+BEGIN_SRC emacs-lisp
       (use-package expand-region
         :ensure t
+        :after org
         :bind (("C-x <up>" . er/expand-region)
                ("C-x <C-up>" . er/expand-region)
                ("C-x <down>" . er/contract-region)
-               ("C-x <C-down>" . er/contract-region))
+               ("C-x <C-down>" . er/contract-region)
+               :map org-mode-map
+               ("C-x <up>" . gb/expand-in-large-org-mode-files)
+               ("C-x <C-up>" . gb/expand-in-large-org-mode-files))
         ;; :after (key-chord) ;; optional, install key chords that do region expansion/shrink
         ;; :defer t ;; valid since init script registeres keys
         :init
         (autoload 'expand-region "er/expand-region" nil t)
         (autoload 'expand-region "er/contract-region" nil t)
+
+        (defun gb/expand-in-large-org-mode-files ()
+          (interactive)
+          (if (and (eq 'org-mode major-mode)
+                 (> (point-max) 100000))
+              (progn
+                (paredit-forward)
+                (set-mark (point))
+                (paredit-backward))
+            (er/expand-region)))
+
+        ;; the-org... adjustments,
 
         ;; (when (package-installed-p 'key-chord)
         ;;   (key-chord-define-global "ü+"   'er/expand-region) ;; make the current selection expand to the next outer bounds
