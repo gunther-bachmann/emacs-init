@@ -514,6 +514,12 @@
                 ("nongnu-devel" . 10)
                 ))))
 
+    (defun gb/update-myelpa-packages ()
+      "create update of current package status to repo/myelpa"
+      (interactive)
+      (elpamr-create-mirror-for-installed)
+      (magit-status "~/repo/myelpa"))
+
     (setq package-menu-async (is-_nix-p)) ;; defaulting operations to be async (is problematic on windows systems)
 
     (when (< emacs-major-version 27)
@@ -559,6 +565,22 @@
         (message (concat "Preinstall/require " (symbol-name package)))
         (require-package package)))
 
+    ;; allows use-package to make use of :vc
+    (when (< emacs-major-version 30)
+      (unless (package-installed-p 'vc-use-package)
+        (package-vc-install "https://github.com/slotThe/vc-use-package"))
+      (require 'vc-use-package))
+
+    ;; examples
+    ;; within emacs <=29
+    ;; (use-package math-delimiters
+    ;;   :vc (:fetcher github
+    ;;        :repo oantolin/math-delimiters))
+    ;; within emacs >=30
+    ;; (use-package math-delimiters
+    ;;   :vc (:url "https://github.com/oantolin/math-delimiters"
+    ;;        :branch main))
+
     ;; ;; report is not usable!
     ;; (use-package benchmark-init
     ;;   :ensure t
@@ -575,14 +597,14 @@
     (report-elapsed "exit package setup")
   #+END_SRC
 ** paradox (package list alternative)
-   #+BEGIN_SRC emacs-lisp 
+   #+BEGIN_SRC emacs-lisp
      (use-package paradox
        :after (hydra)
        :commands gb/paradox-list-packages
        :bind (:map paradox-menu-mode-map ("<f1>" . hydra-paradox-list-packages/body))
        :init
        (progn
-         (report-elapsed ":init-enter paradox")
+         (report-elapsed ":init-enter paradox")         
 
          (defun gb/wrap-paradox-execute (orig-fun &rest args)
            (let ((saved-pw-regexp tramp-password-prompt-regexp))
@@ -606,11 +628,7 @@
              (when current-prefix-arg
                (message "don't forget to execute M-x gb/update-myelpa-packages")))
 
-         (defun gb/update-myelpa-packages ()
-           ""
-           (interactive)
-           (elpamr-create-mirror-for-installed)
-           (magit-status "~/repo/myelpa"))
+
 
          ;; (defun gb/ensure-github-token ()
          ;;   "make sure to load github token if it is empty"
@@ -626,6 +644,15 @@
        :config
        (report-elapsed ":config-enter paradox")
 
+       (defconst paradox--package-count
+           '(("total" . 0) ("built-in" . 0)
+             ("obsolete" . 0) ("deleted" . 0)
+             ("available" . 0) ("new" . 0)
+             ("held" . 0) ("disabled" . 0)
+             ("dependency" . 0) ("avail-obso" . 0)
+             ("incompat" . 0)  ("external" . 0)
+             ("installed" . 0) ("unsigned" . 0)
+             ("source" . 0)))       
        ;; description is pastell sand like color
        (custom-set-faces '(paradox-description-face ((t (:foreground "#e0d0a0")))))
        (progn
@@ -5202,11 +5229,11 @@
 
          ))
    #+END_SRC
-** dictionary
+** dictionary (disabled)
    - description [[http://mbork.pl/2017-01-14_I'm_now_using_the_right_dictionary][here]]
    - downloaded from [[https://github.com/gucong/emacs-sdcv][here]]
    - use dictionary in startdict format from ~/.stardict/dic
-   #+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp :tangle no
    (if (file-exists-p "~/.emacs.d/additionals/sdcv-mode.el")
        (use-package sdcv-mode
          :commands sdcv-search
@@ -12113,26 +12140,28 @@
   with M-x helm-backup while within the open file, old
   versions can be ediffed with the current
 #+BEGIN_SRC emacs-lisp
-  (use-package helm-backup
-    :load-path "~/repo/emacs/helm-backup"
-    :init (add-hook 'after-save-hook #'gb/helm-backup-versioning)
-    :config
-    (defun gb/helm-backup-versioning ()
-      ; (gb/gpg-key-query-if-locked gb/main-key)
-      (helm-backup-versioning))
+    (use-package helm-backup
+      ;; :load-path "~/repo/emacs/helm-backup"
+      :vc (helm-backup :url "https://github.com/gunther-bachmann/helm-backup"
+                       :branch "main")
+      :init (add-hook 'after-save-hook #'gb/helm-backup-versioning)
+      :config
+      (defun gb/helm-backup-versioning ()
+        ; (gb/gpg-key-query-if-locked gb/main-key)
+        (helm-backup-versioning))
 
-    (let* ((uname (user-login-name))
-           (udir (format "/home/%s" uname)))
-      (setq helm-backup-excluded-entries
-            `(,(regexp-quote (format "%s/.emacs-bmk-bmenu-state.el" udir))
-              ,(regexp-quote (format"%s/.emacs.d/company-statistics-cache.el" udir))
-              ,(s-concat (regexp-quote (format "%s/.emacs.d/emms/" udir)) ".*")
-              ,(regexp-quote (format "%s/.emacs.d/init.el" udir))
-              ,(regexp-quote (format "%s/.newsrc-dribble" udir) )
-              ,(regexp-quote (format "%s/.newsrc.eld" udir))
-              ,(regexp-quote (format "%s/cal-based-diary" udir))
-              ,(s-concat (regexp-quote (format "%s/documents/roam/" udir) ) ".*")
-              ,(s-concat (regexp-quote (format "%s/repo/" udir)) ".*")))))
+      (let* ((uname (user-login-name))
+             (udir (format "/home/%s" uname)))
+        (setq helm-backup-excluded-entries
+              `(,(regexp-quote (format "%s/.emacs-bmk-bmenu-state.el" udir))
+                ,(regexp-quote (format"%s/.emacs.d/company-statistics-cache.el" udir))
+                ,(s-concat (regexp-quote (format "%s/.emacs.d/emms/" udir)) ".*")
+                ,(regexp-quote (format "%s/.emacs.d/init.el" udir))
+                ,(regexp-quote (format "%s/.newsrc-dribble" udir) )
+                ,(regexp-quote (format "%s/.newsrc.eld" udir))
+                ,(regexp-quote (format "%s/cal-based-diary" udir))
+                ,(s-concat (regexp-quote (format "%s/documents/roam/" udir) ) ".*")
+                ,(s-concat (regexp-quote (format "%s/repo/" udir)) ".*")))))
 #+END_SRC
 ** duplicity-backup-restore
 #+begin_src emacs-lisp
@@ -12620,7 +12649,10 @@
 
      (use-package dired-annotator
        :after (posframe all-the-icons)
-       :load-path "~/repo/emacs/emacs-dired-annotator"
+       ;; :load-path "~/repo/emacs/emacs-dired-annotator"
+       :vc (dired-annotator :url "https://github.com/gunther-bachmann/emacs-dired-annotator"
+                            :branch "main")    
+
        :custom ((dired-annotator-note-icon (propertize "📄" 'face '(:height 0.9 ) 'display '(:v-adjust: -0.3 )))
                 (dired-annotator-annotations-folder (expand-file-name "~/documents/annotations"))
                 (dired-annotator-note-popup-hook #'dired-annotator--posframe-note-popup)
@@ -12679,7 +12711,9 @@
 ** doc-base
 #+begin_src emacs-lisp
   (use-package doc-base
-    :load-path "~/repo/emacs/emacs-doc-base"
+    ;; :load-path "~/repo/emacs/emacs-doc-base"
+    :vc (emacs-doc-base :url "https://github.com/gunther-bachmann/emacs-doc-base"
+                        :branch "main")    
     :commands (doc-base--file doc-base--file-repeat)
     :bind (:map dired-mode-map
            ("C-S-f" . #'doc-base--file)
@@ -12722,7 +12756,7 @@
 #+BEGIN_SRC emacs-lisp
 (report-elapsed "check point language server protocol mode")
 #+END_SRC
-  #+BEGIN_SRC emacs-lisp
+  #+BEGIN_SRC emacs-lisp :tangle no
     (use-package lsp-mode
       :commands lsp-mode
       :hook (scala-mode . lsp)
@@ -12775,22 +12809,24 @@
    #+end_src
 ** buffer-expose - switch buffer expose
    #+begin_src emacs-lisp
-     (when (file-exists-p "~/.emacs.d/additionals/buffer-expose/buffer-expose.el")
-       (use-package buffer-expose
-         :load-path "~/.emacs.d/additionals/buffer-expose/"
-         :bind (( "s-e" . #'buffer-expose))
-         :config (setq buffer-expose-show-current-buffer t)
-         (setq buffer-expose-hide-regexes
-               '("\\`\\.ipa"
-                 "\\`\\*Shell Command Output\\*"
-                 "\\`\\*Async-native-compile-log\\*"
-                 "\\`cal-based-diary-temp"
-                 "\\`\\*Compile-log\\*"
-                 "\\`\\*Warnings\\*"
-                 "\\`\\*Messages\\*"
-                 "\\`\\*Paradox Report\\*"
-                 "\\`\\*envrc\\*"
-                 "\\.org_archive"))))
+     ;;when (file-exists-p "~/.emacs.d/additionals/buffer-expose/buffer-expose.el")
+     (use-package buffer-expose
+       ;; :load-path "~/.emacs.d/additionals/buffer-expose/"
+       :vc (buffer-expose :url "https://github.com/clemera/buffer-expose"
+                          :branch "master")
+       :bind (( "s-e" . #'buffer-expose))
+       :config (setq buffer-expose-show-current-buffer t)
+       (setq buffer-expose-hide-regexes
+             '("\\`\\.ipa"
+               "\\`\\*Shell Command Output\\*"
+               "\\`\\*Async-native-compile-log\\*"
+               "\\`cal-based-diary-temp"
+               "\\`\\*Compile-log\\*"
+               "\\`\\*Warnings\\*"
+               "\\`\\*Messages\\*"
+               "\\`\\*Paradox Report\\*"
+               "\\`\\*envrc\\*"
+               "\\.org_archive")))
    #+end_src
 ** nswbuff - switch buffers
    #+begin_src emacs-lisp
@@ -15272,7 +15308,9 @@
   - package
     #+begin_src emacs-lisp
       (use-package org-tree-slide
-        :load-path "~/repo/emacs/org-tree-slide"
+        ;; :load-path "~/repo/emacs/org-tree-slide"
+        :vc (org-tree-slide :url "https://github.com/gunther-bachmann/org-tree-slide"
+                            :branch "master")    
         :commands (gb/presentation-on gb/presentation-off)
         :config
         (setq org-tree-slide-header nil)
@@ -15707,16 +15745,20 @@
   #+end_src
 * EVAL emacs surround (see [[https://github.com/ganmacs/emacs-surround][here]])
   #+begin_src emacs-lisp
-    (when (file-exists-p "~/.emacs.d/additionals/emacs-surround/emacs-surround.el")
-      (use-package emacs-surround
-        :load-path "~/.emacs.d/additionals/emacs-surround"
-        :bind (("s-q c s" . emacs-surround))))
+    ;; when (file-exists-p "~/.emacs.d/additionals/emacs-surround/emacs-surround.el")
+    (use-package emacs-surround
+      ;; :load-path "~/.emacs.d/additionals/emacs-surround"
+      :vc (emacs-surround :url "https://github.com/ganmacs/emacs-surround"
+                          :branch "master")    
+      :bind (("s-q c s" . emacs-surround)))
   #+end_src
 * EVAL browse-kill-ring
   #+begin_src emacs-lisp
-  (use-package browse-kill-ring
-    :load-path "~/.emacs.d/additionals/browse-kill-ring"
-    :commands (browse-kill-ring))
+    (use-package browse-kill-ring
+      ;; :load-path "~/.emacs.d/additionals/browse-kill-ring"
+      :vc (browse-kill-ring :url "https://github.com/T-J-Teru/browse-kill-ring"
+                            :branch "master")    
+      :commands (browse-kill-ring))
   #+end_src
 #+BEGIN_SRC emacs-lisp
 (report-elapsed "check-point - browse kill ring")
@@ -15996,10 +16038,9 @@
   #+end_src
 * EVAL csv mode
   #+begin_src emacs-lisp
-    (when (file-exists-p "~/.emacs.d/additionals/csv-mode.el")
-        (use-package csv-mode
-          :commands csv-mode
-          :load-path "~/.emacs.d/additionals"))
+    (use-package csv-mode
+        :commands csv-mode
+        :ensure t)
   #+end_src
 #+BEGIN_SRC emacs-lisp
 (report-elapsed "check-point - csv mode")
@@ -16106,8 +16147,10 @@
   - see https://gitlab.com/howardabrams/emacs-piper/
   #+begin_src emacs-lisp
     (use-package piper
+      ;; :load-path "~/.emacs.d/additionals/emacs-piper/"
       :commands piper
-      :load-path "~/.emacs.d/additionals/emacs-piper/")
+      :vc (emacs-piper :url "https://gitlab.com/howardabrams/emacs-piper"
+                       :branch "main"))
   #+end_src
 * EVAL camcorder (make recordings of emacs -> ogv|gif)
   #+begin_src emacs-lisp
@@ -16505,7 +16548,9 @@
                      ("C-c n f" . org-roam-node-find)
                      ("C-c n n" . org-roam-node-find)
                      ("C-c r" . gb/notdeft--select-random)))
-        :load-path "~/repo/emacs/notdeft"
+        :vc (notdeft :url "https://github.com/gunther-bachmann/notdeft"
+                     :branch "master")    
+        ;; :load-path "~/repo/emacs/notdeft"
         :after (org-roam)
         :custom
         (notdeft-directories `(,org-notes))
@@ -16544,13 +16589,15 @@
   #+end_src
 ** org-roam-stack
   #+begin_src emacs-lisp
-    (when (file-exists-p "~/repo/emacs/org-roam-stack/org-roam-stack.el")
-      (use-package org-roam-stack
-        :load-path "~/repo/emacs/org-roam-stack/"
-        :hook (notdeft-mode . org-roam-stack-mode)
-        :after (org-roam bind-key notdeft)
-        :custom (org-roam-stack--link-adjustments t)
-        (org-roam-stack--open-ro t)))
+    ;; when (file-exists-p "~/repo/emacs/org-roam-stack/org-roam-stack.el")
+    (use-package org-roam-stack
+      ;;:load-path "~/repo/emacs/org-roam-stack/"
+      :vc (org-roam-stack :url "https://github.com/gunther-bachmann/org-roam-stack"
+                          :branch "main")    
+      :hook (notdeft-mode . org-roam-stack-mode)
+      :after (org-roam bind-key notdeft)
+      :custom (org-roam-stack--link-adjustments t)
+      (org-roam-stack--open-ro t))
   #+end_src
 #+BEGIN_SRC emacs-lisp
   (report-elapsed "check-point - org-roam-stack")
@@ -16623,7 +16670,9 @@
   #+begin_src emacs-lisp
     (when (eq gb/use-frame-completion 'mini-frame)
       (use-package mini-frame
-        :load-path "~/repo/emacs/emacs-mini-frame"
+        ;; :load-path "~/repo/emacs/emacs-mini-frame"
+        :vc (emacs-mini-frame :url "https://github.com/gunther-bachmann/emacs-mini-frame"
+                              :branch "master")
         :custom ((mini-frame-create-lazy t "create the frame when: t = first usage, nil = entering the mini-frame mode (non lazy fails with exwm!)")
                  (mini-frame-standalone t "keep miniframe standalone instead of child frame")
                  (mini-frame-color-shift-step 50)) ;; (setq mini-frame-color-shift-step 50)
@@ -17097,16 +17146,18 @@
   #+end_src
 * EVAL org-padding - define padding for each org mode heading level
   #+begin_src emacs-lisp
-    (when (file-exists-p "~/.emacs.d/additionals/org-padding.el")
-      (use-package org-padding
-        :load-path "~/.emacs.d/additionals/"
-        :config
-        ;; (remove-hook 'org-mode-hook #'org-padding-mode)
-        (setq org-padding-block-begin-line-padding '(2.0 . nil))
-        (setq org-padding-block-end-line-padding '(nil . 1.0))
-        (setq org-padding-heading-padding-alist
-              '((4.0 . 1.5) (3.0 . 0.5) (3.0 . 0.5) (3.0 . 0.5) (2.5 . 0.5) (2.0 . 0.5) (1.5 . 0.5) (0.5 . 0.5)))
-        ))
+    ;; when (file-exists-p "~/.emacs.d/additionals/org-padding.el")
+    (use-package org-padding
+      ;; :load-path "~/.emacs.d/additionals/"
+      :vc (org-padding :url "https://github.com/TonCherAmi/org-padding"
+                       :branch "master")    
+      :config
+      ;; (remove-hook 'org-mode-hook #'org-padding-mode)
+      (setq org-padding-block-begin-line-padding '(2.0 . nil))
+      (setq org-padding-block-end-line-padding '(nil . 1.0))
+      (setq org-padding-heading-padding-alist
+            '((4.0 . 1.5) (3.0 . 0.5) (3.0 . 0.5) (3.0 . 0.5) (2.5 . 0.5) (2.0 . 0.5) (1.5 . 0.5) (0.5 . 0.5)))
+      )
   #+end_src
 * find-file-rg - use ripgrep for find file in projects (can be configured e.g. in ~.ignore~ or ~.gitignore~ files)
   #+begin_src emacs-lisp
@@ -17339,7 +17390,9 @@
       :ensure t)
 
     (use-package regexp-expand
-      :load-path "~/repo/emacs/regexp-expand"
+      ;;:load-path "~/repo/emacs/regexp-expand"
+      :vc (regexp-expand :url "https://github.com/danielmartin/regexp-expand"
+                         :branch "master")    
       :commands (regexp-expand))
   #+end_src
 * disabled rec-mode - show rec files (human readable db)
@@ -17439,6 +17492,8 @@
   #+begin_src emacs-lisp
     (use-package valign
       :load-path "~/repo/emacs/valign"
+      :vc (valign :url "https://github.com/casouri/valign"
+                  :branch "master")    
       ;; :hook (org-mode . valign-mode)
       :diminish 'valign-mode
       :config (setq valign-fancy-bar t))
@@ -17446,7 +17501,9 @@
 * org-tree-slide-pause
   #+begin_src emacs-lisp
     (use-package org-tree-slide-pauses
-      :load-path "~/repo/emacs/org-tree-slide-pauses"
+      ;; :load-path "~/repo/emacs/org-tree-slide-pauses"
+      :vc (org-tree-slide-pauses :url "https://github.com/gunther-bachmann/org-tree-slide-pauses"
+                                 :branch "main")
       :after (bind-key)
       :bind (:map  org-tree-slide-mode-map ("C-M->" . #'org-tree-slide-pause-goto-end-pause))
       :config
@@ -17900,7 +17957,9 @@
           (add-hook it #'tree-sitter-hl-mode))))
 
     (use-package ts-fold
-      :load-path "~/repo/emacs/ts-fold"
+      ;;:load-path "~/repo/emacs/ts-fold"
+      :vc (ts-fold :url "https://github.com/emacs-tree-sitter/ts-fold"
+                   :branch "master")    
       :hook (typescript-mode . gb/ts-fold-mode)
       :config
       (custom-set-faces '(ts-fold-fringe-face ((t (:foreground "gray20")))))
@@ -17945,14 +18004,17 @@
       ;;                      (require 'lsp-ltex)
       ;;                      (lsp)))
       )
-    (when (file-exists-p "~/repo/emacs/eglot-ltex")
-      (use-package eglot-ltex
-        :load-path "~/repo/emacs/eglot-ltex"
-        ;; :hook (text-mode . (lambda ()
-        ;;                      (require 'eglot-ltex)
-        ;;                      (call-interactively #'eglot)))
-        :init
-        (setq eglot-languagetool-server-path (expand-file-name "~/bin/ltex-ls-12.1.0"))))
+    ;; when (file-exists-p "~/repo/emacs/eglot-ltex")
+    (use-package eglot-ltex
+      :load-path "~/repo/emacs/eglot-ltex"
+      :vc (eglot-ltex :url "https://github.com/emacs-languagetool/eglot-ltex"
+                      :branch "master")    
+
+      ;; :hook (text-mode . (lambda ()
+      ;;                      (require 'eglot-ltex)
+      ;;                      (call-interactively #'eglot)))
+      :init
+      (setq eglot-languagetool-server-path (expand-file-name "~/bin/ltex-ls-12.1.0")))
   #+end_src
 * EVAL langtool-ignore-fonts
   #+begin_src emacs-lisp
@@ -17965,7 +18027,7 @@
   #+end_src
 * EVAL devdocs browser
   - browser devdocs documentation for developers
-  #+begin_src emacs-lisp
+  #+begin_src emacs-lisp :tangle no
     (use-package devdocs-browser
       :load-path "~/repo/emacs/emacs-devdocs-browser/"
       :bind (("C-c C-d C-h" . devdocs-browser-open)
