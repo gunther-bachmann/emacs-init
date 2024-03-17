@@ -6383,9 +6383,22 @@
                 ( "<M-up>"  . counsel-shell-history )
                 :map org-mode-map
                 ( "s-i"     . counsel-org-goto))
-         :config
+         :config         
          (setq counsel-outline-face-style 'org)
          (progn
+            ;; copied from https://blog.binchen.org/posts/use-ivy-to-open-recent-directories.html
+            (defun counsel-goto-recent-directory ()
+              "Open recent directory with dired"
+              (interactive)
+              (unless recentf-mode (recentf-mode 1))
+              (let ((collection
+                     (delete-dups
+                      (append (mapcar 'file-name-directory recentf-list)
+                              ;; fasd history
+                              (when (executable-find "fasd")
+                                  (split-string (safe-shell-command-to-string "fasd -ld") "\n" t))))))
+                (ivy-read "directories:" collection :action 'dired)))
+
            (bind-key "M-y" #'counsel-yank-pop ) ;; no :bind, since counsel needs to be loaded for magit
            (when-let ((initial-ivy-input (assoc 'counsel-M-x ivy-initial-inputs-alist)))
              (setcdr initial-ivy-input "")) ;; remove ^ from input
