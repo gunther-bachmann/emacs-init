@@ -7187,13 +7187,13 @@
            (tide-hl-identifier-mode +1)
            (company-mode +1)
            (subword-mode +1)
-           (setq typescript-indent-level 4))
+           (setq typescript-indent-level 2))
 
          ;; aligns annotation to the right hand side
          (setq company-tooltip-align-annotations t)
 
          ;; use 2 for indent
-         (setq typescript-indent-level 4)
+         (setq typescript-indent-level 2)
 
          (setq json-reformat:indent-width 4)
          (setq js-indent-level 4)
@@ -9504,11 +9504,12 @@
              ("C-c t i" . org-toggle-item))
       :diminish 
       :custom
-      (org-tags-column 0)        ;; 0 = show tags right after the headline, negative = right align to col, positive = left align to col
-      (org-ellipsis "…")         ;; make the ... at the end (that indicates folding) be a bit less invasive
-      (org-hide-leading-stars t) ;; each level only one star
-      (org-special-ctrl-a/e t)   ;; jump to the head text only (not to the star marking the head)
-      (org-startup-indented t)   ;; start always indented
+      (org-tags-column 0         "0 = show tags right after the headline, negative = right align to col, positive = left align to col")
+      (org-ellipsis "…"          "make the ... at the end (that indicates folding) be a bit less invasive")
+      (org-hide-leading-stars t  "each level only one star")
+      (org-special-ctrl-a/e t    "jump to the head text only (not to the star marking the head)")
+      (org-startup-indented t    "start always indented")
+      (org-pretty-entities t     "prettify \\lambda and other slash specs")
       :init
       ;; make sure that emphasis (* bold, / slant ...) works over 5 lines (not just to the next linebreak
       ;; this incurs a performance overhead (of course), since the regex has to walk more lines
@@ -15745,7 +15746,7 @@
   #+begin_src emacs-lisp
     (use-package winum
       :ensure t
-      :custom ( winum-auto-setup-mode-line t)
+      :custom (winum-auto-setup-mode-line nil "display number of window in the modeline")
       (winum-mode-line-position 0)
       (winum--mode-line-segment '(:eval (propertize (format "%s" (winum-get-number-string)) 'face '(:foreground "#604c60"))))
       :config (winum-mode))
@@ -19069,8 +19070,10 @@
 - see here for more models https://ollama.ai/library
 - to use, startup server via ~ollama serve~ and then run one llm e.g. via ~ollama run codellama~
 #+begin_src emacs-lisp
-  (defconst llama-model-short "codeup")
-  (defconst llama-model-long "codeup:13b-llama2-chat-fp16")
+  ;; (defconst llama-model-short "codeup")
+  ;; (defconst llama-model-long "codeup:13b-llama2-chat-fp16")
+  (defconst llama-model-short "codellama")
+  (defconst llama-model-long "codellama:latest")
 
   (use-package llm
     :ensure t)
@@ -19111,6 +19114,13 @@
 #+begin_src emacs-lisp
   (use-package haproxy-mode
     :ensure t)
+#+end_src
+* elisa (disarded)
+- additionally needed an sql lite extension (sqlite-vss) to be installed as binary
+#+begin_src emacs-lisp :tangle no
+  (use-package elisa
+    :vc (elisa :url "https://github.com/s-kostyaev/elisa"
+               :branch "main"))
 #+end_src
 * own 6510 tooling integration
 - integration stuff for the racket 6510 project
