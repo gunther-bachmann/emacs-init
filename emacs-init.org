@@ -13147,7 +13147,7 @@
    #+END_SRC
 ** lsp-ui
    - emacs ui integration for lsp (like flycheck etc.)
-   #+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp :tangle no
      (use-package lsp-ui
        :ensure t
        :hook (lsp-mode-hook . lsp-ui-mode)
@@ -13159,7 +13159,7 @@
 (report-elapsed "check point - lsp-ui")
 #+END_SRC
 ** company lsp
-   #+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp :tangle no
    (use-package company-lsp
      :after ( company lsp-mode)
      :ensure t
@@ -15650,10 +15650,12 @@
         )
       (progn
         (setq eglot-connect-timeout 240)
-        (setq eglot-sync-connect nil)
-        (fset #'jsonrpc--log-event #'ignore) 
-        (setq eglot-events-buffer-size 0)
-        (setq eglot-send-changes-idle-time 3)))
+        (setq eglot-sync-connect t)
+        (setq eglot-report-progress t)           ;; report progress
+        ;; (fset #'jsonrpc--log-event #'ignore)  ;; disable logging output 
+        ;; (setq eglot-events-buffer-size 0)     ;; reduce events logging
+        ;; (setq eglot-send-changes-idle-time 1) ;; report changes to language server after idle time
+        ))
   #+end_src
 * vue (via lsp - eglot, thus this must be defined after eglot)
   - see https://genehack.blog/2020/08/web-mode-eglot-vetur-vuejs-=-happy/
@@ -15663,7 +15665,7 @@
     (setq gb/use-vue-volar t)
     (setq gb/use-vue-vls (not gb/use-vue-volar))
 
-    (when (and (package-installed-p 'eglot) (package-installed-p 'web-mode) (executable-find "vls"))
+    (when (and gb/use-vue-vls (package-installed-p 'eglot) (package-installed-p 'web-mode) (executable-find "vls"))
       ;; does not resolve references to properties in template (which volar does)
       (require 'web-mode)
       (require 'eglot)
@@ -15673,7 +15675,7 @@
       (add-hook 'gb/vue-mode-hook #'eglot-ensure)
       (add-to-list 'eglot-server-programs '(gb/vue-mode "vls")))
 
-    (when (and (package-installed-p 'eglot) (package-installed-p 'web-mode) (executable-find "vue-language-server"))
+    (when (and gb/use-vue-volar (package-installed-p 'eglot) (package-installed-p 'web-mode) (executable-find "vue-language-server"))
       ;; nix-env -iA nixos.nodePackages.typescript-language-server
       ;; nix-env -iA nixos.nodePackages.volar
       ;; example project: npm create vite@latest my-vue-app -- --template vue
