@@ -2734,12 +2734,16 @@
      (setq mouse-avoidance-mode 'banish)
 
 
-     (defun gb/mouse-avoidance-mode ()
-       (set-mouse-position (selected-frame) (- (frame-width (selected-frame)) 2) 0))
-     (add-hook 'text-mode-hook #'gb/mouse-avoidance-mode)
-     (add-hook 'comint-mode-hook #'gb/mouse-avoidance-mode)
-     (add-hook 'lisp-interaction-mode-hook #'gb/mouse-avoidance-mode)
-     (add-hook 'special-mode-hook #'gb/mouse-avoidance-mode)
+     (defun gb/banish-mouse ()
+  
+       (if exwm-window-type
+           (let ((edges (window-edges)))
+             (set-mouse-position (selected-frame) (+ (car edges) (/ (window-width) 2)) (+ (cadr edges) (/ (window-height) 2))))
+         (set-mouse-position (selected-frame) (- (frame-width (selected-frame)) 2) 0)))
+
+     (add-hook 'window-configuration-change-hook #'gb/banish-mouse)
+     (add-hook 'window-state-change-hook #'gb/banish-mouse)
+
    #+END_SRC
 ** window/frame
    #+BEGIN_SRC emacs-lisp
