@@ -4903,10 +4903,10 @@
            ("m" ace-mc-add-multiple-cursors :exit t)
            ("q" (message "Abort") :exit t))))
    #+END_SRC
-** IMPLEMENT ace-mc
+** ace-mc (unused)
    - mark multiple cursors using avy to jump to the places that should be multicursored!
      - available functions are: ace-mc-add-multiple-cursors
-   #+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp :tangle no
    (use-package ace-mc
      :commands ace-mc-add-multiple-cursors ace-mc-add-single-cursor
      :bind (("C-|" . ace-mc-add-multiple-cursors))
@@ -5572,8 +5572,8 @@
             ("C-c f" . iy-go-to-char)
             ("C-c F" . iy-go-to-char-backward)))
    #+END_SRC
-** ace and avy
-   #+BEGIN_SRC emacs-lisp
+** ace and avy (unused)
+   #+BEGIN_SRC emacs-lisp :tangle no
      (use-package ace-link
        :ensure t
        :after (gnus)
@@ -5667,7 +5667,7 @@
        (("M-Z" . avy-zap-to-char-dwim)
         ("M-z" . avy-zap-up-to-char)))
    #+END_SRC
-** ace popup menu
+** ace popup menu (unused)
    - display regular popup windows (like the one upon C-c $ to correct mispelled words) as a text window (in separate emacs window)
    - popup windows no longer used here
    #+BEGIN_SRC emacs-lisp :tangle no
@@ -5697,7 +5697,7 @@
   (setq isearch-lazy-count t)
   (setq isearch-lazy-highlight t)
 #+end_src
-** visible mark
+** visible mark (unused)
    - make the last (2) marks visible (orange, yellow)
    - C-x C-x exchanges point and mark, spanning a region between the two
    - C-space sets the mark, marks are put into a ring
@@ -11244,7 +11244,7 @@
      (use-package emojify
        :ensure t
        :hook (slack-mode . emojify-turn-on-emojify-mode)
-       (org-mode . emojify-turn-off-emojify-mode )
+       (org-mode . emojify-turn-off-emojify-mode)
        :config
        (setq emojify-display-style 'image)
        (setq emojify-emoji-styles '(ascii unicode github)))
@@ -15493,6 +15493,8 @@
                     (msg)
                     (message msg)))
           (mlscroll-mode 0)
+          (unless (boundp 'global-linum-mode)
+            (setq global-linum-mode nil))
           (global-git-gutter-mode 0)
           (when (fboundp 'gb/selected-window-accent)
             (remove-hook 'window-state-change-hook 'gb/selected-window-accent)
@@ -16589,9 +16591,9 @@
                      ("C-c n f" . org-roam-node-find)
                      ("C-c n n" . org-roam-node-find)
                      ("C-c r" . gb/notdeft--select-random)))
-        :vc (notdeft :url "https://github.com/gunther-bachmann/notdeft"
-                     :branch "master")    
-        ;; :load-path "~/repo/emacs/notdeft"
+        ;; :vc (notdeft :url "https://github.com/gunther-bachmann/notdeft"
+        ;;              :branch "xapian")    
+        :load-path "~/repo/emacs/notdeft"
         :after (org-roam)
         :custom
         (notdeft-directories `(,org-notes))
