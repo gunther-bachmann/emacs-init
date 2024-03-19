@@ -4107,7 +4107,7 @@
        (let* ((new-window (split-window-below)))
          (unless arg
            (set-window-buffer new-window "*scratch*"))
-         (aw-switch-to-window new-window)
+         (select-window new-window)
          new-window))
      (bind-key "C-x 2" 'split-window-below-and-select-scratch)
 
@@ -4117,7 +4117,7 @@
               (new-window (split-window-below)))
          (unless arg
            (set-window-buffer old-window "*scratch*"))
-         (aw-switch-to-window old-window)
+         (select-window old-window)
          new-window))
      (bind-key "C-x C-2" 'split-window-above-and-select-scratch)
 
@@ -4126,7 +4126,7 @@
        (let* ((new-window (split-window-right)))
          (unless arg
            (set-window-buffer new-window "*scratch*"))
-         (aw-switch-to-window new-window)
+         (select-window new-window)
          new-window))
      (bind-key "C-x 3" 'split-window-right-and-select-scratch)
 
@@ -4136,7 +4136,7 @@
               (new-window (split-window-right)))
          (unless arg
            (set-window-buffer old-window "*scratch*"))
-         (aw-switch-to-window old-window)
+         (select-window old-window)
          new-window))
      (bind-key "C-x C-3" 'split-window-left-and-select-scratch)
    #+END_SRC
@@ -4824,7 +4824,7 @@
                 (paredit-forward)
                 (set-mark (point))
                 (paredit-backward))
-            (er/expand-region)))
+            (er/expand-region 1)))
 
         ;; the-org... adjustments,
 
