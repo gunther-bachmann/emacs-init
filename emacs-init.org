@@ -19135,6 +19135,16 @@
     :ensure t
     :bind ( "M-q" . unfill-toggle))
 #+end_src
+* EVAL org-sliced-images (decativated)
+- cool but does introduce space between lines if line-spacing is not 0!
+#+begin_src emacs-lisp :tangle no
+  (use-package org-sliced-images
+    :ensure t
+    :config
+    (defalias 'org-remove-inline-images #'org-sliced-images-remove-inline-images)
+    (defalias 'org-toggle-inline-images #'org-sliced-images-toggle-inline-images)
+    (defalias 'org-display-inline-images #'org-sliced-images-display-inline-images))
+#+end_src
 * EVAL haproxy-mode
 #+begin_src emacs-lisp
   (use-package haproxy-mode
