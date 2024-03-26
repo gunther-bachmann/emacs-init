@@ -1712,6 +1712,7 @@
      (put 'web-mode-markup-indent-offset 'safe-local-variable #'integerp)
      (put 'dired-annotator-show 'safe-local-variable 'booleanp)
      (put 'gb/org-indent 'safe-local-variable 'booleanp)
+     (put 'org-tree-slide-center-headers 'safe-local-variable 'booleanp)
      (put 'read-only-mode 'safe-local-variable #'integerp)
      (put 'fill-column 'safe-local-variable #'integerp)
      (put 'dired-omit-files 'safe-local-variable #'stringp)
@@ -15349,7 +15350,7 @@
       (use-package org-tree-slide
         ;; :load-path "~/repo/emacs/org-tree-slide"
         :vc (org-tree-slide :url "https://github.com/gunther-bachmann/org-tree-slide"
-                            :branch "master")    
+                            :branch "merged-master-branch")    
         :commands (gb/presentation-on gb/presentation-off)
         :config
         (setq org-tree-slide-header nil)
@@ -15488,6 +15489,8 @@
         (defun gb/presentation-on ()
           "make all relevant adjustments to present an org-tree-slide presentation"
           (interactive)
+          (unless (version< "9.6.23" org-version)
+            (setq untrusted-content t))
           (setq org-show-notification-handler
                 #'(lambda
                     (msg)
@@ -15578,7 +15581,7 @@
           (when (boundp 'gb/presentation-modeline)
             (setq mode-line-format gb/presentation-modeline))
           (org-tree-slide-mode -1)
-          ;; (gb/set-fringe-mode-on (selected-frame) 10)
+          (gb/set-fringe-mode-on (selected-frame) 10)
           (global-git-gutter-mode +1)
           ;; (gb/set-fringe-bg-color "#141618")
           (when (fboundp 'remove-fira-code-symbol-keywords)
